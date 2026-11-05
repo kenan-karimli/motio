@@ -41,6 +41,37 @@ const resolve = (raw, scope) => { const m = WHOLE.exec(raw); return m ? lookup(m
 // HTML lowercases attribute names, so event attributes come in as "onclick" and so on.
 const EVENTS = { onclick: 'onClick', onchange: 'onChange', oninput: 'onInput', onpointerdown: 'onPointerDown', onpointermove: 'onPointerMove', onpointerup: 'onPointerUp', onpointercancel: 'onPointerCancel' };
 
+// Dark mode: every screen colours itself inline from one light palette, so the renderer swaps each palette
+// colour for its dark partner as it builds. Accent colours (yellow, coral, green, blue) stay as they are.
+const THEME = (() => { try { return window.localStorage.getItem('motio.theme') || 'system'; } catch (e) { return 'system'; } })();
+export const DARK = THEME === 'dark' || (THEME === 'system' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+const DARK_BG = { '#ffffff': '#1c1b36', '#fff': '#1c1b36', '#f6f5fc': '#100f22', '#f3f2fa': '#24234a', '#eef0f6': '#24234a', '#f0eff8': '#24234a', '#e3e1f3': '#2f2d58',
+  '#1f1d47': '#34307a', '#fde9e6': '#3a1f2a', '#ddf5e3': '#173322', '#fdf1cf': '#3a3218', '#eef0ff': '#26265a', '#c9c5ec': '#3a3768' };
+const DARK_FG = { '#1f1d47': '#ecebfa', '#4a4770': '#c3c0e4', '#6b6890': '#9f9cc4', '#9a97b8': '#7d7aa3', '#4b3fd8': '#a49cff', '#c2412f': '#ff8a7a', '#1e7a36': '#7fe39a' };
+const DARK_LINE = { '#e3e1f3': '#2f2d58', '#f0eff8': '#26244a', '#ffffff': '#1c1b36', '#f6f5fc': '#100f22', '#c9c5ec': '#3a3768' };
+const swap = (v, map) => v.replace(/#[0-9a-fA-F]{3,6}\b/g, (c) => map[c.toLowerCase()] || c);
+const darkCache = new Map();
+function darkStyle(css) {
+  let out = darkCache.get(css);
+  if (out !== undefined) return out;
+  out = css.split(';').map((d) => {
+    const i = d.indexOf(':');
+    if (i < 0) return d;
+    const prop = d.slice(0, i).trim().toLowerCase(), val = d.slice(i + 1);
+    // Near-opaque whites (floating buttons, frosted title bars) go dark too; faint whites on dark pages stay.
+    if (prop === 'background' || prop === 'background-color') return d.slice(0, i + 1) + swap(val, DARK_BG).replace(/rgba\(255,\s*255,\s*255,\s*0?\.([89]\d*)\)/g, 'rgba(28,27,54,0.$1)').replace(/rgba\(246,\s*245,\s*252,\s*(0?\.\d+)\)/g, 'rgba(16,15,34,$1)');
+    if (prop === 'color') return d.slice(0, i + 1) + swap(val, DARK_FG);
+    if (prop.startsWith('border') || prop === 'outline') return d.slice(0, i + 1) + swap(val, DARK_LINE);
+    return d;
+  }).join(';');
+  darkCache.set(css, out);
+  return out;
+}
+if (DARK) {
+  document.documentElement.style.colorScheme = 'dark';
+  document.documentElement.style.background = '#100f22';
+}
+
 function build(node, scope) {
   if (node.nodeType === 3) return node.data.includes('{{') ? interpolate(node.data, scope) : node.data;
   if (node.nodeType !== 1) return null;
@@ -77,7 +108,7 @@ function build(node, scope) {
       // Designed handlers fire while typing, which is "input" in the DOM.
       if (name === 'onChange' && (tag === 'input' || tag === 'textarea')) name = 'onInput';
     }
-    props[name] = value;
+    props[name] = DARK && typeof value === 'string' ? (name === 'style' ? darkStyle(value) : name === 'stroke' ? swap(value, DARK_FG) : value) : value;
   }
   return h(tag, props, ...kids());
 }
@@ -89,7 +120,7 @@ function load(name) {
   const dc = doc.querySelector('x-dc');
   const helmet = dc.querySelector('helmet');
   if (helmet) {
-    helmet.querySelectorAll('style').forEach((s) => injectStyles(s.textContent));
+    helmet.querySelectorAll('style').forEach((s) => injectStyles(DARK ? s.textContent.replace(/(background(?:-color)?:\s*)(#[0-9a-fA-F]{3,6})\b/g, (m, p, c) => p + (DARK_BG[c.toLowerCase()] || c)) : s.textContent));
     helmet.remove();
   }
   const code = doc.querySelector('script[data-dc-script]').textContent;
@@ -128,9 +159,17 @@ function componentFor(name) {
       setTimeout(release, 160);
       // Screens redraw when the app's data changes (new trip, sync, settings).
       if (window.Motio) this.unsub = window.Motio.subscribe(() => this.forceUpdate());
+      // Auto-refresh: a screen that loads server data does it again (the methods screens already use), then redraws.
+      this.onRefresh = () => {
+        const L = this.logic;
+        ['load', 'loadSocial', 'loadProfile', 'checkSetup'].forEach((k) => { if (typeof L[k] === 'function') { try { L[k](); } catch (e) { /* the screen shows its own error */ } } });
+        this.forceUpdate();
+      };
+      window.addEventListener('motio:refresh', this.onRefresh);
       if (this.logic.componentDidMount) this.logic.componentDidMount();
     }
     componentWillUnmount() {
+      window.removeEventListener('motio:refresh', this.onRefresh);
       if (this.unsub) this.unsub();
       if (this.logic.componentWillUnmount) this.logic.componentWillUnmount();
     }

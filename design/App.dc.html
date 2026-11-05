@@ -261,6 +261,8 @@ class Component extends DCLogic {
     const st = this.state || {};
     if ((st.stack || this.initStack || []).length) return;
     if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    // The screen edges belong to Android's back gesture; a swipe from there must not also change tab.
+    if (e.pointerType !== 'mouse' && (e.clientX < 28 || e.clientX > window.innerWidth - 28)) return;
     if (e.target.closest && e.target.closest('input,textarea,aside,section[aria-label],[role=dialog],[role=alertdialog]')) return;
     // A sideways carousel (Recaps covers, personality months) scrolls itself instead of changing tab.
     for (let el = e.target; el && el !== this.pagerEl; el = el.parentElement) {
@@ -304,8 +306,14 @@ class Component extends DCLogic {
     if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false }); }
   }
   componentDidMount() {
+    // Changing the theme reloads the app; come back to Settings where the switch was.
+    let reopen = null;
+    try { reopen = window.sessionStorage.getItem('motio.reopen'); window.sessionStorage.removeItem('motio.reopen'); } catch (e) { /* storage blocked */ }
+    if (reopen) setTimeout(() => { if (this.goFn) { this.goFn('you'); this.goFn(reopen); } }, 0);
     // Android back button: pop a page, return to Today, or let the app close.
     window.__motioBack = () => {
+      // A back gesture can arrive mid-swipe: drop the swipe and put the pages back in place first.
+      if (this.drag) { this.drag = null; if (this.pagerEl) { this.pagerEl.style.setProperty('--dur', '380ms'); this.pagerEl.style.setProperty('--dx', '0px'); } }
       const st = this.state || {};
       const stack = st.stack || this.initStack || [];
       if (stack.length && stack[stack.length - 1] !== 'welcome') { this.goFn('back'); return true; }
@@ -340,11 +348,19 @@ class Component extends DCLogic {
       if (target === 'welcome') { setAuth(false); if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.auth.logout(); return this.setState({ stack: ['welcome'], closing: false }); }
       if (target === 'back-now') { if (stack.length) this.setState({ stack: stack.slice(0, -1), closing: false }); return; }
       if (target === 'back') {
-        if (!stack.length || closing) return;
+        if (!stack.length) return;
+        // A second back while a page is still sliding out runs once that slide ends, instead of being lost.
+        if (closing) { this.backQueued = true; return; }
         this.setState({ closing: true });
         setTimeout(() => {
           const cur = (this.state && this.state.stack) || [];
           this.setState({ stack: cur.slice(0, -1), closing: false });
+          setTimeout(() => {
+            const left = (this.state && this.state.stack) || [];
+            // Safety net: the stack says a page is open but none is on screen (the tab bar would stay hidden).
+            if (left.length && this.pagerEl && !this.pagerEl.closest('[data-dc-root], body').querySelector('[data-page=overlay]')) this.setState({ stack: [] });
+            if (this.backQueued) { this.backQueued = false; this.goFn('back'); }
+          }, 60);
         }, 380);
         return;
       }
@@ -378,7 +394,11 @@ class Component extends DCLogic {
     });
 
     // A tab reached by tapping plays its entrance; one dragged in by a swipe was already in view, so it doesn't.
-    if (tab !== this.prevTab) { this.enterTab = this.bySwipe ? -1 : tab; this.bySwipe = false; this.prevTab = tab; }
+    if (tab !== this.prevTab) {
+      this.enterTab = this.bySwipe ? -1 : tab; this.bySwipe = false; this.prevTab = tab;
+      // Tabs stay mounted; this lets one refresh its data when it comes into view.
+      setTimeout(() => window.dispatchEvent(new CustomEvent('motio:tab', { detail: tab })), 0);
+    }
     const layer = (i) => ({ off: i - tab, pe: i === tab ? 'auto' : 'none', hidden: i === tab ? 'false' : 'true', enter: i === this.enterTab ? 'true' : 'false' });
     const item = (i, key) => {
       const on = i === tab;

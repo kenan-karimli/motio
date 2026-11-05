@@ -97,6 +97,10 @@ button,a{font:inherit;cursor:pointer}
           <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Name<input value="{{ ed.name }}" onChange="{{ ed.onName }}" maxlength="60" autocomplete="name" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; color: #1F1D47; font-size: 15px; font-weight: 500"></label>
           <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Bio<textarea rows="3" value="{{ ed.bio }}" onChange="{{ ed.onBio }}" maxlength="160" style="box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 2px solid #E3E1F3; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none; font-family: inherit"></textarea><span style="align-self: flex-end; font-size: 11px; font-weight: 400; color: #6B6890">{{ ed.bioCount }}</span></label>
           <div style="display: flex; align-items: center; gap: 12px">
+            <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Public profile</span><span style="font-size: 12px; color: #6B6890">{{ ed.pubHint }}</span></span>
+            <button type="button" role="switch" aria-checked="{{ ed.pub }}" aria-label="Public profile" onClick="{{ ed.togglePub }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ ed.pubBg }}; transition: background-color 200ms ease"><span style="position: absolute; top: 3px; left: {{ ed.pubKnob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; transition: left 220ms cubic-bezier(0.34, 1.4, 0.64, 1)"></span></button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px">
             <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Show my activity to friends</span><span style="font-size: 12px; color: #6B6890">{{ ed.shareHint }}</span></span>
             <button type="button" role="switch" aria-checked="{{ ed.share }}" aria-label="Show my activity to friends" onClick="{{ ed.toggleShare }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ ed.shareBg }}; transition: background-color 200ms ease"><span style="position: absolute; top: 3px; left: {{ ed.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; transition: left 220ms cubic-bezier(0.34, 1.4, 0.64, 1)"></span></button>
           </div>
@@ -112,6 +116,7 @@ button,a{font:inherit;cursor:pointer}
         <sc-if value="{{ isDelete }}" hint-placeholder-val="{{ false }}">
           <span style="font-size: 14px; line-height: 1.5; color: #4A4770">This permanently deletes your account, every trip, your friends and challenges. It can’t be undone.</span>
           <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Enter your password to confirm<input type="password" value="{{ del.pw }}" onChange="{{ del.onPw }}" autocomplete="current-password" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #F5C6C0; font-size: 15px"></label>
+          <sc-if value="{{ del.google }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ del.withGoogle }}" style="align-self: flex-start; min-height: 40px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Signed up with Google? Confirm with Google instead</button></sc-if>
         </sc-if>
 
         <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; color: #C2412F">{{ error }}</span></sc-if>
@@ -133,8 +138,10 @@ button,a{font:inherit;cursor:pointer}
 class Component extends DCLogic {
   componentDidMount() {
     const M = window.Motio;
-    if (M && M.auth.isSignedIn()) M.friends.board().then((b) => this.setState({ board: b })).catch(() => {});
+    this.load();
+    if (M) M.auth.googleReady().then((id) => this.setState({ gReady: !!id }));
   }
+  load() { const M = window.Motio; if (M && M.auth.isSignedIn()) M.friends.board().then((b) => this.setState({ board: b })).catch(() => {}); }
   showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
   componentWillUnmount() { clearTimeout(this.toastT); }
   renderVals() {
@@ -181,11 +188,11 @@ class Component extends DCLogic {
       friendsLine: friends.length ? 'See all ›' : 'Invite ›',
       faces: friends.slice(0, 6).map((f, i) => ({ ini: ini(f.name), c: TINTS[(f.id % 4) + 1], photo: f.avatar || '', hasPhoto: !!f.avatar, noPhoto: !f.avatar, d: base + 420 + i * 60 + 'ms' })),
       facesNote: friends.length ? friends.slice(0, 2).map((f) => f.name.split(' ')[0]).join(', ') + (friends.length > 2 ? ' and ' + (friends.length - 2) + ' more' : '') : 'No friends yet',
-      privacyLine: M && M.settings().hideActivity ? 'Your activity is private: friends see only your name and photo.' : 'Friends see your weekly totals. Change this in Edit profile.',
+      privacyLine: (M && M.settings().privateProfile ? 'Private profile: only friends see your bio and week. ' : 'Public profile: people on Motio can find you. ') + (M && M.settings().hideActivity ? 'Your activity is hidden, even from friends.' : 'Friends see your weekly totals.'),
       // Scrolling past the photo slides in a slim title bar, like social apps do.
       onScroll: (e) => { const on = e.currentTarget.scrollTop > 150; if (on !== scrolled) this.setState({ scrolled: on }); },
       barOp: scrolled ? 1 : 0, barY: scrolled ? '0px' : '-12px', barHidden: scrolled ? 'false' : 'true',
-      edit: () => this.setState({ sheet: 'edit', err: null, dName: name, dBio: u.bio || '', dPhoto: u.avatar || '', dShare: !(M && M.settings().hideActivity) }),
+      edit: () => this.setState({ sheet: 'edit', err: null, dName: name, dBio: u.bio || '', dPhoto: u.avatar || '', dShare: !(M && M.settings().hideActivity), dPub: !(M && M.settings().privateProfile) }),
       email: u.email || 'you@example.com',
       account: [
         { label: 'Change password', fg: '#1F1D47', go: () => this.setState({ sheet: 'password', err: null, pwCur: '', pwNext: '' }) },
@@ -199,10 +206,12 @@ class Component extends DCLogic {
       primaryLabel: s.busy ? 'One moment…' : { edit: 'Save', password: 'Change password', logout: 'Log out', delete: 'Delete forever' }[s.sheet] || '',
       primaryBg: s.sheet === 'delete' || s.sheet === 'logout' ? '#C2412F' : '#1F1D47',
       ed: (() => {
-        const ph = s.dPhoto || '', share = s.dShare !== false;
+        const ph = s.dPhoto || '', share = s.dShare !== false, pub = s.dPub !== false;
         return { name: s.dName || '', bio: s.dBio || '', bioCount: (s.dBio || '').length + ' / 160', photo: ph, hasPhoto: !!ph, noPhoto: !ph, share,
           shareBg: share ? '#3DBF5C' : '#C9C5EC', knob: share ? '21px' : '3px', shareHint: share ? 'Friends see your weekly totals' : 'Friends see only your name and photo',
           onName: (e) => this.setState({ dName: e.target.value }), onBio: (e) => this.setState({ dBio: e.target.value.slice(0, 160) }),
+          pub, pubBg: pub ? '#3DBF5C' : '#C9C5EC', pubKnob: pub ? '21px' : '3px', pubHint: pub ? 'Anyone on Motio can find you and see your week' : 'Only friends see your bio and week; others see your name and photo',
+          togglePub: () => this.setState({ dPub: !pub }),
           toggleShare: () => this.setState({ dShare: !share }), removePhoto: () => this.setState({ dPhoto: '' }),
           onPhoto: (e) => {
             const f = e.target.files && e.target.files[0];
@@ -213,7 +222,13 @@ class Component extends DCLogic {
           } };
       })(),
       pw: { cur: s.pwCur || '', next: s.pwNext || '', onCur: (e) => this.setState({ pwCur: e.target.value }), onNext: (e) => this.setState({ pwNext: e.target.value }) },
-      del: { pw: s.delPw || '', onPw: (e) => this.setState({ delPw: e.target.value }) },
+      del: { pw: s.delPw || '', onPw: (e) => this.setState({ delPw: e.target.value }), google: !!s.gReady,
+        withGoogle: async () => {
+          if (!M || s.busy) return;
+          this.setState({ busy: true, err: null });
+          try { await M.auth.deleteAccount(null, true); this.setState({ busy: false, sheet: null }); if (this.props.onNav) this.props.onNav('welcome'); }
+          catch (e) { this.setState({ busy: false, err: e.code === 'cancelled' ? null : (e && e.message) || 'Something went wrong. Try again.' }); }
+        } },
       primary: async () => {
         if (!M || s.busy) { this.setState({ sheet: null }); return; }
         const fail = (e) => this.setState({ busy: false, err: (e && e.message) || 'Something went wrong. Try again.' });
@@ -221,7 +236,7 @@ class Component extends DCLogic {
           const n = (s.dName || '').trim();
           if (!n) { this.setState({ err: 'Your name can’t be empty.' }); return; }
           this.setState({ busy: true, err: null });
-          try { await M.updateProfile({ name: n, bio: (s.dBio || '').trim(), avatar: s.dPhoto || '' }); M.setSetting('hideActivity', s.dShare === false); this.setState({ busy: false, sheet: null }); this.showToast('Profile saved'); } catch (e) { fail(e); }
+          try { await M.updateProfile({ name: n, bio: (s.dBio || '').trim(), avatar: s.dPhoto || '' }); M.setSetting('hideActivity', s.dShare === false); M.setSetting('privateProfile', s.dPub === false); this.setState({ busy: false, sheet: null }); this.showToast('Profile saved'); } catch (e) { fail(e); }
         } else if (s.sheet === 'password') {
           if ((s.pwNext || '').length < 8) { this.setState({ err: 'New password needs at least 8 characters.' }); return; }
           this.setState({ busy: true, err: null });

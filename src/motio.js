@@ -149,7 +149,9 @@ export const friends = {
   remove: (id) => api('POST', '/v1/friends/remove', { id }),
   respond: (id, accept) => api('POST', '/v1/friends/respond', { id, accept }),
   cancel: (id) => api('POST', '/v1/friends/cancel', { id }),
-  profile: (id) => api('GET', '/v1/profile?id=' + id),
+  profile: (id) => api('GET', '/v1/profile?id=' + id + '&from=' + weekStart()),
+  search: (q) => api('GET', '/v1/people?q=' + encodeURIComponent(q)),
+  addPerson: (id) => api('POST', '/v1/friends/add', { id }),
   respondChallenge: (id, accept) => api('POST', '/v1/challenges/respond', { id, accept }),
   cheer: (id) => api('POST', '/v1/friends/cheer', { id }),
   moments: () => api('GET', '/v1/moments'),
@@ -202,18 +204,31 @@ async function api(method, path, body) {
 
 const signedIn = (d) => { S.token = d.token; S.user = d.user; S.sessionExpired = false; if (d.user.settings) S.settings = { ...S.settings, ...d.user.settings }; changed(); sync(); if (S.settings.autoTrack) setTimeout(startTracking, 800); return d.user; };
 
+// Asks Android for a Google account and returns its ID token; a closed sheet throws { code: 'cancelled' }.
+async function signedInWithGoogle() {
+  const clientId = native ? (await api('GET', '/v1/auth/google')).clientId : null;
+  if (!clientId) throw Object.assign(new Error('Google sign-in isn’t available yet.'), { code: 'google_off' });
+  try { return (await Sensors.googleSignIn({ clientId })).idToken; }
+  catch (e) { throw Object.assign(new Error(e.code === 'cancelled' ? 'Cancelled' : 'Google sign-in failed. Try again.'), { code: e.code === 'cancelled' ? 'cancelled' : 'google_failed' }); }
+}
 export const auth = {
   register: (name, email, password) => api('POST', '/v1/auth/register', { name, email, password }),
   verify: async (email, code) => signedIn(await api('POST', '/v1/auth/verify', { email, code })),
   resend: (email, purpose = 'verify') => api('POST', '/v1/auth/resend', { email, purpose }),
   login: async (email, password) => signedIn(await api('POST', '/v1/auth/login', { email, password })),
+  // Google: null when the server hasn't been given a Google client ID (the button stays hidden).
+  googleReady: () => (native ? api('GET', '/v1/auth/google').then((r) => r.clientId || null).catch(() => null) : Promise.resolve(null)),
+  async google() {
+    const r = await signedInWithGoogle();
+    return signedIn(await api('POST', '/v1/auth/google', { idToken: r }));
+  },
   forgot: (email) => api('POST', '/v1/auth/forgot', { email }),
   reset: async (email, code, password) => signedIn(await api('POST', '/v1/auth/reset', { email, code, password })),
   logout: async () => { stopTracking(); await sync(); try { await api('POST', '/v1/auth/logout', {}); } catch { /* still log out locally */ } S = { ...blank(), settings: S.settings }; changed(); pushLockCard(); },
   // Removes the account and every trip on the server, then clears this phone.
   changePassword: (current, next) => api('POST', '/v1/me/password', { current, next }),
-  async deleteAccount(password) {
-    await api('POST', '/v1/me/delete', { password });
+  async deleteAccount(password, withGoogle) {
+    await api('POST', '/v1/me/delete', withGoogle ? { idToken: await signedInWithGoogle() } : { password });
     stopTracking(); S = { ...blank(), settings: S.settings }; changed(); pushLockCard();
   },
   isSignedIn: () => !!S.token,
@@ -265,7 +280,11 @@ export async function sync() {
     changed();
   } catch (e) { S.syncError = e.code || 'error'; changed(false); } finally { syncing = false; }
 }
-setInterval(() => { if (Object.keys(S.dirty).length) sync(); }, 60000);
+// Auto-refresh: every minute while the app is open, and whenever it comes back to the front, trips sync
+// (picking up changes from other phones) and every open screen reloads its server data ('motio:refresh').
+const refreshAll = () => { if (document.hidden) return; sync(); window.dispatchEvent(new Event('motio:refresh')); };
+setInterval(refreshAll, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAll(); });
 window.addEventListener('online', () => sync());
 
 export function saveTrip(t) {
@@ -275,6 +294,13 @@ export function saveTrip(t) {
 export function deleteTrip(id) { const t = S.trips[id]; if (t) saveTrip({ ...t, deleted: true, points: [] }); sync(); }
 // "Keep my history for": 0 = 3 months, 1 = 1 year, 2 = forever. Deleted trips sync, so the server forgets them too.
 const KEEP_DAYS = [92, 366, Infinity];
+// Trips under 100 m are noise (workouts saved before the 100 m rule, "1 min run, 0 m"); normal trips already need 150 m.
+function dropEmptyWorkouts() {
+  let n = 0;
+  for (const t of Object.values(S.trips)) if (!t.deleted && (t.distanceM || 0) < 100) { S.trips[t.id] = { ...t, deleted: true, points: [], updatedAt: Date.now() }; S.dirty[t.id] = 1; n++; }
+  if (n) { changed(); setTimeout(() => sync(), 3000); }
+}
+setTimeout(dropEmptyWorkouts, 0);
 export function prune() {
   const cut = Date.now() - KEEP_DAYS[S.settings.keep ?? 1] * DAY;
   let n = 0;
@@ -399,7 +425,7 @@ function closeLive(endAt) {
   if (!live) return;
   const t = live; live = null; S.live = null;
   t.end = Math.min(endAt, t.end);
-  if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000) || (!t.locked && wandered(t))) { changed(); return; } // GPS jitter or fidgeting, not a trip
+  if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 || t.distanceM < 100 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000) || (!t.locked && wandered(t))) { changed(); return; } // GPS jitter or fidgeting, not a trip
   const f = features(t);
   const done = { id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
     distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f), ...(t.workout ? { workout: true, pausedMs: t.workout.pausedMs } : {}) };
@@ -481,7 +507,6 @@ function workoutFix(p, loc) {
   w.skip = false; // the stretch covered while paused doesn't count
   live.points.push(p); live.end = now; live.lastMove = now;
   if (live.points.length > 6000) live.points.splice(1, 1);
-  pushIsland(false);
   changed(false);
 }
 export async function startWorkout(mode) {
@@ -500,7 +525,6 @@ export function pauseWorkout(on) {
   const now = Date.now();
   if (on && !w.pausedAt) w.pausedAt = now;
   if (!on && w.pausedAt) { w.pausedMs += now - w.pausedAt; w.pausedAt = 0; w.skip = true; }
-  pushIsland(false);
   changed();
 }
 // Saves the workout and returns its id, or null when it was too short to keep.
@@ -514,30 +538,6 @@ export function finishWorkout() {
   if (w.wasOff) stopTracking();
   return S.trips[id] ? id : null;
 }
-// Live island (shown over other apps while a workout records and Motio is in the background).
-let islandUp = false;
-const ISLAND = { walk: ['Walk', 'FF3DBF5C'], run: ['Run', 'FFF2766B'], bike: ['Ride', 'FF6E8CF7'] };
-function pushIsland(show) {
-  if (!native || !live || !live.workout) return;
-  const w = live.workout, k = ISLAND[live.mode] || ISLAND.walk;
-  if (show) islandUp = true;
-  if (!islandUp) return;
-  Sensors.islandUpdate({ mode: k[0], color: k[1], start: live.start, pausedMs: w.pausedMs, pausedAt: w.pausedAt || 0, distance: live.distanceM, unit: S.settings.unit === 'mi' ? 'mi' : 'km', show: !!show }).catch(() => {});
-}
-export const island = {
-  allowed: () => (native ? Sensors.islandAllowed().then((r) => r.allowed) : Promise.resolve(false)),
-  request: () => (native ? Sensors.islandRequest() : Promise.resolve()),
-  // Leaving the app mid-workout shows it; coming back hides it.
-  background: () => pushIsland(true),
-  foreground: () => { if (islandUp && native) Sensors.islandHide().catch(() => {}); islandUp = false; }
-};
-// The island's buttons: pause/resume and end work right away, even with Motio closed; "open" lands on the workout.
-if (native) Sensors.addListener('island', (e) => {
-  if (e.action === 'toggle') pauseWorkout(!(live && live.workout && live.workout.pausedAt));
-  else if (e.action === 'end') { const id = finishWorkout(); island.foreground(); window.__motioAfterOpen = id ? ['summary', id] : ['home']; }
-  else if (e.action === 'open') window.__motioAfterOpen = ['live'];
-}).catch(() => {});
-
 export const workout = () => {
   if (!live || !live.workout) return null;
   const w = live.workout, now = Date.now();
@@ -756,7 +756,7 @@ export function summarize(from, to) {
     }
     if (!S.demo && S.stepsDay && from <= dayStart() && to > dayStart() && to - from <= DAY) steps = Math.max(steps, S.stepsDay.day === new Date().toDateString() ? S.stepsDay.steps : 0);
     const peak = hourly.indexOf(Math.max(...hourly));
-    const modes = ORDER.map((k) => ({ key: k, ...MODES[k], ...per[k], pct: ms ? Math.round(per[k].ms / ms * 100) : 0 })).filter((x) => x.ms > 0).sort((a, b) => b.ms - a.ms);
+    const modes = ORDER.map((k) => ({ key: k, ...MODES[k], ...per[k], pct: ms ? Math.round(per[k].ms / ms * 100) : 0 })).filter((x) => x.ms >= 30000).sort((a, b) => b.ms - a.ms); // a few seconds of a mode is noise, not a "0m run"
     return { from, to, trips, ms, min: ms / MIN, m, steps, top, hourly, peak: ms ? peak : null, modes, per, avg: ms ? m / (ms / 1000) : 0 };
   });
 }
@@ -965,7 +965,10 @@ export function workoutSummary(id) {
   const pace = (x) => (x.end - x.start - (x.pausedMs || 0)) / Math.max(0.001, x.distanceM / 1000);
   const best = !same.length ? null : km > Math.max(...same.map((x) => x.distanceM / 1000)) ? 'Longest ' + MODES[t.mode].label.toLowerCase() + ' yet'
     : km >= 1 && same.filter((x) => x.distanceM >= 1000).every((x) => pace(t) < pace(x)) ? 'Fastest ' + MODES[t.mode].label.toLowerCase() + ' yet' : null;
-  return { trip: t, ms, km, paceS: ms / 1000 / Math.max(0.001, km), speed: km / (ms / HOUR), kcal: (MET[t.mode] || 0) * kg * (ms / HOUR), splits: splits(t), series: smooth, best };
+  // Pace and speed only mean something over real distance; impossible values (GPS noise) are left out.
+  const measurable = km >= 0.1, paceS = measurable ? ms / 1000 / km : null, speed = measurable ? km / (ms / HOUR) : null;
+  return { trip: t, ms, km, paceS: paceS && paceS < 3600 && paceS > 60 ? paceS : null, speed: speed && speed < 80 ? speed : null,
+    kcal: (MET[t.mode] || 0) * kg * (ms / HOUR), splits: measurable ? splits(t) : [], series: measurable ? smooth : [], best };
 }
 // Splits: time for each full kilometre (or mile), from the GPS points.
 export function splits(t) {
@@ -1092,7 +1095,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, island, PARTNERS, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, PARTNERS, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

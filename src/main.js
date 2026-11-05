@@ -123,16 +123,6 @@ const takeInvite = (url) => {
 };
 CapApp.addListener('appUrlOpen', (e) => takeInvite(e.url));
 CapApp.getLaunchUrl().then((r) => r && takeInvite(r.url)).catch(() => {});
-// Live island: show it when leaving the app mid-workout, hide it on return, then go where its buttons asked.
-CapApp.addListener('appStateChange', ({ isActive }) => {
-  const M = window.Motio;
-  if (!M) return;
-  if (!isActive) { if (M.workout()) M.island.background(); return; }
-  M.island.foreground();
-  const next = window.__motioAfterOpen;
-  window.__motioAfterOpen = null;
-  if (next && window.__motioGo) { if (next[0] === 'summary') window.__motioTrip = next[1]; window.__motioGo(next[0]); }
-});
 CapApp.addListener('backButton', () => {
   if (!(window.__motioBack && window.__motioBack())) CapApp.minimizeApp();
 }).catch(() => {});

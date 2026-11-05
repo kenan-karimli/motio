@@ -75,6 +75,22 @@ button:active,a:active{transform:scale(0.96)}
       </sc-for>
     </div>
 
+    <sc-if value="{{ hasInbox }}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Waiting for you" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Waiting for you</h2>
+        <sc-for list="{{ inbox }}" as="q" hint-placeholder-count="1">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; border: 1px solid rgba(246,195,67,0.35); animation: motioRowSlide 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
+            <a href="{{ q.href }}" onClick="{{ q.go }}" aria-label="{{ q.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
+              <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ q.ini }}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.title }}</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.sub }}</span></span>
+            </a>
+            <button type="button" onClick="{{ q.no }}" aria-label="{{ q.noAria }}" disabled="{{ q.busy }}" style="width: 38px; height: 38px; flex-shrink: 0; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+            <button type="button" onClick="{{ q.yes }}" aria-label="{{ q.yesAria }}" disabled="{{ q.busy }}" style="height: 38px; flex-shrink: 0; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">{{ q.yesLabel }}</button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
     <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
       <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Active time this week</h2><a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="font-size: 12px; color: #C9C5EC; text-decoration: none">{{ boardNote }}</a></div>
       <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="height: 64px; border-radius: 20px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
@@ -113,9 +129,12 @@ button:active,a:active{transform:scale(0.96)}
         <h2 style="margin: 0; font-size: 16px; font-weight: 600">Moments</h2>
         <sc-for list="{{ moments }}" as="m" hint-placeholder-count="2">
           <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: rgba(255,255,255,0.06)">
-            <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ m.ini }}</span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
-            <button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button>
+            <a href="{{ m.href }}" onClick="{{ m.go }}" aria-label="{{ m.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
+              <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
+            </a>
+            <sc-if value="{{ m.canCheer }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button></sc-if>
+            <sc-if value="{{ m.noCheer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-right: 6px"><path d="M9 5l7 7-7 7"></path></svg></sc-if>
           </div>
         </sc-for>
       </section>
@@ -201,6 +220,8 @@ class Component extends DCLogic {
   componentDidMount() {
     this.loadSocial();
     this.refreshT = setInterval(() => this.loadSocial(), 120000);
+    this.onTab = (e) => { if (e.detail === 3) this.loadSocial(); };
+    window.addEventListener('motio:tab', this.onTab);
     // Remember this tab so the next screen can slide its pill in from here.
     const v = String(3);
     try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
@@ -208,7 +229,7 @@ class Component extends DCLogic {
     try { window.top.__motioTab = 3; } catch (e) { /* cross-origin */ }
     window.__motioTab = 3;
   }
-  componentWillUnmount() { clearInterval(this.refreshT); }
+  componentWillUnmount() { clearInterval(this.refreshT); window.removeEventListener('motio:tab', this.onTab); }
   // Social parts, from the server's answer (or sample data on the design canvas).
   socialVals(L) {
     const M = window.Motio, s = this.state || {};
@@ -231,37 +252,67 @@ class Component extends DCLogic {
       aria: '#' + (i + 1) + ' ' + (p.me ? 'you' : p.name) + ', ' + fmtMin(p.activeMin), ...(p.me ? L('friends', 'Friends.dc.html') : friendLink(p))
     }));
     const unitOf = { km: M && M.settings().unit === 'mi' ? 'km' : 'km', min: 'min', runs: 'runs' };
-    const c = S && (S.challenges.find((x) => x.invited) || S.challenges.find((x) => !x.done));
+    // Invites wait in the inbox above, so the card shows a race you're in (and how many more).
+    const running = S ? S.challenges.filter((x) => !x.done && !x.invited) : [];
+    const c = running[0] || (S && S.challenges.find((x) => x.invited));
+    const KNAME = (x) => ({ km: 'First to ' + x.target + ' km', min: x.target + ' active minutes', runs: x.target + ' runs' })[x.kind];
+    const busyIds = s.inboxBusy || {};
+    const act = (key, fn) => () => {
+      if (!M || busyIds[key]) return;
+      this.setState({ inboxBusy: { ...busyIds, [key]: true } });
+      fn().then(() => this.loadSocial())
+        .catch(() => {}).then(() => this.setState({ inboxBusy: { ...(this.state.inboxBusy || {}), [key]: false } }));
+    };
+    const inbox = !S ? [] : [
+      ...S.challenges.filter((x) => x.invited).map((x) => ({ key: 'c' + x.id, who: x.creator || 'A friend', title: (x.creator || 'A friend').split(' ')[0] + ' challenged you', sub: KNAME(x) + ' · ' + Math.max(1, Math.ceil((x.end - now) / DAY)) + ' days',
+        yesLabel: 'Join', yes: act('c' + x.id, () => M.friends.respondChallenge(x.id, true)), no: act('c' + x.id, () => M.friends.respondChallenge(x.id, false)),
+        link: (() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = x.id; l.go(e); } }; })() })),
+      ...((S.board && S.board.incoming) || []).map((r) => ({ key: 'r' + r.id, who: r.name, title: r.name, sub: 'wants to be friends', id: r.id,
+        yesLabel: 'Accept', yes: act('r' + r.id, () => M.friends.respond(r.id, true)), no: act('r' + r.id, () => M.friends.respond(r.id, false)), link: friendLink(r) }))
+    ].map((q, i) => ({ ...q, ini: ini(q.who), tint: TINTS[((q.id || i) % 4) + 1], d: 60 + i * 70 + 'ms', busy: !!busyIds[q.key], href: q.link.href, go: q.link.go,
+      aria: 'Open ' + q.title, noAria: 'Decline: ' + q.title, yesAria: q.yesLabel + ': ' + q.title }));
     const left = c ? Math.max(0, Math.ceil((c.end - now) / DAY)) : 0;
     const lead = c && c.members[0];
     const chal = c ? {
       title: (c.invited ? (c.creator || 'A friend').split(' ')[0] + ' challenged you: ' : '') + ({ km: 'First to ' + c.target + ' km', min: c.target + ' active minutes', runs: c.target + ' runs' })[c.kind],
-      sub: c.invited ? 'Tap to accept or reject' : (!lead || lead.value <= 0 ? 'Not started yet' : lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + (left ? left + (left === 1 ? ' day left' : ' days left') : 'ends today'),
+      sub: c.invited ? 'Tap to accept or reject' : (!lead || lead.value <= 0 ? 'Not started yet' : lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + (left ? left + (left === 1 ? ' day left' : ' days left') : 'ends today') + (running.length > 1 ? ' · +' + (running.length - 1) + ' more' : ''),
       goal: c.target + ' ' + unitOf[c.kind],
       racers: c.members.slice(0, 4).map((m, i) => ({ ini: ini(m.name), c: m.me ? '#F6C343' : TINTS[(m.id % 4) + 1], x: Math.min(92, 6 + m.value / c.target * 86).toFixed(1) + '%', d: 200 + i * 90 + 'ms' })),
       ...(() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = c.id; l.go(e); } }; })()
     } : { title: 'Start a challenge', sub: people.length > 1 ? 'Race a friend this week' : 'Add a friend first', goal: '', racers: [], ...L(people.length > 1 ? 'challenge' : 'friends', people.length > 1 ? 'Challenge.dc.html' : 'Friends.dc.html') };
     const cheered = s.cheered || {};
     const ago = (t) => { const h = Math.floor((now - t) / 3600000); return h < 1 ? 'Just now' : h < 24 ? h + ' h ago' : Math.floor(h / 24) === 1 ? 'Yesterday' : Math.floor(h / 24) + ' days ago'; };
-    const moments = (S ? S.moments : []).slice(0, 5).map((m, i) => {
-      const key = m.kind + m.at, on = !!cheered[key];
-      if (m.kind === 'request') {
-        const l = L('friends', 'Friends.dc.html');
-        return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], what: 'wants to be friends', when: ago(m.at), on: false,
-          aria: 'Open friend requests', btnBg: '#F6C343', fill: 'none', stroke: '#1F1D47', pop: 'none', cheer: (e) => l.go(e) };
-      }
-      const what = m.kind === 'cheer' ? 'cheered you on' : m.kind === 'won' ? 'won a challenge' : 'challenged you: ' + ({ km: 'first to ' + m.challenge.target + ' km', min: m.challenge.target + ' active minutes', runs: m.challenge.target + ' runs' })[m.challenge.kind];
-      return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], what, when: ago(m.at), on,
+    // Hearts you've sent stay red after a refresh.
+    let sent = {};
+    try { sent = JSON.parse(window.localStorage.getItem('motio.cheered') || '{}'); } catch (e) { /* storage blocked */ }
+    const faceOf = new Map(people.map((p) => [p.id, p.avatar || '']));
+    const moments = (S ? S.moments : []).slice(0, 6).map((m) => {
+      const key = m.kind + ':' + m.who.id + ':' + m.at, on = !!(cheered[key] || sent[key]);
+      const photo = faceOf.get(m.who.id) || '';
+      const open = m.kind === 'challenge' || m.kind === 'won'
+        ? (() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = m.challenge.id; l.go(e); } }; })()
+        : friendLink(m.who);
+      const what = m.kind === 'request' ? 'wants to be friends' : m.kind === 'cheer' ? 'cheered you on' : m.kind === 'won' ? 'won a challenge'
+        : 'challenged you: ' + ({ km: 'first to ' + m.challenge.target + ' km', min: m.challenge.target + ' active minutes', runs: m.challenge.target + ' runs' })[m.challenge.kind];
+      const canCheer = m.kind === 'cheer' || m.kind === 'won';
+      return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], photo, hasPhoto: !!photo, noPhoto: !photo, what, when: ago(m.at), on,
+        href: open.href, go: open.go, openAria: m.kind === 'challenge' || m.kind === 'won' ? 'Open the challenge' : 'Open ' + m.who.name + '’s profile',
+        canCheer, noCheer: !canCheer,
         aria: (on ? 'Cheered ' : 'Cheer ') + m.who.name, btnBg: on ? 'rgba(242,118,107,0.25)' : 'rgba(255,255,255,0.08)', fill: on ? '#F2766B' : 'none', stroke: on ? '#F2766B' : '#FFFFFF',
         pop: on ? 'motioCheerPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-        cheer: () => { if (on) return; this.setState({ cheered: { ...cheered, [key]: true } }); if (M) M.friends.cheer(m.who.id).catch(() => {}); } };
+        cheer: () => {
+          if (on || !M) return;
+          this.setState({ cheered: { ...cheered, [key]: true } });
+          M.friends.cheer(m.who.id).then(() => { try { window.localStorage.setItem('motio.cheered', JSON.stringify({ ...sent, [key]: true })); } catch (e) { /* storage blocked */ } })
+            .catch(() => this.setState({ cheered: { ...cheered, [key]: false } }));
+        } };
     });
     const F = M ? M.findings() : [{ text: 'You’re a morning mover: 41% before 10 AM.' }];
     const mem = M ? M.memories() : [{ label: '1 year', trip: { distanceM: 10400, mode: 'bike' } }];
     const ml = mem[mem.length - 1];
     return {
       board, alone: !!S && people.length < 2, boardLoading: !!s.socialLoading && !S, boardNote: people.length > 1 ? 'See all' : '',
-      socialError: !!s.socialError && !S, socialErrorText: s.socialError || '', chal, moments, hasMoments: moments.length > 0,
+      socialError: !!s.socialError && !S, socialErrorText: s.socialError || '', chal, moments, hasMoments: moments.length > 0, inbox, hasInbox: inbox.length > 0,
       insightLine: F.length ? F[0].text.split(':')[0].split(',')[0] : 'Move a little more this week to unlock insights',
       memo: ml ? { line: ml.label + ' ago: ' + (M ? M.fmtDist(ml.trip.distanceM) : '10.4 km') + ' ' + ({ walk: 'walk', run: 'run', bike: 'ride', drive: 'drive', transit: 'trip' })[ml.trip.mode], bg: '#F6C343', ...L('onthisday', 'OnThisDay.dc.html') }
         : { line: 'Memories appear here as your history grows', bg: '#C9C5EC', href: '#', go: (e) => e && e.preventDefault && e.preventDefault() }

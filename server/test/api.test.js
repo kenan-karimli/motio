@@ -245,7 +245,7 @@ test('friends: per-day board, cheers, challenges and moments', async () => {
   assert.equal((await call('GET', '/v1/challenges', null, a)).body.challenges.find((c) => c.id === second).members.length, 1);
 });
 
-test('friend requests need accepting; invite link page; profiles for friends only', async () => {
+test('friend requests need accepting; invite link page; public and private profiles', async () => {
   const join = async (name, email) => {
     await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
     return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
@@ -258,15 +258,25 @@ test('friend requests need accepting; invite link page; profiles for friends onl
   assert.equal(r.body.people.length, 1, 'not friends until accepted');
   assert.equal(r.body.incoming[0].name, 'Finn');
   const finnId = r.body.incoming[0].id;
-  assert.equal((await call('GET', '/v1/profile?id=' + finnId, null, a)).status, 403);
+  r = await call('GET', '/v1/profile?id=' + finnId, null, a);
+  assert.equal(r.body.profile.relation, 'incoming'); assert.ok(r.body.profile.week, 'public by default');
+  await call('PATCH', '/v1/me', { settings: { privateProfile: true } }, b);
+  r = await call('GET', '/v1/profile?id=' + finnId, null, a);
+  assert.equal(r.body.profile.private, true); assert.equal(r.body.profile.week, undefined); assert.equal(r.body.profile.bio, undefined);
+  r = await call('GET', '/v1/people?q=fin', null, a);
+  assert.deepEqual(r.body.people.map((p) => [p.name, p.private, p.relation]), [['Finn', true, 'incoming']]);
+  assert.equal((await call('GET', '/v1/people?q=%25', null, a)).body.people.length, 0, 'wildcards are literal');
   await call('POST', '/v1/friends/respond', { id: finnId, accept: true }, a);
   r = await call('GET', '/v1/friends', null, b);
   assert.equal(r.body.people.length, 2); assert.equal(r.body.outgoing.length, 0);
   r = await call('GET', '/v1/profile?id=' + finnId, null, a);
-  assert.equal(r.body.profile.name, 'Finn');
+  assert.equal(r.body.profile.name, 'Finn'); assert.equal(r.body.profile.relation, 'friend'); assert.ok(r.body.profile.week, 'friends see a private profile');
   await call('PATCH', '/v1/me', { settings: { hideActivity: true } }, b);
   r = await call('GET', '/v1/friends', null, a);
   assert.equal(r.body.people.find((p) => !p.me).hidden, true);
+  const c = await join('Hana', 'hana@example.com');
+  r = await call('POST', '/v1/friends/add', { id: finnId }, c);
+  assert.equal(r.body.requested.name, 'Finn');
   const page = await fetch(base + '/i/' + codeA.toLowerCase());
   assert.equal(page.status, 200); assert.match(await page.text(), new RegExp(codeA));
   assert.equal((await (await fetch(base + '/.well-known/assetlinks.json')).json())[0].target.package_name, 'com.motio.app');
@@ -279,4 +289,32 @@ test('change password while signed in', async () => {
   assert.equal((await call('POST', '/v1/me/password', { current: 'Str0ng!pass', next: 'short' }, t)).body.error, 'password_short');
   assert.equal((await call('POST', '/v1/me/password', { current: 'Str0ng!pass', next: 'Newer!pass1' }, t)).body.ok, true);
   assert.equal((await call('POST', '/v1/auth/login', { email: 'gus@example.com', password: 'Newer!pass1' })).status, 200);
+});
+
+test('sign in with Google: checks the token, creates or reuses the account', async () => {
+  const seen = [];
+  const fake = async (url) => {
+    seen.push(url);
+    const tok = decodeURIComponent(url.split('id_token=')[1]);
+    const ok = { aud: 'web-id', iss: 'https://accounts.google.com', exp: String(Math.floor(clock / 1000) + 600), email: 'gina@example.com', email_verified: 'true', name: 'Gina G' };
+    const body = tok.startsWith('good') ? ok : tok.startsWith('other-aud') ? { ...ok, aud: 'someone-else' } : null;
+    return { ok: !!body, json: async () => body };
+  };
+  const app = createServer(await createApp({ db: await openDb(':memory:'), mailer: createMailer({}), now: () => clock, env: { GOOGLE_CLIENT_ID: 'web-id' }, fetchImpl: fake }));
+  await new Promise((r) => app.listen(0, r));
+  const url = `http://127.0.0.1:${app.address().port}`;
+  const post = async (body) => { const r = await fetch(url + '/v1/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, body: await r.json() }; };
+  assert.equal((await (await fetch(url + '/v1/auth/google')).json()).clientId, 'web-id');
+  let r = await post({ idToken: 'good-token-123456789012' });
+  assert.equal(r.status, 200); assert.equal(r.body.created, true); assert.equal(r.body.user.name, 'Gina G'); assert.ok(r.body.token);
+  r = await post({ idToken: 'good-token-123456789012' });
+  assert.equal(r.body.created, false, 'same email signs in again');
+  const del = await fetch(url + '/v1/me/delete', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + r.body.token }, body: JSON.stringify({ idToken: 'good-token-123456789012' }) });
+  assert.equal(del.status, 200, 'Google accounts delete with a Google confirmation');
+  assert.equal((await post({ idToken: 'good-token-123456789012' })).body.created, true, 'gone, so a new account');
+  assert.equal((await post({ idToken: 'other-aud-token-123456789' })).status, 401);
+  assert.equal((await post({ idToken: 'bad-token-12345678901234' })).status, 401);
+  app.close();
+  r = await call('POST', '/v1/auth/google', { idToken: 'good-token-123456789012' });
+  assert.equal(r.status, 501, 'off without GOOGLE_CLIENT_ID');
 });

@@ -46,13 +46,6 @@ button,a{font:inherit;cursor:pointer}
           </button>
         </sc-for>
       </div>
-      <sc-if value="{{ askIsland }}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.08); animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 640ms backwards">
-          <span aria-hidden="true" style="width: 46px; height: 18px; flex-shrink: 0; border-radius: 9px; background: #0E0D1A; box-shadow: 0 0 0 1px rgba(255,255,255,0.25); display: flex; align-items: center; gap: 5px; padding-left: 7px; box-sizing: border-box"><span style="width: 6px; height: 6px; border-radius: 3px; background: #F2766B"></span><span style="width: 18px; height: 3px; border-radius: 2px; background: #FFFFFF"></span></span>
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 600">Live island</span><span style="font-size: 11px; opacity: 0.7">See and control your workout from any app</span></span>
-          <button type="button" onClick="{{ allowIsland }}" style="height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: #FFFFFF; color: #16142F; font-size: 12px; font-weight: 700">Allow</button>
-        </div>
-      </sc-if>
       <div style="flex: 1"></div>
       <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="status" style="text-align: center; font-size: 12px; color: #F6C343">{{ error }}</span></sc-if>
       <div style="position: relative; align-self: center; flex-shrink: 0; width: 112px; height: 112px; animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 560ms backwards">
@@ -111,12 +104,8 @@ class Component extends DCLogic {
   // Ticks once a second while open, so the clock and pace stay live.
   componentDidMount() {
     this.tick = setInterval(() => this.forceUpdate(), 1000);
-    this.checkIsland();
-    this.onVis = () => { if (!document.hidden) this.checkIsland(); };
-    document.addEventListener('visibilitychange', this.onVis);
   }
-  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.countT); document.removeEventListener('visibilitychange', this.onVis); }
-  checkIsland() { const M = window.Motio; if (M) M.island.allowed().then((ok) => this.setState({ islandOk: ok })).catch(() => {}); }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.countT); }
   countdown(mode) {
     const M = window.Motio;
     const step = (n) => {
@@ -149,9 +138,9 @@ class Component extends DCLogic {
     const unitM = mi ? 1609.34 : 1000;
     const clock = (ms) => { const t = Math.max(0, Math.round(ms / 1000)), h = Math.floor(t / 3600), mm = Math.floor(t / 60) % 60, ss = t % 60; return h ? h + ':' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0') : mm + ':' + String(ss).padStart(2, '0'); };
     const km = w ? w.distanceM / unitM : 0;
-    const paceS = w && km > 0.05 ? w.activeMs / 1000 / km : 0;
+    const paceS = w && km >= 0.05 && w.activeMs / 1000 / km < 3600 ? w.activeMs / 1000 / km : 0;
     const pace = paceS ? Math.floor(paceS / 60) + ':' + String(Math.round(paceS % 60) % 60).padStart(2, '0') : '–:––';
-    const avg = w && w.activeMs > 0 ? km / (w.activeMs / 3600000) : 0;
+    const avg = w && w.activeMs > 60000 && km >= 0.05 ? Math.min(80, km / (w.activeMs / 3600000)) : 0;
     const stats = !w ? [] : mode === 'bike'
       ? [{ v: clock(w.activeMs), k: 'time' }, { v: avg.toFixed(1), k: mi ? 'avg mph' : 'avg km/h' }, { v: (w.maxSpeed * (mi ? 2.23694 : 3.6)).toFixed(0), k: mi ? 'top mph' : 'top km/h' }]
       : [{ v: clock(w.activeMs), k: 'time' }, { v: pace, k: mi ? 'pace /mi' : 'pace /km' }, { v: (w.steps || 0).toLocaleString('en-US'), k: 'steps' }];
@@ -186,7 +175,6 @@ class Component extends DCLogic {
       }),
       pickColor: m[1], startAria: 'Start ' + m[0].toLowerCase(),
       begin: () => this.countdown(pick),
-      askIsland: !!M && s.islandOk === false, allowIsland: () => M && M.island.request(),
       hasError: !!s.error, error: s.error || '',
       stateLabel: w && w.paused ? 'Paused' : 'Recording',
       dotColor: w && w.paused ? '#F6C343' : '#F2766B', dotAnim: w && w.paused ? 'motioBlink 1.2s ease-in-out infinite' : 'motioPulseDot 1.4s ease-out infinite',
@@ -200,7 +188,7 @@ class Component extends DCLogic {
         if (!M) return;
         const id = M.finishWorkout();
         if (id) { window.__motioTrip = id; if (this.props.onNav) this.props.onNav('summary'); }
-        else this.setState({ error: 'Under a minute, so it wasn’t saved.' });
+        else this.setState({ error: 'Not saved: you need at least a minute and 100 m.' });
       }
     };
   }

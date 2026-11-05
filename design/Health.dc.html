@@ -58,6 +58,7 @@ button,a{font:inherit;cursor:pointer}
 
     <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
       <h2 style="margin: 0; font-size: 16px; font-weight: 700">Where today’s came from</h2>
+      <sc-if value="{{ noPer }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6B6890">No walks, runs or rides yet today.</span></sc-if>
       <sc-for list="{{ per }}" as="p" hint-placeholder-count="3">
         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px">
           <span style="width: 54px; font-weight: 600">{{ p.label }}</span>
@@ -127,7 +128,8 @@ class Component extends DCLogic {
       weekAria: 'Calories burned moving, last 7 days: ' + B.week.map((d) => Math.round(d.kcal)).join(', '),
       bars: B.week.map((d, i) => ({ h: Math.max(4, Math.round(d.kcal / max * 80)) + 'px', v: d.kcal ? Math.round(d.kcal) : '', l: new Date(d.day).toLocaleDateString('en-GB', { weekday: 'narrow' }),
         bg: d.day === t0 ? '#F2766B' : '#F8C9C4', fw: d.day === t0 ? 700 : 500, delay: base + 200 + i * 50 + 'ms' })),
-      per: B.per.map((p, i) => ({ label: NAMES[p.key][0], color: NAMES[p.key][1], w: (p.kcal / perMax * 100).toFixed(1) + '%', v: Math.round(p.kcal) + ' kcal', delay: base + 280 + i * 70 + 'ms' })),
+      noPer: !B.per.some((p) => p.min >= 1),
+      per: B.per.filter((p) => p.min >= 1).map((p, i) => ({ label: NAMES[p.key][0], color: NAMES[p.key][1], w: (p.kcal / perMax * 100).toFixed(1) + '%', v: Math.round(p.kcal) + ' kcal', delay: base + 280 + i * 70 + 'ms' })),
       bodyNote: B.known ? 'Used only to estimate calories. Stays in your account, never shared.' : 'Add your weight so calories fit you. Until then Motio assumes 70 kg.',
       dims: [
         { label: 'Weight', value: B.kg + ' kg', minus: () => setBody({ kg: Math.max(30, B.kg - 1) }), plus: () => setBody({ kg: Math.min(250, B.kg + 1) }), minusAria: 'Lower weight', plusAria: 'Raise weight' }

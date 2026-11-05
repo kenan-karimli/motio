@@ -32,13 +32,30 @@ button,a{cursor:pointer}
   </div>
 
   <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 14px">
+    <section style="display: flex; flex-direction: column; gap: 8px">
+      <label style="position: relative; display: flex; align-items: center">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.4" stroke-linecap="round" style="position: absolute; left: 16px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+        <input value="{{ query }}" onInput="{{ onQuery }}" type="search" aria-label="Find people on Motio" placeholder="Find people by name" autocomplete="off" spellcheck="false" style="flex: 1; height: 48px; box-sizing: border-box; padding: 0 16px 0 44px; border-radius: 24px; border: 0; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 14px; outline: none">
+      </label>
+      <sc-if value="{{ searching }}" hint-placeholder-val="{{ false }}"><span style="padding: 4px 6px; font-size: 12px; opacity: 0.65">{{ searchNote }}</span></sc-if>
+      <sc-for list="{{ found }}" as="f" hint-placeholder-count="0">
+        <button type="button" onClick="{{ f.open }}" aria-label="{{ f.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 0; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFFFFF; text-align: left; animation: motioRankIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ f.d }} backwards">
+          <sc-if value="{{ f.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ f.avatar }}" alt="" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; object-fit: cover"></sc-if>
+          <sc-if value="{{ f.noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ f.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ f.ini }}</span></sc-if>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ f.name }}</span><span style="font-size: 11px; opacity: 0.65">{{ f.sub }}</span></span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </sc-for>
+    </section>
     <sc-if value="{{ hasIncoming }}" hint-placeholder-val="{{ false }}">
       <section style="display: flex; flex-direction: column; gap: 8px">
         <span style="font-size: 15px; font-weight: 600">Friend requests</span>
         <sc-for list="{{ incoming }}" as="q" hint-placeholder-count="1">
           <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
-            <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ q.ini }}</span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.name }}</span><span style="font-size: 11px; opacity: 0.65">wants to be friends</span></span>
+            <button type="button" onClick="{{ q.open }}" aria-label="{{ q.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+              <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ q.ini }}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.name }}</span><span style="font-size: 11px; opacity: 0.65">wants to be friends</span></span>
+            </button>
             <button type="button" onClick="{{ q.decline }}" aria-label="{{ q.declineAria }}" style="height: 38px; padding: 0 12px; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 12px; font-weight: 600">Decline</button>
             <button type="button" onClick="{{ q.accept }}" aria-label="{{ q.acceptAria }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">Accept</button>
           </div>
@@ -119,7 +136,7 @@ class Component extends DCLogic {
     this.showToast(r.requested ? 'Request sent to ' + r.requested.name.split(' ')[0] : r.already ? 'You’re already friends' : r.friend.name.split(' ')[0] + ' is now your friend');
     this.load();
   }
-  componentWillUnmount() { clearTimeout(this.toastT); }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.searchT); }
   load() {
     const M = window.Motio;
     if (!M) return;
@@ -159,7 +176,26 @@ class Component extends DCLogic {
     const draft = s.draft || '';
     const clean = draft.toUpperCase().replace(/[^A-Z0-9]/g, '');
     const ws = M ? M.weekStart() : Date.now() - 3 * 86400000;
+    const openPerson = (id) => () => { window.__motioFriend = id; if (this.props.onNav) this.props.onNav('friend'); };
+    const ini = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const REL = { friend: 'Friend', requested: 'Request sent', incoming: 'Wants to be friends', none: '' };
+    const found = (s.found || []).map((f, i) => ({ name: f.name, ini: ini(f.name), tint: TINTS[(f.id % 4) + 1], hasAvatar: !!f.avatar, noAvatar: !f.avatar, avatar: f.avatar || '', d: i * 50 + 'ms',
+      sub: [f.private ? 'Private profile' : 'Public profile', REL[f.relation]].filter(Boolean).join(' · '), aria: 'Open ' + f.name + '’s profile', open: openPerson(f.id) }));
+    const query = s.query || '';
     return {
+      query, found, searching: query.trim().length >= 2 && !found.length,
+      searchNote: s.searchBusy ? 'Searching…' : s.searchError ? s.searchError : 'No one with that name yet',
+      onQuery: (e) => {
+        const v = e.target.value;
+        this.setState({ query: v });
+        clearTimeout(this.searchT);
+        if (!M || v.trim().length < 2) { this.setState({ found: [], searchBusy: false }); return; }
+        this.setState({ searchBusy: true, searchError: null });
+        // Wait for a pause in typing, and ignore answers to older queries.
+        this.searchT = setTimeout(() => M.friends.search(v.trim())
+          .then((r) => { if ((this.state.query || '') === v) this.setState({ found: r.people, searchBusy: false }); })
+          .catch((err) => this.setState({ searchBusy: false, searchError: (err && err.message) || 'Couldn’t search. Try again.' })), 300);
+      },
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'You.dc.html') },
       weekLabel: 'since ' + new Date(ws).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
@@ -167,7 +203,7 @@ class Component extends DCLogic {
       alone: !!B && people.length < 2,
       hasIncoming: !!B && (B.incoming || []).length > 0,
       incoming: (B ? B.incoming || [] : []).map((q, i) => ({ name: q.name, ini: q.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), tint: TINTS[(q.id % 4) + 1], d: i * 70 + 'ms',
-        acceptAria: 'Accept ' + q.name, declineAria: 'Decline ' + q.name,
+        acceptAria: 'Accept ' + q.name, declineAria: 'Decline ' + q.name, openAria: 'Open ' + q.name + '’s profile', open: openPerson(q.id),
         accept: () => M && M.friends.respond(q.id, true).then(() => { this.showToast(q.name.split(' ')[0] + ' is now your friend'); this.load(); }),
         decline: () => M && M.friends.respond(q.id, false).then(() => this.load()) })),
       outgoing: (B ? B.outgoing || [] : []).map((q) => ({ name: q.name.split(' ')[0], cancel: () => M && M.friends.cancel(q.id).then(() => this.load()) })),

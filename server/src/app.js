@@ -56,6 +56,19 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     delUser: db.prepare('DELETE FROM users WHERE id = ?')
   };
 
+  // OAuth client IDs whose Google tokens we accept (the first is the one the app asks Google for).
+  const googleIds = String(env.GOOGLE_CLIENT_ID || '').split(',').map((x) => x.trim()).filter(Boolean);
+  async function googleCheck(idToken) {
+    if (!googleIds.length) throw new HttpError(501, 'google_off', 'Google sign-in isn’t set up yet.');
+    const token = String(idToken || '');
+    if (token.length < 20 || token.length > 4096) throw bad('token_invalid', 'Google sign-in failed. Try again.');
+    const r = await fetchImpl('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token));
+    const g = r.ok ? await r.json() : null;
+    if (!g || !googleIds.includes(g.aud) || !['accounts.google.com', 'https://accounts.google.com'].includes(g.iss) || Number(g.exp) * 1000 < now() || String(g.email_verified) !== 'true') {
+      throw new HttpError(401, 'google_rejected', 'Google sign-in failed. Try again.');
+    }
+    return g;
+  }
   const publicUser = (u) => ({ id: u.id, email: u.email, name: u.name, bio: u.bio, avatar: u.avatar, settings: JSON.parse(u.settings || '{}'), createdAt: u.created_at });
 
   async function issueCode(email, purpose, name) {
@@ -157,6 +170,24 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
       return { token: await startSession(u.id), user: publicUser(u) };
     },
 
+    // Sign in with Google: the phone gets an ID token from Google; Google's tokeninfo endpoint checks it.
+    // An existing account with the same email signs in; otherwise a new, already verified account is made.
+    'GET /v1/auth/google': async () => ({ clientId: googleIds[0] || null }),
+    'POST /v1/auth/google': async ({ body }) => {
+      const g = await googleCheck(body.idToken);
+      const email = normEmail(g.email);
+      let u = await q.userByEmail.get(email);
+      // An unverified sign-up for this email never proved ownership; Google just did, so it gets a fresh password.
+      if (u && !u.verified) { await q.setPw.run(hashPw(randomBytes(24).toString('hex')), u.id); await q.setVerified.run(u.id); }
+      const created = !u;
+      if (!u) {
+        await q.insertUser.run(email, String(g.name || email.split('@')[0]).trim().slice(0, 60), hashPw(randomBytes(24).toString('hex')), now());
+        u = await q.userByEmail.get(email);
+        await q.setVerified.run(u.id);
+      }
+      return { token: await startSession(u.id), user: publicUser(await q.userById.get(u.id)), created };
+    },
+
     'POST /v1/auth/forgot': async ({ body }) => {
       const email = normEmail(body.email);
       const u = await q.userByEmail.get(email);
@@ -207,7 +238,9 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     // Deleting the account needs the password again, so a phone left unlocked can't wipe someone's history.
     'POST /v1/me/delete': async ({ req, body }) => {
       const { user } = await authUser(req);
-      if (!checkPw(String(body.password || ''), user.pw_hash)) throw new HttpError(401, 'wrong_password', 'That password isn’t right.', { left: null });
+      // Accounts made with Google have no password the person knows, so a fresh Google sign-in confirms instead.
+      if (body.idToken) { if (normEmail((await googleCheck(body.idToken)).email) !== user.email) throw new HttpError(401, 'google_rejected', 'That’s a different Google account.'); }
+      else if (!checkPw(String(body.password || ''), user.pw_hash)) throw new HttpError(401, 'wrong_password', 'That password isn’t right.', { left: null });
       await db.tx(async (t) => {
         await t.prepare('DELETE FROM codes WHERE email = ?').run(user.email);
         await t.prepare('UPDATE feedback SET user_id = NULL WHERE user_id = ?').run(user.id);

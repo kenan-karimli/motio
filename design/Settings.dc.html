@@ -109,6 +109,16 @@ button:active,a:active{transform:scale(0.96)}
     </section>
 
     <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Appearance</h2>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Theme</span><span style="font-size: 12px; color: #6B6890">{{ themeHint }}</span></span>
+        <div role="radiogroup" aria-label="Theme" style="display: flex; gap: 2px; padding: 4px; border-radius: 20px; background: #EEF0F6">
+          <sc-for list="{{ themes }}" as="t" hint-placeholder-count="3"><button role="radio" aria-checked="{{ t.on }}" onClick="{{ t.pick }}" style="height: 34px; padding: 0 12px; border-radius: 17px; border: 0; background: {{ t.bg }}; color: {{ t.fg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">{{ t.label }}</button></sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #EEF0F6">
       <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Goals &amp; units</h2>
       <div style="display: flex; align-items: center; gap: 12px">
         <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Daily movement goal</span><span style="font-size: 12px; color: #6B6890">Time on the move per day</span></span>
@@ -245,11 +255,14 @@ class Component extends DCLogic {
       recapSwitches: [sw('dailyAlert', 'Daily recap alert', 'A short summary every evening at 9 PM', true)],
       setup: (() => {
         const st = s.setupState || (M ? null : { battery: false, xiaomi: true });
-        const need = !!st && !st.battery, xi = !!st && st.xiaomi;
+        let opened = false;
+        try { opened = window.localStorage.getItem('motio.autostartOpened') === '1'; } catch (e) { /* storage blocked */ }
+        // Autostart: trust the phone's answer; if it can't tell, stop asking once the screen was opened.
+        const need = !!st && !st.battery, xi = !!st && st.xiaomi && (st.autostart === false || (st.autostart == null && !opened));
         return { show: need || xi, needBattery: need, xiaomi: xi, bg: need ? '#FDF1CF' : '#F3F2FA',
           title: need ? 'Keep tracking reliable' : 'Xiaomi phones: one more step',
-          body: xi ? 'Xiaomi phones stop apps in the background. Allow Motio to run in the background and turn on Autostart, or trips get missed and mixed up.' : 'Your phone may pause Motio in the background. Allow it, or trips get missed.',
-          battery: () => M && M.phoneSetup.open('battery'), autostart: () => M && M.phoneSetup.open('autostart') };
+          body: xi && need ? 'Xiaomi phones stop apps in the background. Allow Motio to run in the background and turn on Autostart, or trips get missed and mixed up.' : xi ? 'Turn on Autostart for Motio so tracking restarts after your phone does.' : 'Your phone may pause Motio in the background. Allow it, or trips get missed.',
+          battery: () => M && M.phoneSetup.open('battery'), autostart: () => { try { window.localStorage.setItem('motio.autostartOpened', '1'); } catch (e) { /* storage blocked */ } if (M) M.phoneSetup.open('autostart'); } };
       })(),
       trackSwitches: [
         sw('autoDetect', 'Auto-detect activity', 'Walk, run, bike, drive and transit', true),
@@ -260,11 +273,19 @@ class Component extends DCLogic {
       goalDown: () => put('goalMin', Math.max(30, goalMin - 15)),
       goalUp: () => put('goalMin', Math.min(600, goalMin + 15)),
       km: unit === 'km', mi: unit === 'mi',
+      // Theme applies on a quick reload, since every screen picks its colours as it's built.
+      ...(() => {
+        let cur = 'system';
+        try { cur = window.localStorage.getItem('motio.theme') || 'system'; } catch (e) { /* storage blocked */ }
+        return { themeHint: cur === 'system' ? 'Follows your phone' : cur === 'dark' ? 'Easy on the eyes at night' : 'Bright and clear',
+          themes: [['light', 'Light'], ['dark', 'Dark'], ['system', 'Auto']].map(([k, label]) => ({ label, on: k === cur, bg: k === cur ? '#1F1D47' : 'transparent', fg: k === cur ? '#FFFFFF' : '#1F1D47',
+            pick: () => { if (k === cur) return; try { window.localStorage.setItem('motio.theme', k); } catch (e) { /* storage blocked */ } try { window.sessionStorage.setItem('motio.reopen', 'settings'); } catch (e) { /* storage blocked */ } window.location.reload(); } })) };
+      })(),
       kmBg: unit === 'km' ? '#1F1D47' : 'transparent', kmFg: unit === 'km' ? '#FFFFFF' : '#1F1D47',
       miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
       setKm: () => put('unit', 'km'),
       setMi: () => put('unit', 'mi'),
-      versionLabel: 'Version 3.3' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 3.4' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

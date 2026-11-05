@@ -56,6 +56,8 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     request: db.prepare('INSERT INTO friend_requests (from_id, to_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
     hasRequest: db.prepare('SELECT 1 AS ok FROM friend_requests WHERE from_id = ? AND to_id = ?'),
     dropRequests: db.prepare('DELETE FROM friend_requests WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)'),
+    search: db.prepare("SELECT id, name, avatar, settings FROM users WHERE verified = 1 AND name ILIKE ? ESCAPE '\\' AND id <> ? ORDER BY LENGTH(name), name LIMIT 20"),
+    byId: db.prepare('SELECT id, name FROM users WHERE id = ? AND verified = 1'),
     userById: db.prepare('SELECT id, name, bio, avatar, settings, created_at FROM users WHERE id = ?'),
     since: db.prepare('SELECT created_at FROM friends WHERE user_id = ? AND friend_id = ?'),
     setStatus: db.prepare('UPDATE challenge_members SET status = ? WHERE challenge_id = ? AND user_id = ?'),
@@ -104,6 +106,24 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     });
   }
 
+  async function relation(me, id) {
+    if (me === id) return 'me';
+    if (await q.isFriend.get(me, id)) return 'friend';
+    if (await q.hasRequest.get(me, id)) return 'requested';
+    if (await q.hasRequest.get(id, me)) return 'incoming';
+    return 'none';
+  }
+
+  // One person's week, in the same shape as a row on the friends board.
+  async function weekOf(id, url) {
+    const t = now(), asked = Number(url.searchParams.get('from'));
+    const from = Number.isFinite(asked) && asked > t - 8 * WEEK && asked <= t ? asked : t - WEEK;
+    const s = (await q.totals.all(from, from + WEEK, [id]))[0] || {}, l = (await q.totals.all(from - WEEK, from, [id]))[0] || {};
+    const days = [0, 0, 0, 0, 0, 0, 0];
+    for (const r of await q.perDay.all(from, from, from + WEEK, [id])) if (r.d >= 0 && r.d < 7) days[r.d] = Math.round(r.active_ms / 60000);
+    return { activeMin: Math.round((s.active_ms || 0) / 60000), km: Math.round((s.m || 0) / 100) / 10, trips: s.trips || 0, lastMin: Math.round((l.active_ms || 0) / 60000), days, activeDays: days.filter((m) => m > 0).length };
+  }
+
   async function inviteOf(id) {
     const row = await q.getInvite.get(id);
     if (row && row.invite) return row.invite;
@@ -141,11 +161,18 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
 
     'POST /v1/friends/add': async ({ req, body }) => {
       const { user } = await authUser(req);
-      const code = String(body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (code.length !== 6) throw bad('code_invalid', 'Invite codes have 6 letters and numbers.');
-      const other = await q.byInvite.get(code);
-      if (!other) throw new HttpError(404, 'code_unknown', 'No one has that code. Check it and try again.');
-      if (other.id === user.id) throw bad('code_self', 'That’s your own code. Send it to a friend instead.');
+      let other;
+      // From a profile (found by search) or by invite code.
+      if (body.id !== undefined) {
+        other = Number.isInteger(Number(body.id)) && (await q.byId.get(Number(body.id)));
+        if (!other) throw new HttpError(404, 'not_found', 'This person left Motio.');
+      } else {
+        const code = String(body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (code.length !== 6) throw bad('code_invalid', 'Invite codes have 6 letters and numbers.');
+        other = await q.byInvite.get(code);
+        if (!other) throw new HttpError(404, 'code_unknown', 'No one has that code. Check it and try again.');
+      }
+      if (other.id === user.id) throw bad('code_self', body.id !== undefined ? 'That’s you.' : 'That’s your own code. Send it to a friend instead.');
       if (await q.isFriend.get(user.id, other.id)) return { friend: { id: other.id, name: other.name }, already: true };
       if ((await q.count.get(user.id)).n >= MAX_FRIENDS) throw bad('too_many', 'You can have up to ' + MAX_FRIENDS + ' friends.');
       // They already asked you: adding their code accepts it. Otherwise it's a request they accept or decline.
@@ -173,11 +200,27 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     'GET /v1/profile': async ({ req, url }) => {
       const { user } = await authUser(req);
       const id = Number(url.searchParams.get('id'));
-      if (id !== user.id && !(await q.isFriend.get(user.id, id))) throw new HttpError(403, 'not_friend', 'Only friends can see this profile.');
-      const u = await q.userById.get(id);
+      const u = Number.isInteger(id) && (await q.userById.get(id));
       if (!u) throw new HttpError(404, 'not_found', 'This person left Motio.');
-      const cfg = JSON.parse(u.settings || '{}'), since = id === user.id ? null : (await q.since.get(user.id, id)).created_at;
-      return { profile: { id: u.id, name: u.name, bio: u.bio, avatar: u.avatar, joined: u.created_at, friendsSince: since, hidden: id !== user.id && !!cfg.hideActivity } };
+      const rel = await relation(user.id, id);
+      const cfg = JSON.parse(u.settings || '{}');
+      const base = { id: u.id, name: u.name, avatar: u.avatar, joined: u.created_at, relation: rel, friends: (await q.count.get(id)).n };
+      // Private profiles show only name and photo to people who aren't friends.
+      if (rel !== 'me' && rel !== 'friend' && cfg.privateProfile) return { profile: { ...base, private: true } };
+      const since = rel === 'friend' ? (await q.since.get(user.id, id)).created_at : null;
+      const hidden = rel !== 'me' && !!cfg.hideActivity;
+      return { profile: { ...base, bio: u.bio, friendsSince: since, hidden, week: hidden ? null : await weekOf(id, url) } };
+    },
+
+    // Find people by name. Private profiles are listed too (name and photo only), like other social apps.
+    'GET /v1/people': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      const text = String(url.searchParams.get('q') || '').trim().slice(0, 40);
+      if (text.length < 2) return { people: [] };
+      const rows = await q.search.all('%' + text.replace(/[\\%_]/g, (c) => '\\' + c) + '%', user.id);
+      const out = [];
+      for (const r of rows) out.push({ id: r.id, name: r.name, avatar: r.avatar && r.avatar.length < 200000 ? r.avatar : '', private: !!JSON.parse(r.settings || '{}').privateProfile, relation: await relation(user.id, r.id) });
+      return { people: out };
     },
 
     // A cheer: a small "well done" to a friend; at most one per friend every 10 minutes.

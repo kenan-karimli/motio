@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · You vs a friend</title>
+<title>Motio · Profile</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -15,79 +15,97 @@ html,body{background:#F6F5FC}
 button,a{font:inherit;cursor:pointer}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioFvIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-@keyframes motioFvFaceL{from{opacity:0;transform:translateX(-40px) rotate(-12deg)}to{opacity:1;transform:none}}
-@keyframes motioFvFaceR{from{opacity:0;transform:translateX(40px) rotate(12deg)}to{opacity:1;transform:none}}
-@keyframes motioFvVs{0%{opacity:0;transform:scale(2.2)}60%{opacity:1;transform:scale(0.9)}100%{transform:none}}
+@keyframes motioPfAvatar{0%{opacity:0;transform:scale(0.6)}70%{opacity:1;transform:scale(1.04)}100%{transform:none}}
+@keyframes motioPfIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes motioPfBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes motioFvTug{from{transform:scaleX(0.5)}}
-@keyframes motioFvBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes motioFvDay{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-@keyframes motioFvPop{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes motioFvPop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">You vs {{ first }}</h1><span style="font-size: 12px; color: #6B6890">This week · weekly totals only</span></div>
-  </div>
-
-  <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="margin: 20px; padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; text-align: center">Loading…</div></sc-if>
-  <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="margin: 20px; padding: 16px; border-radius: 20px; background: #FDE9E6; color: #C2412F; font-size: 13px">{{ error }}</div></sc-if>
-
-  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 32px; display: flex; flex-direction: column; gap: 14px">
-    <section style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0 4px; text-align: center; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
-      <sc-if value="{{ pf.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ pf.photo }}" alt="" style="width: 92px; height: 92px; border-radius: 46px; object-fit: cover; border: 4px solid #FFFFFF; box-shadow: 0 8px 20px rgba(31,29,71,0.15)"></sc-if>
-      <sc-if value="{{ pf.noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 92px; height: 92px; border-radius: 46px; background: {{ them.tint }}; border: 4px solid #FFFFFF; box-shadow: 0 8px 20px rgba(31,29,71,0.15); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700">{{ them.ini }}</span></sc-if>
-      <span style="font-size: 22px; font-weight: 700; margin-top: 4px">{{ pf.name }}</span>
-      <sc-if value="{{ pf.hasBio }}" hint-placeholder-val="{{ true }}"><span style="max-width: 300px; font-size: 13px; line-height: 1.5; color: #4A4770">{{ pf.bio }}</span></sc-if>
-      <span style="font-size: 11px; color: #6B6890">{{ pf.since }}</span>
-    </section>
-    <sc-if value="{{ pf.hidden }}" hint-placeholder-val="{{ false }}"><div style="padding: 18px; border-radius: 22px; background: #FFFFFF; font-size: 13px; line-height: 1.5; color: #4A4770; text-align: center">{{ first }} keeps their activity private, so there’s nothing to compare. You can still cheer them on.</div></sc-if>
-    <sc-if value="{{ pf.shown }}" hint-placeholder-val="{{ true }}">
-    <section style="padding: 20px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 16px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
-      <div style="display: flex; align-items: center; justify-content: space-between">
-        <span style="display: flex; flex-direction: column; align-items: center; gap: 6px; animation: motioFvFaceL 620ms cubic-bezier(0.34, 1.3, 0.64, 1) {{ d1 }} backwards"><span style="width: 64px; height: 64px; border-radius: 32px; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{ me.ini }}</span><span style="font-size: 13px; font-weight: 600">You</span><span style="font-size: 22px; font-weight: 700; line-height: 1">{{ me.time }}</span></span>
-        <span style="font-size: 26px; font-weight: 700; color: #F2766B; animation: motioFvVs 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">VS</span>
-        <span style="display: flex; flex-direction: column; align-items: center; gap: 6px; animation: motioFvFaceR 620ms cubic-bezier(0.34, 1.3, 0.64, 1) {{ d1 }} backwards"><span style="width: 64px; height: 64px; border-radius: 32px; background: {{ them.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{ them.ini }}</span><span style="font-size: 13px; font-weight: 600">{{ first }}</span><span style="font-size: 22px; font-weight: 700; line-height: 1">{{ them.time }}</span></span>
-      </div>
-      <span role="img" aria-label="{{ tugAria }}" style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: {{ them.tint }}"><span style="width: {{ myShare }}; background: #F6C343; transform-origin: left; animation: motioFvTug 1200ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards"></span></span>
-      <span style="font-size: 12px; color: #C9C5EC; text-align: center">{{ verdict }}</span>
-    </section>
-
-    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
-      <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #6B6890"><span>You</span><span>{{ first }}</span></div>
-      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: {{ r.lw }}">{{ r.a }}</span><span style="font-size: 12px; color: #6B6890">{{ r.k }}</span><span style="font-size: 15px; font-weight: {{ r.rw }}">{{ r.b }}</span></div>
-          <div aria-hidden="true" style="display: flex; gap: 4px; height: 10px">
-            <span style="flex: 1; display: flex; justify-content: flex-end; background: #F3F2FA; border-radius: 5px"><span style="width: {{ r.wa }}; border-radius: 5px; background: #F6C343; transform-origin: right; animation: motioFvBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards"></span></span>
-            <span style="flex: 1; display: flex; background: #F3F2FA; border-radius: 5px"><span style="width: {{ r.wb }}; border-radius: 5px; background: {{ them.tint }}; transform-origin: left; animation: motioFvBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards"></span></span>
-          </div>
-        </div>
-      </sc-for>
-    </section>
-
-    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
-      <span style="font-size: 15px; font-weight: 700">Day by day</span>
-      <div role="img" aria-label="Active minutes per day this week, you and your friend" style="display: flex; align-items: flex-end; gap: 8px; height: 110px">
-        <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
-          <div style="flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px">
-            <span style="width: 100%; display: flex; align-items: flex-end; gap: 2px; height: 86px"><span style="flex: 1; height: {{ d.a }}; border-radius: 4px; background: #F6C343; transform-origin: bottom; animation: motioFvDay 700ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ d.dl }} backwards"></span><span style="flex: 1; height: {{ d.b }}; border-radius: 4px; background: {{ them.tint }}; transform-origin: bottom; animation: motioFvDay 700ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ d.dl }} backwards"></span></span>
-            <span style="font-size: 11px; color: #4A4770">{{ d.l }}</span>
-          </div>
-        </sc-for>
-      </div>
-    </section>
-
-    </sc-if>
-    <div style="display: flex; gap: 10px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
-      <button type="button" onClick="{{ cheer }}" style="flex: 1; height: 52px; border: 0; border-radius: 26px; background: {{ cheerBg }}; color: {{ cheerFg }}; font-size: 14px; font-weight: 600; transition: background-color 250ms ease; animation: {{ cheerPop }}">{{ cheerLabel }}</button>
-      <a href="{{ LK.challenge.href }}" onClick="{{ LK.challenge.go }}" style="flex: 1; height: 52px; border-radius: 26px; background: #1F1D47; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; text-decoration: none">Challenge {{ first }}</a>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
+  <div class="motio-scroll" onScroll="{{ onScroll }}" style="position: absolute; inset: 0; overflow-y: auto; padding-bottom: 40px">
+    <div style="position: relative; height: 190px; background: {{ cover }}; overflow: hidden">
+      <svg aria-hidden="true" width="390" height="190" viewBox="0 0 390 190" style="position: absolute; inset: 0"><path d="M-20 150 C 80 90, 160 190, 260 120 S 380 60, 420 90" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="26" stroke-linecap="round"></path><circle cx="330" cy="40" r="70" fill="#FFFFFF" fill-opacity="0.08"></circle></svg>
     </div>
-    <button type="button" onClick="{{ remove }}" style="align-self: center; height: 40px; padding: 0 16px; border: 0; border-radius: 20px; background: transparent; color: #C2412F; font-size: 13px; font-weight: 600">{{ removeLabel }}</button>
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="margin: 20px; padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; text-align: center">Loading…</div></sc-if>
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="margin: 20px; padding: 16px; border-radius: 20px; background: #FDE9E6; color: #C2412F; font-size: 13px">{{ error }}</div></sc-if>
+
+    <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+    <div style="position: relative; margin-top: -56px; padding: 0 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px">
+      <span style="width: 112px; height: 112px; border-radius: 56px; border: 5px solid #F6F5FC; background: {{ tint }}; overflow: hidden; box-shadow: 0 10px 24px rgba(31,29,71,0.2); animation: motioPfAvatar 640ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards; display: flex; align-items: center; justify-content: center">
+        <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ photo }}" alt="{{ photoAlt }}" style="width: 100%; height: 100%; object-fit: cover"></sc-if>
+        <sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}"><span style="color: #1F1D47; font-size: 36px; font-weight: 700">{{ initials }}</span></sc-if>
+      </span>
+      <h1 style="margin: 6px 0 0; font-size: 26px; font-weight: 700; line-height: 1.15; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">{{ name }}</h1>
+      <sc-if value="{{ hasBio }}" hint-placeholder-val="{{ true }}"><span style="max-width: 300px; font-size: 14px; line-height: 1.5; color: #4A4770; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">{{ bio }}</span></sc-if>
+      <span style="display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 12px; color: #6B6890; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards"><span>{{ metaA }}</span><sc-if value="{{ hasMetaB }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true">·</span><span>{{ metaB }}</span></sc-if></span>
+
+      <sc-if value="{{ isFriend }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; gap: 10px; margin-top: 10px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+          <a href="{{ LK.challenge.href }}" onClick="{{ LK.challenge.go }}" style="height: 44px; padding: 0 22px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; text-decoration: none">Challenge</a>
+          <button type="button" onClick="{{ cheer }}" style="height: 44px; padding: 0 22px; border: 2px solid {{ cheerBorder }}; border-radius: 22px; background: {{ cheerBg }}; color: {{ cheerFg }}; font-size: 14px; font-weight: 600; transition: background-color 250ms ease; animation: {{ cheerPop }}">{{ cheerLabel }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notFriend }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 10px; margin-top: 10px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+          <button type="button" onClick="{{ rel.act }}" disabled="{{ rel.busy }}" style="height: 44px; padding: 0 22px; border: {{ rel.border }}; border-radius: 22px; background: {{ rel.bg }}; color: {{ rel.fg }}; font-size: 14px; font-weight: 600; transition: background-color 250ms ease">{{ rel.label }}</button>
+          <sc-if value="{{ rel.canDecline }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ rel.decline }}" disabled="{{ rel.busy }}" style="height: 44px; padding: 0 22px; border: 2px solid #E3E1F3; border-radius: 22px; background: #FFFFFF; color: #1F1D47; font-size: 14px; font-weight: 600">Decline</button></sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+      <div style="margin: 20px 20px 0; padding: 22px 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+        <span style="width: 52px; height: 52px; border-radius: 26px; background: #F3F2FA; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+        <span style="font-size: 15px; font-weight: 700">{{ lockTitle }}</span>
+        <span style="max-width: 280px; font-size: 13px; line-height: 1.5; color: #4A4770">{{ lockText }}</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ shown }}" hint-placeholder-val="{{ true }}">
+      <div style="margin: 20px 20px 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 14px 6px; border-radius: 22px; background: #FFFFFF; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+        <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4"><span style="display: flex; flex-direction: column; align-items: center; gap: 2px"><span style="font-size: 20px; font-weight: 700">{{ st.v }}</span><span style="font-size: 11px; color: #6B6890">{{ st.k }}</span></span></sc-for>
+      </div>
+
+      <section style="margin: 14px 20px 0; padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
+        <span style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">This week</span><span style="font-size: 12px; color: #6B6890">{{ weekLine }}</span></span>
+        <div role="img" aria-label="{{ weekAria }}" style="display: flex; align-items: flex-end; gap: 8px; height: 84px">
+          <sc-for list="{{ week }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px"><span style="width: 100%; height: {{ b.h }}; border-radius: 7px; background: {{ b.c }}; transform-origin: bottom; animation: motioPfBar 640ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ b.d }} backwards"></span><span style="font-size: 11px; font-weight: {{ b.fw }}; color: #4A4770">{{ b.l }}</span></span></sc-for>
+        </div>
+      </section>
+
+      <section style="margin: 14px 20px 0; padding: 18px; border-radius: 24px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d4 }} backwards">
+        <span style="font-size: 15px; font-weight: 700">You vs {{ first }}</span>
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span style="display: flex; align-items: center; gap: 10px">
+            <span style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700"><sc-if value="{{ me.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ me.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ me.noPhoto }}" hint-placeholder-val="{{ true }}">{{ me.ini }}</sc-if></span>
+            <span style="display: flex; flex-direction: column"><span style="font-size: 11px; color: #C9C5EC">You</span><span style="font-size: 17px; font-weight: 700">{{ me.time }}</span></span>
+          </span>
+          <span style="display: flex; align-items: center; gap: 10px; text-align: right">
+            <span style="display: flex; flex-direction: column"><span style="font-size: 11px; color: #C9C5EC">{{ first }}</span><span style="font-size: 17px; font-weight: 700">{{ them.time }}</span></span>
+            <span style="width: 44px; height: 44px; border-radius: 22px; background: {{ tint }}; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700"><sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}">{{ initials }}</sc-if></span>
+          </span>
+        </div>
+        <span role="img" aria-label="{{ tugAria }}" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: {{ tint }}"><span style="width: {{ myShare }}; background: #F6C343; transform-origin: left; animation: motioFvTug 1200ms cubic-bezier(0.22, 1, 0.36, 1) {{ d4 }} backwards"></span></span>
+        <span style="font-size: 12px; color: #C9C5EC">{{ verdict }}</span>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isFriend }}" hint-placeholder-val="{{ true }}">
+      <button type="button" onClick="{{ remove }}" style="display: block; margin: 18px auto 0; height: 40px; padding: 0 16px; border: 0; border-radius: 20px; background: transparent; color: #C2412F; font-size: 13px; font-weight: 600">{{ removeLabel }}</button>
+    </sc-if>
+    </sc-if>
   </div>
+
+  <div aria-hidden="{{ barHidden }}" style="position: absolute; left: 0; right: 0; top: 0; z-index: 5; height: 72px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(246,245,252,0.96); box-shadow: 0 1px 0 #E3E1F3; opacity: {{ barOp }}; transform: translateY({{ barY }}); transition: opacity 220ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none">
+    <span style="flex: 1; margin-left: 56px; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ name }}</span>
+  </div>
+  <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: absolute; left: 20px; top: 14px; z-index: 6; width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(31,29,71,0.15)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -96,11 +114,19 @@ class Component extends DCLogic {
   componentDidMount() {
     const M = window.Motio;
     if (!M) return;
-    this.setState({ loading: true });
-    M.friends.board().then((b) => this.setState({ board: b, loading: false })).catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load.' }));
     if (this.fid == null) this.fid = window.__motioFriend || null;
-    if (this.fid) M.friends.profile(this.fid).then((r) => this.setState({ profile: r.profile })).catch(() => {});
+    this.setState({ loading: true });
+    M.friends.board().then((b) => this.setState({ board: b })).catch(() => {});
+    this.loadProfile();
   }
+  loadProfile() {
+    const M = window.Motio;
+    if (!M || !this.fid) { this.setState({ loading: false }); return; }
+    M.friends.profile(this.fid).then((r) => this.setState({ profile: r.profile, loading: false, perr: null }))
+      .catch((e) => this.setState({ loading: false, perr: (e && e.message) || 'Couldn’t load this profile.' }));
+  }
+  showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
+  componentWillUnmount() { clearTimeout(this.toastT); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -110,48 +136,97 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const M = window.Motio;
-    if (this.fid === undefined) { this.fid = window.__motioFriend || null; }
-    const sample = { people: [{ id: 1, name: 'You', me: true, activeMin: 412, km: 74, trips: 21, activeDays: 6, days: [50, 62, 95, 40, 70, 20, 75] }, { id: 2, name: 'Leyla Aliyeva', activeMin: 486, km: 52, trips: 17, activeDays: 7, days: [80, 66, 60, 90, 72, 48, 70] }] };
-    const B = M ? s.board : sample;
-    const me = B && B.people.find((p) => p.me);
-    const them = B && (B.people.find((p) => p.id === this.fid) || B.people.find((p) => !p.me));
-    const ready = !!(me && them);
+    if (this.fid === undefined) this.fid = window.__motioFriend || null;
+    const DAY = 86400000, now = Date.now();
+    const sample = {
+      board: { people: [{ id: 1, name: 'You', me: true, activeMin: 412, km: 74, trips: 21, activeDays: 6, days: [50, 62, 95, 40, 70, 20, 75] }] },
+      profile: { id: 2, name: 'Leyla Aliyeva', bio: 'Morning runner. Baku seaside most days.', avatar: '', joined: now - 200 * DAY, friendsSince: now - 40 * DAY, friends: 12, relation: 'friend',
+        week: { activeMin: 486, km: 52, trips: 17, activeDays: 7, days: [80, 66, 60, 90, 72, 48, 70] } }
+    };
+    const B = M ? s.board : sample.board, P = M ? s.profile : sample.profile;
+    const meRow = B && B.people.find((p) => p.me);
     const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
-    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min');
+    const COVERS = ['linear-gradient(135deg, #5B4FE0 0%, #8C7CF0 55%, #F2766B 100%)', 'linear-gradient(135deg, #1E7A36 0%, #3DBF5C 55%, #F6C343 100%)', 'linear-gradient(135deg, #2D2A6E 0%, #6E8CF7 60%, #9EDCF6 100%)', 'linear-gradient(135deg, #C2412F 0%, #F2766B 55%, #F6C343 100%)', 'linear-gradient(135deg, #5B2D8C 0%, #B57BE0 60%, #F2B8D8 100%)'];
+    const fmtMin = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
     const ini = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const monthYear = (t) => new Date(t).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
     const base = emb ? 380 : 0;
-    const mi = M && M.settings().unit === 'mi';
-    const challenge = lk('challenge', 'Challenge.dc.html');
-    if (!ready) return { rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms ease', LK: { back: lk('back', 'Recaps.dc.html'), challenge }, first: 'friend', pf: {}, loading: !!s.loading, hasError: !!s.error || (!!B && !them), error: s.error || 'This friend isn’t on your list any more.', ready: false, me: {}, them: {} };
-    const tint = TINTS[(them.id % 4) + 1];
-    const P = M ? s.profile : { name: 'Leyla Aliyeva', bio: 'Morning runner. Baku seaside most days.', avatar: '', friendsSince: Date.now() - 40 * 86400000 };
-    const pf = { name: (P && P.name) || them.name, bio: (P && P.bio) || '', hasBio: !!(P && P.bio), photo: (P && P.avatar) || them.avatar || '', hidden: !!them.hidden,
-      since: P && P.friendsSince ? 'Friends since ' + new Date(P.friendsSince).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '' };
-    pf.hasPhoto = !!pf.photo; pf.noPhoto = !pf.photo; pf.shown = !pf.hidden;
-    const first = them.name.split(' ')[0];
-    const total = me.activeMin + them.activeMin;
-    const gap = them.activeMin - me.activeMin;
-    const rows = [['Active time', fmtMin(me.activeMin), fmtMin(them.activeMin), me.activeMin, them.activeMin], ['Distance', (mi ? (me.km / 1.609).toFixed(1) + ' mi' : me.km + ' km'), (mi ? (them.km / 1.609).toFixed(1) + ' mi' : them.km + ' km'), me.km, them.km], ['Trips', String(me.trips), String(them.trips), me.trips, them.trips], ['Active days', String(me.activeDays), String(them.activeDays), me.activeDays, them.activeDays]];
-    const dmax = Math.max(1, ...me.days, ...them.days);
-    const start = M ? M.weekStart() : Date.now() - 3 * 86400000;
-    return {
+    const scrolled = !!s.scrolled;
+    const back = lk('back', 'Recaps.dc.html');
+    const common = {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-      LK: { back: lk('back', 'Recaps.dc.html'), challenge: { href: challenge.href, go: (e) => { window.__motioChallengeWith = them.id; challenge.go(e); } } },
-      loading: false, hasError: false, error: '', ready: true, first, pf,
-      d0: base + 'ms', d1: base + 120 + 'ms', d2: base + 260 + 'ms', d3: base + 360 + 'ms',
-      me: { ini: ini(me.name), time: fmtMin(me.activeMin) }, them: { ini: ini(them.name), time: fmtMin(them.activeMin), tint },
-      myShare: total ? (me.activeMin / total * 100).toFixed(1) + '%' : '50%',
-      tugAria: 'Share of active time: you ' + (total ? Math.round(me.activeMin / total * 100) : 50) + '%',
+      d0: base + 'ms', d1: base + 120 + 'ms', d2: base + 200 + 'ms', d3: base + 280 + 'ms', d4: base + 360 + 'ms',
+      onScroll: (e) => { const on = e.currentTarget.scrollTop > 150; if (on !== scrolled) this.setState({ scrolled: on }); },
+      barOp: scrolled ? 1 : 0, barY: scrolled ? '0px' : '-12px', barHidden: scrolled ? 'false' : 'true',
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+    if (!P) return { ...common, LK: { back, challenge: back }, cover: COVERS[0], loading: !!s.loading, hasError: !s.loading && (!!s.perr || !this.fid), error: s.perr || 'This person isn’t on Motio any more.', ready: false, name: '', rel: {}, me: {}, them: {} };
+
+    const id = P.id, name = P.name, first = name.split(' ')[0];
+    const tint = TINTS[(id % 4) + 1];
+    // Friends are on the weekly board too, which also covers servers that don't send `week` or `relation`.
+    const row = B && B.people.find((p) => p.id === id && !p.me);
+    const relation = P.relation || (row ? 'friend' : 'none'), isFriend = relation === 'friend';
+    const W0 = P.week || (row && !row.hidden ? row : null);
+    // Private (to non-friends) or activity hidden: name, photo and bio only.
+    const locked = !!(P.private || P.hidden || !W0);
+    const W = W0 || { activeMin: 0, km: 0, trips: 0, activeDays: 0, days: [0, 0, 0, 0, 0, 0, 0] };
+    const mine = meRow || { activeMin: 0, days: [0, 0, 0, 0, 0, 0, 0] };
+    const mi = M && M.settings().unit === 'mi';
+    const start = M ? M.weekStart() : now - 3 * DAY, t0 = new Date().setHours(0, 0, 0, 0);
+    const wmax = Math.max(1, ...W.days);
+    const total = mine.activeMin + W.activeMin, gap = W.activeMin - mine.activeMin;
+    const myUser = M ? M.auth.user() || {} : {};
+    const busy = !!s.relBusy;
+    const relDo = (fn, next) => () => {
+      if (!M || busy) return;
+      this.setState({ relBusy: true });
+      fn().then((r) => {
+        const n = typeof next === 'function' ? next(r) : next;
+        this.setState({ relBusy: false, profile: { ...P, relation: n } });
+        // Becoming friends can unlock a private profile, so fetch it again.
+        if (n === 'friend') { M.friends.board().then((b) => this.setState({ board: b })).catch(() => {}); this.loadProfile(); this.showToast(first + ' is now your friend'); }
+        else if (n === 'requested') this.showToast('Request sent to ' + first);
+      }).catch((e) => { this.setState({ relBusy: false }); this.showToast((e && e.message) || 'Couldn’t do that. Try again.'); });
+    };
+    const rel = relation === 'incoming' ? { label: 'Accept', bg: '#1F1D47', fg: '#FFFFFF', border: '0', canDecline: true, act: relDo(() => M.friends.respond(id, true), 'friend'), decline: relDo(() => M.friends.respond(id, false), 'none') }
+      : relation === 'requested' ? { label: 'Requested', bg: '#FFFFFF', fg: '#1F1D47', border: '2px solid #E3E1F3', act: relDo(() => M.friends.cancel(id), 'none') }
+      : { label: 'Add friend', bg: '#1F1D47', fg: '#FFFFFF', border: '0', act: relDo(() => M.friends.addPerson(id), (r) => (r && r.friend ? 'friend' : 'requested')) };
+    rel.busy = busy;
+    if (busy) rel.label = 'One moment…';
+    const challenge = lk('challenge', 'Challenge.dc.html');
+    return {
+      ...common,
+      LK: { back, challenge: { href: challenge.href, go: (e) => { window.__motioChallengeWith = id; challenge.go(e); } } },
+      cover: COVERS[id % COVERS.length], tint,
+      loading: false, hasError: false, error: '', ready: true,
+      name, first, bio: P.bio || '', hasBio: !!P.bio, photo: P.avatar || '', hasPhoto: !!P.avatar, noPhoto: !P.avatar, initials: ini(name), photoAlt: name + '’s photo',
+      metaA: P.friendsSince ? 'Friends since ' + monthYear(P.friendsSince) : P.joined ? 'On Motio since ' + monthYear(P.joined) : '',
+      metaB: P.friends ? P.friends + (P.friends === 1 ? ' friend' : ' friends') : '', hasMetaB: !!P.friends,
+      isFriend, notFriend: !isFriend, rel,
+      locked, shown: !locked,
+      lockTitle: P.private && !isFriend ? 'This profile is private' : first + ' keeps their activity private',
+      lockText: P.private && !isFriend ? (relation === 'requested' ? 'You’ll see ' + first + '’s week once they accept your request.' : 'Add ' + first + ' as a friend to see their week and race them.') : isFriend ? 'You can still cheer them on and start challenges.' : 'Their weekly totals stay hidden.',
+      stats: [
+        { v: mi ? (W.km / 1.609).toFixed(1) : String(W.km), k: (mi ? 'mi' : 'km') + ' this week' },
+        { v: fmtMin(W.activeMin).replace(' min', 'm'), k: 'active' },
+        { v: String(W.trips), k: W.trips === 1 ? 'trip' : 'trips' },
+        { v: String(W.activeDays), k: W.activeDays === 1 ? 'active day' : 'active days' }
+      ],
+      weekLine: fmtMin(W.activeMin) + ' moving', weekAria: first + '’s minutes moving each day this week, ' + fmtMin(W.activeMin) + ' in total',
+      week: W.days.map((m, i) => { const day = start + i * DAY; return { h: Math.max(4, Math.round(m / wmax * 60)) + 'px', c: day === t0 ? tint : '#C9C5EC', fw: day === t0 ? 700 : 500, l: new Date(day).toLocaleDateString('en-GB', { weekday: 'narrow' }), d: base + 340 + i * 45 + 'ms' }; }),
+      me: { ini: ini(myUser.name || 'You'), photo: myUser.avatar || '', hasPhoto: !!myUser.avatar, noPhoto: !myUser.avatar, time: fmtMin(mine.activeMin) },
+      them: { time: fmtMin(W.activeMin) },
+      myShare: total ? (mine.activeMin / total * 100).toFixed(1) + '%' : '50%',
+      tugAria: 'Share of active time this week: you ' + (total ? Math.round(mine.activeMin / total * 100) : 50) + '%',
       verdict: !total ? 'Neither of you has moved yet this week' : gap > 0 ? fmtMin(gap) + ' to take the lead' : gap < 0 ? 'You lead by ' + fmtMin(-gap) : 'Dead even',
-      rows: rows.map(([k, a, b, x, y], i) => { const m = Math.max(x, y, 0.0001); return { k, a, b, wa: (x / m * 100).toFixed(1) + '%', wb: (y / m * 100).toFixed(1) + '%', lw: x >= y ? 700 : 500, rw: y > x ? 700 : 500, d: base + 200 + i * 90 + 'ms' }; }),
-      days: me.days.map((a, i) => ({ l: new Date(start + i * 86400000).toLocaleDateString('en-GB', { weekday: 'narrow' }), a: Math.max(3, Math.round(a / dmax * 86)) + 'px', b: Math.max(3, Math.round(them.days[i] / dmax * 86)) + 'px', dl: base + 300 + i * 50 + 'ms' })),
-      cheerLabel: s.cheered ? 'Cheer sent' : 'Send a cheer', cheerBg: s.cheered ? '#DDF5E3' : '#FFFFFF', cheerFg: s.cheered ? '#1E7A36' : '#1F1D47',
+      cheerLabel: s.cheered ? 'Cheer sent' : 'Cheer', cheerBg: s.cheered ? '#DDF5E3' : '#FFFFFF', cheerFg: s.cheered ? '#1E7A36' : '#1F1D47', cheerBorder: s.cheered ? '#DDF5E3' : '#E3E1F3',
       cheerPop: s.cheered ? 'motioFvPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-      cheer: () => { if (s.cheered) return; this.setState({ cheered: true }); if (M) M.friends.cheer(them.id).catch(() => this.setState({ cheered: false })); },
+      cheer: () => { if (s.cheered) return; this.setState({ cheered: true }); if (M) M.friends.cheer(id).catch(() => this.setState({ cheered: false })); },
       removeLabel: s.confirmRemove ? 'Tap again to remove ' + first : 'Remove friend',
       remove: () => {
         if (!s.confirmRemove) { this.setState({ confirmRemove: true }); return; }
-        if (M) M.friends.remove(them.id).then(() => this.props.onNav && this.props.onNav('back')).catch(() => {});
+        if (M) M.friends.remove(id).then(() => this.props.onNav && this.props.onNav('back')).catch(() => {});
       }
     };
   }

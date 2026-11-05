@@ -165,39 +165,6 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         call.resolve();
     }
 
-    // Live island: the floating workout pill shown over other apps while Motio is in the background.
-    private WorkoutIsland island;
-    private WorkoutIsland island() {
-        if (island == null) island = new WorkoutIsland(getContext(), (action) -> {
-            if ("open".equals(action)) WorkoutIsland.openApp(getContext());
-            JSObject e = new JSObject(); e.put("action", action);
-            notifyListeners("island", e, true);
-        });
-        return island;
-    }
-
-    @PluginMethod
-    public void islandAllowed(PluginCall call) { JSObject r = new JSObject(); r.put("allowed", WorkoutIsland.allowed(getContext())); call.resolve(r); }
-
-    @PluginMethod
-    public void islandRequest(PluginCall call) {
-        Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getContext().getPackageName()));
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try { getContext().startActivity(i); } catch (Exception e) { /* no such screen */ }
-        call.resolve();
-    }
-
-    @PluginMethod
-    public void islandUpdate(PluginCall call) {
-        WorkoutIsland w = island();
-        w.update(call.getString("mode", "Run"), (int) Long.parseLong(call.getString("color", "FFF2766B"), 16), call.getLong("start", 0L), call.getLong("pausedMs", 0L),
-            call.getLong("pausedAt", 0L), call.getDouble("distance", 0.0), call.getString("unit", "km"));
-        if (call.getBoolean("show", false)) getActivity().runOnUiThread(w::show);
-        call.resolve();
-    }
-
-    @PluginMethod
-    public void islandHide(PluginCall call) { if (island != null) getActivity().runOnUiThread(island::hide); call.resolve(); }
 
     // Which of the given fitness apps are installed, so Connected apps can offer the right ones.
     @PluginMethod
@@ -210,11 +177,41 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         call.resolve(r);
     }
 
+    // Sign in with Google through Android's Credential Manager; the ID token goes to the Motio server to check.
+    @PluginMethod
+    public void googleSignIn(PluginCall call) {
+        String clientId = call.getString("clientId", "");
+        if (clientId.isEmpty()) { call.reject("Google sign-in isn't set up", "off"); return; }
+        androidx.credentials.CredentialManager cm = androidx.credentials.CredentialManager.create(getContext());
+        androidx.credentials.GetCredentialRequest req = new androidx.credentials.GetCredentialRequest.Builder()
+            .addCredentialOption(new com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption.Builder(clientId).build()).build();
+        cm.getCredentialAsync(getActivity(), req, new android.os.CancellationSignal(), java.util.concurrent.Executors.newSingleThreadExecutor(),
+            new androidx.credentials.CredentialManagerCallback<androidx.credentials.GetCredentialResponse, androidx.credentials.exceptions.GetCredentialException>() {
+                @Override public void onResult(androidx.credentials.GetCredentialResponse r) {
+                    androidx.credentials.Credential c = r.getCredential();
+                    if (c instanceof androidx.credentials.CustomCredential && com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(c.getType())) {
+                        JSObject o = new JSObject();
+                        o.put("idToken", com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(c.getData()).getIdToken());
+                        call.resolve(o);
+                    } else call.reject("Google didn't return an account", "failed");
+                }
+                @Override public void onError(androidx.credentials.exceptions.GetCredentialException e) {
+                    call.reject(String.valueOf(e.getMessage()), e instanceof androidx.credentials.exceptions.GetCredentialCancellationException ? "cancelled" : "failed");
+                }
+            });
+    }
+
     @PluginMethod
     public void openApp(PluginCall call) {
         Intent i = getContext().getPackageManager().getLaunchIntentForPackage(call.getString("package", ""));
         JSObject r = new JSObject();
-        if (i == null) { r.put("ok", false); call.resolve(r); return; }
+        if (i == null) {
+            // Not installed: open its Play Store page instead.
+            String pkg = call.getString("package", "");
+            i = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pkg));
+            if (i.resolveActivity(getContext().getPackageManager()) == null) i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + pkg));
+            r.put("store", true);
+        }
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startActivity(i);
         r.put("ok", true);
@@ -227,7 +224,17 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
         JSObject r = new JSObject();
         r.put("battery", pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName()));
-        r.put("xiaomi", Build.MANUFACTURER.toLowerCase().matches(".*(xiaomi|redmi|poco).*"));
+        boolean xiaomi = Build.MANUFACTURER.toLowerCase().matches(".*(xiaomi|redmi|poco).*");
+        r.put("xiaomi", xiaomi);
+        if (xiaomi) {
+            // MIUI/HyperOS keep Autostart as hidden app-op 10008 (0 = allowed); no public API exposes it.
+            try {
+                android.app.AppOpsManager ops = (android.app.AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
+                java.lang.reflect.Method m = android.app.AppOpsManager.class.getMethod("checkOpNoThrow", int.class, int.class, String.class);
+                int mode = (Integer) m.invoke(ops, 10008, android.os.Process.myUid(), getContext().getPackageName());
+                r.put("autostart", mode == 0);
+            } catch (Exception e) { /* unknown on this build: the app falls back to "opened the screen" */ }
+        }
         call.resolve(r);
     }
 

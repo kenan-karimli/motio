@@ -192,20 +192,24 @@ class Component extends DCLogic {
       list = [
         ['health', 'Health Connect', '#F2766B', 'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z', hcOn,
           !hc ? 'Checking…' : hc.needsUpdate ? 'Update Health Connect from the Play Store first' : !hc.available ? 'Not available on this phone' : hcOn ? 'Connected · ' + ago(M.health.syncedAt()) : 'Walks, runs and rides as workouts, with steps'],
-        // Fitness apps found on this phone; they get Motio's trips through Health Connect.
+        // Fitness apps that read Health Connect: the ones on this phone first, the rest offered from the Play Store.
         ...(() => {
-          const inst = s.inst || {}, seen = new Set();
-          return M.PARTNERS.filter(([pkg, name]) => inst[pkg] && !seen.has(name) && seen.add(name)).map(([pkg, name, color]) =>
-            ['p:' + pkg, name, color, 'M4 12h4l2-5 4 10 2-5h4', hcOn, hcOn ? 'Installed · gets your trips through Health Connect' : 'Installed · connect to send it your walks, runs and rides']);
+          const inst = s.inst || {}, byName = {};
+          M.PARTNERS.forEach(([pkg, name, color]) => { if (!byName[name] || inst[pkg]) byName[name] = [pkg, name, color]; });
+          const rows = Object.values(byName).sort((a, b) => (inst[b[0]] ? 1 : 0) - (inst[a[0]] ? 1 : 0));
+          return rows.map(([pkg, name, color]) => inst[pkg]
+            ? ['p:' + pkg, name, color, 'M4 12h4l2-5 4 10 2-5h4', hcOn, hcOn ? 'Installed · gets your trips through Health Connect' : 'Installed · connect to send it your walks, runs and rides']
+            : ['g:' + pkg, name, color, 'M4 12h4l2-5 4 10 2-5h4', false, 'Not on this phone · works through Health Connect']);
         })(),
         ['strava', 'Strava', '#FC4C02', 'M5 16l5-10 5 10M12 16l3 4 3-4', !!(sv && sv.connected),
-          !sv ? 'Checking…' : sv.offline ? 'You’re offline' : !sv.configured ? 'Not set up on this server yet' : sv.connected ? (sv.athlete || 'Connected') + ' · ' + ago(M.strava.syncedAt()) : s.waitStrava ? 'Finish connecting in the browser…' : 'Upload walks, runs and rides with routes']
+          !sv ? 'Checking…' : sv.offline ? 'You’re offline' : !sv.configured ? 'Direct upload is coming soon' : sv.connected ? (sv.athlete || 'Connected') + ' · ' + ago(M.strava.syncedAt()) : s.waitStrava ? 'Finish connecting in the browser…' : 'Upload walks, runs and rides with routes']
       ];
     }
     const toggle = (key, name, on) => async () => {
       if (busy) return;
       if (!M) { const linked = s.linked || { health: true, strava: true }; this.setState({ linked: { ...linked, [key]: !on } }); this.showToast(name + (on ? ' disconnected' : ' connected')); return; }
       try {
+        if (key.startsWith('g:')) { M.apps.open(key.slice(2)); return; }
         if (key.startsWith('p:')) {
           // Partner app: make sure Health Connect is on, then open the app so its own sync can be switched on.
           const pkg = key.slice(2);
@@ -249,6 +253,8 @@ class Component extends DCLogic {
     };
     const apps = list.map(([key, name, color, glyph, on, status], i) => {
       const isBusy = busy === key, done = justDone === key;
+      const get = key.startsWith('g:'), soon = key === 'strava' && M && s.sv && !s.sv.configured && !s.sv.offline;
+      if (get || soon) return { name, color, glyph, delay: i * 60 + 'ms', status, busy: false, done: false, label: get ? 'Get' : 'Soon', aria: (get ? 'Get ' : 'Coming soon: ') + name, bg: '#FFFFFF', fg: soon ? '#9A97B8' : '#1F1D47', border: '2px solid #E3E1F3', toggle: get ? toggle(key, name, false) : () => this.showToast('Strava connection is coming soon') };
       return {
         name, color, glyph, delay: i * 60 + 'ms',
         status: isBusy ? 'Connecting…' : status,

@@ -114,9 +114,9 @@ button:active,a:active{transform:scale(0.96)}
       <h2 style="margin: 0; font-size: 16px; font-weight: 600">{{ monthTitle }}</h2>
       <span style="font-size: 12px; color: #6B6890">tap a day</span>
     </div>
-    <div style="display: flex; align-items: flex-end; gap: 3px; height: 54px">
+    <div style="display: flex; align-items: flex-end; height: 64px">
       <sc-for list="{{ days }}" as="d" hint-placeholder-count="31">
-        <button aria-label="{{ d.label }}" onClick="{{ d.pick }}" style="flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: transparent; display: flex; align-items: flex-end"><span style="display: block; width: 100%; height: {{ d.h }}; border-radius: 3px; background: {{ d.bg }}"></span></button>
+        <button aria-label="{{ d.label }}" onClick="{{ d.pick }}" style="flex: 1; min-width: 0; height: 100%; border: 0; padding: 0 1.5px; background: transparent; display: flex; align-items: flex-end"><span style="display: block; width: 100%; height: {{ d.h }}; border-radius: 3px; background: {{ d.bg }}; transition: background-color 200ms ease"></span></button>
       </sc-for>
     </div>
     <button onClick="{{ openMonth }}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
@@ -208,8 +208,8 @@ button:active,a:active{transform:scale(0.96)}
     <div style="position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end">
       <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5); cursor: default; animation: {{ scrimAnim }}"></button>
       <section ref="{{ sheetRef }}" aria-label="{{ sheetTitle }}" style="position: relative; height: {{ sheetH }}; max-height: {{ sheetMax }}; transform: translateY({{ dragY }}); transition: {{ sheetTrans }}; animation: {{ sheetAnim }}; box-sizing: border-box; overflow-y: auto; border-radius: {{ sheetRadius }}; background: #FFFFFF; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -12px 40px rgba(20,14,70,0.3)">
-        <button aria-label="{{ handleLabel }}" onPointerDown="{{ dragStart }}" style="align-self: stretch; flex-shrink: 0; height: 26px; margin: 0 -20px -10px; border: 0; padding: 0; background: transparent; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center"><span style="width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span></button>
-        <div style="display: flex; align-items: center; gap: 12px">
+        <button aria-label="{{ handleLabel }}" onPointerDown="{{ dragStart }}" style="align-self: stretch; flex-shrink: 0; height: 32px; margin: 0 -20px -10px; border: 0; padding: 0; background: transparent; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center"><span style="width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span></button>
+        <div onPointerDown="{{ dragHead }}" style="display: flex; align-items: center; gap: 12px; touch-action: none">
           <button aria-label="Back" onClick="{{ close }}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: 0; background: #EEF0F6; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
           <h2 style="margin: 0; font-size: 18px; font-weight: 600">{{ sheetTitle }}</h2>
         </div>
@@ -512,7 +512,8 @@ class Component extends DCLogic {
     const name = me ? me.name || 'You' : s.name ?? 'Alex';
     const bio = me ? me.bio || '' : s.bio ?? 'Coffee walks, bike commutes, and always the long way home.';
     const photo = me ? me.avatar || '' : s.photo || '';
-    const open = (sheet) => () => this.setState({ sheet, sheetFull: false, closing: false, drag: null });
+    // The slide-up plays once per opening; after a drag the sheet must not replay it.
+    const open = (sheet) => () => { this.sheetIn = false; this.setState({ sheet, sheetFull: false, closing: false }); };
     const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
     // Slide the sheet down, then unmount it.
     const close = () => {
@@ -523,36 +524,81 @@ class Component extends DCLogic {
     const full = !!s.sheetFull;
     const drag = s.drag;
     // Grab handle: drag up to go full screen, down to shrink or dismiss; a tap toggles.
-    const dragStart = (e) => {
+    // The drag moves the element directly (no re-render per frame) and settles with a
+    // pixel-to-pixel transition, since CSS can't animate to or from height:auto.
+    const dragStart = (e, tapToggles = true) => {
       const el = this.sheetEl;
-      if (!el) return;
-      const startY = e.clientY;
+      if (!el || this.dragging) return;
+      // Touch drags use touch events with preventDefault: with pointer events Android hands the gesture
+      // to the WebView's scrolling after a few pixels (pointercancel) and the sheet stops following.
+      const touch = e.pointerType === 'touch' || e.type === 'touchstart';
+      const yOf = (ev) => (ev.touches && ev.touches[0] ? ev.touches[0].clientY : ev.changedTouches && ev.changedTouches[0] ? ev.changedTouches[0].clientY : ev.clientY);
+      this.dragging = true;
+      this.sheetIn = true;
+      const saved = el.getAttribute('style').replace(/animation:[^;]*/, 'animation: none');
+      const startY = yOf(e);
       const h0 = el.offsetHeight;
       const parentH = el.parentElement.offsetHeight;
       const scale = el.getBoundingClientRect().height / h0 || 1;
-      const move = (ev) => this.setState({ drag: { h0, parentH, dy: (ev.clientY - startY) / scale } });
-      const up = (ev) => {
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up);
-        const dy = (ev.clientY - startY) / scale;
-        const isFull = !!(this.state && this.state.sheetFull);
-        if (Math.abs(dy) < 6) this.setState({ drag: null, sheetFull: !isFull });
-        else if (dy < -50) this.setState({ drag: null, sheetFull: true });
-        else if (dy > 80 && isFull) this.setState({ drag: null, sheetFull: false });
-        else if (dy > 80) close();
-        else this.setState({ drag: null });
+      const wasFull = !!(this.state && this.state.sheetFull);
+      if (!wasFull) this.natH = h0;
+      el.style.animation = 'none';
+      el.style.transition = 'none';
+      el.style.maxHeight = '100%';
+      el.style.height = h0 + 'px';
+      let dy = 0, raf = 0;
+      const paint = () => {
+        raf = 0;
+        if (dy < 0 || wasFull) {
+          el.style.height = Math.min(parentH - 8, Math.max(200, h0 - dy)) + 'px';
+          el.style.transform = 'none';
+        } else {
+          el.style.height = h0 + 'px';
+          el.style.transform = 'translateY(' + dy + 'px)';
+        }
       };
-      window.addEventListener('pointermove', move);
-      window.addEventListener('pointerup', up);
+      const move = (ev) => {
+        if (ev.cancelable) ev.preventDefault();
+        dy = (yOf(ev) - startY) / scale;
+        if (!raf) raf = requestAnimationFrame(paint);
+      };
+      const settle = (h, then) => {
+        el.style.transition = 'height 340ms ' + ease + ', transform 340ms ' + ease;
+        el.style.transform = 'translateY(0)';
+        el.style.height = h + 'px';
+        // After the state update, put the template style back unless the re-render already replaced it.
+        setTimeout(() => { this.dragging = false; then(); requestAnimationFrame(() => { if (el.style.transition !== 'none') el.setAttribute('style', saved); }); }, 350);
+      };
+      const evs = touch ? ['touchmove', 'touchend', 'touchcancel'] : ['pointermove', 'pointerup', 'pointercancel'];
+      const up = () => {
+        window.removeEventListener(evs[0], move);
+        window.removeEventListener(evs[1], up);
+        window.removeEventListener(evs[2], up);
+        if (raf) cancelAnimationFrame(raf);
+        // dy is the last real finger position; a cancel event's own coordinates can be 0.
+        const half = Math.min(this.natH || parentH * 0.6, parentH * 0.92);
+        const toFull = () => settle(parentH - 8, () => this.setState({ sheetFull: true }));
+        const toHalf = () => settle(half, () => this.setState({ sheetFull: false }));
+        if (Math.abs(dy) < 6) return !tapToggles ? settle(h0, () => {}) : wasFull ? toHalf() : toFull();
+        if (dy < -50) return toFull();
+        if (dy > 80 && wasFull && h0 - dy > half * 0.6) return toHalf();
+        if (dy > 80) {
+          // Slide out from where the finger left it, fading the scrim with it.
+          const scrim = el.previousElementSibling;
+          el.style.transition = 'transform 260ms ease-in';
+          el.style.transform = 'translateY(' + el.offsetHeight + 'px)';
+          if (scrim) { scrim.style.transition = 'opacity 260ms'; scrim.style.opacity = '0'; }
+          return setTimeout(() => { this.dragging = false; this.setState({ sheet: null, closing: false, sheetFull: false }); }, 260);
+        }
+        settle(h0, () => {});
+      };
+      window.addEventListener(evs[0], move, { passive: false });
+      window.addEventListener(evs[1], up);
+      window.addEventListener(evs[2], up);
     };
-    let sheetH = full ? 'calc(100% - 8px)' : 'auto';
-    let dragY = '0px';
-    let sheetTrans = 'height 340ms ' + ease + ', transform 340ms ' + ease + ', border-radius 340ms ' + ease;
-    if (drag) {
-      sheetTrans = 'none';
-      if (drag.dy < 0 || full) sheetH = Math.min(drag.parentH - 8, Math.max(200, drag.h0 - drag.dy)) + 'px';
-      else dragY = drag.dy + 'px';
-    }
+    const sheetH = full ? 'calc(100% - 8px)' : 'auto';
+    const dragY = '0px';
+    const sheetTrans = 'none';
     const fmt = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + 'm');
     const modes = [['Walk', '#3DBF5C'], ['Drive', '#F6C343'], ['Bike', '#6E8CF7'], ['Transit', '#B57BE0'], ['Run', '#F2766B']];
     const wk = ['Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed'];
@@ -663,10 +709,10 @@ class Component extends DCLogic {
       sheetOpen: !!sh.kind,
       sheetTitle: titles[sh.kind] || '',
       sheetRef: (el) => { this.sheetEl = el; },
-      sheetH, dragY, sheetTrans,
-      sheetMax: full || drag ? '100%' : '92%',
-      sheetRadius: full && !drag ? '24px 24px 0 0' : '32px 32px 0 0',
-      sheetAnim: s.closing ? 'motioDown 260ms ease-in forwards' : 'motioUp 380ms ' + ease,
+      sheetH, dragY, sheetTrans, dragHead: (e) => dragStart(e, false),
+      sheetMax: full ? '100%' : '92%',
+      sheetRadius: full ? '24px 24px 0 0' : '32px 32px 0 0',
+      sheetAnim: s.closing ? 'motioDown 260ms ease-in forwards' : this.sheetIn ? 'none' : 'motioUp 380ms ' + ease,
       scrimAnim: s.closing ? 'motioFadeOut 260ms ease-in forwards' : 'motioFade 260ms ease-out',
       dragStart,
       handleLabel: full ? 'Drag down to shrink' : 'Drag up to expand',
