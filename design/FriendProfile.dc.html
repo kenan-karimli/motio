@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · You vs a friend</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioFvIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes motioFvFaceL{from{opacity:0;transform:translateX(-40px) rotate(-12deg)}to{opacity:1;transform:none}}
+@keyframes motioFvFaceR{from{opacity:0;transform:translateX(40px) rotate(12deg)}to{opacity:1;transform:none}}
+@keyframes motioFvVs{0%{opacity:0;transform:scale(2.2)}60%{opacity:1;transform:scale(0.9)}100%{transform:none}}
+@keyframes motioFvTug{from{transform:scaleX(0.5)}}
+@keyframes motioFvBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioFvDay{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes motioFvPop{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">You vs {{ first }}</h1><span style="font-size: 12px; color: #6B6890">This week · weekly totals only</span></div>
+  </div>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="margin: 20px; padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; text-align: center">Loading…</div></sc-if>
+  <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="margin: 20px; padding: 16px; border-radius: 20px; background: #FDE9E6; color: #C2412F; font-size: 13px">{{ error }}</div></sc-if>
+
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 32px; display: flex; flex-direction: column; gap: 14px">
+    <section style="padding: 20px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 16px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="display: flex; flex-direction: column; align-items: center; gap: 6px; animation: motioFvFaceL 620ms cubic-bezier(0.34, 1.3, 0.64, 1) {{ d1 }} backwards"><span style="width: 64px; height: 64px; border-radius: 32px; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{ me.ini }}</span><span style="font-size: 13px; font-weight: 600">You</span><span style="font-size: 22px; font-weight: 700; line-height: 1">{{ me.time }}</span></span>
+        <span style="font-size: 26px; font-weight: 700; color: #F2766B; animation: motioFvVs 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">VS</span>
+        <span style="display: flex; flex-direction: column; align-items: center; gap: 6px; animation: motioFvFaceR 620ms cubic-bezier(0.34, 1.3, 0.64, 1) {{ d1 }} backwards"><span style="width: 64px; height: 64px; border-radius: 32px; background: {{ them.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{ them.ini }}</span><span style="font-size: 13px; font-weight: 600">{{ first }}</span><span style="font-size: 22px; font-weight: 700; line-height: 1">{{ them.time }}</span></span>
+      </div>
+      <span role="img" aria-label="{{ tugAria }}" style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: {{ them.tint }}"><span style="width: {{ myShare }}; background: #F6C343; transform-origin: left; animation: motioFvTug 1200ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards"></span></span>
+      <span style="font-size: 12px; color: #C9C5EC; text-align: center">{{ verdict }}</span>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
+      <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #6B6890"><span>You</span><span>{{ first }}</span></div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: {{ r.lw }}">{{ r.a }}</span><span style="font-size: 12px; color: #6B6890">{{ r.k }}</span><span style="font-size: 15px; font-weight: {{ r.rw }}">{{ r.b }}</span></div>
+          <div aria-hidden="true" style="display: flex; gap: 4px; height: 10px">
+            <span style="flex: 1; display: flex; justify-content: flex-end; background: #F3F2FA; border-radius: 5px"><span style="width: {{ r.wa }}; border-radius: 5px; background: #F6C343; transform-origin: right; animation: motioFvBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards"></span></span>
+            <span style="flex: 1; display: flex; background: #F3F2FA; border-radius: 5px"><span style="width: {{ r.wb }}; border-radius: 5px; background: {{ them.tint }}; transform-origin: left; animation: motioFvBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards"></span></span>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+      <span style="font-size: 15px; font-weight: 700">Day by day</span>
+      <div role="img" aria-label="Active minutes per day this week, you and your friend" style="display: flex; align-items: flex-end; gap: 8px; height: 110px">
+        <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+          <div style="flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px">
+            <span style="width: 100%; display: flex; align-items: flex-end; gap: 2px; height: 86px"><span style="flex: 1; height: {{ d.a }}; border-radius: 4px; background: #F6C343; transform-origin: bottom; animation: motioFvDay 700ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ d.dl }} backwards"></span><span style="flex: 1; height: {{ d.b }}; border-radius: 4px; background: {{ them.tint }}; transform-origin: bottom; animation: motioFvDay 700ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ d.dl }} backwards"></span></span>
+            <span style="font-size: 11px; color: #4A4770">{{ d.l }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <div style="display: flex; gap: 10px; animation: motioFvIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
+      <button type="button" onClick="{{ cheer }}" style="flex: 1; height: 52px; border: 0; border-radius: 26px; background: {{ cheerBg }}; color: {{ cheerFg }}; font-size: 14px; font-weight: 600; transition: background-color 250ms ease; animation: {{ cheerPop }}">{{ cheerLabel }}</button>
+      <a href="{{ LK.challenge.href }}" onClick="{{ LK.challenge.go }}" style="flex: 1; height: 52px; border-radius: 26px; background: #1F1D47; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; text-decoration: none">Challenge {{ first }}</a>
+    </div>
+    <button type="button" onClick="{{ remove }}" style="align-self: center; height: 40px; padding: 0 16px; border: 0; border-radius: 20px; background: transparent; color: #C2412F; font-size: 13px; font-weight: 600">{{ removeLabel }}</button>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    const M = window.Motio;
+    if (!M) return;
+    this.setState({ loading: true });
+    M.friends.board().then((b) => this.setState({ board: b, loading: false })).catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load.' }));
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    if (this.fid === undefined) { this.fid = window.__motioFriend || null; }
+    const sample = { people: [{ id: 1, name: 'You', me: true, activeMin: 412, km: 74, trips: 21, activeDays: 6, days: [50, 62, 95, 40, 70, 20, 75] }, { id: 2, name: 'Leyla Aliyeva', activeMin: 486, km: 52, trips: 17, activeDays: 7, days: [80, 66, 60, 90, 72, 48, 70] }] };
+    const B = M ? s.board : sample;
+    const me = B && B.people.find((p) => p.me);
+    const them = B && (B.people.find((p) => p.id === this.fid) || B.people.find((p) => !p.me));
+    const ready = !!(me && them);
+    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min');
+    const ini = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const base = emb ? 380 : 0;
+    const mi = M && M.settings().unit === 'mi';
+    const challenge = lk('challenge', 'Challenge.dc.html');
+    if (!ready) return { rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms ease', LK: { back: lk('back', 'Recaps.dc.html'), challenge }, first: 'friend', loading: !!s.loading, hasError: !!s.error || (!!B && !them), error: s.error || 'This friend isn’t on your list any more.', ready: false, me: {}, them: {} };
+    const tint = TINTS[(them.id % 4) + 1];
+    const first = them.name.split(' ')[0];
+    const total = me.activeMin + them.activeMin;
+    const gap = them.activeMin - me.activeMin;
+    const rows = [['Active time', fmtMin(me.activeMin), fmtMin(them.activeMin), me.activeMin, them.activeMin], ['Distance', (mi ? (me.km / 1.609).toFixed(1) + ' mi' : me.km + ' km'), (mi ? (them.km / 1.609).toFixed(1) + ' mi' : them.km + ' km'), me.km, them.km], ['Trips', String(me.trips), String(them.trips), me.trips, them.trips], ['Active days', String(me.activeDays), String(them.activeDays), me.activeDays, them.activeDays]];
+    const dmax = Math.max(1, ...me.days, ...them.days);
+    const start = M ? M.weekStart() : Date.now() - 3 * 86400000;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Recaps.dc.html'), challenge: { href: challenge.href, go: (e) => { window.__motioChallengeWith = them.id; challenge.go(e); } } },
+      loading: false, hasError: false, error: '', ready: true, first,
+      d0: base + 'ms', d1: base + 120 + 'ms', d2: base + 260 + 'ms', d3: base + 360 + 'ms',
+      me: { ini: ini(me.name), time: fmtMin(me.activeMin) }, them: { ini: ini(them.name), time: fmtMin(them.activeMin), tint },
+      myShare: total ? (me.activeMin / total * 100).toFixed(1) + '%' : '50%',
+      tugAria: 'Share of active time: you ' + (total ? Math.round(me.activeMin / total * 100) : 50) + '%',
+      verdict: !total ? 'Neither of you has moved yet this week' : gap > 0 ? fmtMin(gap) + ' to take the lead' : gap < 0 ? 'You lead by ' + fmtMin(-gap) : 'Dead even',
+      rows: rows.map(([k, a, b, x, y], i) => { const m = Math.max(x, y, 0.0001); return { k, a, b, wa: (x / m * 100).toFixed(1) + '%', wb: (y / m * 100).toFixed(1) + '%', lw: x >= y ? 700 : 500, rw: y > x ? 700 : 500, d: base + 200 + i * 90 + 'ms' }; }),
+      days: me.days.map((a, i) => ({ l: new Date(start + i * 86400000).toLocaleDateString('en-GB', { weekday: 'narrow' }), a: Math.max(3, Math.round(a / dmax * 86)) + 'px', b: Math.max(3, Math.round(them.days[i] / dmax * 86)) + 'px', dl: base + 300 + i * 50 + 'ms' })),
+      cheerLabel: s.cheered ? 'Cheer sent' : 'Send a cheer', cheerBg: s.cheered ? '#DDF5E3' : '#FFFFFF', cheerFg: s.cheered ? '#1E7A36' : '#1F1D47',
+      cheerPop: s.cheered ? 'motioFvPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+      cheer: () => { if (s.cheered) return; this.setState({ cheered: true }); if (M) M.friends.cheer(them.id).catch(() => this.setState({ cheered: false })); },
+      removeLabel: s.confirmRemove ? 'Tap again to remove ' + first : 'Remove friend',
+      remove: () => {
+        if (!s.confirmRemove) { this.setState({ confirmRemove: true }); return; }
+        if (M) M.friends.remove(them.id).then(() => this.props.onNav && this.props.onNav('back')).catch(() => {});
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

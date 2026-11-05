@@ -127,6 +127,23 @@ export const health = {
   disconnect() { setSetting('healthSync', false); return Health.openSettings().catch(() => {}); },
   syncedAt: () => S.healthAt || null
 };
+// Friends: add each other by invite code and compare weekly totals (the server shares nothing else).
+export const friends = {
+  board: () => api('GET', '/v1/friends?from=' + weekStart()),
+  add: (code) => api('POST', '/v1/friends/add', { code }),
+  remove: (id) => api('POST', '/v1/friends/remove', { id }),
+  cheer: (id) => api('POST', '/v1/friends/cheer', { id }),
+  moments: () => api('GET', '/v1/moments'),
+  challenges: () => api('GET', '/v1/challenges'),
+  challenge: (kind, target, days, friendIds) => api('POST', '/v1/challenges', { kind, target, days, friendIds }),
+  leave: (id) => api('POST', '/v1/challenges/leave', { id }),
+  async invite(code) {
+    const text = `Add me on Motio and let's compare our weeks. My code: ${code}`;
+    if (native) { await Share.share({ title: 'Motio invite', text, dialogTitle: 'Invite a friend' }); return 'shared'; }
+    if (navigator.share) { await navigator.share({ text }); return 'shared'; }
+    await navigator.clipboard.writeText(text); return 'copied';
+  }
+};
 // Strava (through the server): connect with Strava's login page, then new walks, runs and rides upload automatically.
 export const strava = {
   status: () => api('GET', '/v1/strava'),
@@ -830,6 +847,61 @@ export function timeline(day = dayStart()) {
   return items;
 }
 export const findTrip = (id) => allTrips().find((t) => t.id === id) || null;
+
+// Weekly findings for Insights: when you move, your big day, how regular you are, and the week in other terms.
+export function findings() {
+  return memo('findings', () => {
+    const now = Date.now(), from = dayStart() - 6 * DAY, wk = summarize(from, now), out = [];
+    if (wk.min < 20) return out;
+    const before10 = wk.hourly.slice(0, 10).reduce((a, m) => a + m, 0), after18 = wk.hourly.slice(18).reduce((a, m) => a + m, 0);
+    const share = Math.round(before10 / wk.min * 100), late = Math.round(after18 / wk.min * 100);
+    out.push({ kind: 'hours', kicker: 'When you move', hourly: wk.hourly.slice(6), peak: wk.peak,
+      text: share >= 35 ? `You’re a morning mover: ${share}% of your week happened before 10 AM.` : late >= 35 ? `You come alive in the evening: ${late}% of your week came after 6 PM.` : `Your busiest hour was ${fmtHour(wk.peak)}.` });
+    const ds = days(from, 7), mins = ds.map((d) => d.min), top = mins.indexOf(Math.max(...mins)), avg = wk.min / 7;
+    out.push({ kind: 'days', kicker: 'Your big day', mins, labels: ds.map((d) => new Date(d.from).toLocaleDateString('en-GB', { weekday: 'narrow' })), top,
+      text: `${new Date(ds[top].from).toLocaleDateString('en-GB', { weekday: 'long' })} wins with ${fmtMin(mins[top])}` + (avg > 0 && mins[top] >= 1.8 * avg ? `, ${(mins[top] / avg).toFixed(1)}× your usual day.` : '.') });
+    // First trip of each of the last 14 days: how steady your start is.
+    const starts = days(dayStart() - 13 * DAY, 14).map((d) => d.trips[0]).filter(Boolean).map((t) => { const x = new Date(t.start); return x.getHours() * 60 + x.getMinutes(); });
+    if (starts.length >= 4) {
+      const mean = starts.reduce((a, m) => a + m, 0) / starts.length, sd = Math.sqrt(starts.reduce((a, m) => a + (m - mean) ** 2, 0) / starts.length);
+      const hm = (m) => Math.floor(m / 60) + ':' + String(Math.round(m % 60)).padStart(2, '0');
+      out.push({ kind: 'clock', kicker: 'Habits', starts, mean, sd,
+        text: sd <= 20 ? `Like clockwork: your day starts around ${hm(mean)}, give or take ${Math.max(1, Math.round(sd))} minutes.` : `Your days start anywhere from ${hm(Math.min(...starts))} to ${hm(Math.max(...starts))}.` });
+    }
+    const top2 = wk.modes[0];
+    if (top2) out.push({ kind: 'mix', kicker: 'How you moved', modes: wk.modes.map((m) => ({ key: m.key, pct: m.pct, color: m.color, label: m.label })), text: `${top2.label} took ${top2.pct}% of your moving time this week.` });
+    const km = wk.m / 1000;
+    if (km >= 2) out.push({ kind: 'compare', kicker: 'Put another way', km, text: km >= 42.2 ? `${fmtDist(wk.m)} this week: that’s ${(km / 42.195).toFixed(1)} marathons.` : `${fmtDist(wk.m)} this week: ${Math.round(km / 0.4)} laps of a running track.` });
+    return out;
+  });
+}
+
+// Memories: your biggest trip on this date a week, a month and a year ago (only the ones that exist).
+export function memories() {
+  return memo('memories', () => {
+    const today = summarize(dayStart(), dayStart() + DAY);
+    return [[7, '1 week'], [30, '1 month'], [365, '1 year']].map(([n, label]) => {
+      const d = dayStart() - n * DAY, sum = summarize(d, d + DAY), t = sum.trips.slice().sort((a, b) => b.distanceM - a.distanceM)[0];
+      return t && t.distanceM >= 300 ? { label, day: d, trip: t, thenMin: sum.min, nowMin: today.min } : null;
+    }).filter(Boolean);
+  });
+}
+
+// After a workout: time without pauses, pace, calories, splits, a pace curve and whether it beat your best.
+export function workoutSummary(id) {
+  const t = findTrip(id);
+  if (!t) return null;
+  const ms = Math.max(1, t.end - t.start - (t.pausedMs || 0)), km = t.distanceM / 1000;
+  const kg = (S.settings.body && S.settings.body.kg) || 70;
+  const pts = t.points || [], series = [];
+  for (let i = 1; i < pts.length; i++) { const dt = (pts[i][2] - pts[i - 1][2]) / 1000; if (dt > 0) series.push(Math.min(15, hav(pts[i - 1], pts[i]) / dt)); }
+  const smooth = series.map((_, i) => { const w = series.slice(Math.max(0, i - 3), i + 4); return w.reduce((a, v) => a + v, 0) / w.length; });
+  const same = allTrips().filter((x) => x.id !== t.id && x.mode === t.mode && !x.live);
+  const pace = (x) => (x.end - x.start - (x.pausedMs || 0)) / Math.max(0.001, x.distanceM / 1000);
+  const best = !same.length ? null : km > Math.max(...same.map((x) => x.distanceM / 1000)) ? 'Longest ' + MODES[t.mode].label.toLowerCase() + ' yet'
+    : km >= 1 && same.filter((x) => x.distanceM >= 1000).every((x) => pace(t) < pace(x)) ? 'Fastest ' + MODES[t.mode].label.toLowerCase() + ' yet' : null;
+  return { trip: t, ms, km, paceS: ms / 1000 / Math.max(0.001, km), speed: km / (ms / HOUR), kcal: (MET[t.mode] || 0) * kg * (ms / HOUR), splits: splits(t), series: smooth, best };
+}
 // Splits: time for each full kilometre (or mile), from the GPS points.
 export function splits(t) {
   const unitM = S.settings.unit === 'mi' ? 1609.34 : 1000, out = [];
@@ -955,7 +1027,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

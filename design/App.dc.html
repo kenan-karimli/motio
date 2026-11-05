@@ -21,6 +21,9 @@ button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
 button:active,a:active{transform:scale(0.96)}
 @keyframes motioFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes motioFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes motioAutoIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+[data-page="overlay"] .motio-scroll>*{animation:motioAutoIn 520ms cubic-bezier(0.22,1,0.36,1) 640ms backwards}
+[data-page="overlay"] .motio-scroll>:nth-child(1){animation-delay:360ms}[data-page="overlay"] .motio-scroll>:nth-child(2){animation-delay:410ms}[data-page="overlay"] .motio-scroll>:nth-child(3){animation-delay:460ms}[data-page="overlay"] .motio-scroll>:nth-child(4){animation-delay:510ms}[data-page="overlay"] .motio-scroll>:nth-child(5){animation-delay:560ms}[data-page="overlay"] .motio-scroll>:nth-child(6){animation-delay:600ms}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
@@ -66,9 +69,9 @@ button:active,a:active{transform:scale(0.96)}
       You
     </button>
     <button aria-current="{{ T3.current }}" onClick="{{ T3.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T3.fg }}; font-size: 11px; font-weight: {{ T3.fw }}">
-      <sc-if value="{{ T3.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"></path></svg></span></sc-if>
-      <sc-if value="{{ T3.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"></path></svg></span></sc-if>
-      Recap
+      <sc-if value="{{ T3.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="4"></circle><path d="M1.5 21c.8-4 3.8-6.5 7.5-6.5s6.7 2.5 7.5 6.5z"></path><path d="M16 3.3a4 4 0 0 1 0 7.4M18.5 14.6c2 .9 3.5 3 4 6.4h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></span></sc-if>
+      <sc-if value="{{ T3.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M16 3.5a4 4 0 0 1 0 7M22 21v-1a6 6 0 0 0-4-5.6"></path></svg></span></sc-if>
+      Social
     </button>
   </nav>
 
@@ -192,6 +195,36 @@ button:active,a:active{transform:scale(0.96)}
       <dc-import name="Goals" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.friends.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.friends.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friends.z }}; animation: {{ O.friends.anim }}; box-shadow: {{ O.friends.shadow }}">
+      <dc-import name="Friends" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.friend.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.friend.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friend.z }}; animation: {{ O.friend.anim }}; box-shadow: {{ O.friend.shadow }}">
+      <dc-import name="FriendProfile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.challenge.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.challenge.kind }}" style="position: absolute; inset: 0; z-index: {{ O.challenge.z }}; animation: {{ O.challenge.anim }}; box-shadow: {{ O.challenge.shadow }}">
+      <dc-import name="Challenge" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.summary.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.summary.kind }}" style="position: absolute; inset: 0; z-index: {{ O.summary.z }}; animation: {{ O.summary.anim }}; box-shadow: {{ O.summary.shadow }}">
+      <dc-import name="WorkoutSummary" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.insights.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.insights.kind }}" style="position: absolute; inset: 0; z-index: {{ O.insights.z }}; animation: {{ O.insights.anim }}; box-shadow: {{ O.insights.shadow }}">
+      <dc-import name="Insights" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.onthisday.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.onthisday.kind }}" style="position: absolute; inset: 0; z-index: {{ O.onthisday.z }}; animation: {{ O.onthisday.anim }}; box-shadow: {{ O.onthisday.shadow }}">
+      <dc-import name="OnThisDay" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.health.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.health.kind }}" style="position: absolute; inset: 0; z-index: {{ O.health.z }}; animation: {{ O.health.anim }}; box-shadow: {{ O.health.shadow }}">
       <dc-import name="Health" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -277,7 +310,7 @@ class Component extends DCLogic {
     const s = this.state || {};
     const tab = s.tab || 0;
     let authed = false;
-    try { authed = window.Motio ? window.Motio.auth.isSignedIn() : window.localStorage.getItem('motio.auth') === '1'; } catch (e) { /* storage blocked */ }
+    try { authed = window.Motio ? window.Motio.auth.isSignedIn() : window.localStorage.getItem('motio.auth') !== '0'; } catch (e) { /* storage blocked */ }
     // First launch (or after logging out) starts on Welcome.
     if (this.initStack === undefined) this.initStack = authed ? [] : ['welcome'];
     const stack = s.stack || this.initStack;
@@ -290,7 +323,7 @@ class Component extends DCLogic {
     const top = stack[stack.length - 1] || null;
     const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
     const tabIndex = { today: 0, moves: 1, you: 2, recaps: 3 };
-    const stories = ['recap', 'month', 'live'];
+    const stories = ['recap', 'month', 'live', 'summary'];
 
     // One shell for the whole app: tabs swap almost instantly (Instagram-style),
     // detail screens push from the right, recaps rise from the bottom, log-out fades.
@@ -319,7 +352,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

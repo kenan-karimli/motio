@@ -40,9 +40,14 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 @keyframes motioYouIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes motioSecIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes motioSecCell{from{opacity:0;transform:scale(0.3)}to{opacity:1;transform:none}}
+@keyframes motioSecRing{from{stroke-dashoffset:138.2}}
+@keyframes motioSecBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes motioSecBadge{0%{opacity:0;transform:scale(0.4) rotate(-15deg)}70%{opacity:1;transform:scale(1.08)}100%{transform:none}}
 .motio-you>*{flex-shrink:0}
 .motio-scroll::-webkit-scrollbar{display:none}
-[data-enter="true"] .motio-you>:nth-child(-n+6){animation:motioYouIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
+[data-enter="true"] .motio-you>:nth-child(-n+5){animation:motioYouIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
 .motio-you>:nth-child(1){animation-delay:60ms}.motio-you>:nth-child(2){animation-delay:120ms}.motio-you>:nth-child(3){animation-delay:180ms}.motio-you>:nth-child(4){animation-delay:240ms}.motio-you>:nth-child(5){animation-delay:300ms}.motio-you>:nth-child(6){animation-delay:360ms}
 </style>
 </helmet>
@@ -119,35 +124,58 @@ button:active,a:active{transform:scale(0.96)}
     </button>
   </div>
 
-  <div style="display: flex; gap: 12px; flex-shrink: 0">
-    <a href="{{ LK.ach.href }}" onClick="{{ LK.ach.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; text-decoration: none">
-      <span style="display: flex; align-items: center; justify-content: space-between"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F6C343" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg><sc-if value="{{ achNew }}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 8px; border-radius: 10px; background: #F6C343; color: #1F1D47; font-size: 10px; font-weight: 700">NEW</span></sc-if></span>
-      <span style="font-size: 15px; font-weight: 600">Achievements</span>
-      <span style="font-size: 12px; color: #C9C5EC">{{ achLine }}</span>
-    </a>
-    <a href="{{ LK.places.href }}" onClick="{{ LK.places.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; text-decoration: none">
-      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3DBF5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"></path></svg>
-      <span style="font-size: 15px; font-weight: 600">Places</span>
-      <span style="font-size: 12px; color: #6B6890">{{ placesLine }}</span>
-    </a>
-  </div>
-  <div style="display: flex; gap: 12px">
-    <a href="{{ LK.goals.href }}" onClick="{{ LK.goals.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; text-decoration: none">
-      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5B4FE0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01"></path></svg>
-      <span style="font-size: 15px; font-weight: 600">Goals</span>
-      <span style="font-size: 12px; color: #6B6890">{{ goalsLine }}</span>
-    </a>
-    <a href="{{ LK.health.href }}" onClick="{{ LK.health.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #F2766B; color: #FFFFFF; text-decoration: none">
-      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>
-      <span style="font-size: 15px; font-weight: 600">Health</span>
-      <span style="font-size: 12px; color: rgba(255,255,255,0.88)">{{ healthLine }}</span>
-    </a>
-  </div>
-  <a href="{{ LK.explorer.href }}" onClick="{{ LK.explorer.go }}" style="position: relative; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; background: #16142F; color: #FFFFFF; text-decoration: none">
-    <svg aria-hidden="true" width="52" height="52" viewBox="0 0 52 52"><rect width="52" height="52" rx="14" fill="#2A2560"></rect><g fill="#E4E8F0"><circle cx="16" cy="30" r="7"></circle><circle cx="22" cy="24" r="7"></circle><circle cx="29" cy="21" r="7"></circle><circle cx="36" cy="25" r="6"></circle></g><path d="M12 33 C 20 22, 30 18, 40 25" fill="none" stroke="#3DBF5C" stroke-width="2.5" stroke-linecap="round"></path></svg>
-    <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Explorer</span><span style="font-size: 12px; color: #C9C5EC">{{ explorerLine }}</span></span>
-    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
-  </a>
+  <section style="display: flex; flex-direction: column; gap: 12px">
+    <div role="tablist" aria-label="Your sections" style="position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.3)">
+      <span aria-hidden="true" style="position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 4); border-radius: 18px; background: #FFFFFF; transform: translateX({{ sec.pillX }}); transition: transform 440ms cubic-bezier(0.34, 1.3, 0.64, 1)"></span>
+      <sc-for list="{{ sec.tabs }}" as="t" hint-placeholder-count="4"><button type="button" role="tab" aria-selected="{{ t.on }}" onClick="{{ t.pick }}" style="position: relative; height: 40px; border: 0; background: transparent; color: {{ t.fg }}; font-size: 13px; font-weight: 600; transition: color 300ms ease">{{ t.label }}<sc-if value="{{ t.dot }}" hint-placeholder-val="{{ false }}"><span aria-label="new" style="position: absolute; right: 10px; top: 9px; width: 7px; height: 7px; border-radius: 4px; background: #F2766B"></span></sc-if></button></sc-for>
+    </div>
+
+    <sc-if value="{{ sec.isGoals }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="padding: 18px; border-radius: 26px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
+          <span style="display: flex; justify-content: space-between; align-items: flex-end"><span style="display: flex; flex-direction: column"><span style="font-size: 12px; opacity: 0.7">Current streak</span><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ sec.streak }}</span></span><span style="font-size: 12px; color: #F6C343; font-weight: 600">{{ sec.best }}</span></span>
+          <div role="img" aria-label="{{ sec.gridAria }}" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px"><sc-for list="{{ sec.grid }}" as="c" hint-placeholder-count="28"><span style="aspect-ratio: 1; border-radius: 8px; background: {{ c.bg }}; box-shadow: {{ c.ring }}; animation: motioSecCell 380ms cubic-bezier(0.34, 1.4, 0.64, 1) {{ c.d }} backwards"></span></sc-for></div>
+        </div>
+        <sc-for list="{{ sec.weekly }}" as="w" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 22px; background: #FFFFFF; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ w.d }} backwards">
+            <span style="position: relative; width: 52px; height: 52px; flex-shrink: 0"><svg aria-hidden="true" width="52" height="52" viewBox="0 0 56 56" style="transform: rotate(-90deg)"><circle cx="28" cy="28" r="22" fill="none" stroke="#F3F2FA" stroke-width="7"></circle><circle cx="28" cy="28" r="22" fill="none" stroke="{{ w.c }}" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="{{ w.off }}" style="animation: motioSecRing 1000ms cubic-bezier(0.22, 1, 0.36, 1) {{ w.d }} backwards"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700">{{ w.pct }}</span></span>
+            <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{ w.title }}</span><span style="font-size: 12px; color: #6B6890">{{ w.sub }}</span></span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ sec.noWeekly }}" hint-placeholder-val="{{ false }}"><div style="padding: 14px 16px; border-radius: 20px; background: #FFFFFF; font-size: 13px; color: #4A4770">No weekly goals yet. Add one, like three runs a week.</div></sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sec.isHealth }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="padding: 18px; border-radius: 26px; background: #F2766B; color: #FFFFFF; display: flex; flex-direction: column; gap: 4px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
+          <span style="font-size: 12px; opacity: 0.9">Burned moving today</span><span style="font-size: 44px; font-weight: 700; line-height: 1">{{ sec.kcal }}</span><span style="font-size: 12px; opacity: 0.9">{{ sec.kcalSub }}</span>
+        </div>
+        <div style="padding: 18px; border-radius: 26px; background: #FFFFFF; display: flex; flex-direction: column; gap: 10px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms backwards">
+          <span style="font-size: 15px; font-weight: 700">Last 7 days</span>
+          <div role="img" aria-label="Calories burned moving, last 7 days" style="display: flex; align-items: flex-end; gap: 8px; height: 100px"><sc-for list="{{ sec.kbars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px"><span style="width: 100%; height: {{ b.h }}; border-radius: 8px; background: {{ b.c }}; transform-origin: bottom; animation: motioSecBar 640ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ b.d }} backwards"></span><span style="font-size: 11px">{{ b.l }}</span></span></sc-for></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sec.isBadges }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 18px; border-radius: 26px; background: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
+        <span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 15px; font-weight: 700">{{ sec.badgeHead }}</span><span style="font-size: 12px; color: #6B6890; text-align: right">{{ sec.badgeNext }}</span></span>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px"><sc-for list="{{ sec.badges }}" as="b" hint-placeholder-count="6"><span style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; animation: motioSecBadge 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards"><span style="width: 60px; height: 60px; border-radius: 20px; background: {{ b.bg }}; display: flex; align-items: center; justify-content: center; transform: rotate(-6deg)"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ b.fg }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg></span><span style="font-size: 11px; font-weight: 600; line-height: 1.25; color: {{ b.lc }}">{{ b.name }}</span></span></sc-for></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sec.isPlaces }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{ sec.places }}" as="p" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #FFFFFF; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"><span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ p.c }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"></path></svg></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span style="font-size: 12px; color: #6B6890">{{ p.meta }}</span></span></div>
+        </sc-for>
+        <sc-if value="{{ sec.noPlaces }}" hint-placeholder-val="{{ false }}"><div style="padding: 14px 16px; border-radius: 20px; background: #FFFFFF; font-size: 13px; color: #4A4770">Your places show up after a few trips: home, work and the spots you return to.</div></sc-if>
+        <a href="{{ LK.explorer.href }}" onClick="{{ LK.explorer.go }}" style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; background: #16142F; color: #FFFFFF; text-decoration: none; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) 240ms backwards"><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Explorer</span><span style="font-size: 12px; color: #C9C5EC">{{ explorerLine }}</span></span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
+      </div>
+    </sc-if>
+    <a href="{{ sec.all.href }}" onClick="{{ sec.all.go }}" style="align-self: center; height: 40px; padding: 0 18px; border-radius: 20px; background: rgba(255,255,255,0.35); color: #1F1D47; font-size: 13px; font-weight: 600; display: flex; align-items: center; text-decoration: none">{{ sec.allLabel }}</a>
+  </section>
 
   <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 28px; background: #FFFFFF">
     <h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 600">Personal records</h2>
@@ -168,7 +196,7 @@ button:active,a:active{transform:scale(0.96)}
     <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
     <a href="Breakdown.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg></span>Moves</a>
     <a href="You.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.5"></circle><path d="M3.5 21.5c1.3-4.6 4.6-7 8.5-7s7.2 2.4 8.5 7z"></path></svg></span>You</a>
-    <a href="Recaps.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"></path></svg></span>Recap</a>
+    <a href="Recaps.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M16 3.5a4 4 0 0 1 0 7M22 21v-1a6 6 0 0 0-4-5.6"></path></svg></span>Social</a>
   </nav>
   </sc-if>
   <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
@@ -417,6 +445,42 @@ class Component extends DCLogic {
       }
     };
   }
+  // The You sections: goals, health, badges and places, drawn from the same data as their full pages.
+  sectionVals(lk) {
+    const M = window.Motio, s = this.state || {}, tab = s.sec || 'goals';
+    const T = [['goals', 'Goals', 'goals', 'Goals.dc.html', 'See all goals'], ['health', 'Health', 'health', 'Health.dc.html', 'Open Health'], ['badges', 'Badges', 'achievements', 'Achievements.dc.html', 'See all badges'], ['places', 'Places', 'places', 'Places.dc.html', 'See places on the map']];
+    const idx = T.findIndex((x) => x[0] === tab), DAY = 86400000, t0 = new Date().setHours(0, 0, 0, 0);
+    const fmtMin = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
+    const G = M ? M.goals() : { streak: 6, best: 14, goal: 180, grid: Array.from({ length: 35 }, (_, i) => ({ day: t0 - (31 - i) * DAY, pct: [1, 0.6, 1, 1, 0.3, 1, 0][i % 7], min: 100, future: i > 31 })), week: [{ mode: 'run', metric: 'times', target: 3, have: 2, pct: 0.67, done: false }] };
+    const B = M ? M.body() : { today: 412, todayMin: 74, weekKcal: 2310, lastKcal: 2050, week: [210, 380, 120, 455, 300, 90, 412].map((k, i) => ({ day: t0 - (6 - i) * DAY, kcal: k })) };
+    const A = M ? M.achievements() : [['Early bird', '#F6C343', 1], ['Long ride', '#6E8CF7', 1], ['One-week streak', '#F6C343', 1], ['5 km on foot', '#3DBF5C', 1], ['Night owl', '#2D2A6E', 0], ['100 km club', '#F2766B', 0.6]].map(([title, color, p]) => ({ title, color, got: p >= 1, progress: p, fresh: false }));
+    const P = M ? M.places() : [{ name: 'Home', kind: 'home', visits: 34, hours: 345 }, { name: 'Work', kind: 'work', visits: 25, hours: 111 }, { name: 'Gym', kind: 'place', visits: 9, hours: 14 }];
+    const NAMES = { walk: ['Walk', '#3DBF5C'], run: ['Run', '#F2766B'], bike: ['Ride', '#6E8CF7'] };
+    const unitL = { times: (n) => (n === 1 ? 'time' : 'times'), km: () => (M && M.settings().unit === 'mi' ? 'mi' : 'km'), min: () => 'min' };
+    const got = A.filter((a) => a.got), next = A.filter((a) => !a.got).sort((x, y) => y.progress - x.progress)[0];
+    const show = got.concat(A.filter((a) => !a.got).sort((x, y) => y.progress - x.progress)).slice(0, 6);
+    const kmax = Math.max(1, ...B.week.map((d) => d.kcal));
+    const vs = B.lastKcal ? Math.round((B.weekKcal / B.lastKcal - 1) * 100) : null;
+    const grid = G.grid.slice(-28);
+    const link = lk(T[idx][2], T[idx][3]);
+    return {
+      pillX: idx * 100 + '%', all: link, allLabel: T[idx][4],
+      tabs: T.map(([k, label]) => ({ label, on: k === tab, fg: k === tab ? '#1F1D47' : '#FFFFFF', dot: k === 'badges' && A.some((a) => a.fresh), pick: () => this.setState({ sec: k }) })),
+      isGoals: tab === 'goals', isHealth: tab === 'health', isBadges: tab === 'badges', isPlaces: tab === 'places',
+      streak: G.streak + (G.streak === 1 ? ' day' : ' days'), best: 'Best ' + G.best,
+      gridAria: 'Last four weeks: ' + grid.filter((c) => c.pct >= 1).length + ' days on your daily goal',
+      grid: grid.map((c, i) => ({ bg: c.future ? 'rgba(255,255,255,0.05)' : c.pct >= 1 ? '#F6C343' : c.min > 0 ? 'rgba(255,255,255,' + (0.1 + 0.3 * c.pct).toFixed(2) + ')' : 'rgba(255,255,255,0.08)', ring: c.day === t0 ? '0 0 0 2px #FFFFFF' : 'none', d: 80 + i * 12 + 'ms' })),
+      weekly: G.week.slice(0, 3).map((g, i) => ({ title: NAMES[g.mode][0] + ' ' + g.target + ' ' + unitL[g.metric](g.target), c: NAMES[g.mode][1], pct: Math.round(g.pct * 100) + '%', off: (138.2 * (1 - g.pct)).toFixed(1),
+        sub: g.done ? 'Done this week' : (g.metric === 'km' ? g.have.toFixed(1) : Math.round(g.have)) + ' of ' + g.target, d: 160 + i * 80 + 'ms' })),
+      noWeekly: !G.week.length,
+      kcal: Math.round(B.today) + ' kcal', kcalSub: fmtMin(B.todayMin) + ' active' + (vs == null ? '' : ' · ' + (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% this week'),
+      kbars: B.week.map((d, i) => ({ h: Math.max(4, Math.round(d.kcal / kmax * 76)) + 'px', c: d.day === t0 ? '#F2766B' : '#F8C9C4', l: new Date(d.day).toLocaleDateString('en-GB', { weekday: 'narrow' }), d: 80 + i * 50 + 'ms' })),
+      badgeHead: got.length + ' of ' + A.length + ' earned', badgeNext: next ? 'Next: ' + next.title : 'All earned',
+      badges: show.map((a, i) => ({ name: a.title, bg: a.got ? a.color : '#ECEAF8', fg: a.got ? '#FFFFFF' : '#B9B5D6', lc: a.got ? '#1F1D47' : '#6B6890', d: 60 + i * 70 + 'ms' })),
+      places: P.slice(0, 4).map((p, i) => ({ name: p.name, c: { home: '#F2766B', work: '#5B4FE0' }[p.kind] || '#3DBF5C', meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + Math.round(p.hours) + ' h here', d: 60 + i * 70 + 'ms' })),
+      noPlaces: !P.length
+    };
+  }
   renderVals() {
     if (this.entryAnim === undefined) {
       const d = this.props.embedded ? null : this.dirGet();
@@ -561,7 +625,7 @@ class Component extends DCLogic {
     }
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
+      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), friends: lk('friends', 'Friends.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
       ...(() => {
         const M = window.Motio;
         if (!M) return { goalsLine: '6-day streak', healthLine: '412 kcal today', achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more', explorerLine: '4.2% of your city explored' };
@@ -572,6 +636,7 @@ class Component extends DCLogic {
           achLine: got + ' of ' + a.length + ' earned', achNew: a.some((x) => x.fresh), explorerLine: ex.count ? ex.pct.toFixed(1) + '% of your city explored' + (ex.newThisWeek ? ' · +' + ex.newThisWeek + ' this week' : '') : 'Clears as you move around your city',
           placesLine: pl.length ? pl.slice(0, 2).map((p) => p.name).join(', ') + (pl.length > 2 ? ' and ' + (pl.length - 2) + ' more' : '') : 'Appear after a few trips' };
       })(),
+      sec: this.sectionVals(lk),
       navFrom: this.navFrom,
       name, bio, hasBio: bio.trim().length > 0,
       initials: name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''),

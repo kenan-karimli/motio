@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Friends</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#16142F}
+button,a,input{font:inherit}
+button,a{cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioRankIn{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:none}}
+@keyframes motioRankBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioCodeIn{from{opacity:0;transform:translateY(14px) rotateX(70deg)}to{opacity:1;transform:none}}
+@keyframes motioFriendsUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes motioCrown{0%{transform:translateY(6px) scale(0.6);opacity:0}60%{transform:translateY(-2px) scale(1.08);opacity:1}100%{transform:none;opacity:1}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: radial-gradient(110% 50% at 50% 0%, #2A2560 0%, #16142F 65%), #16142F; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 6px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Friends</h1>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <span style="font-size: 15px; font-weight: 600">Active time this week</span>
+      <span style="font-size: 12px; opacity: 0.6">{{ weekLabel }}</span>
+    </div>
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.06); font-size: 13px; opacity: 0.7; text-align: center">Loading your board…</div>
+    </sc-if>
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="padding: 16px; border-radius: 20px; background: rgba(242,118,107,0.16); color: #FFD3CE; font-size: 13px; display: flex; align-items: center; gap: 10px"><span style="flex: 1">{{ error }}</span><button type="button" onClick="{{ reload }}" style="height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">Retry</button></div>
+    </sc-if>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.delay }} backwards">
+          <button type="button" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}" aria-expanded="{{ r.open }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+            <span style="width: 22px; font-size: 15px; font-weight: 700; color: {{ r.rankColor }}; text-align: center">{{ r.rank }}</span>
+            <span style="position: relative; width: 42px; height: 42px; flex-shrink: 0">
+              <sc-if value="{{ r.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ r.avatar }}" alt="" style="width: 42px; height: 42px; border-radius: 21px; object-fit: cover; display: block"></sc-if>
+              <sc-if value="{{ r.noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 42px; height: 42px; border-radius: 21px; background: {{ r.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ r.initials }}</span></sc-if>
+              <sc-if value="{{ r.first }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="22" height="16" viewBox="0 0 22 16" style="position: absolute; left: 10px; top: -12px; animation: motioCrown 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.crownDelay }} backwards"><path d="M2 14 L4 4 L8 9 L11 2 L14 9 L18 4 L20 14 Z" fill="#F6C343" stroke="#16142F" stroke-width="1.5" stroke-linejoin="round"></path></svg></sc-if>
+            </span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 11px; opacity: 0.65">{{ r.sub }}</span></span>
+            <span style="text-align: right; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums">{{ r.time }}</span><span style="font-size: 11px; color: {{ r.trendColor }}">{{ r.trend }}</span></span>
+          </button>
+          <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.barColor }}; transform-origin: left; animation: motioRankBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.barDelay }} backwards"></span></span>
+          <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ r.remove }}" style="align-self: flex-start; height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: rgba(242,118,107,0.18); color: #FFB3AB; font-size: 12px; font-weight: 600; animation: motioFriendsUp 260ms ease-out">Remove {{ r.first_name }}</button>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ alone }}" hint-placeholder-val="{{ true }}">
+      <div style="padding: 16px; border-radius: 20px; background: rgba(255,255,255,0.06); font-size: 13px; line-height: 1.5; opacity: 0.85">It’s just you so far. Send your code to a friend, or add theirs below, and your weeks line up side by side.</div>
+    </sc-if>
+
+    <section style="margin-top: 6px; padding: 18px; border-radius: 24px; background: #FFFFFF; color: #1F1D47; display: flex; flex-direction: column; gap: 14px; animation: motioFriendsUp 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ dCard }} backwards">
+      <span style="font-size: 13px; color: #6B6890">Your invite code</span>
+      <div aria-label="{{ codeAria }}" role="text" style="display: flex; gap: 6px; perspective: 400px">
+        <sc-for list="{{ codeChars }}" as="c" hint-placeholder-count="6"><span style="flex: 1; height: 54px; border-radius: 14px; background: #F3F2FA; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; letter-spacing: 0; animation: motioCodeIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.delay }} backwards">{{ c.ch }}</span></sc-for>
+      </div>
+      <button type="button" onClick="{{ invite }}" style="height: 48px; border: 0; border-radius: 24px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F6C343" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Send my code</button>
+      <div style="height: 1px; background: #EEF0F6"></div>
+      <span style="font-size: 13px; color: #6B6890">Got a friend’s code?</span>
+      <div style="display: flex; gap: 8px">
+        <input value="{{ draft }}" onChange="{{ onDraft }}" aria-label="Friend’s invite code" maxlength="7" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" style="flex: 1; min-width: 0; height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 18px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase">
+        <button type="button" onClick="{{ addFriend }}" disabled="{{ addOff }}" style="height: 48px; padding: 0 20px; border: 0; border-radius: 14px; background: {{ addBg }}; color: #16142F; font-size: 14px; font-weight: 700; transition: background-color 200ms ease">{{ addLabel }}</button>
+      </div>
+      <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #C2412F">{{ addError }}</span></sc-if>
+      <span style="font-size: 11px; line-height: 1.5; color: #6B6890">Friends see only your weekly totals: active time, distance and number of trips. Never your routes or places.</span>
+    </section>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.load(); }
+  componentWillUnmount() { clearTimeout(this.toastT); }
+  load() {
+    const M = window.Motio;
+    if (!M) return;
+    this.setState({ loading: !(this.state && this.state.board), error: null });
+    M.friends.board()
+      .then((board) => this.setState({ board, loading: false }))
+      .catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load your friends.' }));
+  }
+  showToast(msg) {
+    clearTimeout(this.toastT);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const sample = { code: 'K7M2QX', people: [
+      { id: 1, name: 'You', me: true, activeMin: 412, km: 38.2, trips: 14, lastMin: 360 },
+      { id: 2, name: 'Leyla Aliyeva', activeMin: 486, km: 52.4, trips: 11, lastMin: 520 },
+      { id: 3, name: 'Murad', activeMin: 233, km: 61.0, trips: 9, lastMin: 190 },
+      { id: 4, name: 'Nigar', activeMin: 120, km: 9.1, trips: 6, lastMin: 0 }] };
+    const B = M ? s.board : sample;
+    const people = B ? B.people.slice().sort((a, b) => b.activeMin - a.activeMin) : [];
+    const max = Math.max(1, ...people.map((p) => p.activeMin));
+    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min');
+    const mi = M && M.settings().unit === 'mi';
+    const base = emb ? 380 : 0;
+    const code = B ? B.code : '';
+    const draft = s.draft || '';
+    const clean = draft.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const ws = M ? M.weekStart() : Date.now() - 3 * 86400000;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'You.dc.html') },
+      weekLabel: 'since ' + new Date(ws).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+      loading: !!s.loading, hasError: !!s.error, error: s.error || '', reload: () => this.load(),
+      alone: !!B && people.length < 2,
+      rows: people.map((p, i) => {
+        const open = s.open === p.id && !p.me;
+        const d = p.lastMin ? Math.round((p.activeMin / p.lastMin - 1) * 100) : null;
+        const name = p.me ? 'You' : p.name;
+        return {
+          rank: i + 1, rankColor: i === 0 ? '#F6C343' : 'rgba(255,255,255,0.6)', first: i === 0 && p.activeMin > 0, crownDelay: base + 500 + 'ms',
+          name, first_name: p.name.split(' ')[0], initials: p.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(),
+          hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', tint: TINTS[p.id % TINTS.length],
+          sub: (mi ? (p.km / 1.609).toFixed(1) + ' mi' : p.km + ' km') + ' · ' + p.trips + (p.trips === 1 ? ' trip' : ' trips'),
+          time: fmtMin(p.activeMin), trend: d == null ? 'new this week' : (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%', trendColor: d == null || d >= 0 ? '#7FE39A' : '#FFB3AB',
+          w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', barColor: p.me ? '#F6C343' : TINTS[p.id % TINTS.length],
+          bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', border: p.me ? 'rgba(246,195,67,0.45)' : 'transparent',
+          delay: base + i * 70 + 'ms', barDelay: base + 160 + i * 70 + 'ms',
+          aria: '#' + (i + 1) + ', ' + name + ', ' + fmtMin(p.activeMin) + ' active this week' + (p.me ? '' : '. Tap for options'),
+          open, toggle: () => { if (!p.me) this.setState({ open: open ? null : p.id }); },
+          remove: () => {
+            if (!M) return;
+            M.friends.remove(p.id).then(() => { this.showToast(p.name.split(' ')[0] + ' removed'); this.setState({ open: null }); this.load(); })
+              .catch((e) => this.showToast((e && e.message) || 'Couldn’t remove. Try again.'));
+          }
+        };
+      }),
+      dCard: base + 260 + 'ms',
+      codeAria: 'Your invite code: ' + code.split('').join(' '),
+      codeChars: (code || '······').split('').map((ch, i) => ({ ch, delay: base + 420 + i * 60 + 'ms' })),
+      invite: () => { if (M && code) M.friends.invite(code).then((r) => { if (r === 'copied') this.showToast('Invite copied'); }).catch(() => {}); },
+      draft, onDraft: (e) => this.setState({ draft: e.target.value, addError: null }),
+      addOff: clean.length !== 6 || !!s.adding, addBg: clean.length === 6 ? '#F6C343' : '#E3E1F3', addLabel: s.adding ? 'Adding…' : 'Add',
+      hasAddError: !!s.addError, addError: s.addError || '',
+      addFriend: () => {
+        if (!M || clean.length !== 6) return;
+        this.setState({ adding: true, addError: null });
+        M.friends.add(clean)
+          .then((r) => { this.setState({ adding: false, draft: '' }); this.showToast(r.friend.name.split(' ')[0] + ' added'); this.load(); })
+          .catch((e) => this.setState({ adding: false, addError: (e && e.message) || 'Couldn’t add. Try again.' }));
+      },
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

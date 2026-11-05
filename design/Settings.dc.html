@@ -46,7 +46,7 @@ button:active,a:active{transform:scale(0.96)}
     <h1 style="position: relative; margin: 14px 0 0; font-size: 32px; font-weight: 700">Settings</h1>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 22px">
+  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 22px">
 
     <section style="display: flex; flex-direction: column; gap: 12px">
       <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
@@ -243,7 +243,7 @@ class Component extends DCLogic {
       miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
       setKm: () => put('unit', 'km'),
       setMi: () => put('unit', 'mi'),
-      versionLabel: 'Version 2.2' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 3.0' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

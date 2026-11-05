@@ -174,3 +174,63 @@ test('mail through Brevo: sends the code over HTTPS with the right sender', asyn
   const bad = createMailer({ BREVO_API_KEY: 'k' }, async () => new Response('nope', { status: 401 }));
   await assert.rejects(bad.sendCode('a@b.co', 'verify', '1', ''), /Brevo 401/);
 });
+
+test('friends: invite code, weekly board with totals only, remove', async () => {
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Ada', 'ada@example.com'), b = await join('Ben', 'ben@example.com');
+  const week = clock - 2 * 86400000;
+  let r = await call('GET', '/v1/friends?from=' + week, null, a);
+  assert.equal(r.status, 200); assert.match(r.body.code, /^[A-Z2-9]{6}$/); assert.equal(r.body.people.length, 1);
+  const codeA = r.body.code;
+  assert.equal((await call('GET', '/v1/friends', null, a)).body.code, codeA, 'code stays the same');
+  assert.equal((await call('POST', '/v1/friends/add', { code: codeA }, a)).body.error, 'code_self');
+  assert.equal((await call('POST', '/v1/friends/add', { code: 'ZZZZZZ' }, b)).status, 404);
+  r = await call('POST', '/v1/friends/add', { code: codeA.toLowerCase().slice(0, 3) + '-' + codeA.slice(3) }, b);
+  assert.equal(r.body.friend.name, 'Ada');
+  const run = { id: 'r1', start: clock - 3600000, end: clock - 1800000, mode: 'run', distanceM: 5000, points: [[40.4, 49.8, clock - 3600000]] };
+  await call('POST', '/v1/trips/sync', { trips: [run, { ...run, id: 'd1', mode: 'drive', distanceM: 20000 }], since: 0 }, b);
+  r = await call('GET', '/v1/friends?from=' + week, null, a);
+  const ben = r.body.people.find((p) => p.name === 'Ben');
+  assert.equal(ben.activeMin, 30); assert.equal(ben.km, 25); assert.equal(ben.trips, 2);
+  assert.equal(JSON.stringify(r.body).includes('49.8'), false, 'no routes leak');
+  await call('POST', '/v1/friends/remove', { id: ben.id }, a);
+  assert.equal((await call('GET', '/v1/friends', null, b)).body.people.length, 1, 'removed for both');
+});
+
+test('friends: per-day board, cheers, challenges and moments', async () => {
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Cara', 'cara@example.com'), b = await join('Dan', 'dan@example.com');
+  const codeA = (await call('GET', '/v1/friends', null, a)).body.code;
+  await call('POST', '/v1/friends/add', { code: codeA }, b);
+  const danId = (await call('GET', '/v1/friends', null, a)).body.people.find((p) => !p.me).id;
+  const caraId = (await call('GET', '/v1/friends', null, b)).body.people.find((p) => !p.me).id;
+
+  let r = await call('POST', '/v1/challenges', { kind: 'km', target: 20, days: 2, friendIds: [danId] }, a);
+  assert.equal(r.status, 200); assert.equal(r.body.challenge.members.length, 2);
+  assert.equal((await call('POST', '/v1/challenges', { kind: 'km', target: 20, days: 2, friendIds: [9999] }, a)).body.error, 'not_friend');
+  assert.equal((await call('POST', '/v1/challenges', { kind: 'swim', target: 5, friendIds: [danId] }, a)).body.error, 'bad_kind');
+
+  const run = { id: 'c1', start: clock + 60000, end: clock + 1860000, mode: 'run', distanceM: 6000, points: [] };
+  await call('POST', '/v1/trips/sync', { trips: [run, { ...run, id: 'c2', mode: 'drive', distanceM: 30000 }], since: 0 }, b);
+  r = await call('GET', '/v1/challenges', null, a);
+  const dan = r.body.challenges[0].members[0];
+  assert.equal(dan.name, 'Dan'); assert.equal(dan.value, 6, 'only the run counts, not the drive');
+
+  r = await call('GET', '/v1/friends?from=' + (clock - 86400000), null, a);
+  const danRow = r.body.people.find((p) => !p.me);
+  assert.equal(danRow.days[1], 30); assert.equal(danRow.activeDays, 1);
+
+  assert.equal((await call('POST', '/v1/friends/cheer', { id: 9999 }, b)).body.error, 'not_friend');
+  await call('POST', '/v1/friends/cheer', { id: caraId }, b);
+  await call('POST', '/v1/friends/cheer', { id: caraId }, b); // second within 10 min is ignored
+  r = await call('GET', '/v1/moments', null, a);
+  assert.equal(r.body.moments.filter((m) => m.kind === 'cheer').length, 1);
+  r = await call('GET', '/v1/moments', null, b);
+  assert.equal(r.body.moments[0].kind, 'challenge'); assert.equal(r.body.moments[0].who.name, 'Cara');
+});

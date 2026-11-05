@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · Recaps</title>
+<title>Motio · Social</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -38,6 +38,12 @@ button:active,a:active{transform:scale(0.96)}
 .motio-scroll::-webkit-scrollbar{display:none}
 .motio-scroll>*{flex-shrink:0}
 @keyframes motioRecapsIn{from{opacity:0;transform:translateY(26px) scale(0.98)}to{opacity:1;transform:none}}
+@keyframes motioRowSlide{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:none}}
+@keyframes motioBarIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioBarUp{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes motioRacer{from{left:4%}}
+@keyframes motioCheerPop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes motioPulseBg{0%,100%{opacity:0.5}50%{opacity:1}}
 [data-enter="true"] .motio-rc>*{animation:motioRecapsIn 580ms cubic-bezier(0.22,1,0.36,1) backwards !important}
 [data-enter="true"] .motio-rc>:nth-child(2){animation-delay:70ms !important}[data-enter="true"] .motio-rc>:nth-child(3){animation-delay:140ms !important}[data-enter="true"] .motio-rc>:nth-child(4){animation-delay:210ms !important}[data-enter="true"] .motio-rc>:nth-child(n+5){animation-delay:280ms !important}
 </style>
@@ -47,8 +53,8 @@ button:active,a:active{transform:scale(0.96)}
   <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none"><circle cx="360" cy="40" r="140" fill="#2D2A6E"></circle></svg>
 
   <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: flex-end; justify-content: space-between">
-    <div style="display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Recaps</h1><span style="font-size: 13px; color: #C9C5EC">Your moves, wrapped into stories</span></div>
-    <span style="padding: 6px 12px; border-radius: 14px; background: rgba(255,255,255,0.12); font-size: 12px; font-weight: 600">{{ unseen }} new</span>
+    <div style="display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Social</h1><span style="font-size: 13px; color: #C9C5EC">Your recaps and your people</span></div>
+    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Friends and invites" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a>
   </div>
 
   <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 8px 0 96px">
@@ -67,6 +73,52 @@ button:active,a:active{transform:scale(0.96)}
         </a>
       </sc-for>
     </div>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Active time this week</h2><a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="font-size: 12px; color: #C9C5EC; text-decoration: none">{{ boardNote }}</a></div>
+      <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="height: 64px; border-radius: 20px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
+      <sc-for list="{{ board }}" as="r" hint-placeholder-count="3">
+        <a href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; color: #FFFFFF; text-decoration: none; animation: motioRowSlide 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards">
+          <span style="display: flex; align-items: center; gap: 12px"><span style="width: 18px; font-size: 15px; font-weight: 700; color: {{ r.rc }}">{{ r.rank }}</span><span style="width: 38px; height: 38px; border-radius: 19px; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ r.ini }}</span><span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 15px; font-weight: 700">{{ r.time }}</span></span>
+          <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08)"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.tint }}; transform-origin: left; animation: motioBarIn 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.bd }} backwards"></span></span>
+        </a>
+      </sc-for>
+      <sc-if value="{{ alone }}" hint-placeholder-val="{{ false }}">
+        <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none"><span style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; flex-shrink: 0; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></span><span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Invite a friend</span><span style="font-size: 12px; color: #C9C5EC">Compare weeks and start challenges together</span></span></a>
+      </sc-if>
+      <sc-if value="{{ socialError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #FFB3AB">{{ socialErrorText }}</span></sc-if>
+    </section>
+
+    <a href="{{ chal.href }}" onClick="{{ chal.go }}" style="margin: 0 20px; padding: 16px; border-radius: 24px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; gap: 12px">
+      <span style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px"><span style="font-size: 15px; font-weight: 700">{{ chal.title }}</span><span style="font-size: 12px; color: #C9C5EC; text-align: right">{{ chal.sub }}</span></span>
+      <span aria-hidden="true" style="position: relative; height: 34px; border-radius: 17px; background: rgba(255,255,255,0.08)">
+        <sc-for list="{{ chal.racers }}" as="m" hint-placeholder-count="2"><span style="position: absolute; top: 5px; left: {{ m.x }}; width: 24px; height: 24px; margin-left: -12px; border-radius: 12px; background: {{ m.c }}; color: #1F1D47; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: motioRacer 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ m.d }} backwards">{{ m.ini }}</span></sc-for>
+        <span style="position: absolute; right: 12px; top: 8px; font-size: 11px; font-weight: 700; color: #F6C343">{{ chal.goal }}</span>
+      </span>
+    </a>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 20px">
+      <a href="{{ LK.insights.href }}" onClick="{{ LK.insights.go }}" style="position: relative; overflow: hidden; height: 112px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #5B4FE0; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+        <span aria-hidden="true" style="position: absolute; right: 10px; top: 12px; display: flex; align-items: flex-end; gap: 3px; height: 30px"><span style="width: 6px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.5); transform-origin: bottom; animation: motioBarUp 600ms ease-out 300ms backwards"></span><span style="width: 6px; height: 28px; border-radius: 2px; background: #F6C343; transform-origin: bottom; animation: motioBarUp 600ms ease-out 380ms backwards"></span><span style="width: 6px; height: 18px; border-radius: 2px; background: rgba(255,255,255,0.5); transform-origin: bottom; animation: motioBarUp 600ms ease-out 460ms backwards"></span></span>
+        <span style="font-size: 12px; opacity: 0.8">Insights</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ insightLine }}</span>
+      </a>
+      <a href="{{ memo.href }}" onClick="{{ memo.go }}" style="height: 112px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: {{ memo.bg }}; color: #1F1D47; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+        <span style="font-size: 12px; font-weight: 600; opacity: 0.8">On this day</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ memo.line }}</span>
+      </a>
+    </div>
+
+    <sc-if value="{{ hasMoments }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Moments</h2>
+        <sc-for list="{{ moments }}" as="m" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: rgba(255,255,255,0.06)">
+            <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ m.ini }}</span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
+            <button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
 
     <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
       <h2 style="margin: 0; font-size: 16px; font-weight: 600">Daily recaps</h2>
@@ -104,7 +156,7 @@ button:active,a:active{transform:scale(0.96)}
     <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
     <a href="Breakdown.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg></span>Moves</a>
     <a href="You.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></span>You</a>
-    <a href="Recaps.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"></path></svg></span>Recap</a>
+    <a href="Recaps.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="4"></circle><path d="M1.5 21c.8-4 3.8-6.5 7.5-6.5s6.7 2.5 7.5 6.5z"></path><path d="M16 3.3a4 4 0 0 1 0 7.4M18.5 14.6c2 .9 3.5 3 4 6.4h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></span>Social</a>
   </nav>
   </sc-if>
   <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
@@ -135,13 +187,78 @@ class Component extends DCLogic {
     this.dirSet('back');
     this.setState({ leaving: true });
     setTimeout(() => { this.navNow = true; el.click(); }, 200);
-  }  componentDidMount() {
+  }
+  // Friends, the running challenge and moments come from the server; they refresh each time the tab mounts.
+  loadSocial() {
+    const M = window.Motio;
+    if (!M || !M.auth.isSignedIn()) return;
+    if (!(this.state && this.state.social)) this.setState({ socialLoading: true });
+    Promise.all([M.friends.board(), M.friends.challenges(), M.friends.moments()])
+      .then(([board, ch, mo]) => this.setState({ social: { board, challenges: ch.challenges, moments: mo.moments }, socialLoading: false, socialError: null }))
+      .catch((e) => this.setState({ socialLoading: false, socialError: (e && e.message) || 'Couldn’t reach Motio. Pull to try again.' }));
+  }
+  componentDidMount() {
+    this.loadSocial();
+    this.refreshT = setInterval(() => this.loadSocial(), 120000);
     // Remember this tab so the next screen can slide its pill in from here.
     const v = String(3);
     try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
     try { window.sessionStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
     try { window.top.__motioTab = 3; } catch (e) { /* cross-origin */ }
     window.__motioTab = 3;
+  }
+  componentWillUnmount() { clearInterval(this.refreshT); }
+  // Social parts, from the server's answer (or sample data on the design canvas).
+  socialVals(L) {
+    const M = window.Motio, s = this.state || {};
+    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min');
+    const ini = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const DAY = 86400000, now = Date.now();
+    const sample = { board: { people: [{ id: 2, name: 'Leyla', activeMin: 486 }, { id: 1, name: 'You', me: true, activeMin: 412 }, { id: 3, name: 'Murad', activeMin: 233 }] },
+      challenges: [{ id: 1, kind: 'km', target: 20, end: now + 2 * DAY, members: [{ id: 2, name: 'Leyla', value: 14.2 }, { id: 1, name: 'You', me: true, value: 11.6 }] }],
+      moments: [{ kind: 'cheer', at: now - 2 * 3600000, who: { id: 2, name: 'Leyla' } }, { kind: 'challenge', at: now - DAY, who: { id: 3, name: 'Murad' }, challenge: { kind: 'min', target: 300 } }] };
+    const S = M ? s.social : sample;
+    const people = S ? S.board.people.slice().sort((a, b) => b.activeMin - a.activeMin) : [];
+    const max = Math.max(1, ...people.map((p) => p.activeMin));
+    const friendLink = (p) => { const l = L('friend', 'FriendProfile.dc.html'); return { href: l.href, go: (e) => { window.__motioFriend = p.id; l.go(e); } }; };
+    const board = people.slice(0, 4).map((p, i) => ({
+      rank: i + 1, rc: i === 0 ? '#F6C343' : '#C9C5EC', name: p.me ? 'You' : p.name, ini: ini(p.name), tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1],
+      time: fmtMin(p.activeMin), w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', d: 80 + i * 70 + 'ms', bd: 260 + i * 70 + 'ms',
+      bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', border: p.me ? 'rgba(246,195,67,0.45)' : 'transparent',
+      aria: '#' + (i + 1) + ' ' + (p.me ? 'you' : p.name) + ', ' + fmtMin(p.activeMin), ...(p.me ? L('friends', 'Friends.dc.html') : friendLink(p))
+    }));
+    const unitOf = { km: M && M.settings().unit === 'mi' ? 'km' : 'km', min: 'min', runs: 'runs' };
+    const c = S && S.challenges.find((x) => !x.done);
+    const left = c ? Math.max(0, Math.ceil((c.end - now) / DAY)) : 0;
+    const lead = c && c.members[0];
+    const chal = c ? {
+      title: ({ km: 'First to ' + c.target + ' km', min: c.target + ' active minutes', runs: c.target + ' runs' })[c.kind],
+      sub: (!lead || lead.value <= 0 ? 'Not started yet' : lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + (left ? left + (left === 1 ? ' day left' : ' days left') : 'ends today'),
+      goal: c.target + ' ' + unitOf[c.kind],
+      racers: c.members.slice(0, 4).map((m, i) => ({ ini: ini(m.name), c: m.me ? '#F6C343' : TINTS[(m.id % 4) + 1], x: Math.min(92, 6 + m.value / c.target * 86).toFixed(1) + '%', d: 200 + i * 90 + 'ms' })),
+      ...(() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = c.id; l.go(e); } }; })()
+    } : { title: 'Start a challenge', sub: people.length > 1 ? 'Race a friend this week' : 'Add a friend first', goal: '', racers: [], ...L(people.length > 1 ? 'challenge' : 'friends', people.length > 1 ? 'Challenge.dc.html' : 'Friends.dc.html') };
+    const cheered = s.cheered || {};
+    const ago = (t) => { const h = Math.floor((now - t) / 3600000); return h < 1 ? 'Just now' : h < 24 ? h + ' h ago' : Math.floor(h / 24) === 1 ? 'Yesterday' : Math.floor(h / 24) + ' days ago'; };
+    const moments = (S ? S.moments : []).slice(0, 5).map((m, i) => {
+      const key = m.kind + m.at, on = !!cheered[key];
+      const what = m.kind === 'cheer' ? 'cheered you on' : m.kind === 'won' ? 'won a challenge' : 'challenged you: ' + ({ km: 'first to ' + m.challenge.target + ' km', min: m.challenge.target + ' active minutes', runs: m.challenge.target + ' runs' })[m.challenge.kind];
+      return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], what, when: ago(m.at), on,
+        aria: (on ? 'Cheered ' : 'Cheer ') + m.who.name, btnBg: on ? 'rgba(242,118,107,0.25)' : 'rgba(255,255,255,0.08)', fill: on ? '#F2766B' : 'none', stroke: on ? '#F2766B' : '#FFFFFF',
+        pop: on ? 'motioCheerPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+        cheer: () => { if (on) return; this.setState({ cheered: { ...cheered, [key]: true } }); if (M) M.friends.cheer(m.who.id).catch(() => {}); } };
+    });
+    const F = M ? M.findings() : [{ text: 'You’re a morning mover: 41% before 10 AM.' }];
+    const mem = M ? M.memories() : [{ label: '1 year', trip: { distanceM: 10400, mode: 'bike' } }];
+    const ml = mem[mem.length - 1];
+    return {
+      board, alone: !!S && people.length < 2, boardLoading: !!s.socialLoading && !S, boardNote: people.length > 1 ? 'See all' : '',
+      socialError: !!s.socialError && !S, socialErrorText: s.socialError || '', chal, moments, hasMoments: moments.length > 0,
+      insightLine: F.length ? F[0].text.split(':')[0].split(',')[0] : 'Move a little more this week to unlock insights',
+      memo: ml ? { line: ml.label + ' ago: ' + (M ? M.fmtDist(ml.trip.distanceM) : '10.4 km') + ' ' + ({ walk: 'walk', run: 'run', bike: 'ride', drive: 'drive', transit: 'trip' })[ml.trip.mode], bg: '#F6C343', ...L('onthisday', 'OnThisDay.dc.html') }
+        : { line: 'Memories appear here as your history grows', bg: '#C9C5EC', href: '#', go: (e) => e && e.preventDefault && e.preventDefault() }
+    };
   }
   // Covers, the last seven days and past weeks from your real trips. Each link says which period the story shows.
   liveVals(L) {
@@ -216,7 +333,7 @@ class Component extends DCLogic {
           .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
         if (window.Motio) return this.liveVals(L);
         return { covers, days, past, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
-      })(), rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html') }, navFrom: this.navFrom };
+      })(), ...this.socialVals((t, f) => lk(t, f)), rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
   }
 }
 </script>
