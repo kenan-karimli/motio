@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Achievements</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#1F1D47}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioBadgeIn{from{opacity:0;transform:translateY(14px) scale(0.94)}to{opacity:1;transform:none}}
+@keyframes motioShine{from{transform:translateX(-120%) skewX(-20deg)}to{transform:translateX(260%) skewX(-20deg)}}
+@keyframes motioUnlock{0%{transform:scale(0.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes motioFill{from{stroke-dashoffset:176}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 16px 20px 16px; display: flex; flex-direction: column; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.1">Achievements</h1>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.14); overflow: hidden"><span style="display: block; width: {{ donePct }}; height: 8px; border-radius: 4px; background: #F6C343; transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1)"></span></span>
+      <span style="font-size: 13px; font-weight: 600; color: #C9C5EC; white-space: nowrap">{{ doneLabel }}</span>
+    </div>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 20px 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: max-content; gap: 12px; align-content: start">
+    <sc-for list="{{ badges }}" as="b" hint-placeholder-count="8">
+      <div role="img" aria-label="{{ b.aria }}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px; border-radius: 22px; background: {{ b.cardBg }}; opacity: {{ b.op }}; animation: motioBadgeIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.delay }} backwards">
+        <span style="position: relative; width: 64px; height: 64px; animation: {{ b.unlock }}">
+          <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6"></circle>
+            <circle cx="32" cy="32" r="28" fill="{{ b.fill }}" stroke="{{ b.color }}" stroke-width="6" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="{{ b.offset }}" transform="rotate(-90 32 32)" style="animation: motioFill 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.delay }} backwards"></circle>
+          </svg>
+          <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center">
+            <sc-if value="{{ b.got }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+            <sc-if value="{{ b.locked }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #C9C5EC">{{ b.pct }}</span></sc-if>
+          </span>
+        </span>
+        <span style="font-size: 14px; font-weight: 600; line-height: 1.2">{{ b.title }}</span>
+        <span style="font-size: 11px; line-height: 1.35; color: #C9C5EC">{{ b.desc }}</span>
+        <span style="margin-top: auto; padding-top: 4px; font-size: 11px; font-weight: 600; color: {{ b.labelColor }}">{{ b.label }}</span>
+        <sc-if value="{{ b.fresh }}" hint-placeholder-val="{{ false }}">
+          <span style="position: absolute; right: 12px; top: 12px; padding: 3px 8px; border-radius: 10px; background: #F6C343; color: #1F1D47; font-size: 10px; font-weight: 700">NEW</span>
+          <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 0; width: 40%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.22), rgba(255,255,255,0)); animation: motioShine 1.6s ease-in-out 500ms 2 backwards"></span>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Badges you just earned glow once ("NEW"); they're marked seen a moment after you've looked.
+  componentDidMount() {
+    if (window.Motio) this.seenT = setTimeout(() => window.Motio.markBadgesSeen(), 2500);
+  }
+  componentWillUnmount() { clearTimeout(this.seenT); }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const M = window.Motio;
+    // Sample badges for the design canvas; the app uses your real trips.
+    if (!this.fresh0) this.fresh0 = M ? new Set(M.achievements().filter((a) => a.fresh).map((a) => a.id)) : new Set(['streak7']);
+    const list = M ? M.achievements() : [
+      ['first', 'First steps', 'Record your first trip', 1, '#3DBF5C', 'Earned'], ['walk5', '5 km on foot', 'Walk or run 5 km in one day', 1, '#3DBF5C', 'Earned'],
+      ['steps10k', '10,000 steps', 'Take 10,000 steps in one day', 0.84, '#F2766B', '8,410 / 10,000 steps'], ['streak7', 'One-week streak', 'Move at least 10 minutes every day for 7 days', 1, '#F6C343', 'Earned'],
+      ['streak30', 'Thirty-day streak', 'Keep it going for 30 days', 0.4, '#F6C343', '12 / 30 days'], ['all5', 'All five', 'Walk, run, cycle, drive and take transit in one week', 0.8, '#B57BE0', '4 / 5 ways'],
+      ['carfree', 'Car-free week', 'Seven days in a row moving without driving', 0.43, '#3DBF5C', '3 / 7 days'], ['k100', '100 km club', 'Cover 100 km in total', 1, '#F2766B', 'Earned']
+    ].map(([id, title, desc, progress, color, label]) => ({ id, title, desc, progress, color, label, got: progress >= 1 }));
+    const earned = list.filter((b) => b.got).length;
+    // Earned first, then the closest to earning.
+    const sorted = [...list].sort((a, b) => (b.got - a.got) || (b.progress - a.progress));
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'You.dc.html') },
+      donePct: Math.round(earned / Math.max(1, list.length) * 100) + '%',
+      doneLabel: earned + ' of ' + list.length + ' earned',
+      badges: sorted.map((b, i) => {
+        const fresh = this.fresh0.has(b.id);
+        return {
+          title: b.title, desc: b.desc, label: b.label, color: b.color, got: b.got, locked: !b.got, fresh,
+          pct: Math.round(b.progress * 100) + '%', offset: (176 * (1 - b.progress)).toFixed(1),
+          fill: b.got ? b.color : 'transparent', cardBg: fresh ? 'rgba(246,195,67,0.16)' : 'rgba(255,255,255,0.07)', op: b.got ? 1 : 0.78,
+          labelColor: b.got ? '#F6C343' : '#C9C5EC', delay: (emb ? 400 : 0) + Math.min(i, 10) * 45 + 'ms', // starts once the page has slid in
+          unlock: fresh ? 'motioUnlock 700ms cubic-bezier(0.34, 1.56, 0.64, 1) ' + (emb ? 700 : 300) + 'ms backwards' : 'none',
+          aria: b.title + ': ' + (b.got ? 'earned' : b.label) + '. ' + b.desc
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

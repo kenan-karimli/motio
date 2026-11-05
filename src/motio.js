@@ -252,6 +252,7 @@ export async function addZoneHere(name) {
   setSetting('zones', zones);
   return zones;
 }
+export const addZoneAt = (lat, lng, name) => setSetting('zones', [...(S.settings.zones || []), { id: Date.now(), name, lat: +lat.toFixed(5), lng: +lng.toFixed(5), r: 200 }]);
 export const removeZone = (id) => setSetting('zones', (S.settings.zones || []).filter((z) => z.id !== id));
 function metres(a0, a1, b0, b1) { const k = Math.PI / 180, x = (b1 - a1) * k * Math.cos(((a0 + b0) / 2) * k), y = (b0 - a0) * k; return Math.sqrt(x * x + y * y) * 6371000; }
 const outsideZones = (pts) => { const z = S.settings.zones || []; return z.length ? pts.filter((p) => z.every((q) => metres(p[0], p[1], q.lat, q.lng) > q.r)) : pts; };
@@ -352,8 +353,10 @@ function closeLive(endAt) {
   t.end = Math.min(endAt, t.end);
   if (t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000)) { changed(); return; } // GPS jitter or fidgeting, not a trip
   const f = features(t);
-  saveTrip({ id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
-    distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f) });
+  const done = { id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
+    distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f) };
+  saveTrip(done);
+  if (S.settings.webhook) sendWebhook(done).catch(() => {});
 }
 
 function onLocation(loc) {
@@ -629,6 +632,110 @@ export const range = (kind, anchor = Date.now()) => {
 };
 export const days = (from, n) => Array.from({ length: n }, (_, i) => summarize(from + i * DAY, from + (i + 1) * DAY));
 
+// ---------------------------------------------------------------- achievements
+// Badges earned from your real trips; progress shows how close you are.
+export function achievements() {
+  return memo('ach', () => {
+    const trips = allTrips().filter((t) => !t.live);
+    const days = [];
+    if (trips.length) for (let d = dayStart(trips[0].start); d <= dayStart(); d += DAY) days.push(summarize(d, d + DAY));
+    let streak = 0, best = 0, carFree = 0, bestCarFree = 0;
+    for (const d of days) {
+      streak = d.min >= 10 ? streak + 1 : 0; best = Math.max(best, streak);
+      carFree = d.min >= 10 && !d.per.drive.ms ? carFree + 1 : 0; bestCarFree = Math.max(bestCarFree, carFree);
+    }
+    const weeks = new Map();
+    for (const t of trips) { const w = weekStart(t.start); if (!weeks.has(w)) weeks.set(w, new Set()); weeks.get(w).add(t.mode); }
+    const hourMin = (t) => { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); };
+    const max = (arr) => arr.reduce((a, b) => Math.max(a, b), 0);
+    const goal = S.settings.goalMin || 180;
+    const totalKm = trips.reduce((a, t) => a + t.distanceM, 0) / 1000;
+    const list = [
+      ['first', 'First steps', 'Record your first trip', 1, trips.length, '#3DBF5C'],
+      ['walk5', '5 km on foot', 'Walk or run 5 km in one day', 5, max(days.map((d) => (d.per.walk.m + d.per.run.m) / 1000)), '#3DBF5C', 'km'],
+      ['steps10k', '10,000 steps', 'Take 10,000 steps in one day', 10000, max(days.map((d) => d.steps)), '#F2766B', 'steps'],
+      ['streak7', 'One-week streak', 'Move at least 10 minutes every day for 7 days', 7, best, '#F6C343', 'days'],
+      ['streak30', 'Thirty-day streak', 'Keep it going for 30 days', 30, best, '#F6C343', 'days'],
+      ['goal10', 'Goal getter', 'Reach your daily goal on 10 days', 10, days.filter((d) => d.min >= goal).length, '#5B4FE0', 'days'],
+      ['all5', 'All five', 'Walk, run, cycle, drive and take transit in one week', 5, max([...weeks.values()].map((m) => m.size)), '#B57BE0', 'ways'],
+      ['transit10', 'Bus regular', 'Take 10 bus or train trips', 10, trips.filter((t) => t.mode === 'transit').length, '#B57BE0', 'trips'],
+      ['carfree', 'Car-free week', 'Seven days in a row moving without driving', 7, bestCarFree, '#3DBF5C', 'days'],
+      ['ride20', 'Long ride', 'Cycle 20 km in one trip', 20, max(trips.filter((t) => t.mode === 'bike').map((t) => t.distanceM / 1000)), '#6E8CF7', 'km'],
+      ['early', 'Early bird', 'Start a trip before 6:30 AM', 1, trips.filter((t) => hourMin(t.start) < 390).length, '#F6C343'],
+      ['night', 'Night owl', 'Be on the move after 11 PM', 1, trips.filter((t) => hourMin(t.end) >= 1380 || hourMin(t.start) >= 1380).length, '#2D2A6E'],
+      ['k100', '100 km club', 'Cover 100 km in total', 100, totalKm, '#F2766B', 'km'],
+      ['k1000', '1,000 km club', 'Cover 1,000 km in total', 1000, totalKm, '#F2766B', 'km']
+    ];
+    return list.map(([id, title, desc, target, value, color, unit]) => ({
+      id, title, desc, color, got: value >= target, progress: Math.min(1, value / target),
+      label: value >= target ? 'Earned' : unit ? `${unit === 'km' ? value.toFixed(value < 10 ? 1 : 0) : fmtNum(value)} / ${fmtNum(target)} ${unit}` : 'Not yet',
+      fresh: value >= target && !(S.settings.seenBadges || []).includes(id)
+    }));
+  });
+}
+export const markBadgesSeen = () => setSetting('seenBadges', achievements().filter((a) => a.got).map((a) => a.id));
+
+// ---------------------------------------------------------------- places
+// Where you spend time, found from where trips start and end (spots within 150 m count as one place).
+export function places() {
+  return memo('places', () => {
+    const trips = allTrips().filter((t) => !t.live && t.points && t.points.length);
+    const spots = [];
+    const at = (p) => { let c = spots.find((x) => hav(x, p) < 150); if (!c) { c = [p[0], p[1], { visits: 0, ms: 0, night: 0, work: 0, last: 0 }]; spots.push(c); } return c; };
+    trips.forEach((t, i) => {
+      const end = t.points[t.points.length - 1], c = at(end);
+      c[2].visits++; c[2].last = Math.max(c[2].last, t.end);
+      const next = trips[i + 1];
+      if (next && hav(end, next.points[0]) < 150) {
+        // Time spent here until the next trip, split into night (home-like) and weekday office hours (work-like).
+        for (let x = t.end; x < Math.min(next.start, t.end + 16 * HOUR); x += 15 * MIN) {
+          const d = new Date(x), h = d.getHours();
+          c[2].ms += 15 * MIN;
+          if (h >= 22 || h < 6) c[2].night += 15 * MIN;
+          else if (h >= 9 && h < 17 && d.getDay() % 6) c[2].work += 15 * MIN;
+        }
+      }
+    });
+    spots.sort((a, b) => b[2].ms - a[2].ms || b[2].visits - a[2].visits);
+    const home = spots.reduce((a, c) => (c[2].night > (a ? a[2].night : 0) ? c : a), null);
+    const work = spots.filter((c) => c !== home).reduce((a, c) => (c[2].work > (a ? a[2].work : 0) ? c : a), null);
+    const names = S.settings.placeNames || {};
+    return spots.slice(0, 10).map((c, i) => {
+      const id = c[0].toFixed(3) + ',' + c[1].toFixed(3);
+      const auto = c === home ? 'Home' : c === work ? 'Work' : 'Place ' + (i + 1);
+      return { id, lat: c[0], lng: c[1], name: names[id] || auto, kind: c === home ? 'home' : c === work ? 'work' : 'place', visits: c[2].visits, hours: c[2].ms / HOUR, last: c[2].last };
+    });
+  });
+}
+export const renamePlace = (id, name) => setSetting('placeNames', { ...(S.settings.placeNames || {}), [id]: String(name).slice(0, 30) });
+
+// ---------------------------------------------------------------- connections
+// GPX files from Strava, Garmin, Komoot or any tracker become trips (one per track). Returns how many were added.
+export function importGpx(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('not_gpx');
+  const TYPES = { run: 'run', running: 'run', walk: 'walk', walking: 'walk', hiking: 'walk', hike: 'walk', ride: 'bike', cycling: 'bike', biking: 'bike', bike: 'bike', driving: 'drive', drive: 'drive', bus: 'transit', train: 'transit', transit: 'transit' };
+  let added = 0;
+  for (const trk of doc.querySelectorAll('trk')) {
+    const pts = [...trk.querySelectorAll('trkpt')].map((n) => [+n.getAttribute('lat'), +n.getAttribute('lon'), Date.parse(n.querySelector('time')?.textContent || ''), 5])
+      .filter((p) => p.every(Number.isFinite));
+    if (pts.length < 2) continue;
+    const t = { start: pts[0][2], end: pts[pts.length - 1][2], points: pts, distanceM: pts.reduce((a, q, i) => a + (i ? hav(pts[i - 1], q) : 0), 0), steps: 0 };
+    const named = TYPES[(trk.querySelector('type')?.textContent || '').trim().toLowerCase()];
+    const id = 'g' + t.start.toString(36) + Math.round(t.distanceM).toString(36);
+    saveTrip({ ...t, id, mode: named || classifyTrip(features(t), S.settings.learned || []), locked: !!named, maxSpeed: 0, f: vector(features(t)) });
+    added++;
+  }
+  return added;
+}
+// Webhooks: every finished trip is posted as JSON to your URL (IFTTT, Zapier, Make, Home Assistant, n8n…).
+export async function sendWebhook(t, url = S.settings.webhook) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+    event: 'trip.finished', app: 'motio', trip: { id: t.id, mode: t.mode, type: MODES[t.mode].name, start: new Date(t.start).toISOString(), end: new Date(t.end).toISOString(),
+      minutes: Math.round((t.end - t.start) / MIN), km: +(t.distanceM / 1000).toFixed(2), steps: t.steps || 0, top_kmh: Math.round((t.maxSpeed || 0) * 3.6) } }) });
+  if (!res.ok) throw new Error('webhook ' + res.status);
+}
+
 export function records() {
   return memo('records', () => {
     const trips = allTrips();
@@ -677,7 +784,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

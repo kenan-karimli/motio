@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Places</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a,input{font:inherit}
+button,a{cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioPlaceIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.motio-tiles{filter:saturate(0.7) brightness(1.03)}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; flex-shrink: 0; height: 330px; background: #DDE3EE">
+    <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
+    <sc-if value="{{ noMap }}" hint-placeholder-val="{{ true }}">
+      <svg aria-hidden="true" width="390" height="330" viewBox="0 0 390 330" style="position: absolute; inset: 0">
+        <rect width="390" height="330" fill="#E4E8F0"></rect>
+        <g stroke="#FFFFFF" stroke-width="10" fill="none"><path d="M-10 230 C 90 200, 160 260, 400 180"></path><path d="M120 -10 C 140 120, 90 220, 140 340"></path><path d="M250 -10 L 290 340"></path></g>
+        <g><circle cx="110" cy="200" r="34" fill="#F2766B" opacity="0.15"></circle><circle cx="110" cy="200" r="9" fill="#F2766B" stroke="#FFFFFF" stroke-width="3"></circle>
+        <circle cx="282" cy="110" r="34" fill="#5B4FE0" opacity="0.15"></circle><circle cx="282" cy="110" r="9" fill="#5B4FE0" stroke="#FFFFFF" stroke-width="3"></circle>
+        <circle cx="210" cy="260" r="26" fill="#3DBF5C" opacity="0.15"></circle><circle cx="210" cy="260" r="8" fill="#3DBF5C" stroke="#FFFFFF" stroke-width="3"></circle></g>
+      </svg>
+    </sc-if>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: absolute; left: 20px; top: 16px; z-index: 500; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin-top: -24px; position: relative; z-index: 2; border-radius: 28px 28px 0 0; background: #FFFFFF; padding: 22px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Your places</h1>
+    <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Found from where your trips start and end. Only you can see them.</span>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 18px; border-radius: 20px; background: #F6F5FC; font-size: 13px; line-height: 1.5; color: #4A4770">Your places appear after a few trips: home, work and the spots you return to.</div>
+    </sc-if>
+    <sc-for list="{{ list }}" as="p" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: #F6F5FC; animation: motioPlaceIn 360ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.delay }} backwards">
+        <button type="button" onClick="{{ p.focus }}" aria-label="{{ p.aria }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+          <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ p.color }}; display: flex; align-items: center; justify-content: center">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ p.icon }}"></path></svg>
+          </span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span style="font-size: 12px; color: #6B6890">{{ p.meta }}</span></span>
+        </button>
+        <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; gap: 8px">
+            <input value="{{ p.draft }}" onChange="{{ p.onDraft }}" aria-label="Place name" maxlength="30" style="flex: 1; min-width: 0; height: 40px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 2px solid #C9C5EC; background: #FFFFFF; color: #1F1D47; font-size: 14px">
+            <button type="button" onClick="{{ p.save }}" style="height: 40px; padding: 0 14px; border: 0; border-radius: 12px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">Save</button>
+          </div>
+        </sc-if>
+        <div style="display: flex; gap: 8px">
+          <button type="button" onClick="{{ p.rename }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">Rename</button>
+          <button type="button" onClick="{{ p.privacy }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: {{ p.privBg }}; color: {{ p.privFg }}; font-size: 12px; font-weight: 600">{{ p.privLabel }}</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  showToast(msg) {
+    clearTimeout(this.toastT);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const list = M ? M.places() : [
+      { id: 'a', name: 'Home', kind: 'home', visits: 34, hours: 345, last: Date.now() - 3600000 },
+      { id: 'b', name: 'Work', kind: 'work', visits: 25, hours: 111, last: Date.now() - 86400000 },
+      { id: 'c', name: 'Gym', kind: 'place', visits: 9, hours: 14, last: Date.now() - 3 * 86400000 }
+    ];
+    // The map starts after the page has slid in, so the slide stays smooth.
+    const key = list.map((p) => p.name).join('|');
+    if (this.ctrl && this.mapKey !== key) { this.ctrl.destroy(); this.ctrl = null; this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountPlaces(this.mapEl, list); }, 0); }
+    this.mapKey = key;
+    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountPlaces(this.mapEl, list); }, 440);
+    const zones = M ? M.settings().zones || [] : [];
+    const near = (p) => zones.find((z) => Math.abs(z.lat - p.lat) < 0.0015 && Math.abs(z.lng - p.lng) < 0.0015);
+    const ICON = { home: 'M3 11l9-7 9 7v9H5v-9M10 20v-6h4v6', work: 'M4 8h16v12H4zM9 8V5h6v3M4 13h16', place: 'M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5' };
+    const COLOR = { home: '#F2766B', work: '#5B4FE0', place: '#3DBF5C' };
+    const ago = (t) => { const d = Math.floor((Date.now() - t) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'You.dc.html') },
+      mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
+      noMap: !M, empty: !list.length,
+      list: list.map((p, i) => {
+        const zone = M && near(p), editing = s.edit === p.id;
+        return {
+          name: p.name, color: COLOR[p.kind], icon: ICON[p.kind], delay: (emb ? 420 : 0) + i * 50 + 'ms',
+          meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + Math.round(p.hours) + ' h here · last ' + ago(p.last),
+          aria: p.name + ', show on map', editing, draft: s.draft ?? p.name,
+          focus: () => this.ctrl && this.ctrl.fly(p.lat, p.lng),
+          rename: () => this.setState({ edit: editing ? null : p.id, draft: p.name }),
+          onDraft: (e) => this.setState({ draft: e.target.value }),
+          save: () => { const n = String(s.draft || '').trim(); if (n && M) M.renamePlace(p.id, n); this.setState({ edit: null }); if (n) this.showToast('Renamed to ' + n); },
+          privLabel: zone ? 'Private ✓' : 'Make private', privBg: zone ? '#DDF5E3' : '#FFFFFF', privFg: zone ? '#1E7A36' : '#1F1D47',
+          privacy: () => {
+            if (!M) { this.showToast('Hidden from maps and shared images'); return; }
+            if (zone) { M.removeZone(zone.id); this.showToast(p.name + ' shows on maps again'); }
+            else { M.addZoneAt(p.lat, p.lng, p.name); this.showToast(p.name + ' is hidden from maps and shares'); }
+          }
+        };
+      }),
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

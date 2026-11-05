@@ -113,6 +113,19 @@ button:active,a:active{transform:scale(0.96)}
     </button>
   </div>
 
+  <div style="display: flex; gap: 12px; flex-shrink: 0">
+    <a href="{{ LK.ach.href }}" onClick="{{ LK.ach.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; text-decoration: none">
+      <span style="display: flex; align-items: center; justify-content: space-between"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F6C343" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg><sc-if value="{{ achNew }}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 8px; border-radius: 10px; background: #F6C343; color: #1F1D47; font-size: 10px; font-weight: 700">NEW</span></sc-if></span>
+      <span style="font-size: 15px; font-weight: 600">Achievements</span>
+      <span style="font-size: 12px; color: #C9C5EC">{{ achLine }}</span>
+    </a>
+    <a href="{{ LK.places.href }}" onClick="{{ LK.places.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; text-decoration: none">
+      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3DBF5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"></path></svg>
+      <span style="font-size: 15px; font-weight: 600">Places</span>
+      <span style="font-size: 12px; color: #6B6890">{{ placesLine }}</span>
+    </a>
+  </div>
+
   <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 28px; background: #FFFFFF">
     <h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 600">Personal records</h2>
     <sc-if value="{{ noRecords }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #6B6890">Your longest ride, most steps and fastest run show up here once you’ve moved a bit.</span></sc-if>
@@ -524,7 +537,14 @@ class Component extends DCLogic {
     }
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html') },
+      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), places: lk('places', 'Places.dc.html') },
+      ...(() => {
+        const M = window.Motio;
+        if (!M) return { achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more' };
+        const a = M.achievements(), got = a.filter((x) => x.got).length, pl = M.places();
+        return { achLine: got + ' of ' + a.length + ' earned', achNew: a.some((x) => x.fresh),
+          placesLine: pl.length ? pl.slice(0, 2).map((p) => p.name).join(', ') + (pl.length > 2 ? ' and ' + (pl.length - 2) + ' more' : '') : 'Appear after a few trips' };
+      })(),
       navFrom: this.navFrom,
       name, bio, hasBio: bio.trim().length > 0,
       initials: name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''),

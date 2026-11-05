@@ -162,6 +162,16 @@ button:active,a:active{transform:scale(0.96)}
       <dc-import name="EmptyToday" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.achievements.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.achievements.kind }}" style="position: absolute; inset: 0; z-index: {{ O.achievements.z }}; animation: {{ O.achievements.anim }}; box-shadow: {{ O.achievements.shadow }}">
+      <dc-import name="Achievements" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.places.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.places.kind }}" style="position: absolute; inset: 0; z-index: {{ O.places.z }}; animation: {{ O.places.anim }}; box-shadow: {{ O.places.shadow }}">
+      <dc-import name="Places" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.types.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.types.kind }}" style="position: absolute; inset: 0; z-index: {{ O.types.z }}; animation: {{ O.types.anim }}; box-shadow: {{ O.types.shadow }}">
       <dc-import name="Personalities" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -279,7 +289,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

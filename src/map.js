@@ -76,5 +76,23 @@ window.MotioMap = {
       invalidate() { if (!dead) map.invalidateSize(); },
       destroy() { dead = true; ro.disconnect(); map.remove(); }
     };
+  },
+  // Places: a dot per place (home and work in their own colours), framed to fit; fly() eases to one.
+  mountPlaces(el, list) {
+    const map = L.map(el, { zoomControl: false, attributionControl: true });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
+    const color = (k) => (k === 'home' ? '#F2766B' : k === 'work' ? '#5B4FE0' : '#3DBF5C');
+    const pts = list.map((p) => {
+      L.circle([p.lat, p.lng], { radius: 150, color: color(p.kind), weight: 1, fillOpacity: 0.12 }).addTo(map);
+      L.circleMarker([p.lat, p.lng], { radius: 8, color: '#FFFFFF', weight: 3, fillColor: color(p.kind), fillOpacity: 1 }).addTo(map).bindTooltip(p.name, { permanent: list.length <= 6, direction: 'top', offset: [0, -8] });
+      return [p.lat, p.lng];
+    });
+    if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.35), { animate: false, maxZoom: 15 }); else map.setView([40.4093, 49.8671], 12);
+    let dead = false;
+    [300, 700].forEach((ms) => setTimeout(() => { if (!dead) map.invalidateSize(); }, ms));
+    return {
+      fly(lat, lng) { if (!dead) map.flyTo([lat, lng], 16, { duration: 0.8 }); },
+      destroy() { dead = true; map.remove(); }
+    };
   }
 };

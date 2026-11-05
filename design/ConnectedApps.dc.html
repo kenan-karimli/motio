@@ -68,6 +68,26 @@ button:active,a:active{transform:scale(0.95)}
       </sc-for>
     </div>
 
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Bring in and send out</h2>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; background: #F6F5FC">
+        <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #3DBF5C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Import GPX files</span><span style="font-size: 12px; color: #6B6890">From Strava, Garmin, Komoot or any app's export</span></span>
+        <label style="position: relative; min-width: 84px; height: 40px; padding: 0 14px; box-sizing: border-box; border-radius: 20px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer">Choose<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple onChange="{{ onGpx }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer"></label>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 20px; background: #F6F5FC">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #5B4FE0; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 1 0-5.6l3-3a4 4 0 0 1 5.6 5.6l-1.5 1.5M14 10a4 4 0 0 1 0 5.6l-3 3a4 4 0 0 1-5.6-5.6l1.5-1.5"></path></svg></span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Webhooks</span><span style="font-size: 12px; color: #6B6890">{{ hookStatus }}</span></span>
+        </div>
+        <input type="url" inputmode="url" value="{{ hookUrl }}" onChange="{{ onHook }}" placeholder="https://… (IFTTT, Zapier, Make, Home Assistant)" aria-label="Webhook address" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 13px">
+        <div style="display: flex; gap: 8px">
+          <button type="button" onClick="{{ saveHook }}" style="flex: 1; height: 40px; border: 0; border-radius: 20px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">{{ hookSaveLabel }}</button>
+          <button type="button" onClick="{{ testHook }}" style="flex: 1; height: 40px; border: 2px solid #E3E1F3; border-radius: 20px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600">Send a test</button>
+        </div>
+      </div>
+    </section>
+
     <section style="display: flex; flex-direction: column; padding-top: 14px; border-top: 1px solid #EEF0F6">
       <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Sync</h2>
       <sc-for list="{{ switches }}" as="t" hint-placeholder-count="2">
@@ -230,6 +250,36 @@ class Component extends DCLogic {
       apps,
       intro: 'Send your walks, runs and rides to the apps you already use. Drives and transit stay in Motio.',
       syncNow,
+      // GPX files become trips; the file's own activity type is used when it has one.
+      onGpx: async (e) => {
+        const files = [...(e.target.files || [])];
+        e.target.value = '';
+        if (!files.length) return;
+        if (!M) { this.showToast(files.length + ' file(s) imported'); return; }
+        let n = 0, bad = 0;
+        for (const f of files) { try { n += M.importGpx(await f.text()); } catch (err) { bad++; } }
+        this.showToast(n ? n + (n === 1 ? ' trip' : ' trips') + ' imported' + (bad ? ', ' + bad + ' file(s) skipped' : '') : 'No tracks with times found in that file');
+      },
+      // Webhooks: each finished trip is posted to this address.
+      hookUrl: s.hook ?? ((M && M.settings().webhook) || ''),
+      hookStatus: M && M.settings().webhook ? 'On: every finished trip is sent' : 'Send every trip to IFTTT, Zapier and more',
+      hookSaveLabel: M && M.settings().webhook && (s.hook ?? M.settings().webhook) === M.settings().webhook ? 'Saved' : 'Save',
+      onHook: (e) => this.setState({ hook: e.target.value }),
+      saveHook: () => {
+        const url = String(s.hook ?? '').trim();
+        if (url && !/^https:\/\/[^\s]+\.[^\s]+/.test(url)) { this.showToast('Use a full https:// address'); return; }
+        if (M) M.setSetting('webhook', url || null);
+        this.showToast(url ? 'Webhook saved' : 'Webhook turned off');
+      },
+      testHook: () => {
+        const url = String(s.hook ?? ((M && M.settings().webhook) || '')).trim();
+        if (!/^https:\/\//.test(url)) { this.showToast('Add an https:// address first'); return; }
+        if (!M) { this.showToast('Test trip sent'); return; }
+        const now = Date.now();
+        M.sendWebhook({ id: 'test', mode: 'walk', start: now - 15 * 60000, end: now, distanceM: 1200, steps: 1600, maxSpeed: 1.6 }, url)
+          .then(() => this.showToast('Test trip sent. Check your service'))
+          .catch(() => this.showToast('That address didn’t accept it. Check the URL'));
+      },
       switches: [sw('stravaAuto', 'Upload new trips to Strava', 'Right after each walk, run or ride', true), sw('importPast', 'Include the last 30 days', 'When you connect an app', true)],
       hasToast: !!s.toast, toast: s.toast || ''
     };
