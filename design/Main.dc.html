@@ -61,6 +61,10 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioShFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes motioShPeek{from{opacity:0;transform:translateY(14px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioHeroIn{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+.motio-hero>*{animation:motioHeroIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
+.motio-hero>:nth-child(2){animation-delay:60ms}.motio-hero>:nth-child(3){animation-delay:120ms}
+.motio-today>*{flex-shrink:0}
 @keyframes motioNum{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes motioNumA{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes motioNumB{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -80,32 +84,33 @@ button:active,a:active{transform:scale(0.96)}
 
   <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 48px">
     <div style="display: flex; flex-direction: column; min-width: 0">
-      <span style="font-size: 13px; color: rgba(255,255,255,0.8)">{{ dateLabel }}</span>
-      <span style="font-size: 20px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ greet }}, <b style="font-weight: 700">{{ firstName }}</b></span>
+      <span style="font-size: 13px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ greet }} · {{ dateShort }}</span>
+      <span style="font-size: 22px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ firstName }}</span>
     </div>
     <a href="{{ LK.live.href }}" onClick="{{ LK.live.go }}" aria-label="{{ woAria }}" style="margin-left: auto; margin-right: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 7px; height: 44px; min-width: 44px; box-sizing: border-box; padding: {{ woPad }}; border-radius: 22px; background: {{ woBg }}; color: {{ woFg }}; font-size: 13px; font-weight: 700; text-decoration: none; font-variant-numeric: tabular-nums; transition: background-color 300ms ease"><sc-if value="{{ woOn }}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; margin-left: 4px; border-radius: 4px; background: #F2766B; animation: motioLiveDot 1.4s ease-out infinite"></span></sc-if><sc-if value="{{ woOff }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="#1F1D47"><path d="M7 4v16l13-8z"></path></svg></sc-if><sc-if value="{{ woTick }}" hint-placeholder-val="{{ false }}"><span class="motio-clock" style="--d: {{ woDelay }}"></span></sc-if>{{ woLabel }}</a>
     <button onClick="{{ openShare }}" aria-label="Share today’s stats" style="margin-right: 10px; width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
     <button aria-label="Open menu and settings" aria-expanded="{{ menuOpen }}" onClick="{{ openMenu }}" style="width: 48px; height: 48px; border-radius: 24px; border: 0; padding: 0; background: #C9BDFF; overflow: hidden"><sc-if value="{{ hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ avatar }}" alt="" style="width: 48px; height: 48px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1F1D47; color: #FFFFFF; font-size: 17px; font-weight: 600; letter-spacing: 0.5px">{{ initials }}</span></sc-if></button>
   </div>
 
+  <div class="motio-scroll motio-today" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -20px; padding: 2px 20px 16px; display: flex; flex-direction: column; gap: 12px">
   <div style="position: relative; display: flex; flex-direction: column; padding-right: 110px">
     <button type="button" onClick="{{ cycleHero }}" aria-label="Tap to switch between time, distance and steps" style="border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column">
       <sc-if value="{{ heroV0 }}" hint-placeholder-val="{{ true }}">
-        <span style="display: flex; flex-direction: column; animation: motioNum 360ms cubic-bezier(0.22, 1, 0.36, 1)">
+        <span class="motio-hero" style="display: flex; flex-direction: column">
           <span style="font-size: 15px; color: rgba(255,255,255,0.88)">On the move today</span>
           <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px; white-space: nowrap">{{ heroTime }}</span>
           <span style="font-size: 14px; color: rgba(255,255,255,0.88)">Peak at <b style="color: #F6C343">{{ heroPeak }}</b></span>
         </span>
       </sc-if>
       <sc-if value="{{ heroV1 }}" hint-placeholder-val="{{ false }}">
-        <span style="display: flex; flex-direction: column; animation: motioNum 360ms cubic-bezier(0.22, 1, 0.36, 1)">
+        <span class="motio-hero" style="display: flex; flex-direction: column">
           <span style="font-size: 15px; color: rgba(255,255,255,0.88)">Travelled today</span>
           <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px; white-space: nowrap">{{ heroDist }}</span>
           <span style="font-size: 14px; color: rgba(255,255,255,0.88)">Mostly <b style="color: #F6C343">{{ heroTop }}</b></span>
         </span>
       </sc-if>
       <sc-if value="{{ heroV2 }}" hint-placeholder-val="{{ false }}">
-        <span style="display: flex; flex-direction: column; animation: motioNum 360ms cubic-bezier(0.22, 1, 0.36, 1)">
+        <span class="motio-hero" style="display: flex; flex-direction: column">
           <span style="font-size: 15px; color: rgba(255,255,255,0.88)">Steps today</span>
           <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px; white-space: nowrap">{{ heroSteps }}</span>
           <span style="font-size: 14px; color: rgba(255,255,255,0.88)"><b style="color: #F6C343">{{ heroGoalPct }}</b> of your goal</span>
@@ -213,6 +218,7 @@ button:active,a:active{transform:scale(0.96)}
       <span style="position: absolute; left: -4px; right: -4px; bottom: {{ weekGoalY }}; border-top: 1.5px dashed rgba(246,195,67,0.85)"></span>
       <sc-for list="{{ weekBars }}" as="b" hint-placeholder-count="7"><span style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; height: 40px"><span style="width: 10px; height: {{ b.h }}; border-radius: 5px; background: {{ b.bg }}; transition: height 500ms cubic-bezier(0.22, 1, 0.36, 1)"></span><span style="font-size: 9px; font-weight: {{ b.fw }}; line-height: 1; color: {{ b.fg }}">{{ b.l }}</span></span></sc-for>
     </div>
+  </div>
   </div>
 
   <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
@@ -624,6 +630,7 @@ class Component extends DCLogic {
       weekGoalY: Math.round(goalMin / wkMax * 27 + 12) + 'px',
       weekAria: 'This week: ' + wk.line + '. Daily goal ' + fmtMin(goalMin) + '.',
       dateLabel: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }),
+      dateShort: new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
       greet: hour < 5 ? 'Good night' : hour < 12 ? 'Good morning' : hour < 18 ? 'Hello' : 'Good evening', firstName,
       goalLine: fmtMin(totalMs / 60000) + ' / ' + fmtMin(goalMin), goalPct: pctGoal + '%',
       goalHint: leftMin <= 0 ? 'Goal done today. Nice!' : Math.round(leftMin) + ' minutes to go. ' + (leftMin < 30 ? 'A short walk will do it.' : 'You’ve got this.'),

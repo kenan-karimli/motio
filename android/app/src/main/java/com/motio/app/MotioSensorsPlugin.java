@@ -11,6 +11,13 @@ import android.content.ComponentName;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityTransition;
+import com.google.android.gms.location.ActivityTransitionRequest;
+import com.google.android.gms.location.DetectedActivity;
+import android.os.PowerManager;
+import android.provider.Settings;
+import java.util.ArrayList;
+import java.util.List;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -119,16 +126,29 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         Intent i = new Intent(getContext(), ActivityReceiver.class);
         return PendingIntent.getBroadcast(getContext(), 7, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
+    private PendingIntent transitionIntent() {
+        Intent i = new Intent(getContext(), ActivityReceiver.class);
+        return PendingIntent.getBroadcast(getContext(), 8, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+    }
+    // Enter/exit events for still, walking, running, cycling and driving.
+    private ActivityTransitionRequest transitions() {
+        List<ActivityTransition> list = new ArrayList<>();
+        for (int a : new int[] { DetectedActivity.STILL, DetectedActivity.WALKING, DetectedActivity.RUNNING, DetectedActivity.ON_BICYCLE, DetectedActivity.IN_VEHICLE })
+            for (int t : new int[] { ActivityTransition.ACTIVITY_TRANSITION_ENTER, ActivityTransition.ACTIVITY_TRANSITION_EXIT })
+                list.add(new ActivityTransition.Builder().setActivityType(a).setActivityTransition(t).build());
+        return new ActivityTransitionRequest(list);
+    }
 
     @PluginMethod
     public void startActivity(PluginCall call) {
         if (!allowed()) { call.reject("permission"); return; }
-        ActivityReceiver.listener = (type, confidence, at) -> {
+        ActivityReceiver.setListener((type, confidence, at) -> {
             JSObject e = new JSObject();
             e.put("type", type); e.put("confidence", confidence); e.put("at", at);
-            notifyListeners("activity", e);
-        };
+            notifyListeners("activity", e, true);
+        });
         try {
+            ActivityRecognition.getClient(getContext()).requestActivityTransitionUpdates(transitions(), transitionIntent());
             ActivityRecognition.getClient(getContext()).requestActivityUpdates(10000, activityIntent())
                 .addOnSuccessListener((v) -> call.resolve())
                 .addOnFailureListener((err) -> call.reject(err.getMessage()));
@@ -137,8 +157,96 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
 
     @PluginMethod
     public void stopActivity(PluginCall call) {
-        try { ActivityRecognition.getClient(getContext()).removeActivityUpdates(activityIntent()); } catch (SecurityException e) { /* never started */ }
-        ActivityReceiver.listener = null;
+        try {
+            ActivityRecognition.getClient(getContext()).removeActivityUpdates(activityIntent());
+            ActivityRecognition.getClient(getContext()).removeActivityTransitionUpdates(transitionIntent());
+        } catch (SecurityException e) { /* never started */ }
+        ActivityReceiver.setListener(null);
+        call.resolve();
+    }
+
+    // Live island: the floating workout pill shown over other apps while Motio is in the background.
+    private WorkoutIsland island;
+    private WorkoutIsland island() {
+        if (island == null) island = new WorkoutIsland(getContext(), (action) -> {
+            if ("open".equals(action)) WorkoutIsland.openApp(getContext());
+            JSObject e = new JSObject(); e.put("action", action);
+            notifyListeners("island", e, true);
+        });
+        return island;
+    }
+
+    @PluginMethod
+    public void islandAllowed(PluginCall call) { JSObject r = new JSObject(); r.put("allowed", WorkoutIsland.allowed(getContext())); call.resolve(r); }
+
+    @PluginMethod
+    public void islandRequest(PluginCall call) {
+        Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getContext().getPackageName()));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try { getContext().startActivity(i); } catch (Exception e) { /* no such screen */ }
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void islandUpdate(PluginCall call) {
+        WorkoutIsland w = island();
+        w.update(call.getString("mode", "Run"), (int) Long.parseLong(call.getString("color", "FFF2766B"), 16), call.getLong("start", 0L), call.getLong("pausedMs", 0L),
+            call.getLong("pausedAt", 0L), call.getDouble("distance", 0.0), call.getString("unit", "km"));
+        if (call.getBoolean("show", false)) getActivity().runOnUiThread(w::show);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void islandHide(PluginCall call) { if (island != null) getActivity().runOnUiThread(island::hide); call.resolve(); }
+
+    // Which of the given fitness apps are installed, so Connected apps can offer the right ones.
+    @PluginMethod
+    public void installedApps(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            com.getcapacitor.JSArray list = call.getArray("packages");
+            for (int i = 0; i < list.length(); i++) { String pkg = list.getString(i); r.put(pkg, installed(pkg)); }
+        } catch (Exception e) { /* bad input: report none */ }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void openApp(PluginCall call) {
+        Intent i = getContext().getPackageManager().getLaunchIntentForPackage(call.getString("package", ""));
+        JSObject r = new JSObject();
+        if (i == null) { r.put("ok", false); call.resolve(r); return; }
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(i);
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    // Phone settings that decide whether tracking survives in the background (Xiaomi and others stop apps hard).
+    @PluginMethod
+    public void setupStatus(PluginCall call) {
+        PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+        JSObject r = new JSObject();
+        r.put("battery", pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName()));
+        r.put("xiaomi", Build.MANUFACTURER.toLowerCase().matches(".*(xiaomi|redmi|poco).*"));
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void openSetup(PluginCall call) {
+        String what = call.getString("what", "battery");
+        String pkg = getContext().getPackageName();
+        Intent i;
+        if ("autostart".equals(what)) {
+            i = new Intent().setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+        } else {
+            i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + pkg));
+        }
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try { getContext().startActivity(i); }
+        catch (Exception e) {
+            // No such screen on this phone: open Motio's own app settings instead.
+            getContext().startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
         call.resolve();
     }
 

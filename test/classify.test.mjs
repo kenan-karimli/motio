@@ -41,3 +41,16 @@ test('corrections teach it: similar trips follow your label', () => {
   // A clearly different trip (a walk) is not pulled along.
   assert.equal(classifyTrip(features(trip(rep(1.4, 40), { steps: 900, ar: { walk: 400000 } })), learned), 'walk');
 });
+
+test('sitting still with one stray "in vehicle" guess is not a drive', () => {
+  // Indoors: the position wanders, Google mostly says still, and once briefly guesses vehicle.
+  const t = trip([...rep(0.3, 10), 9, 0.2, ...rep(0.3, 10)], { ar: { still: 500000, vehicle: 9000 } });
+  const f = features(t);
+  assert.equal(f.arSeen, false, 'nine seconds of a vehicle guess is not enough to trust');
+  assert.notEqual(rules(f), 'drive');
+});
+
+test('a walk with GPS jumps and steps is a walk even if Google once said vehicle', () => {
+  const t = trip([...rep(1.4, 30), 12, 11, ...rep(1.4, 30)], { steps: 1500, ar: { walk: 200000, vehicle: 120000 } });
+  assert.equal(rules(features(t)), 'walk');
+});

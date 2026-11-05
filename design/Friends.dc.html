@@ -32,6 +32,23 @@ button,a{cursor:pointer}
   </div>
 
   <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 14px">
+    <sc-if value="{{ hasIncoming }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 15px; font-weight: 600">Friend requests</span>
+        <sc-for list="{{ incoming }}" as="q" hint-placeholder-count="1">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
+            <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ q.ini }}</span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.name }}</span><span style="font-size: 11px; opacity: 0.65">wants to be friends</span></span>
+            <button type="button" onClick="{{ q.decline }}" aria-label="{{ q.declineAria }}" style="height: 38px; padding: 0 12px; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 12px; font-weight: 600">Decline</button>
+            <button type="button" onClick="{{ q.accept }}" aria-label="{{ q.acceptAria }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">Accept</button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+    <sc-for list="{{ outgoing }}" as="q" hint-placeholder-count="0">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 18px; background: rgba(255,255,255,0.05); font-size: 13px"><span style="flex: 1; min-width: 0; opacity: 0.8">Waiting for <b>{{ q.name }}</b> to accept</span><button type="button" onClick="{{ q.cancel }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: transparent; color: #FFB3AB; font-size: 12px; font-weight: 600">Cancel</button></div>
+    </sc-for>
+
     <div style="display: flex; align-items: baseline; justify-content: space-between">
       <span style="font-size: 15px; font-weight: 600">Active time this week</span>
       <span style="font-size: 12px; opacity: 0.6">{{ weekLabel }}</span>
@@ -47,7 +64,7 @@ button,a{cursor:pointer}
     <div style="display: flex; flex-direction: column; gap: 8px">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
         <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.delay }} backwards">
-          <button type="button" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}" aria-expanded="{{ r.open }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+          <button type="button" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
             <span style="width: 22px; font-size: 15px; font-weight: 700; color: {{ r.rankColor }}; text-align: center">{{ r.rank }}</span>
             <span style="position: relative; width: 42px; height: 42px; flex-shrink: 0">
               <sc-if value="{{ r.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ r.avatar }}" alt="" style="width: 42px; height: 42px; border-radius: 21px; object-fit: cover; display: block"></sc-if>
@@ -58,9 +75,6 @@ button,a{cursor:pointer}
             <span style="text-align: right; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums">{{ r.time }}</span><span style="font-size: 11px; color: {{ r.trendColor }}">{{ r.trend }}</span></span>
           </button>
           <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.barColor }}; transform-origin: left; animation: motioRankBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.barDelay }} backwards"></span></span>
-          <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
-            <button type="button" onClick="{{ r.remove }}" style="align-self: flex-start; height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: rgba(242,118,107,0.18); color: #FFB3AB; font-size: 12px; font-weight: 600; animation: motioFriendsUp 260ms ease-out">Remove {{ r.first_name }}</button>
-          </sc-if>
         </div>
       </sc-for>
     </div>
@@ -91,7 +105,20 @@ button,a{cursor:pointer}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  componentDidMount() { this.load(); }
+  componentDidMount() { this.load(); this.takeInvite(); }
+  // Opened from an invite link: send the request (or accept theirs) straight away.
+  takeInvite() {
+    const M = window.Motio, code = window.__motioInvite;
+    if (!M || !code) return;
+    window.__motioInvite = null;
+    this.setState({ draft: code, adding: true });
+    M.friends.add(code).then((r) => this.added(r)).catch((e) => this.setState({ adding: false, addError: (e && e.message) || 'Couldn’t add. Try again.' }));
+  }
+  added(r) {
+    this.setState({ adding: false, draft: '' });
+    this.showToast(r.requested ? 'Request sent to ' + r.requested.name.split(' ')[0] : r.already ? 'You’re already friends' : r.friend.name.split(' ')[0] + ' is now your friend');
+    this.load();
+  }
   componentWillUnmount() { clearTimeout(this.toastT); }
   load() {
     const M = window.Motio;
@@ -138,6 +165,12 @@ class Component extends DCLogic {
       weekLabel: 'since ' + new Date(ws).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
       loading: !!s.loading, hasError: !!s.error, error: s.error || '', reload: () => this.load(),
       alone: !!B && people.length < 2,
+      hasIncoming: !!B && (B.incoming || []).length > 0,
+      incoming: (B ? B.incoming || [] : []).map((q, i) => ({ name: q.name, ini: q.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), tint: TINTS[(q.id % 4) + 1], d: i * 70 + 'ms',
+        acceptAria: 'Accept ' + q.name, declineAria: 'Decline ' + q.name,
+        accept: () => M && M.friends.respond(q.id, true).then(() => { this.showToast(q.name.split(' ')[0] + ' is now your friend'); this.load(); }),
+        decline: () => M && M.friends.respond(q.id, false).then(() => this.load()) })),
+      outgoing: (B ? B.outgoing || [] : []).map((q) => ({ name: q.name.split(' ')[0], cancel: () => M && M.friends.cancel(q.id).then(() => this.load()) })),
       rows: people.map((p, i) => {
         const open = s.open === p.id && !p.me;
         const d = p.lastMin ? Math.round((p.activeMin / p.lastMin - 1) * 100) : null;
@@ -147,12 +180,12 @@ class Component extends DCLogic {
           name, first_name: p.name.split(' ')[0], initials: p.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(),
           hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', tint: TINTS[p.id % TINTS.length],
           sub: (mi ? (p.km / 1.609).toFixed(1) + ' mi' : p.km + ' km') + ' · ' + p.trips + (p.trips === 1 ? ' trip' : ' trips'),
-          time: fmtMin(p.activeMin), trend: d == null ? 'new this week' : (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%', trendColor: d == null || d >= 0 ? '#7FE39A' : '#FFB3AB',
+          time: p.hidden ? 'Private' : fmtMin(p.activeMin), trend: d == null ? 'new this week' : (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%', trendColor: d == null || d >= 0 ? '#7FE39A' : '#FFB3AB',
           w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', barColor: p.me ? '#F6C343' : TINTS[p.id % TINTS.length],
           bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', border: p.me ? 'rgba(246,195,67,0.45)' : 'transparent',
           delay: base + i * 70 + 'ms', barDelay: base + 160 + i * 70 + 'ms',
-          aria: '#' + (i + 1) + ', ' + name + ', ' + fmtMin(p.activeMin) + ' active this week' + (p.me ? '' : '. Tap for options'),
-          open, toggle: () => { if (!p.me) this.setState({ open: open ? null : p.id }); },
+          aria: '#' + (i + 1) + ', ' + name + ', ' + fmtMin(p.activeMin) + ' active this week' + (p.me ? '' : '. Open profile'),
+          open, toggle: () => { if (p.me) return; window.__motioFriend = p.id; if (this.props.onNav) this.props.onNav('friend'); },
           remove: () => {
             if (!M) return;
             M.friends.remove(p.id).then(() => { this.showToast(p.name.split(' ')[0] + ' removed'); this.setState({ open: null }); this.load(); })
@@ -171,7 +204,7 @@ class Component extends DCLogic {
         if (!M || clean.length !== 6) return;
         this.setState({ adding: true, addError: null });
         M.friends.add(clean)
-          .then((r) => { this.setState({ adding: false, draft: '' }); this.showToast(r.friend.name.split(' ')[0] + ' added'); this.load(); })
+          .then((r) => this.added(r))
           .catch((e) => this.setState({ adding: false, addError: (e && e.message) || 'Couldn’t add. Try again.' }));
       },
       hasToast: !!s.toast, toast: s.toast || ''

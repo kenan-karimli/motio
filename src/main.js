@@ -114,6 +114,25 @@ Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]).th
 });
 setTimeout(endIntro, 3500);
 
+// Invite links (https://…/i/CODE or motio://add/CODE): keep the code and open Friends, which sends the request.
+const takeInvite = (url) => {
+  const m = /(?:\/i\/|add\/)([A-Za-z0-9]{6})/.exec(url || '');
+  if (!m) return;
+  window.__motioInvite = m[1].toUpperCase();
+  if (window.__motioGo) window.__motioGo('friends');
+};
+CapApp.addListener('appUrlOpen', (e) => takeInvite(e.url));
+CapApp.getLaunchUrl().then((r) => r && takeInvite(r.url)).catch(() => {});
+// Live island: show it when leaving the app mid-workout, hide it on return, then go where its buttons asked.
+CapApp.addListener('appStateChange', ({ isActive }) => {
+  const M = window.Motio;
+  if (!M) return;
+  if (!isActive) { if (M.workout()) M.island.background(); return; }
+  M.island.foreground();
+  const next = window.__motioAfterOpen;
+  window.__motioAfterOpen = null;
+  if (next && window.__motioGo) { if (next[0] === 'summary') window.__motioTrip = next[1]; window.__motioGo(next[0]); }
+});
 CapApp.addListener('backButton', () => {
   if (!(window.__motioBack && window.__motioBack())) CapApp.minimizeApp();
 }).catch(() => {});

@@ -17,6 +17,12 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       created_at BIGINT NOT NULL,
       PRIMARY KEY (user_id, friend_id)
     );
+    CREATE TABLE IF NOT EXISTS friend_requests (
+      from_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      to_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at BIGINT NOT NULL,
+      PRIMARY KEY (from_id, to_id)
+    );
     CREATE TABLE IF NOT EXISTS cheers (
       id SERIAL PRIMARY KEY,
       from_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -38,12 +44,22 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       PRIMARY KEY (challenge_id, user_id)
     );
+    ALTER TABLE challenge_members ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'joined';
   `);
   const q = {
     setInvite: db.prepare('UPDATE users SET invite = ? WHERE id = ? AND invite IS NULL'),
     getInvite: db.prepare('SELECT invite FROM users WHERE id = ?'),
     byInvite: db.prepare('SELECT id, name FROM users WHERE invite = ? AND verified = 1'),
-    list: db.prepare('SELECT u.id, u.name, u.avatar FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ? ORDER BY f.created_at'),
+    list: db.prepare('SELECT u.id, u.name, u.avatar, u.settings FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ? ORDER BY f.created_at'),
+    incoming: db.prepare('SELECT u.id, u.name, u.avatar, r.created_at AS at FROM friend_requests r JOIN users u ON u.id = r.from_id WHERE r.to_id = ? ORDER BY r.created_at DESC'),
+    outgoing: db.prepare('SELECT u.id, u.name, u.avatar, r.created_at AS at FROM friend_requests r JOIN users u ON u.id = r.to_id WHERE r.from_id = ? ORDER BY r.created_at DESC'),
+    request: db.prepare('INSERT INTO friend_requests (from_id, to_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
+    hasRequest: db.prepare('SELECT 1 AS ok FROM friend_requests WHERE from_id = ? AND to_id = ?'),
+    dropRequests: db.prepare('DELETE FROM friend_requests WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)'),
+    userById: db.prepare('SELECT id, name, bio, avatar, settings, created_at FROM users WHERE id = ?'),
+    since: db.prepare('SELECT created_at FROM friends WHERE user_id = ? AND friend_id = ?'),
+    setStatus: db.prepare('UPDATE challenge_members SET status = ? WHERE challenge_id = ? AND user_id = ?'),
+
     count: db.prepare('SELECT COUNT(*)::int AS n FROM friends WHERE user_id = ?'),
     unlink: db.prepare('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)'),
     totals: db.prepare(`SELECT user_id,
@@ -58,8 +74,8 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     cheer: db.prepare('INSERT INTO cheers (from_id, to_id, at) VALUES (?, ?, ?)'),
     cheersFor: db.prepare('SELECT c.at, u.id, u.name FROM cheers c JOIN users u ON u.id = c.from_id WHERE c.to_id = ? AND c.at > ? ORDER BY c.at DESC LIMIT 20'),
     myChallenges: db.prepare(`SELECT c.* FROM challenges c JOIN challenge_members m ON m.challenge_id = c.id
-      WHERE m.user_id = ? AND c."end" > ? ORDER BY c."end"`),
-    members: db.prepare('SELECT u.id, u.name FROM challenge_members m JOIN users u ON u.id = m.user_id WHERE m.challenge_id = ?'),
+      WHERE m.user_id = ? AND m.status <> 'declined' AND c."end" > ? ORDER BY c."end"`),
+    members: db.prepare('SELECT u.id, u.name, m.status FROM challenge_members m JOIN users u ON u.id = m.user_id WHERE m.challenge_id = ? AND m.status <> \'declined\''),
     progress: db.prepare(`SELECT user_id,
         SUM(CASE WHEN mode IN ('walk', 'run', 'bike') THEN distance_m ELSE 0 END)::float8 AS m,
         SUM(CASE WHEN mode IN ('walk', 'run', 'bike') THEN "end" - start ELSE 0 END)::float8 AS active_ms,
@@ -72,10 +88,20 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
   // Each member's progress in a challenge, from walks, runs and rides inside its window (driving never counts).
   async function challengeOut(c, me) {
     const members = await q.members.all(c.id);
-    const sums = new Map((await q.progress.all(c.start, c.end, members.map((m) => m.id))).map((r) => [r.user_id, r]));
+    const sums = new Map((await q.progress.all(c.start, c.end, members.filter((m) => m.status === 'joined').map((m) => m.id))).map((r) => [r.user_id, r]));
     const value = (s) => (c.kind === 'km' ? Math.round((s.m || 0) / 100) / 10 : c.kind === 'min' ? Math.round((s.active_ms || 0) / 60000) : s.runs || 0);
-    return { id: c.id, kind: c.kind, target: c.target, start: c.start, end: c.end, mine: c.creator === me, done: c.end <= now(),
-      members: members.map((m) => ({ id: m.id, name: m.name, me: m.id === me, value: value(sums.get(m.id) || {}) })).sort((a, b) => b.value - a.value) };
+    const mine = members.find((m) => m.id === me);
+    return { id: c.id, kind: c.kind, target: c.target, start: c.start, end: c.end, mine: c.creator === me, done: c.end <= now(), invited: !!mine && mine.status === 'invited',
+      creator: (members.find((m) => m.id === c.creator) || {}).name || '',
+      members: members.map((m) => ({ id: m.id, name: m.name, me: m.id === me, joined: m.status === 'joined', value: value(sums.get(m.id) || {}) })).sort((a, b) => b.joined - a.joined || b.value - a.value) };
+  }
+
+  async function link(a, b) {
+    await db.tx(async (t) => {
+      await t.prepare('INSERT INTO friends (user_id, friend_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').run(a, b, now());
+      await t.prepare('INSERT INTO friends (user_id, friend_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').run(b, a, now());
+      await t.prepare('DELETE FROM friend_requests WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)').run(a, b, b, a);
+    });
   }
 
   async function inviteOf(id) {
@@ -103,11 +129,14 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       for (const r of await q.perDay.all(from, from, from + WEEK, people.map((p) => p.id))) if (r.d >= 0 && r.d < 7) days.get(r.user_id)[r.d] = Math.round(r.active_ms / 60000);
       const out = people.map((p) => {
         const s = sums.get(p.id) || {}, l = prev.get(p.id) || {};
+        // Someone who hid their activity shows up by name only.
+        if (!p.me && JSON.parse(p.settings || '{}').hideActivity) return { id: p.id, name: p.name, me: false, hidden: true, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '', activeMin: 0, km: 0, trips: 0, lastMin: 0, days: [0, 0, 0, 0, 0, 0, 0], activeDays: 0 };
         return { id: p.id, name: p.name, me: !!p.me, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '',
           activeMin: Math.round((s.active_ms || 0) / 60000), km: Math.round((s.m || 0) / 100) / 10, trips: s.trips || 0, lastMin: Math.round((l.active_ms || 0) / 60000),
           days: days.get(p.id), activeDays: days.get(p.id).filter((m) => m > 0).length };
       });
-      return { code: await inviteOf(user.id), from, people: out };
+      const small = (r) => ({ id: r.id, name: r.name, avatar: r.avatar && r.avatar.length < 200000 ? r.avatar : '', at: r.at });
+      return { code: await inviteOf(user.id), from, people: out, incoming: (await q.incoming.all(user.id)).map(small), outgoing: (await q.outgoing.all(user.id)).map(small) };
     },
 
     'POST /v1/friends/add': async ({ req, body }) => {
@@ -117,12 +146,38 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       const other = await q.byInvite.get(code);
       if (!other) throw new HttpError(404, 'code_unknown', 'No one has that code. Check it and try again.');
       if (other.id === user.id) throw bad('code_self', 'That’s your own code. Send it to a friend instead.');
+      if (await q.isFriend.get(user.id, other.id)) return { friend: { id: other.id, name: other.name }, already: true };
       if ((await q.count.get(user.id)).n >= MAX_FRIENDS) throw bad('too_many', 'You can have up to ' + MAX_FRIENDS + ' friends.');
-      await db.tx(async (t) => {
-        await t.prepare('INSERT INTO friends (user_id, friend_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').run(user.id, other.id, now());
-        await t.prepare('INSERT INTO friends (user_id, friend_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').run(other.id, user.id, now());
-      });
-      return { friend: { id: other.id, name: other.name } };
+      // They already asked you: adding their code accepts it. Otherwise it's a request they accept or decline.
+      if (await q.hasRequest.get(other.id, user.id)) { await link(user.id, other.id); return { friend: { id: other.id, name: other.name } }; }
+      await q.request.run(user.id, other.id, now());
+      return { requested: { id: other.id, name: other.name } };
+    },
+
+    'POST /v1/friends/respond': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const id = Number(body.id);
+      if (!Number.isInteger(id) || !(await q.hasRequest.get(id, user.id))) throw bad('no_request', 'That request is gone.');
+      if (body.accept) { await link(user.id, id); return { ok: true, accepted: true }; }
+      await q.dropRequests.run(id, user.id, user.id, id);
+      return { ok: true, accepted: false };
+    },
+
+    'POST /v1/friends/cancel': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      await q.dropRequests.run(user.id, Number(body.id) || 0, user.id, Number(body.id) || 0);
+      return { ok: true };
+    },
+
+    // A friend's profile: photo, name, bio and this week's totals (just name and photo if they keep activity private).
+    'GET /v1/profile': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      const id = Number(url.searchParams.get('id'));
+      if (id !== user.id && !(await q.isFriend.get(user.id, id))) throw new HttpError(403, 'not_friend', 'Only friends can see this profile.');
+      const u = await q.userById.get(id);
+      if (!u) throw new HttpError(404, 'not_found', 'This person left Motio.');
+      const cfg = JSON.parse(u.settings || '{}'), since = id === user.id ? null : (await q.since.get(user.id, id)).created_at;
+      return { profile: { id: u.id, name: u.name, bio: u.bio, avatar: u.avatar, joined: u.created_at, friendsSince: since, hidden: id !== user.id && !!cfg.hideActivity } };
     },
 
     // A cheer: a small "well done" to a friend; at most one per friend every 10 minutes.
@@ -139,14 +194,27 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     'GET /v1/moments': async ({ req }) => {
       const { user } = await authUser(req);
       const out = (await q.cheersFor.all(user.id, now() - 14 * DAY)).map((c) => ({ kind: 'cheer', at: c.at, who: { id: c.id, name: c.name } }));
+      for (const r of await q.incoming.all(user.id)) out.push({ kind: 'request', at: r.at, who: { id: r.id, name: r.name } });
       for (const c of await q.myChallenges.all(user.id, now() - 3 * DAY)) {
         const ch = await challengeOut(c, user.id);
-        const creator = ch.members.find((m) => m.id === c.creator);
-        if (c.creator !== user.id && creator) out.push({ kind: 'challenge', at: c.created_at, who: { id: creator.id, name: creator.name }, challenge: ch });
+        const cr = await q.userById.get(c.creator);
+        if (c.creator !== user.id && cr) out.push({ kind: 'challenge', at: c.created_at, who: { id: cr.id, name: cr.name }, challenge: ch });
         if (ch.done && ch.members[0] && ch.members[0].value > 0) out.push({ kind: 'won', at: c.end, who: { id: ch.members[0].id, name: ch.members[0].name }, challenge: ch });
       }
       return { moments: out.sort((a, b) => b.at - a.at).slice(0, 20) };
     },
+
+    // Invite link: with Motio installed Android opens the app straight away (App Links); otherwise this page helps.
+    'GET /i': async ({ url }) => {
+      const code = url.pathname.slice(3).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+      return { type: 'text/html', raw: `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join me on Motio</title>
+<style>body{margin:0;font-family:system-ui,sans-serif;background:#1F1D47;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}main{padding:32px 24px;max-width:360px}h1{font-size:28px;margin:0 0 8px}p{color:#C9C5EC;line-height:1.5}.code{font-size:34px;font-weight:700;letter-spacing:6px;background:#2D2A6E;border-radius:16px;padding:14px;margin:20px 0}a{display:block;margin:10px 0;padding:14px;border-radius:26px;background:#F6C343;color:#1F1D47;font-weight:700;text-decoration:none}</style>
+<main><h1>Join me on Motio</h1><p>Compare weeks and start challenges together.</p><div class="code">${code}</div>
+<a href="intent://add/${code}#Intent;scheme=motio;package=com.motio.app;end">Open in Motio</a>
+<p>No app yet? Install Motio, then enter this code in Social › Friends.</p></main></html>` };
+    },
+    'GET /.well-known/assetlinks.json': async () => ({ type: 'application/json', raw: JSON.stringify([{ relation: ['delegate_permission/common.handle_all_urls'],
+      target: { namespace: 'android_app', package_name: 'com.motio.app', sha256_cert_fingerprints: ['3D:74:F5:0F:36:88:10:38:DE:13:6C:FD:B0:D4:A6:36:23:13:66:34:7E:03:4B:83:24:7A:99:3B:85:17:18:A7'] } }]) }),
 
     'GET /v1/challenges': async ({ req }) => {
       const { user } = await authUser(req);
@@ -168,11 +236,19 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       const t = now();
       const id = await db.tx(async (tx) => {
         const row = await tx.prepare('INSERT INTO challenges (creator, kind, target, start, "end", created_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING id').get(user.id, kind, target, t, t + days * DAY, t);
-        for (const m of [user.id, ...ids]) await tx.prepare('INSERT INTO challenge_members (challenge_id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING').run(row.id, m);
+        await tx.prepare('INSERT INTO challenge_members (challenge_id, user_id, status) VALUES (?, ?, ?)').run(row.id, user.id, 'joined');
+        for (const m of ids) await tx.prepare('INSERT INTO challenge_members (challenge_id, user_id, status) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').run(row.id, m, 'invited');
         return row.id;
       });
       const c = (await q.myChallenges.all(user.id, t)).find((x) => x.id === id);
       return { challenge: await challengeOut(c, user.id) };
+    },
+
+    // Accept or reject a challenge a friend sent you; only accepted members race.
+    'POST /v1/challenges/respond': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      await q.setStatus.run(body.accept ? 'joined' : 'declined', Number(body.id) || 0, user.id);
+      return { ok: true };
     },
 
     'POST /v1/challenges/leave': async ({ req, body }) => {

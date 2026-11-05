@@ -24,6 +24,8 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioAutoIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 [data-page="overlay"] .motio-scroll>*{animation:motioAutoIn 520ms cubic-bezier(0.22,1,0.36,1) 640ms backwards}
 [data-page="overlay"] .motio-scroll>:nth-child(1){animation-delay:360ms}[data-page="overlay"] .motio-scroll>:nth-child(2){animation-delay:410ms}[data-page="overlay"] .motio-scroll>:nth-child(3){animation-delay:460ms}[data-page="overlay"] .motio-scroll>:nth-child(4){animation-delay:510ms}[data-page="overlay"] .motio-scroll>:nth-child(5){animation-delay:560ms}[data-page="overlay"] .motio-scroll>:nth-child(6){animation-delay:600ms}
+/* Full-screen backdrops (tap outside a sheet to close) never shrink on press: that flashed the screen edges. */
+button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inset:0"]:active{transform:none !important}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
@@ -200,6 +202,11 @@ button:active,a:active{transform:scale(0.96)}
       <dc-import name="Friends" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.profile.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.profile.kind }}" style="position: absolute; inset: 0; z-index: {{ O.profile.z }}; animation: {{ O.profile.anim }}; box-shadow: {{ O.profile.shadow }}">
+      <dc-import name="Profile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.friend.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.friend.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friend.z }}; animation: {{ O.friend.anim }}; box-shadow: {{ O.friend.shadow }}">
       <dc-import name="FriendProfile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -347,12 +354,14 @@ class Component extends DCLogic {
     };
 
     this.goFn = go;
+    // Lets the native side (invite links) open a page; waits for sign-in, then opens it.
+    window.__motioGo = (t) => (authed ? go(t) : null);
     // A rejected session token sends you to the Session expired page once.
     if (window.Motio && window.Motio.auth.sessionExpired() && !stack.includes('session') && !stack.includes('login') && !this.sessionShown) { this.sessionShown = true; setTimeout(() => go('session'), 0); }
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

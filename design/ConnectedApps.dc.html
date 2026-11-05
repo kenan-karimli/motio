@@ -136,6 +136,7 @@ class Component extends DCLogic {
     this.refresh = () => {
       const M = window.Motio;
       M.health.status().then((hc) => this.setState({ hc })).catch(() => this.setState({ hc: { available: false } }));
+      M.apps.installed().then((inst) => this.setState({ inst })).catch(() => this.setState({ inst: {} }));
       M.strava.status().then((sv) => {
         const was = this.state && this.state.sv;
         this.setState({ sv });
@@ -191,6 +192,12 @@ class Component extends DCLogic {
       list = [
         ['health', 'Health Connect', '#F2766B', 'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z', hcOn,
           !hc ? 'Checking…' : hc.needsUpdate ? 'Update Health Connect from the Play Store first' : !hc.available ? 'Not available on this phone' : hcOn ? 'Connected · ' + ago(M.health.syncedAt()) : 'Walks, runs and rides as workouts, with steps'],
+        // Fitness apps found on this phone; they get Motio's trips through Health Connect.
+        ...(() => {
+          const inst = s.inst || {}, seen = new Set();
+          return M.PARTNERS.filter(([pkg, name]) => inst[pkg] && !seen.has(name) && seen.add(name)).map(([pkg, name, color]) =>
+            ['p:' + pkg, name, color, 'M4 12h4l2-5 4 10 2-5h4', hcOn, hcOn ? 'Installed · gets your trips through Health Connect' : 'Installed · connect to send it your walks, runs and rides']);
+        })(),
         ['strava', 'Strava', '#FC4C02', 'M5 16l5-10 5 10M12 16l3 4 3-4', !!(sv && sv.connected),
           !sv ? 'Checking…' : sv.offline ? 'You’re offline' : !sv.configured ? 'Not set up on this server yet' : sv.connected ? (sv.athlete || 'Connected') + ' · ' + ago(M.strava.syncedAt()) : s.waitStrava ? 'Finish connecting in the browser…' : 'Upload walks, runs and rides with routes']
       ];
@@ -199,6 +206,20 @@ class Component extends DCLogic {
       if (busy) return;
       if (!M) { const linked = s.linked || { health: true, strava: true }; this.setState({ linked: { ...linked, [key]: !on } }); this.showToast(name + (on ? ' disconnected' : ' connected')); return; }
       try {
+        if (key.startsWith('p:')) {
+          // Partner app: make sure Health Connect is on, then open the app so its own sync can be switched on.
+          const pkg = key.slice(2);
+          if (!s.hc || !s.hc.available) { this.showToast('Health Connect isn’t available on this phone'); return; }
+          if (!(s.hc.connected && M.settings().healthSync)) {
+            this.setState({ busy: key });
+            const r = await M.health.connect();
+            this.setState({ busy: null, hc: r });
+            if (!r.connected) { this.showToast('Motio needs Health Connect access first'); return; }
+          }
+          this.showToast('In ' + name + ', turn on Health Connect sync to see your trips there');
+          setTimeout(() => M.apps.open(pkg), 1400);
+          return;
+        }
         if (key === 'health') {
           if (on) { M.health.disconnect(); this.setState({ hc: { ...s.hc } }); this.showToast('Stopped sending to Health Connect. Remove Motio’s access there if you like'); return; }
           if (!s.hc || !s.hc.available) { this.showToast(s.hc && s.hc.needsUpdate ? 'Update Health Connect in the Play Store, then try again' : 'Health Connect isn’t available on this phone'); return; }
@@ -208,7 +229,7 @@ class Component extends DCLogic {
           this.showToast(r.connected ? 'Health Connect connected. Your trips are on their way' : 'Motio needs access to write workouts and steps');
         } else {
           if (on) { this.setState({ busy: key }); await M.strava.disconnect(); this.setState({ busy: null, sv: { ...s.sv, connected: false } }); M.setSetting('stravaAuto', false); this.showToast('Strava disconnected'); return; }
-          if (!s.sv || !s.sv.configured) { this.showToast('Strava needs keys on the server first (STRAVA_CLIENT_ID and SECRET)'); return; }
+          if (!s.sv || !s.sv.configured) { this.showToast('Strava connection is coming soon'); return; }
           this.setState({ waitStrava: true });
           await M.strava.connect();
         }
@@ -232,8 +253,8 @@ class Component extends DCLogic {
         name, color, glyph, delay: i * 60 + 'ms',
         status: isBusy ? 'Connecting…' : status,
         busy: isBusy, done: done && on,
-        label: isBusy ? 'Connecting' : on ? (done ? 'Connected' : 'Disconnect') : 'Connect',
-        aria: (on ? 'Disconnect ' : 'Connect ') + name,
+        label: isBusy ? 'Connecting' : key.startsWith('p:') ? (on ? 'Open' : 'Connect') : on ? (done ? 'Connected' : 'Disconnect') : 'Connect',
+        aria: (key.startsWith('p:') ? (on ? 'Open ' : 'Connect ') : on ? 'Disconnect ' : 'Connect ') + name,
         bg: isBusy ? '#5B4FE0' : on ? (done ? '#DDF5E3' : '#FFFFFF') : '#1F1D47',
         fg: isBusy ? '#FFFFFF' : on ? (done ? '#1E7A36' : '#1F1D47') : '#FFFFFF',
         border: on && !done && !isBusy ? '2px solid #E3E1F3' : '0',

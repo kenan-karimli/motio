@@ -39,7 +39,7 @@ button:active,a:active{transform:scale(0.96)}
 </helmet>
 <div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; transition: background 300ms ease, color 300ms ease; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
 
-  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="5" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
+  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
     <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 4px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
   </div>
 
@@ -510,7 +510,8 @@ class Component extends DCLogic {
   }
   // The share image for the slide you're on: each slide has its own card.
   storyJob() {
-    const M = window.Motio, R = this.recapData(), i = (this.state && this.state.i) || 0;
+    const M = window.Motio, R = this.recapData(), okS = R.slidesOk || [true, true, true, true, true];
+    const ord = [0, 1, 2, 3, 4].filter((k) => okS[k]), i = ord[Math.min((this.state && this.state.i) || 0, ord.length - 1)];
     const cards = [
       ['cover', { kicker: R.Kind + ' ' + R.no, title: R.Your + ',\nwrapped', sub: R.span + ' · ' + R.time + ' on the move', bigLabel: 'covered', big: R.dist, routes: R.routes }],
       ['distance', { kicker: R.head, lead: R.This + ' you covered', num: R.distNum, unit: R.unit, line: R.compareLong, bars: R.byDistNum }],
@@ -635,6 +636,7 @@ class Component extends DCLogic {
     const tmax = Math.max(1, ...r.modes.map((x) => x.ms));
     const byTime = r.modes.map((x) => ({ label: x.label, LABEL: x.name.toUpperCase(), time: M.fmtMin(x.ms / M.MIN), rel: Math.round(x.ms / tmax * 100) + '%', color: x.color }));
     return {
+      slidesOk: [true, r.m > 50, r.min >= 1, !!longest && r.trips.length > 0, true],
       hourly: r.hourly.map((v) => Math.round(v)), routes: M.route(from, to), byDistNum: r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, value: d1(x.m) + ' ' + unit, pct: Math.round(x.m / Math.max(1, r.m) * 100), color: x.color })),
       head: (kind === 'day' ? 'Day' : kind === 'week' ? 'Week' : 'Month') + ', wrapped · ' + span,
       Your: 'Your ' + kind, This, KIND, Kind: KIND[0] + KIND.slice(1).toLowerCase(), no, span, SPAN: span.toUpperCase(),
@@ -677,9 +679,17 @@ class Component extends DCLogic {
     const d = this.sd;
     if (!d || e.pointerId !== d.id) return;
     const dy = e.clientY - d.y, dx = e.clientX - d.x;
-    if (!d.on) {
+    if (!d.on && !d.side) {
       if (dy > 10 && dy > Math.abs(dx) * 1.2) { d.on = true; try { d.el.setPointerCapture(d.id); } catch (err) { /* pointer gone */ } }
+      else if (Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.2) { d.side = true; try { d.el.setPointerCapture(d.id); } catch (err) { /* pointer gone */ } }
       else return;
+    }
+    if (d.side) {
+      // Follows the finger a little (with resistance), then the story changes on release.
+      d.dx = dx;
+      d.el.style.transition = 'none';
+      d.el.style.transform = 'translateX(' + dx * 0.35 + 'px)';
+      return;
     }
     const k = d.el.getBoundingClientRect().width / 390 || 1;
     d.dy = Math.max(0, dy / k);
@@ -690,6 +700,15 @@ class Component extends DCLogic {
   storyUp(e) {
     const d = this.sd;
     this.sd = null;
+    if (d && d.side) {
+      d.el.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
+      d.el.style.transform = '';
+      const v = this.renderVals();
+      if (d.dx < -50) { if (v.isLast) { if (this.props.onNav) this.props.onNav('back'); } else v.next(); }
+      else if (d.dx > 50) v.prev();
+      if (Math.abs(d.dx) > 50) this.swipedAt = Date.now();
+      return;
+    }
     if (!d || !d.on) return;
     const flick = d.dy / Math.max(1, e.timeStamp - d.t) > 0.7;
     if ((d.dy > 140 || flick) && this.props.onNav) {
@@ -725,7 +744,10 @@ class Component extends DCLogic {
     let stored = null;
     try { stored = window.localStorage.getItem('motio.recapStyle'); } catch (e) { /* storage blocked: fall back to the tweak */ }
     const chosen = stored === 'mix' ? 'mix' : family(stored) || family(this.props.recapStyle) || 'mix';
-    const i = s.i || 0;
+    // Only slides with something to show: a quiet week has no empty "0 km" pages.
+    const R0 = this.recapData(), ok = R0.slidesOk || [true, true, true, true, true];
+    const order = [0, 1, 2, 3, 4].filter((k) => ok[k]);
+    const pos = Math.min(s.i || 0, order.length - 1), i = order[pos];
     // Mix: each opening deals every story its own design and shifts the colours, so no two recaps look alike.
     if (!this.mix) {
       this.mix = [];
@@ -772,13 +794,14 @@ class Component extends DCLogic {
       hasToast: !!s.toast, toast: s.toast || '',
       emb, standalone: !emb, LK: { k0: lk('back', 'Recaps.dc.html'), k1: lk('back', 'Recaps.dc.html') },
       L, F, R: this.recapData(),
-      bars: [0, 1, 2, 3, 4].map((k) => ({ bg: k <= i ? on : off })),
-      storyNum: i + 1,
-      storyLabel: 'Story ' + (i + 1) + ' of 5',
+      bars: order.map((k, n) => ({ bg: n <= pos ? on : off })),
+      storyNum: pos + 1, storyCount: order.length,
+      storyLabel: 'Story ' + (pos + 1) + ' of ' + order.length,
       // The last tap ends the weekly recap and returns to the Recaps hub; the monthly recap is its own story.
-      isLast: i === 4, notLast: i !== 4,
-      prev: () => this.setState({ i: Math.max(0, i - 1) }),
-      next: () => this.setState({ i: Math.min(4, i + 1) })
+      isLast: pos === order.length - 1, notLast: pos !== order.length - 1,
+      // A swipe already moved the story; ignore the tap the same touch would also produce.
+      prev: () => { if (Date.now() - (this.swipedAt || 0) > 350) this.setState({ i: Math.max(0, pos - 1) }); },
+      next: () => { if (Date.now() - (this.swipedAt || 0) > 350) this.setState({ i: Math.min(order.length - 1, pos + 1) }); }
     };
   }
 }

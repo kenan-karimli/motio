@@ -29,18 +29,24 @@ export function features(t) {
   const km = Math.max(0.05, (t.distanceM || 0) / 1000);
   if (t.stops != null) stops = Math.max(stops, t.stops); // counted live by the tracker (stationary GPS updates aren't kept)
   const mins = Math.max(0.5, ((t.end || 0) - (t.start || 0)) / 60000);
+  // Google's readings, weighted by time × confidence. Shares are of the moving readings; "still" is kept apart,
+  // and the model only counts once it has seen about a minute of movement (one stray guess decides nothing).
   const ar = t.ar || {};
-  const arTotal = Object.values(ar).reduce((a, b) => a + b, 0);
-  const share = (k) => (arTotal ? (ar[k] || 0) / arTotal : 0);
+  const arTotal = Object.values(ar).reduce((a, b) => a + b, 0), moving = arTotal - (ar.still || 0);
+  const share = (k) => (moving ? (ar[k] || 0) / moving : 0);
   return {
     med: pct(speeds, 0.5), p85: pct(speeds, 0.85), cadence: (t.steps || 0) / mins, stopsPerKm: stops / km, km,
-    vehicle: share('vehicle'), bike: share('bike'), foot: share('walk') + share('run'), run: share('run'), arSeen: arTotal > 0
+    vehicle: share('vehicle'), bike: share('bike'), foot: share('walk') + share('run'), run: share('run'), arSeen: moving >= 45000,
+    still: arTotal ? (ar.still || 0) / arTotal : 0
   };
 }
 
 // Rules, in order of how sure each signal is. Speeds in m/s.
 export function rules(f) {
   const moving = f.p85 || f.med;
+  // Steps at walking pace are the surest sign of all: phones don't count steps in a car.
+  if (f.cadence > 140 && f.med > 2.2 && f.med < 6.5) return 'run';
+  if (f.cadence > 60 && f.med < 2.6) return 'walk';
   if (f.arSeen) {
     if (f.vehicle >= 0.5) return vehicleKind(f);
     if (f.bike >= 0.45) return 'bike';

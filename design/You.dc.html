@@ -47,7 +47,7 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSecBadge{0%{opacity:0;transform:scale(0.4) rotate(-15deg)}70%{opacity:1;transform:scale(1.08)}100%{transform:none}}
 .motio-you>*{flex-shrink:0}
 .motio-scroll::-webkit-scrollbar{display:none}
-[data-enter="true"] .motio-you>:nth-child(-n+5){animation:motioYouIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
+[data-enter="true"] .motio-you>:nth-child(-n+6){animation:motioYouIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
 .motio-you>:nth-child(1){animation-delay:60ms}.motio-you>:nth-child(2){animation-delay:120ms}.motio-you>:nth-child(3){animation-delay:180ms}.motio-you>:nth-child(4){animation-delay:240ms}.motio-you>:nth-child(5){animation-delay:300ms}.motio-you>:nth-child(6){animation-delay:360ms}
 </style>
 </helmet>
@@ -58,7 +58,7 @@ button:active,a:active{transform:scale(0.96)}
   </svg>
 
   <div style="position: relative; display: flex; align-items: center; gap: 14px; min-height: 64px">
-    <span style="width: 60px; height: 60px; border-radius: 30px; background: #C9BDFF; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 3px #FFFFFF"><sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ photo }}" alt="Profile photo" style="width: 60px; height: 60px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #1F1D47; color: #FFFFFF; font-size: 21px; font-weight: 600; letter-spacing: 0.5px">{{ initials }}</span></sc-if></span>
+    <a href="{{ LK.profile.href }}" onClick="{{ LK.profile.go }}" aria-label="Open your profile" style="width: 60px; height: 60px; border-radius: 30px; background: #C9BDFF; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 3px #FFFFFF; display: block"><sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ photo }}" alt="Profile photo" style="width: 60px; height: 60px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #1F1D47; color: #FFFFFF; font-size: 21px; font-weight: 600; letter-spacing: 0.5px">{{ initials }}</span></sc-if></a>
     <div style="display: flex; flex-direction: column; flex: 1; color: #FFFFFF">
       <span style="font-size: 22px; font-weight: 700; line-height: 1.2">{{ name }}</span>
       <sc-if value="{{ hasBio }}" hint-placeholder-val="{{ true }}">
@@ -66,10 +66,13 @@ button:active,a:active{transform:scale(0.96)}
       </sc-if>
     </div>
     <a href="{{ LK.settings.href }}" onClick="{{ LK.settings.go }}" aria-label="Settings" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></a>
-    <button onClick="{{ openEdit }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-shrink: 0"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>Edit</button>
+    <a href="{{ LK.profile.href }}" onClick="{{ LK.profile.go }}" style="height: 40px; padding: 0 14px; border-radius: 20px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Profile</a>
   </div>
 
   <div class="motio-you motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; margin: 0 -20px; padding: 0 20px 12px; display: flex; flex-direction: column; gap: 12px">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap">
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4"><span style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(255,255,255,0.22); color: #FFFFFF; font-size: 12px; font-weight: 600"><b style="font-size: 14px">{{ c.v }}</b>{{ c.k }}</span></sc-for>
+  </div>
   <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" style="position: relative; display: block; height: 176px; border-radius: 28px; background: #F2766B; overflow: hidden; text-decoration: none; color: #1F1D47; box-shadow: 0 12px 28px rgba(40,20,120,0.3)">
     <svg aria-hidden="true" width="350" height="176" viewBox="0 0 350 176" style="position: absolute; inset: 0">
       <path d="M150 60 Q 220 10 360 50 V 176 H 150 Z" fill="#F58C83"></path>
@@ -316,6 +319,10 @@ button:active,a:active{transform:scale(0.96)}
             <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Bio <span style="font-weight: 400; color: #6B6890">Optional · shown under your name</span>
               <textarea rows="3" value="{{ draftBio }}" onChange="{{ onBio }}" style="box-sizing: border-box; padding: 12px 14px; border-radius: 16px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none"></textarea>
             </label>
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+              <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Show my activity to friends</span><span style="font-size: 12px; color: #6B6890">{{ shareHint }}</span></span>
+              <button type="button" role="switch" aria-checked="{{ shareOn }}" aria-label="Show my activity to friends" onClick="{{ toggleShare }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ shareBg }}; transition: background-color 200ms ease"><span style="position: absolute; top: 3px; left: {{ shareKnob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; transition: left 220ms cubic-bezier(0.34, 1.4, 0.64, 1)"></span></button>
+            </div>
             <button onClick="{{ save }}" style="height: 52px; border-radius: 26px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600; box-shadow: none">Save</button>
           </div>
         </sc-if>
@@ -366,6 +373,7 @@ class Component extends DCLogic {
     setTimeout(() => { this.navNow = true; el.click(); }, 200);
   }
   componentDidMount() {
+    if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.friends.board().then((b) => this.setState({ friendsN: b.people.length - 1 })).catch(() => {});
     // Remember this tab so the next screen can slide its pill in from here.
     const v = String(2);
     try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
@@ -625,7 +633,7 @@ class Component extends DCLogic {
     }
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), friends: lk('friends', 'Friends.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
+      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), profile: lk('profile', 'Profile.dc.html'), friends: lk('friends', 'Friends.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
       ...(() => {
         const M = window.Motio;
         if (!M) return { goalsLine: '6-day streak', healthLine: '412 kcal today', achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more', explorerLine: '4.2% of your city explored' };
@@ -637,6 +645,13 @@ class Component extends DCLogic {
           placesLine: pl.length ? pl.slice(0, 2).map((p) => p.name).join(', ') + (pl.length > 2 ? ' and ' + (pl.length - 2) + ' more' : '') : 'Appear after a few trips' };
       })(),
       sec: this.sectionVals(lk),
+      chips: (() => {
+        const M = window.Motio;
+        if (!M) return [{ v: '3', k: 'friends' }, { v: '6', k: 'day streak' }, { v: '10', k: 'badges' }, { v: '', k: 'Activity shared' }];
+        const G = M.goals(), A = M.achievements().filter((a) => a.got).length, f = (this.state || {}).friendsN;
+        return [...(f != null ? [{ v: String(f), k: f === 1 ? 'friend' : 'friends' }] : []), { v: String(G.streak), k: 'day streak' }, { v: String(A), k: A === 1 ? 'badge' : 'badges' },
+          { v: '', k: M.settings().hideActivity ? 'Activity private' : 'Activity shared' }];
+      })(),
       navFrom: this.navFrom,
       name, bio, hasBio: bio.trim().length > 0,
       initials: name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''),
@@ -681,11 +696,17 @@ class Component extends DCLogic {
         };
         img.src = URL.createObjectURL(f);
       },
+      ...(() => {
+        const on = s.draftShare ?? !(window.Motio && window.Motio.settings().hideActivity);
+        return { shareOn: on, shareBg: on ? '#3DBF5C' : '#C9C5EC', shareKnob: on ? '21px' : '3px', shareHint: on ? 'Friends see your weekly totals' : 'Friends see only your name and photo',
+          toggleShare: () => this.setState({ draftShare: !on }) };
+      })(),
       save: () => {
         const next = { name: (s.draftName ?? name).trim() || name, bio: (s.draftBio ?? bio).trim(), avatar: s.draftPhoto || photo || '' };
         if (!window.Motio) { this.setState({ name: next.name, bio: next.bio, photo: next.avatar, sheet: null }); return; }
         this.setState({ sheet: null });
         window.Motio.updateProfile(next).catch(() => {});
+        if (s.draftShare !== undefined) window.Motio.setSetting('hideActivity', !s.draftShare);
       }
     };
   }

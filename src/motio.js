@@ -127,18 +127,37 @@ export const health = {
   disconnect() { setSetting('healthSync', false); return Health.openSettings().catch(() => {}); },
   syncedAt: () => S.healthAt || null
 };
+// Fitness apps on this phone. Most of them read Motio's trips through Health Connect once it's connected.
+export const PARTNERS = [
+  ['com.sec.android.app.shealth', 'Samsung Health', '#1D8BE0'], ['com.google.android.apps.fitness', 'Google Fit', '#4285F4'], ['com.fitbit.FitbitMobile', 'Fitbit', '#00B0B9'],
+  ['com.mi.health', 'Mi Fitness', '#FF6900'], ['com.xiaomi.wearable', 'Mi Fitness', '#FF6900'], ['com.huami.watch.hmwatchmanager', 'Zepp', '#1F1D47'],
+  ['com.garmin.android.apps.connectmobile', 'Garmin Connect', '#007CC3']
+];
+export const apps = {
+  installed: () => (native ? Sensors.installedApps({ packages: [...PARTNERS.map((p) => p[0]), 'com.strava'] }) : Promise.resolve({ 'com.sec.android.app.shealth': true, 'com.strava': true })),
+  open: (pkg) => (native ? Sensors.openApp({ package: pkg }) : Promise.resolve({ ok: true }))
+};
+// Phone settings that keep background tracking alive (Xiaomi/Redmi stop apps unless Autostart and battery are allowed).
+export const phoneSetup = {
+  status: () => (native ? Sensors.setupStatus() : Promise.resolve({ battery: true, xiaomi: false })),
+  open: (what) => (native ? Sensors.openSetup({ what }) : Promise.resolve())
+};
 // Friends: add each other by invite code and compare weekly totals (the server shares nothing else).
 export const friends = {
   board: () => api('GET', '/v1/friends?from=' + weekStart()),
   add: (code) => api('POST', '/v1/friends/add', { code }),
   remove: (id) => api('POST', '/v1/friends/remove', { id }),
+  respond: (id, accept) => api('POST', '/v1/friends/respond', { id, accept }),
+  cancel: (id) => api('POST', '/v1/friends/cancel', { id }),
+  profile: (id) => api('GET', '/v1/profile?id=' + id),
+  respondChallenge: (id, accept) => api('POST', '/v1/challenges/respond', { id, accept }),
   cheer: (id) => api('POST', '/v1/friends/cheer', { id }),
   moments: () => api('GET', '/v1/moments'),
   challenges: () => api('GET', '/v1/challenges'),
   challenge: (kind, target, days, friendIds) => api('POST', '/v1/challenges', { kind, target, days, friendIds }),
   leave: (id) => api('POST', '/v1/challenges/leave', { id }),
   async invite(code) {
-    const text = `Add me on Motio and let's compare our weeks. My code: ${code}`;
+    const text = `Add me on Motio and let's compare our weeks: ${API}/i/${code} (or enter my code ${code} in Social › Friends)`;
     if (native) { await Share.share({ title: 'Motio invite', text, dialogTitle: 'Invite a friend' }); return 'shared'; }
     if (navigator.share) { await navigator.share({ text }); return 'shared'; }
     await navigator.clipboard.writeText(text); return 'copied';
@@ -192,6 +211,7 @@ export const auth = {
   reset: async (email, code, password) => signedIn(await api('POST', '/v1/auth/reset', { email, code, password })),
   logout: async () => { stopTracking(); await sync(); try { await api('POST', '/v1/auth/logout', {}); } catch { /* still log out locally */ } S = { ...blank(), settings: S.settings }; changed(); pushLockCard(); },
   // Removes the account and every trip on the server, then clears this phone.
+  changePassword: (current, next) => api('POST', '/v1/me/password', { current, next }),
   async deleteAccount(password) {
     await api('POST', '/v1/me/delete', { password });
     stopTracking(); S = { ...blank(), settings: S.settings }; changed(); pushLockCard();
@@ -334,13 +354,14 @@ const typeOf = (t) => (t.locked ? t.mode : classifyTrip(features(t), S.settings.
 let ar = null, arSub = null;
 function onActivity(e) {
   const now = Date.now();
-  if (live && ar && ar.type !== 'still') {
+  // Every reading counts, "still" too: a trip that was mostly still isn't a drive because of one vehicle guess.
+  if (live && ar) {
     live.ar = live.ar || {};
     live.ar[ar.type] = (live.ar[ar.type] || 0) + Math.min(now - ar.at, 2 * MIN) * ar.conf / 100;
   }
   ar = { type: e.type, conf: e.confidence, at: now };
   if (e.confidence >= 70 && KIND[e.type]) consider(e.type, now);
-  if (live && !live.workout && e.type === 'still' && e.confidence >= 80 && now - live.lastMove > STILL_END) closeLive(live.lastMove);
+  if (live && !live.workout && e.type === 'still' && e.confidence >= 80 && now - live.lastMove > 2 * MIN) closeLive(live.lastMove);
   changed(false);
 }
 
@@ -366,11 +387,19 @@ function consider(type, now) {
 }
 const pathLen = (pts) => pts.reduce((a, q, i) => a + (i ? hav(pts[i - 1], q) : 0), 0);
 
+// A "trip" that never got far from where it began and zig-zagged, or that Google saw as mostly still: position noise.
+function wandered(t) {
+  const pts = t.points || [];
+  if (pts.length < 2) return true;
+  const far = Math.max(...pts.map((q) => hav(pts[0], q)));
+  const a = t.ar || {}, all = Object.values(a).reduce((x, y) => x + y, 0), stillShare = all ? (a.still || 0) / all : 0;
+  return far < 300 && (stillShare >= 0.5 || t.distanceM > 3 * far);
+}
 function closeLive(endAt) {
   if (!live) return;
   const t = live; live = null; S.live = null;
   t.end = Math.min(endAt, t.end);
-  if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000)) { changed(); return; } // GPS jitter or fidgeting, not a trip
+  if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000) || (!t.locked && wandered(t))) { changed(); return; } // GPS jitter or fidgeting, not a trip
   const f = features(t);
   const done = { id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
     distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f), ...(t.workout ? { workout: true, pausedMs: t.workout.pausedMs } : {}) };
@@ -387,13 +416,19 @@ function onLocation(loc) {
   if (live && live.workout) { workoutFix(p, loc); return; }
   // Standing still sends no GPS updates at all, so a long gap means the trip ended back then.
   if (live && now - live.lastMove > STILL_END) { S.anchor = live.points[live.points.length - 1]; closeLive(live.lastMove); }
+  // Indoors the phone's position wanders 50–300 m while you sit still; only fixes this sharp can show real movement.
+  const sharp = p[3] <= 25;
+  const saysStill = ar && ar.type === 'still' && ar.conf >= 60; // Google's last word (it stays quiet while you stay still)
   if (live) {
     const prev = live.points[live.points.length - 1];
     const d = hav(prev, p), dt = Math.max(1, (now - prev[2]) / 1000);
-    const speed = loc.speed != null && loc.speed >= 0 ? loc.speed : d / dt;
-    // Moves smaller than the fix's own accuracy are jitter, and jumps faster than 250 km/h are GPS errors.
+    // The GPS chip's own (Doppler) speed is steady; speed from two wandering positions is not.
+    const doppler = loc.speed != null && loc.speed >= 0 && p[3] <= 35 ? loc.speed : null;
+    const speed = doppler != null ? doppler : d / dt;
+    // Jumps faster than 250 km/h are GPS errors; vague fixes say nothing about movement.
     if (d / dt > 70) return;
-    if (d < Math.max(8, p[3] * 0.8) && speed < 0.6) {
+    if (p[3] > 40) { changed(false); return; }
+    if ((d < Math.max(8, p[3] * 0.8) && speed < 0.6) || (saysStill && speed < 0.8 && d < Math.max(30, 2 * p[3]))) {
       // Standing: remember since when, so a stop (bus stop, red light) can be counted when moving resumes.
       if (!live.stillSince) live.stillSince = now;
       changed(false); return;
@@ -403,10 +438,12 @@ function onLocation(loc) {
     if (paused >= 8 && paused <= 150 && (live.stillSince || d / dt < 3)) live.stops = (live.stops || 0) + 1;
     live.stillSince = 0;
     live.lastMove = now;
-    // Without a recent reading from the activity model, sustained speed decides: over 25 km/h is a vehicle, under 8 km/h on foot.
-    if (!(ar && Date.now() - ar.at < 60000)) { if (speed > 7) consider('vehicle', now); else if (speed < 2.2) consider('walk', now); }
+    // Without a recent reading from the activity model, sustained speed decides: three sharp fixes over 25 km/h
+    // in a row mean a vehicle, under 8 km/h means on foot. One jumpy fix never does.
+    live.fast = sharp && speed > 7 ? (live.fast || 0) + 1 : speed < 2.2 ? 0 : live.fast || 0;
+    if (!(ar && Date.now() - ar.at < 60000) && sharp) { if (live.fast >= 3) consider('vehicle', now); else if (speed < 2.2) consider('walk', now); }
     live.points.push(p); live.distanceM += d; live.end = now;
-    live.maxSpeed = Math.max(live.maxSpeed, Math.min(speed, 70));
+    if (sharp) live.maxSpeed = Math.max(live.maxSpeed, Math.min(speed, 70));
     if (live.points.length > 6000) live.points.splice(1, 1);
     // The type shown while moving is re-judged from the whole trip so far, at most every 20 s.
     if (!live.locked && now - (live.judged || 0) > 20000) { live.judged = now; live.mode = typeOf(live); }
@@ -416,11 +453,13 @@ function onLocation(loc) {
     if (S.anchor && (now - S.anchor[2] > STILL_END || now < S.anchor[2])) S.anchor = p; // stale, or the clock jumped back
     const moved = S.anchor ? hav(S.anchor, p) : 0;
     const arMoving = ar && Date.now() - ar.at < 60000 && ar.type !== 'still' && ar.conf >= 60;
-    if (S.anchor && (moved > Math.max(60, 2 * p[3]) || ((loc.speed || 0) > 1.5 && p[3] < 25) || (arMoving && moved > Math.max(30, p[3])))) {
+    // Start when Google says you're moving, or sharp fixes show a real departure; when Google says still, only a big move counts.
+    const departed = sharp && (saysStill ? moved > 250 : moved > Math.max(80, 3 * p[3]) || ((loc.speed || 0) > 1.5 && p[3] < 20));
+    if (S.anchor && ((arMoving && moved > Math.max(30, p[3])) || departed)) {
       const guess = arMoving ? (ar.type === 'vehicle' ? 'drive' : ar.type) : (loc.speed || 0) > 8 ? 'drive' : 'walk';
       startLive(guess, [S.anchor[0], S.anchor[1], Math.max(S.anchor[2], now - 60000), S.anchor[3]]); live.points.push(p); live.end = now; live.distanceM = moved; live.lastMove = now;
       S.anchor = null;
-    } else if (!S.anchor) S.anchor = p;
+    } else if (!S.anchor && sharp) S.anchor = p;
   }
   changed(false);
 }
@@ -442,6 +481,7 @@ function workoutFix(p, loc) {
   w.skip = false; // the stretch covered while paused doesn't count
   live.points.push(p); live.end = now; live.lastMove = now;
   if (live.points.length > 6000) live.points.splice(1, 1);
+  pushIsland(false);
   changed(false);
 }
 export async function startWorkout(mode) {
@@ -460,6 +500,7 @@ export function pauseWorkout(on) {
   const now = Date.now();
   if (on && !w.pausedAt) w.pausedAt = now;
   if (!on && w.pausedAt) { w.pausedMs += now - w.pausedAt; w.pausedAt = 0; w.skip = true; }
+  pushIsland(false);
   changed();
 }
 // Saves the workout and returns its id, or null when it was too short to keep.
@@ -473,6 +514,30 @@ export function finishWorkout() {
   if (w.wasOff) stopTracking();
   return S.trips[id] ? id : null;
 }
+// Live island (shown over other apps while a workout records and Motio is in the background).
+let islandUp = false;
+const ISLAND = { walk: ['Walk', 'FF3DBF5C'], run: ['Run', 'FFF2766B'], bike: ['Ride', 'FF6E8CF7'] };
+function pushIsland(show) {
+  if (!native || !live || !live.workout) return;
+  const w = live.workout, k = ISLAND[live.mode] || ISLAND.walk;
+  if (show) islandUp = true;
+  if (!islandUp) return;
+  Sensors.islandUpdate({ mode: k[0], color: k[1], start: live.start, pausedMs: w.pausedMs, pausedAt: w.pausedAt || 0, distance: live.distanceM, unit: S.settings.unit === 'mi' ? 'mi' : 'km', show: !!show }).catch(() => {});
+}
+export const island = {
+  allowed: () => (native ? Sensors.islandAllowed().then((r) => r.allowed) : Promise.resolve(false)),
+  request: () => (native ? Sensors.islandRequest() : Promise.resolve()),
+  // Leaving the app mid-workout shows it; coming back hides it.
+  background: () => pushIsland(true),
+  foreground: () => { if (islandUp && native) Sensors.islandHide().catch(() => {}); islandUp = false; }
+};
+// The island's buttons: pause/resume and end work right away, even with Motio closed; "open" lands on the workout.
+if (native) Sensors.addListener('island', (e) => {
+  if (e.action === 'toggle') pauseWorkout(!(live && live.workout && live.workout.pausedAt));
+  else if (e.action === 'end') { const id = finishWorkout(); island.foreground(); window.__motioAfterOpen = id ? ['summary', id] : ['home']; }
+  else if (e.action === 'open') window.__motioAfterOpen = ['live'];
+}).catch(() => {});
+
 export const workout = () => {
   if (!live || !live.workout) return null;
   const w = live.workout, now = Date.now();
@@ -1027,7 +1092,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, island, PARTNERS, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

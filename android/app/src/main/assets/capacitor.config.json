@@ -6,7 +6,7 @@
 	"android": {
 		"allowMixedContent": false,
 		"useLegacyBridge": true,
-		"webContentsDebuggingEnabled": true
+		"webContentsDebuggingEnabled": false
 	},
 	"plugins": {
 		"SplashScreen": {

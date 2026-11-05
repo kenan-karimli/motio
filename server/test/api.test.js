@@ -189,7 +189,8 @@ test('friends: invite code, weekly board with totals only, remove', async () => 
   assert.equal((await call('POST', '/v1/friends/add', { code: codeA }, a)).body.error, 'code_self');
   assert.equal((await call('POST', '/v1/friends/add', { code: 'ZZZZZZ' }, b)).status, 404);
   r = await call('POST', '/v1/friends/add', { code: codeA.toLowerCase().slice(0, 3) + '-' + codeA.slice(3) }, b);
-  assert.equal(r.body.friend.name, 'Ada');
+  assert.equal(r.body.requested.name, 'Ada');
+  await call('POST', '/v1/friends/respond', { id: (await call('GET', '/v1/friends', null, a)).body.incoming[0].id, accept: true }, a);
   const run = { id: 'r1', start: clock - 3600000, end: clock - 1800000, mode: 'run', distanceM: 5000, points: [[40.4, 49.8, clock - 3600000]] };
   await call('POST', '/v1/trips/sync', { trips: [run, { ...run, id: 'd1', mode: 'drive', distanceM: 20000 }], since: 0 }, b);
   r = await call('GET', '/v1/friends?from=' + week, null, a);
@@ -208,6 +209,7 @@ test('friends: per-day board, cheers, challenges and moments', async () => {
   const a = await join('Cara', 'cara@example.com'), b = await join('Dan', 'dan@example.com');
   const codeA = (await call('GET', '/v1/friends', null, a)).body.code;
   await call('POST', '/v1/friends/add', { code: codeA }, b);
+  await call('POST', '/v1/friends/respond', { id: (await call('GET', '/v1/friends', null, a)).body.incoming[0].id, accept: true }, a);
   const danId = (await call('GET', '/v1/friends', null, a)).body.people.find((p) => !p.me).id;
   const caraId = (await call('GET', '/v1/friends', null, b)).body.people.find((p) => !p.me).id;
 
@@ -216,6 +218,9 @@ test('friends: per-day board, cheers, challenges and moments', async () => {
   assert.equal((await call('POST', '/v1/challenges', { kind: 'km', target: 20, days: 2, friendIds: [9999] }, a)).body.error, 'not_friend');
   assert.equal((await call('POST', '/v1/challenges', { kind: 'swim', target: 5, friendIds: [danId] }, a)).body.error, 'bad_kind');
 
+  r = await call('GET', '/v1/challenges', null, b);
+  assert.equal(r.body.challenges[0].invited, true, 'Dan has to accept first');
+  await call('POST', '/v1/challenges/respond', { id: r.body.challenges[0].id, accept: true }, b);
   const run = { id: 'c1', start: clock + 60000, end: clock + 1860000, mode: 'run', distanceM: 6000, points: [] };
   await call('POST', '/v1/trips/sync', { trips: [run, { ...run, id: 'c2', mode: 'drive', distanceM: 30000 }], since: 0 }, b);
   r = await call('GET', '/v1/challenges', null, a);
@@ -233,4 +238,45 @@ test('friends: per-day board, cheers, challenges and moments', async () => {
   assert.equal(r.body.moments.filter((m) => m.kind === 'cheer').length, 1);
   r = await call('GET', '/v1/moments', null, b);
   assert.equal(r.body.moments[0].kind, 'challenge'); assert.equal(r.body.moments[0].who.name, 'Cara');
+  // Rejecting removes you from the race.
+  const second = (await call('POST', '/v1/challenges', { kind: 'runs', target: 3, days: 7, friendIds: [danId] }, a)).body.challenge.id;
+  await call('POST', '/v1/challenges/respond', { id: second, accept: false }, b);
+  assert.equal((await call('GET', '/v1/challenges', null, b)).body.challenges.some((c) => c.id === second), false);
+  assert.equal((await call('GET', '/v1/challenges', null, a)).body.challenges.find((c) => c.id === second).members.length, 1);
+});
+
+test('friend requests need accepting; invite link page; profiles for friends only', async () => {
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Eve', 'eve@example.com'), b = await join('Finn', 'finn@example.com');
+  const codeA = (await call('GET', '/v1/friends', null, a)).body.code;
+  let r = await call('POST', '/v1/friends/add', { code: codeA }, b);
+  assert.equal(r.body.requested.name, 'Eve');
+  r = await call('GET', '/v1/friends', null, a);
+  assert.equal(r.body.people.length, 1, 'not friends until accepted');
+  assert.equal(r.body.incoming[0].name, 'Finn');
+  const finnId = r.body.incoming[0].id;
+  assert.equal((await call('GET', '/v1/profile?id=' + finnId, null, a)).status, 403);
+  await call('POST', '/v1/friends/respond', { id: finnId, accept: true }, a);
+  r = await call('GET', '/v1/friends', null, b);
+  assert.equal(r.body.people.length, 2); assert.equal(r.body.outgoing.length, 0);
+  r = await call('GET', '/v1/profile?id=' + finnId, null, a);
+  assert.equal(r.body.profile.name, 'Finn');
+  await call('PATCH', '/v1/me', { settings: { hideActivity: true } }, b);
+  r = await call('GET', '/v1/friends', null, a);
+  assert.equal(r.body.people.find((p) => !p.me).hidden, true);
+  const page = await fetch(base + '/i/' + codeA.toLowerCase());
+  assert.equal(page.status, 200); assert.match(await page.text(), new RegExp(codeA));
+  assert.equal((await (await fetch(base + '/.well-known/assetlinks.json')).json())[0].target.package_name, 'com.motio.app');
+});
+
+test('change password while signed in', async () => {
+  await call('POST', '/v1/auth/register', { name: 'Gus', email: 'gus@example.com', password: 'Str0ng!pass' });
+  const t = (await call('POST', '/v1/auth/verify', { email: 'gus@example.com', code: lastCode() })).body.token;
+  assert.equal((await call('POST', '/v1/me/password', { current: 'nope-nope', next: 'Newer!pass1' }, t)).body.error, 'wrong_password');
+  assert.equal((await call('POST', '/v1/me/password', { current: 'Str0ng!pass', next: 'short' }, t)).body.error, 'password_short');
+  assert.equal((await call('POST', '/v1/me/password', { current: 'Str0ng!pass', next: 'Newer!pass1' }, t)).body.ok, true);
+  assert.equal((await call('POST', '/v1/auth/login', { email: 'gus@example.com', password: 'Newer!pass1' })).status, 200);
 });

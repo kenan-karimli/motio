@@ -41,6 +41,10 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioListIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 .motio-scroll>*{flex-shrink:0}
+@keyframes motioMvLift{to{transform:translateY(-170px)}}
+@keyframes motioMvFade{to{opacity:0.25;transform:scale(0.96)}}
+/* Scrolling the trips slides the white panel up over the header (and back), driven by the scroll itself. */
+.motio-mv-lift{will-change:transform}
 @keyframes motioMovesUp{from{transform:translateY(60px)}to{transform:none}}
 @keyframes motioMovesHead{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 [data-enter="true"] .motio-mv-sheet{animation:motioMovesUp 620ms cubic-bezier(0.22,1,0.36,1) 40ms backwards}
@@ -111,8 +115,9 @@ button:active,a:active{transform:scale(0.96)}
     </svg>
   </div>
 
+  <div class="motio-mv-lift" style="position: relative; z-index: 2; flex: 1; min-height: 0; margin-bottom: -170px; display: flex; flex-direction: column">
   <div class="motio-mv-sheet" style="position: relative; flex: 1; min-height: 0; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 0; display: flex; flex-direction: column; gap: 14px">
-    <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; margin: 0 -20px; padding: 0 20px 96px">
+    <div class="motio-scroll motio-mv-scroller" onScroll="{{ mvScroll }}" style="flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; margin: 0 -20px; padding: 0 20px 266px">
     <div style="display: flex; align-items: center; justify-content: space-between">
       <h2 style="margin: 0; font-size: 18px; font-weight: 600">Time by movement</h2>
       <sc-if value="{{ someData }}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; color: #6B6890">bar length = minutes</span></sc-if>
@@ -199,6 +204,7 @@ button:active,a:active{transform:scale(0.96)}
     </nav>
     </sc-if>
     <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
+  </div>
   </div>
 </div>
 </x-dc>
@@ -365,6 +371,8 @@ class Component extends DCLogic {
       T,
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
       emb, standalone: !emb, LK: { insights: lk('insights', 'Insights.dc.html') },
+      // Scrolling the trips slides the white panel up over the header, 1:1 with the finger, and back down at the top.
+      mvScroll: (e) => { const el = e.currentTarget, lift = el.closest('.motio-mv-lift'); if (lift) lift.style.transform = 'translateY(' + -Math.min(170, Math.max(0, el.scrollTop)) + 'px)'; },
       navFrom: this.navFrom,
       v, tDay: tab('day'), tWeek: tab('week'), tMonth: tab('month'),
       allZero, someData: !allZero, emptyTitle: { day: 'No moves yet today', week: 'No moves yet this week', month: 'No moves yet this month' }[key],

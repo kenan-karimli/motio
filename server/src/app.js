@@ -193,6 +193,17 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
       return { user: publicUser(await q.userById.get(user.id)) };
     },
 
+    // Change password while signed in: the current one is required; other devices are signed out.
+    'POST /v1/me/password': async ({ req, body }) => {
+      const { user, tokenHash } = await authUser(req);
+      if (!checkPw(String(body.current || ''), user.pw_hash)) throw new HttpError(401, 'wrong_password', 'Your current password isn’t right.');
+      const next = String(body.next || '');
+      if (next.length < 8) throw bad('password_short', 'New password needs at least 8 characters.');
+      await q.setPw.run(hashPw(next), user.id);
+      await db.prepare('DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?').run(user.id, tokenHash);
+      return { ok: true };
+    },
+
     // Deleting the account needs the password again, so a phone left unlocked can't wipe someone's history.
     'POST /v1/me/delete': async ({ req, body }) => {
       const { user } = await authUser(req);
@@ -288,7 +299,8 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
     const url = new URL(req.url, 'http://localhost');
-    const key = `${req.method} ${url.pathname}`;
+    // Invite links carry the code in the path: /i/ABC123.
+    const key = url.pathname.startsWith('/i/') ? 'GET /i' : `${req.method} ${url.pathname}`;
     const send = (status, obj) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
     try {
       const route = routes[key];

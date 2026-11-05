@@ -135,6 +135,51 @@ const T = {
         <div style="height:8px;border-radius:4px;background:${d.dark ? 'rgba(255,255,255,0.2)' : 'rgba(22,20,47,0.15)'}"><div style="width:${t.w};height:8px;border-radius:4px;background:${d.dark ? '#FFFFFF' : INK}"></div></div></div>`).join('')}
       <div style="font-size:12px;font-weight:600;margin-top:4px">${esc(d.stat)}</div></div>`),
 
+  // A challenge, drawn like the race card on the Challenge screen: the winding road with everyone's marker
+  // at their real progress, who leads, and the standings.
+  challenge: (d) => {
+    const ROAD = 'M30 230 C 90 230, 90 150, 150 150 S 220 210, 270 160 S 300 60, 340 50';
+    const probe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    probe.setAttribute('d', ROAD);
+    const len = probe.getTotalLength(), at = (f) => probe.getPointAtLength(Math.max(0, Math.min(1, f)) * len);
+    const lead = Math.max(0, ...d.racers.map((r) => r.f));
+    // Markers close together step up off the road so none hides another.
+    const placed = [];
+    const markers = d.racers.slice().sort((a, b) => a.f - b.f).map((r, i) => {
+      const p = at(r.f); let x = p.x, y = p.y;
+      while (placed.some((q) => Math.hypot(q[0] - x, q[1] - y) < 42)) y -= 30;
+      placed.push([x, y]);
+      const face = r.photo ? `<clipPath id="c${i}"><circle r="18"/></clipPath><image href="${r.photo}" x="-18" y="-18" width="36" height="36" preserveAspectRatio="xMidYMid slice" clip-path="url(#c${i})"/>`
+        : `<text y="5" text-anchor="middle" font-family="Poppins,sans-serif" font-size="13" font-weight="700" fill="${INK}">${esc(r.ini)}</text>`;
+      return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="20" fill="${r.color}" stroke="${INK}" stroke-width="4"/>${face}</g>`;
+    }).join('');
+    const rows = d.racers.map((r, i) => `
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="width:16px;font-size:14px;font-weight:700;color:${i === 0 ? '#F6C343' : 'rgba(255,255,255,0.6)'}">${i + 1}</span>
+        ${r.photo ? `<img src="${r.photo}" style="width:34px;height:34px;border-radius:17px;object-fit:cover;box-shadow:0 0 0 2px ${r.color}">` : `<span style="width:34px;height:34px;border-radius:17px;background:${r.color};color:${INK};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${esc(r.ini)}</span>`}
+        <span style="flex:1;display:flex;flex-direction:column;gap:5px"><span style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${esc(r.name)}</span><span>${esc(r.value)}</span></span>
+          <span style="height:6px;border-radius:3px;background:rgba(255,255,255,0.12)"><span style="display:block;height:6px;width:${Math.max(3, r.f * 100).toFixed(0)}%;border-radius:3px;background:${r.color}"></span></span></span>
+      </div>`).join('');
+    return frame(INK, '#FFFFFF', d.kicker, `
+    <div style="position:absolute;inset:0;background:radial-gradient(90% 45% at 50% 0%, #2D2A6E 0%, ${INK} 70%)"></div>
+    <div style="position:absolute;left:24px;right:24px;top:70px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:1.4px;color:#F2766B">CHALLENGE</div>
+      <div style="font-size:32px;font-weight:700;line-height:1.05;letter-spacing:-0.5px;margin-top:6px">${esc(d.big)}</div></div>
+    <div style="position:absolute;left:20px;right:20px;top:158px;height:250px;border-radius:28px;background:#F2766B;overflow:hidden">
+      <svg width="320" height="250" viewBox="0 0 350 274" style="position:absolute;left:0;top:0">
+        <circle cx="300" cy="260" r="120" fill="#FFFFFF" fill-opacity="0.12"/>
+        <path d="${ROAD}" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="26" stroke-linecap="round"/>
+        <path d="${ROAD}" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="7 9"/>
+        <path d="${ROAD}" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round" pathLength="1000" stroke-dasharray="${Math.round(lead * 1000)} 1000"/>
+        <g transform="translate(318 22)"><rect width="3" height="34" rx="1.5" fill="${INK}"/><path d="M3 2 h18 l-5 6 l5 6 h-18z" fill="#FFFFFF"/></g>
+        ${markers}
+      </svg>
+      <div style="position:absolute;left:16px;top:16px;padding:6px 12px;border-radius:12px;background:${INK};color:#FFFFFF;font-size:12px;font-weight:600">${esc(d.leadLine)}</div>
+    </div>
+    <div style="position:absolute;left:24px;right:24px;top:428px;display:flex;flex-direction:column;gap:10px">${rows}</div>
+    <div style="position:absolute;left:24px;right:24px;bottom:50px;text-align:center;font-size:12px;font-weight:600;color:#F6C343">Race me on Motio</div>`);
+  },
+
   // One trip: its route, distance and pace.
   trip: (d) => frame(INK, '#FFFFFF', d.kicker, `
     <div style="position:absolute;left:28px;right:28px;top:88px">

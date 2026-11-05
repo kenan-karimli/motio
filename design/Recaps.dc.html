@@ -60,6 +60,7 @@ button:active,a:active{transform:scale(0.96)}
   <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 8px 0 96px">
 
     <div style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 8px; scrollbar-width: none">
+      <sc-if value="{{ noCovers }}" hint-placeholder-val="{{ false }}"><div style="flex-shrink: 0; width: 272px; height: 200px; box-sizing: border-box; padding: 20px; border-radius: 30px; background: #2D2A6E; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px"><span style="font-size: 20px; font-weight: 700">Your first recap is on its way</span><span style="font-size: 13px; color: #C9C5EC">Move a little today and it appears here, wrapped into stories.</span></div></sc-if>
       <sc-for list="{{ covers }}" as="c" hint-placeholder-count="3">
         <a href="{{ c.href }}" onClick="{{ c.go }}" style="position: relative; flex-shrink: 0; width: 272px; height: 340px; box-sizing: border-box; padding: 18px; border-radius: 30px; background: {{ c.bg }}; color: {{ c.fg }}; text-decoration: none; scroll-snap-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 16px 30px rgba(0,0,0,0.3); animation: motioCoverIn 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ c.delay }}">
           <svg aria-hidden="true" width="272" height="340" viewBox="0 0 272 340" style="position: absolute; left: 0; top: 0"><circle cx="220" cy="250" r="120" fill="{{ c.blob }}"></circle><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.road }}" stroke-width="22" stroke-linecap="round"></path><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.fg }}" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 9"></path></svg>
@@ -79,7 +80,7 @@ button:active,a:active{transform:scale(0.96)}
       <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="height: 64px; border-radius: 20px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
       <sc-for list="{{ board }}" as="r" hint-placeholder-count="3">
         <a href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; color: #FFFFFF; text-decoration: none; animation: motioRowSlide 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards">
-          <span style="display: flex; align-items: center; gap: 12px"><span style="width: 18px; font-size: 15px; font-weight: 700; color: {{ r.rc }}">{{ r.rank }}</span><span style="width: 38px; height: 38px; border-radius: 19px; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ r.ini }}</span><span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 15px; font-weight: 700">{{ r.time }}</span></span>
+          <span style="display: flex; align-items: center; gap: 12px"><span style="width: 18px; font-size: 15px; font-weight: 700; color: {{ r.rc }}">{{ r.rank }}</span><sc-if value="{{ r.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ r.photo }}" alt="" style="width: 38px; height: 38px; border-radius: 19px; object-fit: cover; box-shadow: 0 0 0 2px {{ r.tint }}"></sc-if><sc-if value="{{ r.noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 38px; height: 38px; border-radius: 19px; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ r.ini }}</span></sc-if><span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 15px; font-weight: 700">{{ r.time }}</span></span>
           <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08)"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.tint }}; transform-origin: left; animation: motioBarIn 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.bd }} backwards"></span></span>
         </a>
       </sc-for>
@@ -223,18 +224,19 @@ class Component extends DCLogic {
     const max = Math.max(1, ...people.map((p) => p.activeMin));
     const friendLink = (p) => { const l = L('friend', 'FriendProfile.dc.html'); return { href: l.href, go: (e) => { window.__motioFriend = p.id; l.go(e); } }; };
     const board = people.slice(0, 4).map((p, i) => ({
-      rank: i + 1, rc: i === 0 ? '#F6C343' : '#C9C5EC', name: p.me ? 'You' : p.name, ini: ini(p.name), tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1],
-      time: fmtMin(p.activeMin), w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', d: 80 + i * 70 + 'ms', bd: 260 + i * 70 + 'ms',
+      rank: i + 1, rc: i === 0 ? '#F6C343' : '#C9C5EC', name: p.me ? 'You' : p.name, ini: ini(p.name), photo: p.avatar || (p.me && M ? (M.auth.user() || {}).avatar || '' : ''),
+      hasPhoto: !!(p.avatar || (p.me && M && (M.auth.user() || {}).avatar)), noPhoto: !(p.avatar || (p.me && M && (M.auth.user() || {}).avatar)), tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1],
+      time: p.hidden ? 'Private' : fmtMin(p.activeMin), w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', d: 80 + i * 70 + 'ms', bd: 260 + i * 70 + 'ms',
       bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', border: p.me ? 'rgba(246,195,67,0.45)' : 'transparent',
       aria: '#' + (i + 1) + ' ' + (p.me ? 'you' : p.name) + ', ' + fmtMin(p.activeMin), ...(p.me ? L('friends', 'Friends.dc.html') : friendLink(p))
     }));
     const unitOf = { km: M && M.settings().unit === 'mi' ? 'km' : 'km', min: 'min', runs: 'runs' };
-    const c = S && S.challenges.find((x) => !x.done);
+    const c = S && (S.challenges.find((x) => x.invited) || S.challenges.find((x) => !x.done));
     const left = c ? Math.max(0, Math.ceil((c.end - now) / DAY)) : 0;
     const lead = c && c.members[0];
     const chal = c ? {
-      title: ({ km: 'First to ' + c.target + ' km', min: c.target + ' active minutes', runs: c.target + ' runs' })[c.kind],
-      sub: (!lead || lead.value <= 0 ? 'Not started yet' : lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + (left ? left + (left === 1 ? ' day left' : ' days left') : 'ends today'),
+      title: (c.invited ? (c.creator || 'A friend').split(' ')[0] + ' challenged you: ' : '') + ({ km: 'First to ' + c.target + ' km', min: c.target + ' active minutes', runs: c.target + ' runs' })[c.kind],
+      sub: c.invited ? 'Tap to accept or reject' : (!lead || lead.value <= 0 ? 'Not started yet' : lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + (left ? left + (left === 1 ? ' day left' : ' days left') : 'ends today'),
       goal: c.target + ' ' + unitOf[c.kind],
       racers: c.members.slice(0, 4).map((m, i) => ({ ini: ini(m.name), c: m.me ? '#F6C343' : TINTS[(m.id % 4) + 1], x: Math.min(92, 6 + m.value / c.target * 86).toFixed(1) + '%', d: 200 + i * 90 + 'ms' })),
       ...(() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = c.id; l.go(e); } }; })()
@@ -243,6 +245,11 @@ class Component extends DCLogic {
     const ago = (t) => { const h = Math.floor((now - t) / 3600000); return h < 1 ? 'Just now' : h < 24 ? h + ' h ago' : Math.floor(h / 24) === 1 ? 'Yesterday' : Math.floor(h / 24) + ' days ago'; };
     const moments = (S ? S.moments : []).slice(0, 5).map((m, i) => {
       const key = m.kind + m.at, on = !!cheered[key];
+      if (m.kind === 'request') {
+        const l = L('friends', 'Friends.dc.html');
+        return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], what: 'wants to be friends', when: ago(m.at), on: false,
+          aria: 'Open friend requests', btnBg: '#F6C343', fill: 'none', stroke: '#1F1D47', pop: 'none', cheer: (e) => l.go(e) };
+      }
       const what = m.kind === 'cheer' ? 'cheered you on' : m.kind === 'won' ? 'won a challenge' : 'challenged you: ' + ({ km: 'first to ' + m.challenge.target + ' km', min: m.challenge.target + ' active minutes', runs: m.challenge.target + ' runs' })[m.challenge.kind];
       return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], what, when: ago(m.at), on,
         aria: (on ? 'Cheered ' : 'Cheer ') + m.who.name, btnBg: on ? 'rgba(242,118,107,0.25)' : 'rgba(255,255,255,0.08)', fill: on ? '#F2766B' : 'none', stroke: on ? '#F2766B' : '#FFFFFF',
@@ -274,11 +281,14 @@ class Component extends DCLogic {
       ['THIS WEEK', span(w0, Math.min(now, w0 + 6 * M.DAY)), M.fmtDist(wk.m), wk.ms ? 'Your week, wrapped' : 'Your week starts here', '#3DBF5C', '#1F1D47', '#52CC6E', '#2FA84D', 'recap', 'Recap.dc.html', wk.ms > 0, { kind: 'week', from: w0 }],
       [monthName.toUpperCase(), 'Month in motion', distNum(mon.m), (unit === 'mi' ? 'miles' : 'kilometres') + ' in ' + monthName, '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', mon.ms > 0, { kind: 'month', from: M.monthStart(now) }],
       ['TODAY', short(now, { weekday: 'long' }), M.fmtMin(td.min), 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false, { kind: 'day', from: today }]
-    ].map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...to(t, f, period) }));
+    ].filter((c, k) => [wk.min >= 1, mon.min >= 1, td.min >= 1][k]) // no recap for a period you didn't move in
+      .map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...to(t, f, period) }));
     const days = Array.from({ length: 7 }, (_, k) => {
-      const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), fresh = k >= 5 && x.ms > 0;
-      return { label: short(d, { weekday: 'narrow' }), num: new Date(d).getDate(), aria: 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m),
-        ring: fresh ? '#F2766B' : 'rgba(255,255,255,0.25)', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...to('recap', 'Recap.dc.html', { kind: 'day', from: d }) };
+      const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), moved = x.min >= 1, fresh = k >= 5 && moved;
+      const off = { href: '#', go: (e) => { if (e && e.preventDefault) e.preventDefault(); } };
+      return { label: short(d, { weekday: 'narrow' }), num: new Date(d).getDate(), aria: moved ? 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m) : short(d, { weekday: 'long' }) + ': no moves, no recap',
+        ring: fresh ? '#F2766B' : moved ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)', fill: fresh ? '#FFFFFF' : moved ? '#C9C5EC' : 'rgba(255,255,255,0.12)', labelColor: moved ? (fresh ? '#FFFFFF' : '#C9C5EC') : 'rgba(255,255,255,0.35)',
+        ...(moved ? to('recap', 'Recap.dc.html', { kind: 'day', from: d }) : off) };
     });
     const notes = { walk: 'most on foot', run: 'running week', bike: 'pedal power', drive: 'road week', transit: 'transit week' };
     const colors = ['#B57BE0', '#6E8CF7', '#F2766B', '#F6C343'];
@@ -333,7 +343,7 @@ class Component extends DCLogic {
           .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
         if (window.Motio) return this.liveVals(L);
         return { covers, days, past, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
-      })(), ...this.socialVals((t, f) => lk(t, f)), rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
+      })(), ...this.socialVals((t, f) => lk(t, f)), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
   }
 }
 </script>
