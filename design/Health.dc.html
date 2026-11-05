@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Health</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioBodyIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes motioBodyBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes motioBodyFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioBodyPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@property --to{syntax:'<integer>';inherits:false;initial-value:0}
+@keyframes motioCount{from{--to:0}}
+.motio-count{counter-reset:n var(--to);animation:motioCount 1200ms cubic-bezier(0.22,1,0.36,1) var(--delay,0ms) backwards}
+.motio-count::after{content:counter(n)}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Health</h1>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 40px; display: flex; flex-direction: column; gap: 14px">
+    <section style="position: relative; overflow: hidden; padding: 20px; border-radius: 28px; background: linear-gradient(150deg, #F2766B 0%, #E85D75 100%); color: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
+      <svg aria-hidden="true" width="150" height="150" viewBox="0 0 150 150" style="position: absolute; right: -24px; top: -24px; opacity: 0.18; animation: motioBodyPulse 2.4s ease-in-out {{ d1 }} 3"><path d="M75 128 C 30 96, 12 70, 12 46 a30 30 0 0 1 63 -12 a30 30 0 0 1 63 12 c0 24 -18 50 -63 82z" fill="#FFFFFF"></path></svg>
+      <span style="font-size: 13px; opacity: 0.85">Burned moving today</span>
+      <span style="font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -2px"><span class="motio-count" style="--to: {{ kcal }}; --delay: {{ dCount }}"></span><span style="font-size: 18px; font-weight: 600; letter-spacing: 0; margin-left: 6px">kcal</span></span>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,0.18)"><div style="font-size: 18px; font-weight: 700">{{ activeMin }}</div><div style="font-size: 11px; opacity: 0.85">active today</div></div>
+        <div style="padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,0.18)"><div style="font-size: 18px; font-weight: 700">{{ weekKcal }}</div><div style="font-size: 11px; opacity: 0.85">{{ weekVs }}</div></div>
+      </div>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Last 7 days</h2>
+      <div role="img" aria-label="{{ weekAria }}" style="display: flex; align-items: flex-end; gap: 8px; height: 120px">
+        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end">
+            <span style="font-size: 10px; font-weight: 600; color: #6B6890">{{ b.v }}</span>
+            <span style="width: 100%; height: {{ b.h }}; border-radius: 8px; background: {{ b.bg }}; transform-origin: bottom; animation: motioBodyBar 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.delay }} backwards"></span>
+            <span style="font-size: 11px; font-weight: {{ b.fw }}; color: #4A4770">{{ b.l }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Where today’s came from</h2>
+      <sc-for list="{{ per }}" as="p" hint-placeholder-count="3">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px">
+          <span style="width: 54px; font-weight: 600">{{ p.label }}</span>
+          <span style="flex: 1; height: 10px; border-radius: 5px; background: #F3F2FA; overflow: hidden"><span style="display: block; width: {{ p.w }}; height: 10px; border-radius: 5px; background: {{ p.color }}; transform-origin: left; animation: motioBodyFill 800ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.delay }} backwards"></span></span>
+          <span style="width: 74px; text-align: right; font-weight: 600">{{ p.v }}</span>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Your body</h2>
+      <span style="font-size: 12px; line-height: 1.5; color: #6B6890">{{ bodyNote }}</span>
+      <sc-for list="{{ dims }}" as="d" hint-placeholder-count="2">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="flex: 1; font-size: 14px; font-weight: 600">{{ d.label }}</span>
+          <button type="button" onClick="{{ d.minus }}" aria-label="{{ d.minusAria }}" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 20px; font-weight: 600">−</button>
+          <span style="min-width: 70px; text-align: center; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums">{{ d.value }}</span>
+          <button type="button" onClick="{{ d.plus }}" aria-label="{{ d.plusAria }}" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 20px; font-weight: 600">+</button>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
+      <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #E9F7EC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2FA84D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 4 10 2-5h6"></path></svg></span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Health Connect</span><span style="font-size: 12px; color: #6B6890">{{ hcLine }}</span></span>
+      <sc-if value="{{ hcCan }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ hcConnect }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">Connect</button></sc-if>
+    </section>
+    <span style="font-size: 11px; line-height: 1.5; color: #6B6890; text-align: center">Estimates for motivation, not medical advice.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    const M = window.Motio;
+    if (M) M.health.status().then((st) => this.setState({ hc: st })).catch(() => this.setState({ hc: { available: false } }));
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const DAY = 86400000, t0 = new Date().setHours(0, 0, 0, 0);
+    const B = M ? M.body() : { kg: 70, cm: 175, known: false, today: 412, todayMin: 74, weekKcal: 2310, lastKcal: 2050, weekMin: 420,
+      per: [{ key: 'walk', kcal: 180, min: 44 }, { key: 'run', kcal: 232, min: 20 }, { key: 'bike', kcal: 0, min: 0 }],
+      week: [210, 380, 120, 455, 300, 0, 412].map((k, i) => ({ day: t0 - (6 - i) * DAY, kcal: k, min: k / 6 })) };
+    const NAMES = { walk: ['Walk', '#3DBF5C'], run: ['Run', '#F2766B'], bike: ['Ride', '#6E8CF7'] };
+    const fmtMin = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
+    const base = emb ? 380 : 0;
+    const max = Math.max(1, ...B.week.map((d) => d.kcal));
+    const perMax = Math.max(1, ...B.per.map((p) => p.kcal));
+    const vs = B.lastKcal ? Math.round((B.weekKcal / B.lastKcal - 1) * 100) : null;
+    const body = M ? M.settings().body || {} : {};
+    const setBody = (patch) => { if (M) M.setSetting('body', { kg: B.kg, cm: B.cm, ...body, ...patch }); };
+    const hc = s.hc || {};
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'You.dc.html') },
+      d0: base + 'ms', d1: base + 90 + 'ms', d2: base + 170 + 'ms', d3: base + 240 + 'ms', dCount: base + 200 + 'ms',
+      kcal: Math.round(B.today), activeMin: fmtMin(B.todayMin),
+      weekKcal: Math.round(B.weekKcal).toLocaleString('en-US') + ' kcal',
+      weekVs: vs == null ? 'this week' : 'this week · ' + (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '%',
+      weekAria: 'Calories burned moving, last 7 days: ' + B.week.map((d) => Math.round(d.kcal)).join(', '),
+      bars: B.week.map((d, i) => ({ h: Math.max(4, Math.round(d.kcal / max * 80)) + 'px', v: d.kcal ? Math.round(d.kcal) : '', l: new Date(d.day).toLocaleDateString('en-GB', { weekday: 'narrow' }),
+        bg: d.day === t0 ? '#F2766B' : '#F8C9C4', fw: d.day === t0 ? 700 : 500, delay: base + 200 + i * 50 + 'ms' })),
+      per: B.per.map((p, i) => ({ label: NAMES[p.key][0], color: NAMES[p.key][1], w: (p.kcal / perMax * 100).toFixed(1) + '%', v: Math.round(p.kcal) + ' kcal', delay: base + 280 + i * 70 + 'ms' })),
+      bodyNote: B.known ? 'Used only to estimate calories. Stays in your account, never shared.' : 'Add your weight so calories fit you. Until then Motio assumes 70 kg.',
+      dims: [
+        { label: 'Weight', value: B.kg + ' kg', minus: () => setBody({ kg: Math.max(30, B.kg - 1) }), plus: () => setBody({ kg: Math.min(250, B.kg + 1) }), minusAria: 'Lower weight', plusAria: 'Raise weight' }
+      ],
+      hcLine: !M ? 'Send your moves to your phone’s health app' : hc.available === false ? 'Not available on this phone' : M.settings().healthSync ? 'Connected · your moves are shared' : 'Send your moves to your phone’s health app',
+      hcCan: !M || (hc.available !== false && !M.settings().healthSync),
+      hcConnect: () => { if (M) M.health.connect().then(() => this.forceUpdate()).catch(() => {}); }
+    };
+  }
+}
+</script>
+</body>
+</html>

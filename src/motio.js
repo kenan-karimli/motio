@@ -28,11 +28,13 @@ export const MODES = {
 const ORDER = ['walk', 'drive', 'bike', 'transit', 'run'];
 
 // ---------------------------------------------------------------- state
-const blank = () => ({ token: null, user: null, trips: {}, lastSync: 0, dirty: {}, settings: { unit: 'km', goalMin: 180, stepGoal: 10000, recapStyle: 'bold', autoTrack: true }, demo: false, tracking: false });
+const blank = () => ({ token: null, user: null, trips: {}, lastSync: 0, dirty: {}, settings: { unit: 'km', goalMin: 180, stepGoal: 10000, recapStyle: 'mix', autoTrack: true }, demo: false, tracking: false });
 let S = blank();
 try { S = { ...S, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { /* first run */ }
 // Data v2: trips recorded by the old tracker were unreliable (never-ending trips, wrong types), so start clean once.
 if (S.v !== 2) { S = { ...S, v: 2, trips: {}, dirty: {}, lastSync: 0, demo: false, anchor: null, live: null, stepsDay: null, wipePending: !!S.token }; }
+// Recaps now mix their designs by default; move everyone over once (they can still pick one style in Settings).
+if (!S.settings.recapMixed) { S.settings = { ...S.settings, recapStyle: 'mix', recapMixed: true }; try { localStorage.setItem('motio.recapStyle', 'mix'); } catch { /* storage blocked */ } }
 const listeners = new Set();
 const flush = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* full */ } };
 // The save below is debounced, so write right away when the app is closed or backgrounded.
@@ -321,7 +323,7 @@ function onActivity(e) {
   }
   ar = { type: e.type, conf: e.confidence, at: now };
   if (e.confidence >= 70 && KIND[e.type]) consider(e.type, now);
-  if (live && e.type === 'still' && e.confidence >= 80 && now - live.lastMove > STILL_END) closeLive(live.lastMove);
+  if (live && !live.workout && e.type === 'still' && e.confidence >= 80 && now - live.lastMove > STILL_END) closeLive(live.lastMove);
   changed(false);
 }
 
@@ -351,10 +353,10 @@ function closeLive(endAt) {
   if (!live) return;
   const t = live; live = null; S.live = null;
   t.end = Math.min(endAt, t.end);
-  if (t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000)) { changed(); return; } // GPS jitter or fidgeting, not a trip
+  if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000)) { changed(); return; } // GPS jitter or fidgeting, not a trip
   const f = features(t);
   const done = { id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
-    distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f) };
+    distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f), ...(t.workout ? { workout: true, pausedMs: t.workout.pausedMs } : {}) };
   saveTrip(done);
   if (S.settings.webhook) sendWebhook(done).catch(() => {});
 }
@@ -365,6 +367,7 @@ function onLocation(loc) {
   if ((loc.accuracy || 0) > 80) return;
   S.lastFix = p;
   const now = p[2];
+  if (live && live.workout) { workoutFix(p, loc); return; }
   // Standing still sends no GPS updates at all, so a long gap means the trip ended back then.
   if (live && now - live.lastMove > STILL_END) { S.anchor = live.points[live.points.length - 1]; closeLive(live.lastMove); }
   if (live) {
@@ -404,16 +407,67 @@ function onLocation(loc) {
   }
   changed(false);
 }
-function startLive(mode, first) {
-  live = { id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), start: first[2], end: first[2], mode, distanceM: 0, steps: 0, maxSpeed: 0, points: [first], lastMove: first[2], ar: {} };
+function startLive(mode, first, at = first[2]) {
+  live = { id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), start: at, end: at, mode, distanceM: 0, steps: 0, maxSpeed: 0, points: first ? [first] : [], lastMove: at, ar: {} };
   S.live = live;
 }
+// A workout: you pick the type and press start; it records until you finish, with pauses, and never splits or ends on its own.
+function workoutFix(p, loc) {
+  const w = live.workout, prev = live.points[live.points.length - 1], now = p[2];
+  if (w.pausedAt) return changed(false);
+  if (prev) {
+    const d = hav(prev, p), dt = Math.max(1, (now - prev[2]) / 1000);
+    if (d / dt > 70) return;
+    if (d < Math.max(5, p[3] * 0.6)) return changed(false); // GPS jitter while standing
+    const speed = loc.speed != null && loc.speed >= 0 ? loc.speed : d / dt;
+    if (!w.skip) { live.distanceM += d; live.maxSpeed = Math.max(live.maxSpeed, Math.min(speed, 70)); }
+  }
+  w.skip = false; // the stretch covered while paused doesn't count
+  live.points.push(p); live.end = now; live.lastMove = now;
+  if (live.points.length > 6000) live.points.splice(1, 1);
+  changed(false);
+}
+export async function startWorkout(mode) {
+  const wasOff = native && !watcherId;
+  if (wasOff && !(await startTracking()).ok) return { ok: false };
+  if (live) closeLive(Date.now());
+  const now = Date.now(), f = S.lastFix && now - S.lastFix[2] < 2 * MIN ? [S.lastFix[0], S.lastFix[1], now, S.lastFix[3]] : null;
+  startLive(mode, f, now);
+  live.locked = true; live.workout = { pausedMs: 0, pausedAt: 0, wasOff };
+  changed();
+  return { ok: true };
+}
+export function pauseWorkout(on) {
+  const w = live && live.workout;
+  if (!w) return;
+  const now = Date.now();
+  if (on && !w.pausedAt) w.pausedAt = now;
+  if (!on && w.pausedAt) { w.pausedMs += now - w.pausedAt; w.pausedAt = 0; w.skip = true; }
+  changed();
+}
+// Saves the workout and returns its id, or null when it was too short to keep.
+export function finishWorkout() {
+  const w = live && live.workout;
+  if (!w) return null;
+  pauseWorkout(false);
+  const id = live.id;
+  live.end = live.lastMove = Date.now();
+  closeLive(live.end);
+  if (w.wasOff) stopTracking();
+  return S.trips[id] ? id : null;
+}
+export const workout = () => {
+  if (!live || !live.workout) return null;
+  const w = live.workout, now = Date.now();
+  return { ...liveTrip(), paused: !!w.pausedAt, activeMs: now - live.start - w.pausedMs - (w.pausedAt ? now - w.pausedAt : 0) };
+};
 // Ends a trip that went quiet even if no more GPS updates come, and keeps the live trip saved across restarts.
 setInterval(() => {
-  if (live && Date.now() - live.lastMove > STILL_END) closeLive(live.lastMove);
+  if (live && !live.workout && Date.now() - live.lastMove > STILL_END) closeLive(live.lastMove);
   if (live) { S.live = live; flush(); }
 }, 30000);
-if (live && Date.now() - live.lastMove > STILL_END) setTimeout(() => closeLive(live.lastMove), 0);
+if (live && !live.workout && Date.now() - live.lastMove > STILL_END) setTimeout(() => closeLive(live.lastMove), 0);
+if (live && live.workout && native) setTimeout(() => startTracking(), 0); // keep recording a workout after the app restarts
 function onSteps(total) {
   if (total == null) return;
   const now = Date.now();
@@ -422,7 +476,7 @@ function onSteps(total) {
     const day = new Date().toDateString();
     S.stepsDay = S.stepsDay && S.stepsDay.day === day ? S.stepsDay : { day, steps: 0 };
     S.stepsDay.steps += delta;
-    if (live) live.steps += delta;
+    if (live && !(live.workout && live.workout.pausedAt)) live.steps += delta;
   }
   lastStepTotal = total;
   changed(false);
@@ -632,6 +686,49 @@ export const range = (kind, anchor = Date.now()) => {
 };
 export const days = (from, n) => Array.from({ length: n }, (_, i) => summarize(from + i * DAY, from + (i + 1) * DAY));
 
+// ---------------------------------------------------------------- goals
+// Daily-goal streaks, the last five weeks, and weekly goals per way of moving (run 3 times, ride 40 km).
+export function goals() {
+  return memo('goals', () => {
+    const goal = S.settings.goalMin || 180, t0 = dayStart(), wk0 = weekStart();
+    const hit = (d) => summarize(d, d + DAY).min >= goal;
+    let streak = 0;
+    for (let d = t0 - (hit(t0) ? 0 : DAY); streak < 400 && hit(d); d -= DAY) streak++;
+    // shortcut: best streak looks back one year, enough until people have longer streaks than that.
+    let best = streak, run = 0;
+    for (let d = t0 - 365 * DAY; d <= t0; d += DAY) { run = hit(d) ? run + 1 : 0; best = Math.max(best, run); }
+    const grid = days(wk0 - 28 * DAY, 35).map((d) => ({ day: d.from, min: d.min, pct: Math.min(1, d.min / goal), future: d.from > t0 }));
+    const wk = summarize(wk0, wk0 + 7 * DAY), unitM = S.settings.unit === 'mi' ? 1609.34 : 1000;
+    const week = (S.settings.weekGoals || []).map((g) => {
+      const p = wk.per[g.mode] || { trips: 0, m: 0, ms: 0 };
+      const have = g.metric === 'times' ? p.trips : g.metric === 'km' ? p.m / unitM : p.ms / MIN;
+      return { ...g, have, pct: Math.min(1, have / g.target), done: have >= g.target };
+    });
+    const t = today();
+    return { goal, stepGoal: S.settings.stepGoal || 10000, streak, best, grid, week, todayMin: t.min, todaySteps: t.steps, daysLeft: Math.max(0, Math.round((wk0 + 7 * DAY - Date.now()) / DAY)) };
+  });
+}
+export const addWeekGoal = (mode, metric, target) => setSetting('weekGoals', [...(S.settings.weekGoals || []), { id: Date.now(), mode, metric, target }]);
+export const removeWeekGoal = (id) => setSetting('weekGoals', (S.settings.weekGoals || []).filter((g) => g.id !== id));
+
+// ---------------------------------------------------------------- body
+// Active calories from time on foot and on the bike (MET × weight × hours); driving and transit aren't counted.
+const MET = { walk: 3.5, run: 9.8, bike: 7.0 };
+export function body() {
+  return memo('body', () => {
+    const b = S.settings.body || {}, kg = b.kg || 70, t0 = dayStart(), wk0 = weekStart(), now = Date.now();
+    const kcal = (x) => Object.keys(MET).reduce((a, k) => a + MET[k] * kg * (x.per[k].ms / HOUR), 0);
+    const active = (x) => Object.keys(MET).reduce((a, k) => a + x.per[k].ms / MIN, 0);
+    const t = summarize(t0, t0 + DAY), thisW = summarize(wk0, now), lastW = summarize(wk0 - 7 * DAY, now - 7 * DAY);
+    return {
+      kg, cm: b.cm || 175, known: !!b.kg, today: kcal(t), todayMin: active(t),
+      per: Object.keys(MET).map((k) => ({ key: k, kcal: MET[k] * kg * (t.per[k].ms / HOUR), min: t.per[k].ms / MIN })),
+      week: days(t0 - 6 * DAY, 7).map((d) => ({ day: d.from, kcal: kcal(d), min: active(d) })),
+      weekKcal: kcal(thisW), lastKcal: kcal(lastW), weekMin: active(thisW)
+    };
+  });
+}
+
 // ---------------------------------------------------------------- achievements
 // Badges earned from your real trips; progress shows how close you are.
 export function achievements() {
@@ -709,6 +806,80 @@ export function places() {
 }
 export const renamePlace = (id, name) => setSetting('placeNames', { ...(S.settings.placeNames || {}), [id]: String(name).slice(0, 30) });
 
+// ---------------------------------------------------------------- timeline, trip details, insights
+// One day as a story: stays at places between trips, and the trips themselves.
+export function timeline(day = dayStart()) {
+  const trips = summarize(day, day + DAY).trips;
+  const pl = places();
+  const placeAt = (p) => (p ? pl.find((x) => hav([x.lat, x.lng], p) < 150) : null);
+  const items = [];
+  trips.forEach((t, i) => {
+    const prev = trips[i - 1];
+    const stayStart = prev ? prev.end : Math.max(day, t.start - 8 * HOUR);
+    if (t.start - stayStart > 5 * MIN && t.points && t.points.length) {
+      const pp = placeAt(t.points[0]);
+      items.push({ kind: 'stay', start: prev ? stayStart : null, end: t.start, name: pp ? pp.name : 'A stop', placeKind: pp ? pp.kind : 'place' });
+    }
+    items.push({ kind: 'trip', id: t.id, mode: t.mode, start: t.start, end: t.end, distanceM: t.distanceM, steps: t.steps || 0, live: !!t.live });
+  });
+  const last = trips[trips.length - 1];
+  if (last && !last.live && last.points && last.points.length) {
+    const pp = placeAt(last.points[last.points.length - 1]);
+    items.push({ kind: 'stay', start: last.end, end: null, name: pp ? pp.name : 'A stop', placeKind: pp ? pp.kind : 'place' });
+  }
+  return items;
+}
+export const findTrip = (id) => allTrips().find((t) => t.id === id) || null;
+// Splits: time for each full kilometre (or mile), from the GPS points.
+export function splits(t) {
+  const unitM = S.settings.unit === 'mi' ? 1609.34 : 1000, out = [];
+  let acc = 0, from = t.points && t.points[0] ? t.points[0][2] : t.start;
+  for (let i = 1; t.points && i < t.points.length; i++) {
+    acc += hav(t.points[i - 1], t.points[i]);
+    if (acc >= unitM) { out.push((t.points[i][2] - from) / 1000); acc -= unitM; from = t.points[i][2]; }
+  }
+  // GPS gaps leave the route shorter than the trip; per-unit times would then be wrong, so show none.
+  return pathLen(t.points || []) < 0.7 * t.distanceM ? [] : out; // seconds per unit
+}
+// Activity calendar, weekly trend, this week vs last, and CO2 not emitted by moving without a car.
+export function insights() {
+  return memo('insights', () => {
+    const today = dayStart(), first = today - 181 * DAY;
+    const cal = days(first, 182).map((d) => ({ day: d.from, min: d.min }));
+    const w0 = weekStart();
+    const weeks = Array.from({ length: 12 }, (_, i) => { const a = w0 - (11 - i) * 7 * DAY; return { from: a, min: summarize(a, a + 7 * DAY).min }; });
+    const elapsed = Date.now() - w0;
+    const cur = summarize(w0, w0 + 7 * DAY), prev = summarize(w0 - 7 * DAY, w0 - 7 * DAY + elapsed);
+    const month = summarize(monthStart(), Date.now());
+    // kg CO2 per km: average car 0.17; bus/train 0.04; walking, running and cycling 0.
+    const savedKg = (month.per.walk.m + month.per.run.m + month.per.bike.m) / 1000 * 0.17 + month.per.transit.m / 1000 * (0.17 - 0.04);
+    return { cal, weeks, cur, prev, savedKg, monthKm: month.m / 1000 };
+  });
+}
+
+// ---------------------------------------------------------------- explorer
+// The city as ~150 m squares; every square a trip passed through is "uncovered".
+const CELL = 0.00135;
+export function explorer() {
+  return memo('explorer', () => {
+    const seen = new Map(), w0 = weekStart();
+    for (const t of allTrips()) for (const p of t.points || []) {
+      const k = Math.round(p[0] / CELL) + ':' + Math.round(p[1] / (CELL / Math.cos((p[0] * Math.PI) / 180)));
+      const was = seen.get(k);
+      if (!was || p[2] < was[2]) seen.set(k, [p[0], p[1], p[2]]);
+    }
+    const cells = [...seen.values()];
+    const home = places().find((x) => x.kind === 'home') || (cells[0] ? { lat: cells[0][0], lng: cells[0][1] } : { lat: 40.4093, lng: 49.8671 });
+    // "Your city": everything within 8 km of home, about 9,900 squares.
+    const cityCells = Math.round((Math.PI * 8000 * 8000) / (150 * 150));
+    const inCity = cells.filter((c) => hav([home.lat, home.lng], c) < 8000).length;
+    return { cells, count: cells.length, newThisWeek: cells.filter((c) => c[2] >= w0).length, pct: (inCity / cityCells) * 100, home, km2: (cells.length * 0.0225) };
+  });
+}
+
+// Current speed over the last few fixes, so one jumpy GPS fix doesn't spike the number.
+export const liveTrip = () => (live ? { ...live, speed: S.lastFix && live.points.length > 1 ? (() => { const pts = live.points.slice(-4); return pathLen(pts) / Math.max(1, (pts[pts.length - 1][2] - pts[0][2]) / 1000); })() : 0 } : null);
+
 // ---------------------------------------------------------------- connections
 // GPX files from Strava, Garmin, Komoot or any tracker become trips (one per track). Returns how many were added.
 export function importGpx(text) {
@@ -784,7 +955,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

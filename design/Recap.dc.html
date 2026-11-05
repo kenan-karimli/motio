@@ -466,7 +466,7 @@ button:active,a:active{transform:scale(0.96)}
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"recapStyle":{"editor":"enum","options":["bold","poster","playful"],"default":"bold"},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"recapStyle":{"editor":"enum","options":["mix","bold","poster","playful"],"default":"mix"},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
   dirGet() {
@@ -724,14 +724,22 @@ class Component extends DCLogic {
     const family = (x) => (x === 'bold' || x === 'poster' || x === 'playful' ? x : null);
     let stored = null;
     try { stored = window.localStorage.getItem('motio.recapStyle'); } catch (e) { /* storage blocked: fall back to the tweak */ }
-    const style = family(stored) || family(this.props.recapStyle) || 'bold';
+    const chosen = stored === 'mix' ? 'mix' : family(stored) || family(this.props.recapStyle) || 'mix';
     const i = s.i || 0;
+    // Mix: each opening deals every story its own design and shifts the colours, so no two recaps look alike.
+    if (!this.mix) {
+      this.mix = [];
+      for (let k = 0; k < 5; k++) { let f; do { f = ['bold', 'poster', 'playful'][Math.floor(Math.random() * 3)]; } while (f === this.mix[k - 1]); this.mix.push(f); }
+      this.shift = Math.floor(Math.random() * 5);
+    }
+    const style = chosen === 'mix' ? this.mix[i] : chosen;
+    const ci = (i + (chosen === 'mix' ? this.shift : 0)) % 5;
 
     // Each story gets its own colour; Poster stays navy and changes its accent instead.
     const boldBg = ['#3DBF5C', '#5B4FE0', '#F2766B', '#6E8CF7', '#F6C343'];
     const playfulBg = ['#6E8CF7', '#B57BE0', '#F2766B', '#F6C343', '#5B4FE0'];
     const posterAccent = ['#F6C343', '#3DBF5C', '#F2766B', '#6E8CF7', '#B57BE0'];
-    const bg = style === 'poster' ? '#1F1D47' : (style === 'bold' ? boldBg : playfulBg)[i];
+    const bg = style === 'poster' ? '#1F1D47' : (style === 'bold' ? boldBg : playfulBg)[ci];
     const dark = bg === '#1F1D47' || bg === '#5B4FE0';
     const yellow = bg === '#F6C343';
     const L = {
@@ -741,7 +749,7 @@ class Component extends DCLogic {
       shareFg: dark ? '#1F1D47' : '#FFFFFF',
       shareIcon: dark ? '#1F1D47' : '#F6C343'
     };
-    const on = style === 'poster' ? posterAccent[i] : yellow ? '#1F1D47' : '#FFFFFF';
+    const on = style === 'poster' ? posterAccent[ci] : yellow ? '#1F1D47' : '#FFFFFF';
     const off = dark ? 'rgba(255,255,255,0.25)' : yellow ? 'rgba(31,29,71,0.2)' : 'rgba(255,255,255,0.45)';
 
     const letter = { bold: 'b', poster: 'p', playful: 'y' }[style];

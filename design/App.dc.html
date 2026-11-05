@@ -28,16 +28,16 @@ button:active,a:active{transform:scale(0.96)}
   <sc-if value="{{ baseReady }}" hint-placeholder-val="{{ true }}">
     <div style="position: absolute; inset: 0; transform: {{ baseShift }}; transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1); will-change: transform">
       <div ref="{{ pagerRef }}" onpointerdown="{{ onDown }}" onpointermove="{{ onMove }}" onpointerup="{{ onUp }}" onpointercancel="{{ onUp }}" style="position: absolute; inset: 0; touch-action: pan-y; overflow: hidden">
-        <div data-page="tab" aria-hidden="{{ L0.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L0.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L0.pe }}">
+        <div data-page="tab" data-enter="{{ L0.enter }}" aria-hidden="{{ L0.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L0.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L0.pe }}">
           <dc-import name="Main" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
         </div>
-        <div data-page="tab" aria-hidden="{{ L1.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L1.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L1.pe }}">
+        <div data-page="tab" data-enter="{{ L1.enter }}" aria-hidden="{{ L1.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L1.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L1.pe }}">
           <dc-import name="Breakdown" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
         </div>
-        <div data-page="tab" aria-hidden="{{ L2.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L2.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L2.pe }}">
+        <div data-page="tab" data-enter="{{ L2.enter }}" aria-hidden="{{ L2.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L2.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L2.pe }}">
           <dc-import name="You" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
         </div>
-        <div data-page="tab" aria-hidden="{{ L3.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L3.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L3.pe }}">
+        <div data-page="tab" data-enter="{{ L3.enter }}" aria-hidden="{{ L3.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L3.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L3.pe }}">
           <dc-import name="Recaps" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
         </div>
       </div>
@@ -172,6 +172,36 @@ button:active,a:active{transform:scale(0.96)}
       <dc-import name="Places" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.timeline.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.timeline.kind }}" style="position: absolute; inset: 0; z-index: {{ O.timeline.z }}; animation: {{ O.timeline.anim }}; box-shadow: {{ O.timeline.shadow }}">
+      <dc-import name="Timeline" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.trip.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.trip.kind }}" style="position: absolute; inset: 0; z-index: {{ O.trip.z }}; animation: {{ O.trip.anim }}; box-shadow: {{ O.trip.shadow }}">
+      <dc-import name="Trip" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.explorer.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.explorer.kind }}" style="position: absolute; inset: 0; z-index: {{ O.explorer.z }}; animation: {{ O.explorer.anim }}; box-shadow: {{ O.explorer.shadow }}">
+      <dc-import name="Explorer" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.goals.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.goals.kind }}" style="position: absolute; inset: 0; z-index: {{ O.goals.z }}; animation: {{ O.goals.anim }}; box-shadow: {{ O.goals.shadow }}">
+      <dc-import name="Goals" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.health.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.health.kind }}" style="position: absolute; inset: 0; z-index: {{ O.health.z }}; animation: {{ O.health.anim }}; box-shadow: {{ O.health.shadow }}">
+      <dc-import name="Health" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.live.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.live.kind }}" style="position: absolute; inset: 0; z-index: {{ O.live.z }}; animation: {{ O.live.anim }}; box-shadow: {{ O.live.shadow }}">
+      <dc-import name="Live" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.types.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.types.kind }}" style="position: absolute; inset: 0; z-index: {{ O.types.z }}; animation: {{ O.types.anim }}; box-shadow: {{ O.types.shadow }}">
       <dc-import name="Personalities" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -231,7 +261,7 @@ class Component extends DCLogic {
     to = Math.max(0, Math.min(3, to));
     this.pagerEl.style.setProperty('--dur', '380ms');
     this.pagerEl.style.setProperty('--dx', '0px');
-    if (to !== tab) this.setState({ tab: to, closing: false });
+    if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false }); }
   }
   componentDidMount() {
     // Android back button: pop a page, return to Today, or let the app close.
@@ -260,7 +290,7 @@ class Component extends DCLogic {
     const top = stack[stack.length - 1] || null;
     const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
     const tabIndex = { today: 0, moves: 1, you: 2, recaps: 3 };
-    const stories = ['recap', 'month'];
+    const stories = ['recap', 'month', 'live'];
 
     // One shell for the whole app: tabs swap almost instantly (Instagram-style),
     // detail screens push from the right, recaps rise from the bottom, log-out fades.
@@ -289,7 +319,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;
@@ -305,7 +335,9 @@ class Component extends DCLogic {
       };
     });
 
-    const layer = (i) => ({ off: i - tab, pe: i === tab ? 'auto' : 'none', hidden: i === tab ? 'false' : 'true' });
+    // A tab reached by tapping plays its entrance; one dragged in by a swipe was already in view, so it doesn't.
+    if (tab !== this.prevTab) { this.enterTab = this.bySwipe ? -1 : tab; this.bySwipe = false; this.prevTab = tab; }
+    const layer = (i) => ({ off: i - tab, pe: i === tab ? 'auto' : 'none', hidden: i === tab ? 'false' : 'true', enter: i === this.enterTab ? 'true' : 'false' });
     const item = (i, key) => {
       const on = i === tab;
       return { on, off: !on, current: on ? 'page' : 'false', fg: on ? '#1F1D47' : '#6B6890', fw: on ? 700 : 500, pick: () => go(key) };

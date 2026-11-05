@@ -41,11 +41,15 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioListIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 .motio-scroll>*{flex-shrink:0}
+@keyframes motioMovesUp{from{transform:translateY(60px)}to{transform:none}}
+@keyframes motioMovesHead{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+[data-enter="true"] .motio-mv-sheet{animation:motioMovesUp 620ms cubic-bezier(0.22,1,0.36,1) 40ms backwards}
+[data-enter="true"] .motio-mv-head{animation:motioMovesHead 520ms cubic-bezier(0.22,1,0.36,1) backwards}
 </style>
 </helmet>
 <div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6C343; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
 
-  <div style="position: relative; height: 236px; flex-shrink: 0; box-sizing: border-box; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 14px">
+  <div class="motio-mv-head" style="position: relative; height: 236px; flex-shrink: 0; box-sizing: border-box; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 14px">
     <svg aria-hidden="true" width="390" height="236" viewBox="0 0 390 236" style="position: absolute; left: 0; top: 0; pointer-events: none">
       <circle cx="320" cy="170" r="110" fill="#F8D06A"></circle>
       <circle cx="40" cy="200" r="5" fill="#F2766B"></circle>
@@ -106,7 +110,7 @@ button:active,a:active{transform:scale(0.96)}
     </svg>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 0; display: flex; flex-direction: column; gap: 14px">
+  <div class="motio-mv-sheet" style="position: relative; flex: 1; min-height: 0; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 0; display: flex; flex-direction: column; gap: 14px">
     <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; margin: 0 -20px; padding: 0 20px 96px">
     <div style="display: flex; align-items: center; justify-content: space-between">
       <h2 style="margin: 0; font-size: 18px; font-weight: 600">Time by movement</h2>
@@ -176,7 +180,7 @@ button:active,a:active{transform:scale(0.96)}
     <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 14px; border-top: 1px solid #EEF0F6">
       <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">{{ v.listTitle }}</h2><span style="font-size: 12px; color: #6B6890">{{ v.listHint }}</span></div>
       <sc-for list="{{ v.list }}" as="t" hint-placeholder-count="4">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 58px; border-bottom: 1px solid #F3F2FA; animation: motioListIn 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
+        <div onClick="{{ t.open }}" style="cursor: {{ t.cursor }}; display: flex; align-items: center; gap: 12px; min-height: 58px; border-bottom: 1px solid #F3F2FA; animation: motioListIn 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
           <span style="width: 40px; height: 40px; border-radius: 14px; flex-shrink: 0; background: {{ t.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; font-weight: 700">{{ t.badge }}</span>
           <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.title }}</span><span style="font-size: 12px; color: #6B6890">{{ t.sub }}</span></span>
           <span style="display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 14px; font-weight: 700">{{ t.dur }}</span><span style="font-size: 11px; color: #6B6890">{{ t.km }}</span></span>
@@ -264,7 +268,7 @@ class Component extends DCLogic {
     let list;
     if (key === 'day') {
       list = { title: 'Trips', hint: r.trips.length + (r.trips.length === 1 ? ' trip' : ' trips'),
-        rows: r.trips.map((t) => [hm(t.start), M.MODES[t.mode].name + (t.live ? ' · now' : ''), t.mode, fmt((Math.min(t.end, now) - t.start) / M.MIN), M.fmtDist(t.distanceM), hm(t.start) + ' – ' + hm(t.end)]) };
+        rows: r.trips.map((t) => [hm(t.start), M.MODES[t.mode].name + (t.live ? ' · now' : ''), t.mode, fmt((Math.min(t.end, now) - t.start) / M.MIN), M.fmtDist(t.distanceM), hm(t.start) + ' – ' + hm(t.end), t.id]) };
     } else if (key === 'week') {
       const ds = M.days(r.from, 7).filter((d) => d.from <= now);
       list = { title: 'Days', hint: ds.length + (ds.length === 1 ? ' day' : ' days'),
@@ -354,7 +358,8 @@ class Component extends DCLogic {
     }
     const L = LISTS[key];
     v.listTitle = L.title; v.listHint = L.hint;
-    v.list = L.rows.map(([badge, title, mode, dur, km, sub], i) => ({ badge, title, dur, km, sub, color: MC[mode] || '#C9C5EC', delay: i * 40 + 'ms' }));
+    v.list = L.rows.map(([badge, title, mode, dur, km, sub, id], i) => ({ badge, title, dur, km, sub, color: MC[mode] || '#C9C5EC', delay: i * 40 + 'ms',
+      open: () => { if (!id || !this.props.onNav) return; window.__motioTrip = id; this.props.onNav('trip'); }, cursor: id ? 'pointer' : 'default' }));
     return {
       T,
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,

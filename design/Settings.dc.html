@@ -51,10 +51,11 @@ button:active,a:active{transform:scale(0.96)}
     <section style="display: flex; flex-direction: column; gap: 12px">
       <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
       <span style="font-size: 15px; font-weight: 600">Recap style</span>
-      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="3">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px">
+        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="4">
           <button aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
-            <span style="position: relative; display: block; height: 120px; border-radius: 16px; background: {{ o.color }}; overflow: hidden; outline: 3px solid {{ o.ring }}; outline-offset: 3px; transition: outline-color 200ms ease">
+            <span style="position: relative; display: block; height: 104px; border-radius: 16px; background: {{ o.color }}; overflow: hidden; outline: 3px solid {{ o.ring }}; outline-offset: 3px; transition: outline-color 200ms ease">
+              <sc-if value="{{ o.isMix }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; display: flex"><span style="flex: 1; background: #3DBF5C"></span><span style="flex: 1; background: #1F1D47"></span><span style="flex: 1; background: #F2766B"></span></span><span style="position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 23px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg></span></sc-if>
               <sc-if value="{{ o.isBold }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; font-size: 22px; font-weight: 700; color: #1F1D47">412</span><span style="position: absolute; left: 10px; right: 10px; top: 48px; height: 30px; border-radius: 8px; background: #FFFFFF"></span><span style="position: absolute; left: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span><span style="position: absolute; right: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span></sc-if>
               <sc-if value="{{ o.isPoster }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 8px; top: 8px; font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: -3px; color: #F6C343">412</span><span style="position: absolute; left: -6px; right: -6px; top: 66px; height: 10px; border-radius: 5px; background: #2D2A6E; transform: rotate(-8deg)"></span><span style="position: absolute; left: 10px; right: 10px; bottom: 10px; height: 18px; border-top: 1px solid rgba(255,255,255,0.3)"></span></sc-if>
               <sc-if value="{{ o.isPlayful }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 14px; right: 14px; top: 12px; bottom: 12px; background: repeating-linear-gradient(#FFFFFF 0 9px, #E3E1F3 9px 11px); transform: rotate(-4deg)"></span><span style="position: absolute; right: 6px; top: 8px; width: 34px; height: 34px; border-radius: 17px; background: #F6C343; border: 3px solid #FFFFFF"></span></sc-if>
@@ -204,7 +205,7 @@ class Component extends DCLogic {
     const M = window.Motio;
     const cfg = M ? M.settings() : s;
     const put = (k, v) => (M ? M.setSetting(k, v) : this.setState({ [k]: v }));
-    const style = ['bold', 'poster', 'playful'].includes(cfg.recapStyle) ? cfg.recapStyle : 'bold';
+    const style = ['mix', 'bold', 'poster', 'playful'].includes(cfg.recapStyle) ? cfg.recapStyle : 'mix';
     const sw = (key, label, hint, def) => {
       const on = cfg[key] ?? def;
       return { label, hint, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => put(key, !on) };
@@ -218,10 +219,10 @@ class Component extends DCLogic {
       askLogout: () => this.setState({ logout: true, menuOpen: false, menuClosing: false }),
       cancelLogout: () => this.setState({ logout: false }),
       emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
-      styles: [['bold', 'Bold', 'Big numbers', '#3DBF5C'], ['poster', 'Poster', 'One giant stat', '#1F1D47'], ['playful', 'Playful', 'Tickets, maps…', '#F2766B']]
+      styles: [['mix', 'Mix', 'A new look every time', '#FFFFFF'], ['bold', 'Bold', 'Big numbers', '#3DBF5C'], ['poster', 'Poster', 'One giant stat', '#1F1D47'], ['playful', 'Playful', 'Tickets, maps…', '#F2766B']]
         .map(([k, label, hint, color]) => ({
           label, hint, color, on: style === k, ring: style === k ? '#1F1D47' : 'transparent',
-          isBold: k === 'bold', isPoster: k === 'poster', isPlayful: k === 'playful',
+          isMix: k === 'mix', isBold: k === 'bold', isPoster: k === 'poster', isPlayful: k === 'playful',
           pick: () => {
             // The recap story reads this when it opens.
             try { window.localStorage.setItem('motio.recapStyle', k); } catch (e) { /* storage blocked */ }
@@ -242,7 +243,7 @@ class Component extends DCLogic {
       miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
       setKm: () => put('unit', 'km'),
       setMi: () => put('unit', 'mi'),
-      versionLabel: 'Version 2.1' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 2.2' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

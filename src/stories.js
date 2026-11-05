@@ -24,9 +24,27 @@ export function routeArt(routes, w, h, { width = 5, glow = true } = {}) {
   </svg>`;
 }
 
+// Every share gets a random look, so no two cards are the same: a background (for light-on-dark cards) and a decoration.
+const PAIRS = [['#5B4FE0', '#F2766B'], ['#3DBF5C', '#6E8CF7'], ['#B57BE0', '#F6C343'], ['#6E8CF7', '#B57BE0'], ['#F2766B', '#F6C343']];
+const GRADS = [['#4B3FD8', '#B57BE0'], ['#4B3FD8', '#F2766B'], ['#1E7A36', '#6E8CF7'], ['#6E8CF7', '#5B4FE0'], ['#16142F', '#5B4FE0']];
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const BACKS = [
+  (bg) => bg,
+  () => { const [a, b] = pick(PAIRS); return `radial-gradient(70% 45% at 10% 12%, ${a}99, transparent 70%), radial-gradient(60% 45% at 95% 92%, ${b}88, transparent 70%), ${INK}`; },
+  () => { const [a, b] = pick(GRADS); return `linear-gradient(160deg, ${a} 0%, ${b} 100%)`; }
+];
+const DECOR = [
+  () => '',
+  (light) => `<div style="position:absolute;width:420px;height:420px;border-radius:50%;right:-210px;top:-160px;background:${light ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.07)'}"></div><div style="position:absolute;width:300px;height:300px;border-radius:50%;left:-150px;bottom:-120px;background:${light ? 'rgba(22,20,47,0.06)' : 'rgba(255,255,255,0.05)'}"></div>`,
+  (light) => `<div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,${light ? 'rgba(22,20,47,0.05)' : 'rgba(255,255,255,0.045)'} 0 14px,transparent 14px 42px)"></div>`,
+  (light) => `<div style="position:absolute;width:520px;height:520px;border-radius:50%;left:50%;top:55%;margin:-260px 0 0 -260px;box-sizing:border-box;border:60px solid ${light ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.05)'}"></div>`
+];
+let look = { back: 0, decor: 0 };
+
 // Shared frame: background, wordmark, kicker and credit line.
 const frame = (bg, fg, kicker, body, foot = 'Tracked with Motio') => `
-<div style="width:360px;height:640px;position:relative;overflow:hidden;background:${bg};color:${fg};font-family:Poppins,sans-serif;box-sizing:border-box">
+<div style="width:360px;height:640px;position:relative;overflow:hidden;background:${fg === INK ? bg : BACKS[look.back](bg)};color:${fg};font-family:Poppins,sans-serif;box-sizing:border-box">
+  ${DECOR[look.decor](fg === INK)}
   ${body}
   <div style="position:absolute;left:28px;top:26px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px">
     <svg width="18" height="18" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="${fg === INK ? INK : '#F6C343'}" stroke-width="4.5" stroke-linecap="round"/></svg>motio</div>
@@ -130,6 +148,7 @@ let fontCSS = null;
 export async function renderStory(kind, data) {
   const host = document.createElement('div');
   host.style.cssText = 'position:fixed;left:-10000px;top:0;width:360px;height:640px;pointer-events:none';
+  look = { back: Math.floor(Math.random() * BACKS.length), decor: Math.floor(Math.random() * DECOR.length) };
   host.innerHTML = T[kind](data);
   document.body.appendChild(host);
   try {

@@ -39,6 +39,11 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes motioYouIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.motio-you>*{flex-shrink:0}
+.motio-scroll::-webkit-scrollbar{display:none}
+[data-enter="true"] .motio-you>:nth-child(-n+6){animation:motioYouIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
+.motio-you>:nth-child(1){animation-delay:60ms}.motio-you>:nth-child(2){animation-delay:120ms}.motio-you>:nth-child(3){animation-delay:180ms}.motio-you>:nth-child(4){animation-delay:240ms}.motio-you>:nth-child(5){animation-delay:300ms}.motio-you>:nth-child(6){animation-delay:360ms}
 </style>
 </helmet>
 <div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #8C7CF0; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 12px">
@@ -59,6 +64,7 @@ button:active,a:active{transform:scale(0.96)}
     <button onClick="{{ openEdit }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-shrink: 0"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>Edit</button>
   </div>
 
+  <div class="motio-you motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; margin: 0 -20px; padding: 0 20px 12px; display: flex; flex-direction: column; gap: 12px">
   <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" style="position: relative; display: block; height: 176px; border-radius: 28px; background: #F2766B; overflow: hidden; text-decoration: none; color: #1F1D47; box-shadow: 0 12px 28px rgba(40,20,120,0.3)">
     <svg aria-hidden="true" width="350" height="176" viewBox="0 0 350 176" style="position: absolute; inset: 0">
       <path d="M150 60 Q 220 10 360 50 V 176 H 150 Z" fill="#F58C83"></path>
@@ -125,6 +131,23 @@ button:active,a:active{transform:scale(0.96)}
       <span style="font-size: 12px; color: #6B6890">{{ placesLine }}</span>
     </a>
   </div>
+  <div style="display: flex; gap: 12px">
+    <a href="{{ LK.goals.href }}" onClick="{{ LK.goals.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; text-decoration: none">
+      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5B4FE0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01"></path></svg>
+      <span style="font-size: 15px; font-weight: 600">Goals</span>
+      <span style="font-size: 12px; color: #6B6890">{{ goalsLine }}</span>
+    </a>
+    <a href="{{ LK.health.href }}" onClick="{{ LK.health.go }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #F2766B; color: #FFFFFF; text-decoration: none">
+      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>
+      <span style="font-size: 15px; font-weight: 600">Health</span>
+      <span style="font-size: 12px; color: rgba(255,255,255,0.88)">{{ healthLine }}</span>
+    </a>
+  </div>
+  <a href="{{ LK.explorer.href }}" onClick="{{ LK.explorer.go }}" style="position: relative; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; background: #16142F; color: #FFFFFF; text-decoration: none">
+    <svg aria-hidden="true" width="52" height="52" viewBox="0 0 52 52"><rect width="52" height="52" rx="14" fill="#2A2560"></rect><g fill="#E4E8F0"><circle cx="16" cy="30" r="7"></circle><circle cx="22" cy="24" r="7"></circle><circle cx="29" cy="21" r="7"></circle><circle cx="36" cy="25" r="6"></circle></g><path d="M12 33 C 20 22, 30 18, 40 25" fill="none" stroke="#3DBF5C" stroke-width="2.5" stroke-linecap="round"></path></svg>
+    <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Explorer</span><span style="font-size: 12px; color: #C9C5EC">{{ explorerLine }}</span></span>
+    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+  </a>
 
   <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 28px; background: #FFFFFF">
     <h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 600">Personal records</h2>
@@ -139,6 +162,7 @@ button:active,a:active{transform:scale(0.96)}
     </sc-for>
   </div>
 
+  </div>
   <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
   <nav aria-label="Main" style="position: relative; margin-top: auto; flex-shrink: 0; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18)">
     <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
@@ -537,12 +561,15 @@ class Component extends DCLogic {
     }
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), places: lk('places', 'Places.dc.html') },
+      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
       ...(() => {
         const M = window.Motio;
-        if (!M) return { achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more' };
+        if (!M) return { goalsLine: '6-day streak', healthLine: '412 kcal today', achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more', explorerLine: '4.2% of your city explored' };
         const a = M.achievements(), got = a.filter((x) => x.got).length, pl = M.places();
-        return { achLine: got + ' of ' + a.length + ' earned', achNew: a.some((x) => x.fresh),
+        const ex = M.explorer();
+        const G = M.goals(), B = M.body(), wDone = G.week.filter((g) => g.done).length;
+        return { goalsLine: (G.streak ? G.streak + '-day streak' : 'No streak yet') + (G.week.length ? ' · ' + wDone + '/' + G.week.length + ' weekly' : ''), healthLine: Math.round(B.today) + ' kcal today',
+          achLine: got + ' of ' + a.length + ' earned', achNew: a.some((x) => x.fresh), explorerLine: ex.count ? ex.pct.toFixed(1) + '% of your city explored' + (ex.newThisWeek ? ' · +' + ex.newThisWeek + ' this week' : '') : 'Clears as you move around your city',
           placesLine: pl.length ? pl.slice(0, 2).map((p) => p.name).join(', ') + (pl.length > 2 ? ' and ' + (pl.length - 2) + ' more' : '') : 'Appear after a few trips' };
       })(),
       navFrom: this.navFrom,

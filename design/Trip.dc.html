@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Trip</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#FFFFFF}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioBarX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioReplayIn{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:none}}
+@keyframes motioDlgIn{from{opacity:0;transform:scale(0.94)}to{opacity:1;transform:none}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.motio-mapwrap .leaflet-bottom{bottom:24px}
+.motio-tiles{filter:saturate(0.7) brightness(1.03)}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFFFFF; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div class="motio-mapwrap" style="position: relative; z-index: 0; flex-shrink: 0; height: 320px; background: #E4E8F0">
+    <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
+    <sc-if value="{{ noMap }}" hint-placeholder-val="{{ true }}">
+      <svg aria-hidden="true" width="390" height="320" viewBox="0 0 390 320" style="position: absolute; inset: 0"><rect width="390" height="320" fill="#E4E8F0"></rect><g stroke="#FFFFFF" stroke-width="9" fill="none"><path d="M-10 250 C 120 230, 180 120, 400 90"></path><path d="M150 -10 L 210 330"></path></g>
+        <path d="M60 250 C 110 230, 150 200, 190 160 S 280 100, 330 90" fill="none" stroke="url(#spd)" stroke-width="7" stroke-linecap="round"></path>
+        <defs><linearGradient id="spd" x1="0" x2="1"><stop offset="0" stop-color="#6E8CF7"></stop><stop offset="0.55" stop-color="#F6C343"></stop><stop offset="1" stop-color="#F2766B"></stop></linearGradient></defs>
+        <circle cx="60" cy="250" r="7" fill="#3DBF5C" stroke="#FFFFFF" stroke-width="3"></circle><circle cx="330" cy="90" r="7" fill="#1F1D47" stroke="#FFFFFF" stroke-width="3"></circle></svg>
+    </sc-if>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: absolute; left: 20px; top: 16px; z-index: 500; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <button type="button" onClick="{{ share }}" aria-label="Share this trip" style="position: absolute; right: 20px; top: 16px; z-index: 500; width: 44px; height: 44px; border: 0; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
+    <sc-if value="{{ canReplay }}" hint-placeholder-val="{{ true }}">
+      <button type="button" onClick="{{ replay }}" aria-label="Replay this trip" style="position: absolute; right: 20px; bottom: 34px; z-index: 500; height: 36px; padding: 0 14px 0 10px; border: 0; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(31,29,71,0.25); animation: motioReplayIn 420ms cubic-bezier(0.22, 1, 0.36, 1) 700ms backwards"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="#F6C343"><path d="M7 4v16l13-8z"></path></svg>Replay</button>
+    </sc-if>
+    <div aria-hidden="true" style="position: absolute; left: 50%; top: 18px; z-index: 500; margin-left: -48px; width: 96px; height: 40px; border-radius: 20px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: {{ rpOp }}; transform: translateY({{ rpY }}); transition: opacity 260ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none">
+      <span ref="{{ rpRef }}" style="font-size: 15px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums">00:00</span>
+      <span style="position: absolute; left: 12px; right: 12px; bottom: 6px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2)"><span ref="{{ rpBarRef }}" style="display: block; height: 3px; border-radius: 2px; background: #F6C343; transform-origin: left; transform: scaleX(0)"></span></span>
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 20px; bottom: 36px; z-index: 500; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 14px; background: rgba(255,255,255,0.94); box-shadow: 0 4px 12px rgba(31,29,71,0.14); font-size: 10.5px; font-weight: 600; color: #4A4770"><span>Slower</span><span style="width: 64px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #6E8CF7, #F6C343, #F2766B)"></span><span>Faster</span></div>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin-top: -24px; position: relative; z-index: 2; border-radius: 28px 28px 0 0; background: #FFFFFF; padding: 20px 20px 40px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="padding: 6px 12px; border-radius: 14px; background: {{ color }}; color: #1F1D47; font-size: 12px; font-weight: 700">{{ modeName }}</span>
+      <span style="font-size: 13px; color: #6B6890">{{ when }}</span>
+    </div>
+    <div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 52px; font-weight: 700; line-height: 1; letter-spacing: -1.5px">{{ distNum }}</span><span style="font-size: 18px; font-weight: 600">{{ unit }}</span></div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
+        <div style="padding: 12px 14px; border-radius: 18px; background: #F6F5FC; animation: motioFadeUp 360ms ease-out {{ st.delay }} backwards"><div style="font-size: 20px; font-weight: 700">{{ st.v }}</div><div style="font-size: 11px; color: #6B6890">{{ st.k }}</div></div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ hasSplits }}" hint-placeholder-val="{{ true }}">
+      <section style="display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 15px; font-weight: 600">Splits</h2>
+        <sc-for list="{{ splits }}" as="sp" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px">
+            <span style="width: 34px; color: #6B6890">{{ sp.n }}</span>
+            <span style="flex: 1; height: 10px; border-radius: 5px; background: #F3F2FA"><span style="display: block; width: {{ sp.w }}; height: 10px; border-radius: 5px; background: {{ sp.color }}; transform-origin: left; animation: motioBarX 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ sp.delay }} backwards"></span></span>
+            <span style="width: 64px; text-align: right; font-weight: 600">{{ sp.t }}</span>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 15px; font-weight: 600">Not right? Tap how you really moved</h2>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="5">
+          <button type="button" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 40px; padding: 0; font-size: 12px; border-radius: 19px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: #1F1D47; font-weight: 600"><span style="width: 8px; height: 8px; flex-shrink: 0; border-radius: 5px; background: {{ k.color }}"></span>{{ k.label }}</button>
+        </sc-for>
+      </div>
+    </section>
+    <button type="button" onClick="{{ askDelete }}" style="min-height: 48px; border-radius: 24px; border: 2px solid #F5C6C0; background: transparent; color: #C2412F; font-size: 14px; font-weight: 600">Delete this trip</button>
+  </div>
+
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
+      <button aria-label="Cancel" onClick="{{ cancelDelete }}" style="position: absolute; inset: 0; border: 0; background: rgba(20,14,70,0.5)"></button>
+      <div role="alertdialog" aria-label="Delete this trip?" style="position: relative; width: 100%; padding: 22px 20px; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioDlgIn 220ms ease-out">
+        <span style="font-size: 18px; font-weight: 700">Delete this trip?</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">It disappears from your day, recaps and stats on all your devices.</span>
+        <div style="display: flex; gap: 10px"><button onClick="{{ cancelDelete }}" style="flex: 1; min-height: 48px; border: 0; border-radius: 24px; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Keep it</button><button onClick="{{ confirmDelete }}" style="flex: 1; min-height: 48px; border: 0; border-radius: 24px; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600">Delete</button></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  showToast(msg) {
+    clearTimeout(this.toastT);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    // The trip to show is handed over by the page that opened this one.
+    if (this.tripId === undefined) { this.tripId = window.__motioTrip || null; window.__motioTrip = null; }
+    const MODES = { walk: ['Walk', 'Walking', '#3DBF5C'], run: ['Run', 'Running', '#F2766B'], bike: ['Bike', 'Cycling', '#6E8CF7'], drive: ['Drive', 'Driving', '#F6C343'], transit: ['Bus', 'Bus & train', '#B57BE0'] };
+    const now = Date.now();
+    const t = (M && this.tripId && M.findTrip(this.tripId)) || { id: 'sample', mode: 'bike', start: now - 3 * 3600000, end: now - 3 * 3600000 + 38 * 60000, distanceM: 11600, steps: 0, maxSpeed: 8.6, points: [] };
+    const mi = M && M.settings().unit === 'mi', unitM = mi ? 1609.34 : 1000;
+    const mins = (Math.min(t.end, now) - t.start) / 60000;
+    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(Math.round(m % 60)).padStart(2, '0') + 'm' : Math.max(1, Math.round(m)) + ' min');
+    const pace = (sec) => Math.floor(sec / 60) + ':' + String(Math.round(sec % 60)).padStart(2, '0');
+    const spd = (ms) => Math.round(ms * (mi ? 2.23694 : 3.6)) + (mi ? ' mph' : ' km/h');
+    const onFoot = t.mode === 'walk' || t.mode === 'run';
+    const avg = t.distanceM / Math.max(1, mins * 60);
+    // The map starts after the slide-in so the slide stays smooth.
+    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT && t.points && t.points.length > 1) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountTrip(this.mapEl, t.points); }, 440);
+    const sp = M && t.points && t.points.length > 1 ? M.splits(t) : [372, 355, 341, 362, 330];
+    const fastest = Math.min(...sp), slowest = Math.max(...sp);
+    const d = new Date(t.start);
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      canReplay: !M || !!(t && t.points && t.points.length > 2), rpOp: s.replaying ? 1 : 0, rpY: s.replaying ? '0px' : '-12px',
+      rpRef: (el) => { this.rpEl = el; }, rpBarRef: (el) => { this.rpBar = el; },
+      replay: () => {
+        if (!this.ctrl || !this.ctrl.replay) return;
+        this.setState({ replaying: true });
+        // The clock is written straight to the DOM each frame so the page doesn't re-render 60 times a second.
+        this.ctrl.replay((p, at, done) => {
+          if (this.rpEl) this.rpEl.textContent = new Date(at).toTimeString().slice(0, 5);
+          if (this.rpBar) this.rpBar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+          if (done) setTimeout(() => this.setState({ replaying: false }), 700);
+        });
+      },
+      LK: { back: lk('back', 'Main.dc.html') },
+      mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
+      noMap: !M || !(t.points && t.points.length > 1),
+      color: MODES[t.mode][2], modeName: MODES[t.mode][1],
+      when: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toTimeString().slice(0, 5) + '–' + new Date(t.end).toTimeString().slice(0, 5),
+      distNum: (t.distanceM / unitM).toFixed(t.distanceM / unitM < 10 ? 2 : 1), unit: mi ? 'mi' : 'km',
+      stats: [
+        ['Time', fmtMin(mins)],
+        [onFoot ? 'Average pace' : 'Average speed', onFoot ? pace((mins * 60) / Math.max(0.01, t.distanceM / unitM)) + (mi ? ' /mi' : ' /km') : spd(avg)],
+        ['Top speed', spd(t.maxSpeed || 0)],
+        [onFoot ? 'Steps' : 'Stops', onFoot ? (t.steps || 0).toLocaleString('en-US') : String(t.stops ?? (t.f ? Math.round(t.f[3] * 3 * t.distanceM / 1000) : 0))]
+      ].map(([k, v], i) => ({ k, v, delay: (emb ? 420 : 0) + i * 60 + 'ms' })),
+      hasSplits: sp.length > 0,
+      splits: sp.map((sec, i) => ({ n: (mi ? 'mi ' : 'km ') + (i + 1), t: onFoot ? pace(sec) : spd(unitM / sec), w: Math.round(30 + 70 * (slowest === fastest ? 1 : (slowest - sec) / (slowest - fastest))) + '%',
+        color: sec === fastest ? '#F2766B' : MODES[t.mode][2], delay: (emb ? 450 : 0) + i * 70 + 'ms' })).slice(0, 30),
+      kinds: Object.keys(MODES).map((k) => ({ label: MODES[k][0], color: MODES[k][2], on: t.mode === k, bg: t.mode === k ? '#F3F2FA' : '#FFFFFF', border: t.mode === k ? '#1F1D47' : '#E3E1F3',
+        pick: () => { if (M && t.mode !== k) { M.retypeTrip(t.id, k); this.showToast('Changed to ' + MODES[k][1] + '. Motio learns from it'); } } })),
+      share: () => {
+        if (!M) { this.showToast('Trip shared'); return; }
+        const routes = M.route(t.start - 1, t.end + 1).filter((r) => r.id === t.id);
+        M.storyImage('trip', { kicker: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }), lead: MODES[t.mode][1], color: MODES[t.mode][2],
+          big: M.fmtDist(t.distanceM), routes, stats: [{ v: fmtMin(mins), k: 'time' }, { v: spd(avg), k: 'average' }, { v: spd(t.maxSpeed || 0), k: 'top speed' }] })
+          .then((img) => M.shareImage(img, 'share', MODES[t.mode][1] + ': ' + M.fmtDist(t.distanceM) + '. Tracked with Motio.'))
+          .then((m) => m && this.showToast(m)).catch(() => {});
+      },
+      confirmOpen: !!s.confirm, askDelete: () => this.setState({ confirm: true }), cancelDelete: () => this.setState({ confirm: false }),
+      confirmDelete: () => { this.setState({ confirm: false }); if (M) M.deleteTrip(t.id); if (this.props.onNav) this.props.onNav('back'); },
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

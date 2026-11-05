@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Goals</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioGoalIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes motioCellIn{from{opacity:0;transform:scale(0.4)}to{opacity:1;transform:none}}
+@keyframes motioGoalRing{from{stroke-dashoffset:138.2}}
+@keyframes motioGoalBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioComposer{from{opacity:0;transform:translateY(-8px) scale(0.98)}to{opacity:1;transform:none}}
+@property --to{syntax:'<integer>';inherits:false;initial-value:0}
+@keyframes motioCount{from{--to:0}}
+.motio-count{counter-reset:n var(--to);animation:motioCount 1100ms cubic-bezier(0.22,1,0.36,1) var(--delay,0ms) backwards}
+.motio-count::after{content:counter(n)}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Goals</h1>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 40px; display: flex; flex-direction: column; gap: 14px">
+    <section style="padding: 20px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 16px; animation: motioGoalIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+        <div style="display: flex; flex-direction: column">
+          <span style="font-size: 13px; opacity: 0.7">Current streak</span>
+          <span style="font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -2px"><span class="motio-count" style="--to: {{ streak }}; --delay: {{ dCount }}"></span><span style="font-size: 18px; font-weight: 600; letter-spacing: 0; margin-left: 6px">{{ streakUnit }}</span></span>
+          <span style="font-size: 12px; opacity: 0.7; margin-top: 4px">{{ streakLine }}</span>
+        </div>
+        <div style="text-align: right"><div style="font-size: 11px; opacity: 0.6">Best</div><div style="font-size: 20px; font-weight: 700; color: #F6C343">{{ best }}</div></div>
+      </div>
+      <div role="img" aria-label="{{ gridAria }}" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+        <sc-for list="{{ heads }}" as="h" hint-placeholder-count="7"><span style="font-size: 10px; text-align: center; opacity: 0.5">{{ h }}</span></sc-for>
+        <sc-for list="{{ grid }}" as="c" hint-placeholder-count="35">
+          <span style="aspect-ratio: 1; border-radius: 10px; background: {{ c.bg }}; box-shadow: {{ c.ring }}; animation: motioCellIn 420ms cubic-bezier(0.34, 1.4, 0.64, 1) {{ c.delay }} backwards"></span>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; font-size: 11px; opacity: 0.75">
+        <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #F6C343"></span>Goal reached</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: rgba(255,255,255,0.35)"></span>Moved</span>
+      </div>
+    </section>
+
+    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioGoalIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Every day</h2>
+      <sc-for list="{{ daily }}" as="g" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ g.label }}</span><span style="font-size: 12px; color: #6B6890">{{ g.today }}</span></span>
+            <button type="button" onClick="{{ g.minus }}" aria-label="{{ g.minusAria }}" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 20px; font-weight: 600">−</button>
+            <span style="min-width: 74px; text-align: center; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums">{{ g.value }}</span>
+            <button type="button" onClick="{{ g.plus }}" aria-label="{{ g.plusAria }}" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 20px; font-weight: 600">+</button>
+          </div>
+          <span style="height: 8px; border-radius: 4px; background: #F3F2FA; overflow: hidden"><span style="display: block; height: 8px; width: {{ g.w }}; border-radius: 4px; background: {{ g.color }}; transform-origin: left; transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1); animation: motioGoalBar 800ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards"></span></span>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; animation: motioGoalIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+      <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 700">This week</h2><span style="font-size: 12px; color: #6B6890">{{ daysLeft }}</span></div>
+      <sc-if value="{{ noWeek }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 16px; border-radius: 20px; background: #FFFFFF; font-size: 13px; line-height: 1.5; color: #4A4770">Set a weekly goal for a way you move, like three runs or 40 km of riding. It resets every Monday.</div>
+      </sc-if>
+      <sc-for list="{{ week }}" as="w" hint-placeholder-count="2">
+        <div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 20px; background: #FFFFFF; animation: motioGoalIn 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ w.delay }} backwards">
+          <span style="position: relative; width: 56px; height: 56px; flex-shrink: 0">
+            <svg aria-hidden="true" width="56" height="56" viewBox="0 0 56 56" style="transform: rotate(-90deg)"><circle cx="28" cy="28" r="22" fill="none" stroke="#F3F2FA" stroke-width="7"></circle><circle cx="28" cy="28" r="22" fill="none" stroke="{{ w.color }}" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="{{ w.off }}" style="transition: stroke-dashoffset 800ms cubic-bezier(0.22, 1, 0.36, 1); animation: motioGoalRing 1000ms cubic-bezier(0.22, 1, 0.36, 1) {{ w.ringDelay }} backwards"></circle></svg>
+            <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700">{{ w.pctLabel }}</span>
+          </span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{ w.title }}</span><span style="font-size: 12px; color: {{ w.subColor }}">{{ w.sub }}</span></span>
+          <button type="button" onClick="{{ w.remove }}" aria-label="{{ w.removeAria }}" style="width: 36px; height: 36px; border: 0; border-radius: 18px; background: #F6F5FC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ adding }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioComposer 320ms cubic-bezier(0.22, 1, 0.36, 1)">
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ modeOpts }}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="height: 40px; border-radius: 20px; border: 2px solid {{ o.border }}; background: {{ o.bg }}; color: #1F1D47; font-size: 13px; font-weight: 600; transition: background-color 200ms ease, border-color 200ms ease">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ metricOpts }}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="height: 36px; border-radius: 18px; border: 0; background: {{ o.bg }}; color: {{ o.fg }}; font-size: 12px; font-weight: 600; transition: background-color 200ms ease, color 200ms ease">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <button type="button" onClick="{{ tMinus }}" aria-label="Lower the target" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: #F3F2FA; color: #1F1D47; font-size: 22px; font-weight: 600">−</button>
+            <span style="flex: 1; text-align: center; font-size: 18px; font-weight: 700">{{ draftTitle }}</span>
+            <button type="button" onClick="{{ tPlus }}" aria-label="Raise the target" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: #F3F2FA; color: #1F1D47; font-size: 22px; font-weight: 600">+</button>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button type="button" onClick="{{ cancel }}" style="flex: 1; height: 46px; border: 0; border-radius: 23px; background: #F3F2FA; color: #1F1D47; font-size: 14px; font-weight: 600">Cancel</button>
+            <button type="button" onClick="{{ save }}" style="flex: 1; height: 46px; border: 0; border-radius: 23px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">Add goal</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ canAdd }}" hint-placeholder-val="{{ true }}">
+        <button type="button" onClick="{{ add }}" style="height: 50px; border-radius: 25px; border: 2px dashed #C9C5EC; background: transparent; color: #4B3FD8; font-size: 14px; font-weight: 600">+ Add a weekly goal</button>
+      </sc-if>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const DAY = 86400000;
+    const t0 = new Date().setHours(0, 0, 0, 0);
+    const sample = { goal: 180, stepGoal: 10000, streak: 6, best: 14, todayMin: 124, todaySteps: 7420, daysLeft: 3,
+      grid: Array.from({ length: 35 }, (_, i) => { const p = [0.2, 1, 0.6, 1, 1, 0.3, 0][i % 7]; return { day: t0 - (31 - i) * DAY, pct: p, min: p * 180, future: i > 31 }; }),
+      week: [{ id: 1, mode: 'run', metric: 'times', target: 3, have: 2, pct: 0.67, done: false }, { id: 2, mode: 'bike', metric: 'km', target: 40, have: 41.5, pct: 1, done: true }] };
+    const G = M ? M.goals() : sample;
+    const mi = M && M.settings().unit === 'mi';
+    const NAMES = { walk: ['Walk', '#3DBF5C'], run: ['Run', '#F2766B'], bike: ['Ride', '#6E8CF7'] };
+    const unitLabel = { times: (n) => (n === 1 ? 'time' : 'times'), km: () => (mi ? 'mi' : 'km'), min: () => 'min' };
+    const fmtMin = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
+    const titleOf = (g) => NAMES[g.mode][0] + ' ' + g.target + ' ' + unitLabel[g.metric](g.target);
+    const base = emb ? 380 : 0;
+    const today = t0;
+    const STEP = { times: 1, km: 5, min: 30 }, START = { times: 3, km: 20, min: 120 };
+    const draft = { mode: s.gMode || 'run', metric: s.gMetric || 'times' };
+    draft.target = s.gTarget || START[draft.metric];
+    const set = (k, v) => { if (M) M.setSetting(k, v); else this.setState({ ['demo_' + k]: v }); };
+    const goalMin = M ? G.goal : s.demo_goalMin || G.goal, stepGoal = M ? G.stepGoal : s.demo_stepGoal || G.stepGoal;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'You.dc.html') },
+      d0: base + 'ms', d1: base + 90 + 'ms', d2: base + 180 + 'ms', dCount: base + 200 + 'ms',
+      streak: G.streak, streakUnit: G.streak === 1 ? 'day' : 'days',
+      streakLine: G.streak ? 'in a row on your ' + fmtMin(goalMin) + ' daily goal' : 'Reach your daily goal to start a streak',
+      best: G.best + (G.best === 1 ? ' day' : ' days'),
+      heads: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+      gridAria: 'Last five weeks: ' + G.grid.filter((c) => c.pct >= 1).length + ' days on goal',
+      grid: G.grid.map((c, i) => ({
+        bg: c.future ? 'rgba(255,255,255,0.04)' : c.pct >= 1 ? '#F6C343' : c.min > 0 ? 'rgba(255,255,255,' + (0.1 + 0.3 * c.pct).toFixed(2) + ')' : 'rgba(255,255,255,0.07)',
+        ring: c.day === today ? '0 0 0 2px #FFFFFF' : 'none', delay: base + 160 + i * 14 + 'ms'
+      })),
+      daily: [
+        { label: 'Active time', value: fmtMin(goalMin), today: 'Today ' + fmtMin(G.todayMin), w: Math.min(100, G.todayMin / goalMin * 100) + '%', color: '#5B4FE0',
+          minus: () => set('goalMin', Math.max(15, goalMin - 15)), plus: () => set('goalMin', Math.min(600, goalMin + 15)), minusAria: 'Lower daily active time goal', plusAria: 'Raise daily active time goal' },
+        { label: 'Steps', value: stepGoal.toLocaleString('en-US'), today: 'Today ' + Math.round(G.todaySteps).toLocaleString('en-US'), w: Math.min(100, G.todaySteps / stepGoal * 100) + '%', color: '#3DBF5C',
+          minus: () => set('stepGoal', Math.max(1000, stepGoal - 500)), plus: () => set('stepGoal', Math.min(50000, stepGoal + 500)), minusAria: 'Lower daily steps goal', plusAria: 'Raise daily steps goal' }
+      ],
+      daysLeft: G.daysLeft ? G.daysLeft + (G.daysLeft === 1 ? ' day left' : ' days left') : 'Last day',
+      noWeek: !G.week.length && !s.adding,
+      week: G.week.map((g, i) => ({
+        title: titleOf(g), color: NAMES[g.mode][1], off: (138.2 * (1 - g.pct)).toFixed(1), pctLabel: Math.round(g.pct * 100) + '%',
+        sub: g.done ? 'Done this week' : (g.metric === 'times' ? g.have : g.metric === 'km' ? g.have.toFixed(1) : Math.round(g.have)) + ' of ' + g.target + ' ' + unitLabel[g.metric](g.target),
+        subColor: g.done ? '#1E7A36' : '#6B6890', delay: base + 240 + i * 60 + 'ms', ringDelay: base + 360 + i * 60 + 'ms',
+        removeAria: 'Remove goal: ' + titleOf(g), remove: () => (M ? M.removeWeekGoal(g.id) : null)
+      })),
+      adding: !!s.adding, canAdd: !s.adding && G.week.length < 6,
+      add: () => this.setState({ adding: true }),
+      cancel: () => this.setState({ adding: false }),
+      modeOpts: Object.keys(NAMES).map((k) => ({ label: NAMES[k][0], on: draft.mode === k, bg: draft.mode === k ? NAMES[k][1] + '22' : '#FFFFFF', border: draft.mode === k ? NAMES[k][1] : '#E3E1F3', pick: () => this.setState({ gMode: k }) })),
+      metricOpts: [['times', 'Times'], ['km', mi ? 'Miles' : 'Distance'], ['min', 'Minutes']].map(([k, label]) => ({ label, on: draft.metric === k, bg: draft.metric === k ? '#1F1D47' : '#F3F2FA', fg: draft.metric === k ? '#FFFFFF' : '#1F1D47', pick: () => this.setState({ gMetric: k, gTarget: START[k] }) })),
+      draftTitle: titleOf(draft),
+      tMinus: () => this.setState({ gTarget: Math.max(STEP[draft.metric], draft.target - STEP[draft.metric]) }),
+      tPlus: () => this.setState({ gTarget: draft.target + STEP[draft.metric] }),
+      save: () => { if (M) M.addWeekGoal(draft.mode, draft.metric, draft.target); this.setState({ adding: false, gTarget: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

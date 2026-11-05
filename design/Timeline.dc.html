@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Timeline</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioDayNextA{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes motioDayNextB{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes motioDayPrevA{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes motioDayPrevB{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes motioStep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes motioLineDraw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes motioBarGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 12px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Timeline</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 22px; background: #FFFFFF">
+      <button type="button" onClick="{{ prevDay }}" aria-label="Previous day" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F6F5FC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      <span style="flex: 1; display: flex; flex-direction: column; align-items: center"><span style="font-size: 15px; font-weight: 600">{{ dayLabel }}</span><span style="font-size: 11px; color: #6B6890">{{ daySummary }}</span></span>
+      <button type="button" onClick="{{ nextDay }}" aria-label="Next day" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #F6F5FC; opacity: {{ nextOp }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+    </div>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 20px 40px">
+    <div style="position: relative; animation: {{ dayAnim }}">
+      <sc-if value="{{ hasMix }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-bottom: 14px; padding: 16px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioStep 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ lineDelay }} backwards">
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3"><span style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.2">{{ st.v }}</span><span style="font-size: 11px; opacity: 0.7">{{ st.k }}</span></span></sc-for>
+          </div>
+          <span aria-hidden="true" style="display: flex; gap: 3px; height: 10px; transform-origin: left; animation: motioBarGrow 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ barDelay }} backwards">
+            <sc-for list="{{ mix }}" as="x" hint-placeholder-count="3"><span style="flex: {{ x.flex }}; border-radius: 5px; background: {{ x.color }}"></span></sc-for>
+          </span>
+          <span style="display: flex; flex-wrap: wrap; gap: 6px 12px">
+            <sc-for list="{{ mix }}" as="x" hint-placeholder-count="3"><span style="display: flex; align-items: center; gap: 6px; font-size: 11px; opacity: 0.85"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ x.color }}"></span>{{ x.label }}</span></sc-for>
+          </span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 20px; border-radius: 22px; background: #FFFFFF; font-size: 13px; line-height: 1.5; color: #4A4770">No trips recorded on this day.</div>
+      </sc-if>
+      <div style="position: relative">
+      <span aria-hidden="true" style="position: absolute; left: 63px; top: 18px; bottom: 18px; width: 3px; border-radius: 2px; background: #E3E1F3; transform-origin: top; animation: motioLineDraw 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ lineDelay }} backwards"></span>
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+        <div style="position: relative; display: flex; gap: 12px; padding: 6px 0; animation: motioStep 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ it.delay }} backwards">
+          <span style="width: 40px; flex-shrink: 0; padding-top: {{ it.timeTop }}; font-size: 11px; font-weight: 600; color: #6B6890; text-align: right">{{ it.time }}</span>
+          <span style="position: relative; z-index: 1; width: 24px; flex-shrink: 0; display: flex; justify-content: center; padding-top: {{ it.dotTop }}">
+            <span style="width: {{ it.dot }}; height: {{ it.dot }}; border-radius: 50%; background: {{ it.color }}; box-shadow: 0 0 0 4px #F6F5FC"></span>
+          </span>
+          <sc-if value="{{ it.isStay }}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 1; min-width: 0; padding: 8px 0"><div style="font-size: 15px; font-weight: 600">{{ it.title }}</div><div style="font-size: 12px; color: #6B6890">{{ it.sub }}</div></div>
+          </sc-if>
+          <sc-if value="{{ it.isTrip }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ it.open }}" aria-label="{{ it.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border: 0; border-radius: 18px; background: #FFFFFF; color: #1F1D47; text-align: left">
+              <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 12px; background: {{ it.color }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ it.glyph }}"></path></svg></span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ it.title }}</span><span style="font-size: 12px; color: #6B6890">{{ it.sub }}</span></span>
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </sc-if>
+        </div>
+      </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const DAY = 86400000;
+    const today = M ? M.dayStart() : new Date().setHours(0, 0, 0, 0);
+    const day = today - (s.back || 0) * DAY;
+    const MODES = { walk: ['Walk', '#3DBF5C'], run: ['Run', '#F2766B'], bike: ['Bike ride', '#6E8CF7'], drive: ['Drive', '#F6C343'], transit: ['Bus & train', '#B57BE0'] };
+    const GLYPH = {
+      walk: 'M13 3.5a1.5 1.5 0 1 0 0.01 0M10 21l2-6 3 3v3M12 15l-1-5 4 2 2 3M11 10l-3 2v3',
+      run: 'M15 3.5a1.5 1.5 0 1 0 0.01 0M6 21l4-5 3 2 1-5 3 3h3M13 13l-2-4-4 2',
+      bike: 'M2 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M15 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M5.5 17l4-8h6l3 8M9.5 9l3 8h2M14 6h3',
+      drive: 'M4 16v-4l2-5h12l2 5v4zM4 16v2M20 16v2M4 12h16M7.5 14h.01M16.5 14h.01',
+      transit: 'M6 3h12v13H6zM6 10h12M6 16v2h12v-2M8 18l-1 3M16 18l1 3M9 13h.01M15 13h.01'
+    };
+    const hm = (t) => new Date(t).toTimeString().slice(0, 5);
+    const dur = (ms) => { const m = Math.round(ms / 60000); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
+    const now = Date.now();
+    const raw = M ? M.timeline(day) : [
+      { kind: 'stay', start: null, end: day + 8.1 * 3600000, name: 'Home', placeKind: 'home' },
+      { kind: 'trip', id: 'a', mode: 'walk', start: day + 8.1 * 3600000, end: day + 8.3 * 3600000, distanceM: 900 },
+      { kind: 'trip', id: 'b', mode: 'transit', start: day + 8.35 * 3600000, end: day + 8.8 * 3600000, distanceM: 6400 },
+      { kind: 'stay', start: day + 8.8 * 3600000, end: day + 17.5 * 3600000, name: 'Work', placeKind: 'work' },
+      { kind: 'trip', id: 'c', mode: 'bike', start: day + 17.5 * 3600000, end: day + 18 * 3600000, distanceM: 7100 },
+      { kind: 'stay', start: day + 18 * 3600000, end: null, name: 'Home', placeKind: 'home' }
+    ];
+    const base = emb && !s.moved ? 420 : 0; // first view waits for the slide-in; later day changes animate at once
+    const items = raw.map((it, i) => {
+      const common = { delay: base + i * 55 + 'ms', isStay: it.kind === 'stay', isTrip: it.kind === 'trip' };
+      if (it.kind === 'stay') {
+        const span = it.start && it.end ? dur(it.end - it.start) : it.start ? 'since ' + hm(it.start) : 'until ' + hm(it.end);
+        return { ...common, time: it.start ? hm(it.start) : '', timeTop: '10px', dotTop: '12px', title: it.name, sub: span, color: it.placeKind === 'home' ? '#F2766B' : it.placeKind === 'work' ? '#5B4FE0' : '#1F1D47', dot: '14px' };
+      }
+      const m = MODES[it.mode];
+      const sub = dur(Math.min(it.end, now) - it.start) + ' · ' + (M ? M.fmtDist(it.distanceM) : (it.distanceM / 1000).toFixed(1) + ' km') + (it.live ? ' · now' : '');
+      return { ...common, time: hm(it.start), timeTop: '22px', dotTop: '25px', glyph: GLYPH[it.mode], title: m[0], sub, color: m[1], dot: '10px', aria: m[0] + ' at ' + hm(it.start) + ', open details',
+        open: () => { window.__motioTrip = it.id; if (this.props.onNav) this.props.onNav('trip'); } };
+    });
+    const sum = M ? M.summarize(day, day + DAY) : null;
+    const go = (d) => {
+      const next = Math.max(0, (s.back || 0) + d);
+      if (next === (s.back || 0)) return;
+      this.setState({ back: next, moved: true, dir: d > 0 ? 'Prev' : 'Next', flip: !s.flip });
+    };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Main.dc.html') },
+      dayLabel: s.back ? (s.back === 1 ? 'Yesterday' : new Date(day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })) : 'Today',
+      daySummary: s.back > 1 ? new Date(day).getFullYear() : new Date(day).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+      prevDay: () => go(1), nextDay: () => go(-1), nextOp: s.back ? 1 : 0.35,
+      dayAnim: s.moved ? 'motioDay' + (s.dir || 'Next') + (s.flip ? 'A' : 'B') + ' 380ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+      lineDelay: base + 'ms', barDelay: base + 160 + 'ms',
+      hasMix: !!(sum ? sum.trips.length : true),
+      stats: sum ? [{ v: String(sum.trips.length), k: sum.trips.length === 1 ? 'trip' : 'trips' }, { v: M.fmtMin(sum.min), k: 'moving' }, { v: M.fmtDist(sum.m), k: 'distance' }] : [{ v: '3', k: 'trips' }, { v: '1h 35m', k: 'moving' }, { v: '14.4 km', k: 'distance' }],
+      mix: sum ? sum.modes.map((x) => ({ flex: x.ms, color: MODES[x.key][1], label: MODES[x.key][0] + ' ' + x.pct + '%' })) : [{ flex: 3, color: '#3DBF5C', label: 'Walk 20%' }, { flex: 5, color: '#B57BE0', label: 'Bus & train 35%' }, { flex: 6, color: '#6E8CF7', label: 'Bike ride 45%' }],
+      empty: !items.length, items
+    };
+  }
+}
+</script>
+</body>
+</html>
