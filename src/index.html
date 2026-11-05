@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#4B3FD8">
+<title>Motio</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="leaflet.css">
+<style>
+html,body{margin:0;height:100%;background:#4B3FD8;overflow:hidden;overscroll-behavior:none}
+*{-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation}
+body{-webkit-user-select:none;user-select:none;font-family:'Poppins',system-ui,sans-serif}
+input,textarea{-webkit-user-select:text;user-select:text}
+#frame{position:fixed;inset:0;box-sizing:border-box;
+  padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));
+  padding-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px))}
+#viewport{position:relative;width:100%;height:100%;overflow:hidden}
+#bar-top,#bar-bot{position:fixed;left:0;right:0;background:#4B3FD8;transition:background-color 220ms ease;pointer-events:none}
+#bar-top{top:0;height:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
+#bar-bot{bottom:0;height:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px))}
+#app{position:absolute;left:0;top:0;width:390px;transform-origin:0 0}
+/* touch-action resets at every scroll container, so vertical scrollers must say pan-y themselves or Android
+   swallows sideways swipes meant for the tab pager. Sideways carousels keep their own horizontal scrolling. */
+#app [style*="overflow-y: auto"],#app .motio-scroll{touch-action:pan-y}
+#app [style*="overflow-x: auto"]{touch-action:pan-x pan-y}
+#app.has-sheet nav[aria-label=Main]{opacity:0 !important;transform:translateY(24px) !important;pointer-events:none !important}
+/* Press feedback for every button and link: a quick, small press-down so each tap clearly registers. */
+#app button:active:not(:disabled),#app a:active,#app [role=button]:active{scale:.965;filter:brightness(.94)}
+#app nav[aria-label=Main] button:active{scale:.92}
+/* Pages that slide in arrive fully drawn: small entrance effects inside them would make the phone repaint the
+   whole sliding page every frame, which is what made opening Personality, Settings and others stutter. */
+[data-kind=push] [style*="animation: motioRise"],[data-kind=push] [style*="animation: motioRowIn"],[data-kind=push] [style*="animation: motioGrow"],[data-kind=push] [style*="animation: motioFillX"],[data-kind=push] [style*="animation: motioCardIn"],[data-kind=push] [style*="animation: motioCardUp"],[data-kind=push] [style*="animation: motioListIn"],[data-kind=push] [style*="animation: motioPopIn"],[data-kind=push] [style*="animation: motioCoverIn"],[data-kind=push] [style*="animation: motioSoftIn"]{animation:none !important}
+.motio-hold{animation-play-state:paused !important}
+.dc-root{width:100% !important;height:100% !important;box-sizing:border-box !important}
+/* Opening: the wave draws itself, the name slides in, then the whole thing lifts away to the app. */
+#intro{position:fixed;inset:0;z-index:50;background:#4B3FD8;display:flex;align-items:center;justify-content:center;transition:opacity 320ms ease,transform 420ms cubic-bezier(0.22,1,0.36,1)}
+#intro.out{opacity:0;transform:scale(1.04);pointer-events:none}
+#intro .mark path{stroke-dasharray:44;stroke-dashoffset:44;animation:introDraw 700ms cubic-bezier(0.65,0,0.35,1) 120ms forwards}
+#intro .word{opacity:0;transform:translateX(-10px);animation:introWord 420ms cubic-bezier(0.22,1,0.36,1) 560ms forwards}
+@keyframes introDraw{to{stroke-dashoffset:0}}
+@keyframes introWord{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#intro .mark path,#intro .word{animation-duration:1ms;animation-delay:0ms}}
+</style>
+</head>
+<body>
+<div id="bar-top"></div><div id="bar-bot"></div>
+<div id="intro" aria-hidden="true"><div style="display:flex;align-items:center;gap:12px">
+  <svg class="mark" width="46" height="46" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4" stroke-linecap="round"/></svg>
+  <span class="word" style="color:#FFFFFF;font:600 34px/1 'Poppins',system-ui,sans-serif;letter-spacing:-0.5px">motio</span>
+</div></div>
+<div id="frame"><div id="viewport"><div id="app"></div></div></div>
+<script src="dc-sources.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

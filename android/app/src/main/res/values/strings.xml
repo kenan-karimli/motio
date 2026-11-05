@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Motio</string>
+    <string name="title_activity_main">Motio</string>
+    <string name="package_name">com.motio.app</string>
+    <string name="custom_url_scheme">com.motio.app</string>
+    <string name="capacitor_background_geolocation_notification_channel_name">Motio tracking</string>
+    <string name="capacitor_background_geolocation_notification_icon">ic_launcher_monochrome</string>
+    <string name="capacitor_background_geolocation_notification_color">#4B3FD8</string>
+    <string name="widget_description">Today’s time on the move, distance and steps</string>
+</resources>

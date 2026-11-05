@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Log in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#4B3FD8}
+a{color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease}
+button:active,a:active{transform:scale(0.96)}
+input{transition:border-color 200ms ease,box-shadow 200ms ease}
+input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rgba(91,79,224,0.15)}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSheetIn{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes motioShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+@keyframes motioSpin{to{transform:rotate(360deg)}}
+@keyframes motioPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+@keyframes motioRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioWave{0%,100%{transform:rotate(0)}25%{transform:rotate(16deg)}75%{transform:rotate(-10deg)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes motioAuto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #4B3FD8; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; height: 250px; flex-shrink: 0; padding: 16px 24px 0; box-sizing: border-box; color: #FFFFFF">
+    <svg aria-hidden="true" width="390" height="250" viewBox="0 0 390 250" style="position: absolute; left: 0; top: 0">
+      <circle cx="360" cy="40" r="130" fill="#5649E4"></circle>
+      <g fill="none" stroke-width="6" stroke-linecap="round" opacity="0.95">
+        <path d="M232 150 C 270 120, 290 150, 320 110 S 360 70, 384 60" stroke="#3DBF5C"></path>
+        <path d="M240 90 C 280 92, 300 60, 336 70 S 370 110, 392 100" stroke="#6E8CF7"></path>
+      </g>
+      <circle cx="384" cy="60" r="6" fill="#FFFFFF" stroke="#3DBF5C" stroke-width="3.5"></circle>
+    </svg>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="position: relative; margin: 26px 0 0; font-size: 34px; font-weight: 600; line-height: 1.12">Welcome<br>back!</h1>
+    <p style="position: relative; margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,0.9)">Your moves missed you.</p>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 26px 24px 28px; display: flex; flex-direction: column; gap: 16px; animation: motioSheetIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 80ms backwards">
+
+    <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 16px; animation: {{ formAnim }}">
+        <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="display: flex; gap: 12px; padding: 14px; border-radius: 18px; background: {{ err.bg }}; animation: motioRise 280ms ease-out">
+            <span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: {{ err.iconBg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ err.glyph }}"></path></svg></span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: {{ err.fg }}">{{ err.title }}</span><span style="font-size: 12px; line-height: 1.45; color: #4A4770">{{ err.body }}</span>
+              <sc-if value="{{ err.hasAction }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ err.act }}" style="align-self: flex-start; margin-top: 6px; min-height: 36px; padding: 0 14px; border-radius: 18px; border: 0; background: #FFFFFF; color: {{ err.fg }}; font-size: 12px; font-weight: 700">{{ err.actLabel }}</button></sc-if>
+            </span>
+          </div>
+        </sc-if>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Email
+          <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ emailBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">Enter a valid email address.</span></sc-if>
+        </label>
+        <label style="position: relative; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Password
+          <input type="{{ pwType }}" autocomplete="current-password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ pwKey }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 56px 0 16px; border-radius: 18px; border: 2px solid {{ pwBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          <button type="button" onClick="{{ togglePw }}" aria-label="{{ pwToggleLabel }}" style="position: absolute; right: 6px; top: 30px; width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 4l16 16" style="opacity: {{ slashOp }}; transition: opacity 200ms ease"></path></svg></button>
+          <sc-if value="{{ pwErr }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">Password needs at least 8 characters.</span></sc-if>
+        </label>
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <button type="button" role="checkbox" aria-checked="{{ remember }}" onClick="{{ toggleRemember }}" style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 13px; font-weight: 500"><span style="width: 22px; height: 22px; border-radius: 7px; background: {{ rememberBg }}; border: 2px solid {{ rememberBorder }}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><sc-if value="{{ remember }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 260ms ease-out"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span>Remember me</button>
+          <button type="button" onClick="{{ forgot }}" style="min-height: 44px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Forgot password?</button>
+        </div>
+        <button type="button" onClick="{{ submit }}" style="min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none">
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span style="width: 18px; height: 18px; border-radius: 9px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #FFFFFF; animation: motioSpin 700ms linear infinite"></span></sc-if>
+          {{ submitLabel }}
+        </button>
+        <span style="text-align: center; font-size: 13px; color: #4A4770">New to Motio? <a href="{{ LK.register.href }}" onClick="{{ LK.register.go }}" style="color: #4B3FD8; font-weight: 600; text-decoration: none; display: inline-block; padding: 12px 4px">Create an account</a></span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ resetting }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 14px; animation: motioRise 320ms ease-out">
+        <span style="font-size: 20px; font-weight: 700">Set a new password</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">We emailed a 6-digit code to {{ email }}. Enter it with your new password.</span>
+        <sc-if value="{{ hasDevCode }}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="padding: 10px 14px; border-radius: 16px; background: #FFF4D6; color: #6B4E00; font-size: 12px; line-height: 1.5">Email isn’t set up on this server yet, so here’s your code: <b style="font-size: 15px; letter-spacing: 2px">{{ devCode }}</b></div>
+        </sc-if>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Code
+          <input inputmode="numeric" autocomplete="one-time-code" value="{{ rCode }}" onChange="{{ onRCode }}" placeholder="123456" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 20px; font-weight: 600; letter-spacing: 6px">
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">New password
+          <input type="password" autocomplete="new-password" value="{{ rPw }}" onChange="{{ onRPw }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+        </label>
+        <sc-if value="{{ hasRErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 500; color: #C2412F">{{ rErr }}</span></sc-if>
+        <button type="button" onClick="{{ submitReset }}" style="min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; box-shadow: none">{{ rLabel }}</button>
+        <button type="button" onClick="{{ cancelReset }}" style="min-height: 44px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Back to log in</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; animation: motioRise 360ms ease-out">
+        <span style="width: 88px; height: 88px; border-radius: 44px; background: #FDECEA; display: flex; align-items: center; justify-content: center; animation: motioShake 520ms ease 200ms"><svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C2412F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path><circle cx="12" cy="16" r="1.4" fill="#C2412F"></circle></svg></span>
+        <span style="font-size: 22px; font-weight: 700">Too many tries</span>
+        <span style="font-size: 14px; line-height: 1.5; color: #4A4770; max-width: 280px">We’ve paused logins for this account to keep it safe. Try again in</span>
+        <span style="font-size: 40px; font-weight: 700; letter-spacing: 1px; font-variant-numeric: tabular-nums">{{ lockClock }}</span>
+        <button type="button" onClick="{{ resetPw }}" style="margin-top: 8px; min-width: 240px; min-height: 54px; border-radius: 27px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600">Reset my password</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
+        <span style="width: 84px; height: 84px; border-radius: 42px; background: #3DBF5C; box-shadow: none; display: flex; align-items: center; justify-content: center; animation: motioPop 520ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+        <span style="font-size: 22px; font-weight: 700; animation: motioRise 360ms ease-out 120ms backwards">You’re in, {{ doneName }}!</span>
+        <span style="font-size: 14px; color: #4A4770; animation: motioRise 360ms ease-out 200ms backwards">Tracking is back on. Let’s see your day.</span>
+        <div style="margin-top: 14px; width: 200px; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: motioRise 360ms ease-out 280ms backwards">
+          <span style="font-size: 12px; font-weight: 600; color: #6B6890">Opening Today…</span>
+          <span style="display: block; width: 100%; height: 6px; border-radius: 3px; background: #EEF0F6; overflow: hidden"><span style="display: block; height: 6px; border-radius: 3px; background: #5B4FE0; transform-origin: left; animation: motioAuto 1600ms cubic-bezier(0.4, 0, 0.2, 1) forwards"></span></span>
+        </div>
+        <a href="{{ LK.home.href }}" ref="{{ homeRef }}" tabindex="-1" aria-hidden="true" style="position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none"></a>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2600ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  goHome() {
+    if (this.props.embedded) { if (this.props.onNav) this.props.onNav('home'); return; }
+    if (this.homeEl) { this.dirSet('forward'); this.homeEl.click(); }
+  }
+  startLock(seconds = 900) {
+    // Logins pause after five wrong passwords; the server says for how long.
+    clearInterval(this.lockTimer);
+    this.setState({ lockedUntil: Date.now() + seconds * 1000, lockLeft: seconds });
+    this.lockTimer = setInterval(() => {
+      const left = Math.round(((this.state && this.state.lockedUntil) - Date.now()) / 1000);
+      if (left <= 0) { clearInterval(this.lockTimer); this.setState({ lockedUntil: null, lockLeft: 0 }); }
+      else this.setState({ lockLeft: left });
+    }, 1000);
+  }
+  resetPassword() {
+    const email = ((this.state && this.state.email) ?? '').trim();
+    if (!email) { this.showToast('Type your email first'); return; }
+    const M = window.Motio;
+    const go = (d) => { this.setState({ devCode: (d && d.devCode) || null, resetting: true, lockedUntil: null, authErr: null, rCode: '', rPw: '', rErr: null }); this.showToast('Reset code sent to ' + email); };
+    if (!M) { go(); return; }
+    M.auth.forgot(email).then(go).catch((e) => this.showToast(e.code === 'offline' ? 'You’re offline' : 'Couldn’t send the code. Try again'));
+  }
+  submitReset() {
+    const st = this.state || {}, M = window.Motio;
+    const code = (st.rCode || '').trim(), pw = st.rPw || '';
+    if (code.length !== 6) { this.setState({ rErr: 'Enter the 6-digit code from the email.' }); return; }
+    if (pw.length < 8) { this.setState({ rErr: 'New password needs at least 8 characters.' }); return; }
+    this.setState({ rBusy: true, rErr: null });
+    const ok = () => { this.setState({ rBusy: false, resetting: false, done: true }); setTimeout(() => this.goHome(), 1700); };
+    if (!M) { setTimeout(ok, 800); return; }
+    M.auth.reset((st.email || '').trim(), code, pw).then(ok).catch((e) => this.setState({ rBusy: false, rErr: (e.body && e.body.message) || 'That didn’t work. Try again.' }));
+  }
+  componentWillUnmount() {
+    clearInterval(this.lockTimer);
+  }
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  showToast(msg) {
+    clearTimeout(this.toastTimer);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2630);
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const email = s.email ?? '';
+    const pw = s.pw ?? '';
+    const tried = !!s.tried;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    const pwOk = pw.length >= 8;
+    const remember = s.remember ?? true;
+    const emailErr = tried && !emailOk;
+    const pwErr = tried && !pwOk;
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, LK: { back: lk('back', 'Welcome.dc.html'), register: lk('register', 'Register.dc.html'), home: lk('home', 'Main.dc.html') },
+      email, pw,
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      pwKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.renderVals().submit(); } },
+      emailErr, pwErr,
+      emailBorder: emailErr ? '#C2412F' : '#E3E1F3',
+      pwBorder: pwErr ? '#C2412F' : '#E3E1F3',
+      slashOp: s.showPw ? 1 : 0, pwType: s.showPw ? 'text' : 'password',
+      pwToggleLabel: s.showPw ? 'Hide password' : 'Show password',
+      togglePw: () => this.setState({ showPw: !s.showPw }),
+      remember, rememberBg: remember ? '#5B4FE0' : '#FFFFFF', rememberBorder: remember ? '#5B4FE0' : '#C9C5EC',
+      toggleRemember: () => this.setState({ remember: !remember }),
+      forgot: () => (emailOk ? this.resetPassword() : this.showToast('Type your email first')),
+      doneName: ((window.Motio && window.Motio.auth.user() && window.Motio.auth.user().name) || 'Alex').split(' ')[0],
+      busy: !!s.busy,
+      submitLabel: s.busy ? 'Logging in…' : 'Log in',
+      // Shake the form on bad input; on good input show a short spinner, then the welcome state.
+      formAnim: s.shake ? 'motioShake 420ms ease' : 'none',
+      submit: () => {
+        if (s.busy) return;
+        if (!emailOk || !pwOk) {
+          this.setState({ tried: true, shake: false, authErr: null });
+          setTimeout(() => this.setState({ shake: true }), 10);
+          setTimeout(() => this.setState({ shake: false }), 440);
+          return;
+        }
+        this.setState({ tried: true, busy: true, authErr: null });
+        const M = window.Motio;
+        const done = () => { this.setState({ busy: false, done: true, fails: 0 }); setTimeout(() => this.goHome(), 1700); };
+        const shake = () => { setTimeout(() => this.setState({ shake: true }), 10); setTimeout(() => this.setState({ shake: false }), 440); };
+        if (!M) { setTimeout(done, 900); return; }
+        M.auth.login(email.trim(), pw).then(done).catch((e) => {
+          const map = { no_account: 'notfound', wrong_password: 'wrongpw', offline: 'offline', server: 'server', server_error: 'server', not_verified: 'unverified', slow_down: 'slow' };
+          if (e.code === 'locked') { this.setState({ busy: false, authErr: null }); this.startLock((e.body && e.body.retryAfter) || 900); return; }
+          this.setState({ busy: false, authErr: map[e.code] || 'server', fails: e.body && e.body.left != null ? 5 - e.body.left : s.fails, shake: false });
+          shake();
+        });
+      },
+      hasErr: !!s.authErr,
+      err: (() => {
+        const left = 5 - (s.fails || 0);
+        const E = {
+          wrongpw: ['That password isn’t right', left + (left === 1 ? ' try' : ' tries') + ' left before we pause logins for 15 minutes.', 'Reset password', () => this.resetPassword(), 'M12 8v5M12 16.5v.01M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'],
+          notfound: ['No account with that email', 'Check for typos, or create a new Motio account with it.', 'Create account', null, 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1.5-4 4.5-6 8-6s6.5 2 8 6M17 4l4 4M21 4l-4 4'],
+          offline: ['You’re offline', 'Connect to Wi-Fi or mobile data and try again. Your moves are still being recorded.', 'Try again', () => this.setState({ scenario: 'normal', authErr: null }), 'M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.01M3 3l18 18'],
+          unverified: ['Confirm your email first', 'We sent a new code to your inbox. Finish sign-up with it to log in.', 'Enter the code', null, 'M3 6h18v12H3zM3 7l9 6 9-6'],
+          slow: ['Slow down a little', 'Too many tries in a minute. Wait a moment and try again.', 'OK', () => this.setState({ authErr: null }), 'M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z'],
+          server: ['We couldn’t reach Motio', 'Our servers are having a moment. Nothing’s wrong on your side.', 'Try again', () => this.setState({ scenario: 'normal', authErr: null }), 'M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 8zM12 11v3M12 16.5v.01']
+        }[s.authErr];
+        if (!E) return { title: '', body: '', hasAction: false, bg: '#FDECEA', fg: '#C2412F', iconBg: '#C2412F', glyph: '' };
+        const soft = ['offline', 'server', 'slow', 'unverified'].includes(s.authErr);
+        return {
+          title: E[0], body: E[1], actLabel: E[2], hasAction: true,
+          act: E[3] || ((e) => this.renderVals().LK.register.go(e)),
+          glyph: E[4], bg: soft ? '#FFF4D6' : '#FDECEA', fg: soft ? '#8A5A00' : '#C2412F', iconBg: soft ? '#E0A92C' : '#C2412F'
+        };
+      })(),
+      locked: !!s.lockedUntil,
+      lockClock: (() => { const t = Math.max(0, s.lockLeft || 0); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); })(),
+      resetPw: () => this.resetPassword(),
+      unlockDemo: () => { clearInterval(this.lockTimer); this.setState({ lockedUntil: null, lockLeft: 0, authErr: null, pw: '' }); },
+      homeRef: (el) => { this.homeEl = el; },
+      resetting: !!s.resetting && !s.done, hasDevCode: !!s.devCode, devCode: s.devCode || '',
+      rCode: s.rCode || '', rPw: s.rPw || '', rErr: s.rErr || '', hasRErr: !!s.rErr, rBusy: !!s.rBusy, rLabel: s.rBusy ? 'Saving…' : 'Set new password',
+      onRCode: (e) => this.setState({ rCode: String(e.target.value).replace(/\D/g, '').slice(0, 6) }),
+      onRPw: (e) => this.setState({ rPw: e.target.value }),
+      submitReset: () => this.submitReset(),
+      cancelReset: () => this.setState({ resetting: false }),
+      showForm: !s.done && !s.lockedUntil && !s.resetting, done: !!s.done,
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

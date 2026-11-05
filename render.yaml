@@ -1,0 +1,31 @@
+# Render blueprint for the Motio API (free plan). Data lives in Neon Postgres (DATABASE_URL);
+# email goes through Brevo's HTTPS API because free services can't use mail ports.
+services:
+  - type: web
+    name: motio-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: NODE_NO_WARNINGS
+        value: "1"
+      - key: MAIL_FROM
+        value: "Motio <noreply.motio@gmail.com>"
+      - key: FEEDBACK_TO
+        value: noreply.motio@gmail.com
+      - key: DATABASE_URL
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: STRAVA_CLIENT_ID
+        sync: false
+      - key: STRAVA_CLIENT_SECRET
+        sync: false

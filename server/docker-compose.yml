@@ -1,0 +1,14 @@
+# Runs the API behind Caddy, which gets and renews the HTTPS certificate for your domain by itself.
+# On the server: put your domain in Caddyfile, fill .env, then `docker compose up -d`.
+services:
+  api:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy-data:/data"]
+    restart: unless-stopped
+volumes:
+  caddy-data:

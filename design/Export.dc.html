@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Export my data</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6C343}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease,color 200ms ease,outline-color 200ms ease}
+button:active,a:active{transform:scale(0.95)}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioPop{0%{transform:scale(0.6);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes motioRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6C343; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
+    <svg aria-hidden="true" width="390" height="150" viewBox="0 0 390 150" style="position: absolute; left: 0; top: 0">
+      <circle cx="340" cy="40" r="110" fill="#F8D06A"></circle>
+      <g transform="translate(286 28)">
+        <path d="M8 0 H44 L64 20 V76 Q64 80 60 80 H8 Q4 80 4 76 V4 Q4 0 8 0 Z" fill="#FFFFFF"></path>
+        <path d="M44 0 V20 H64 Z" fill="#E3E1F3"></path>
+        <rect x="14" y="34" width="38" height="5" rx="2.5" fill="#C9C5EC"></rect><rect x="14" y="46" width="30" height="5" rx="2.5" fill="#C9C5EC"></rect>
+        <circle cx="52" cy="66" r="16" fill="#1F1D47"></circle>
+        <path d="M52 58 V73 M46 67 L52 73 L58 67" fill="none" stroke="#F6C343" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+      </g>
+    </svg>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700">Export my data</h1>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 20px">
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Format</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+        <sc-for list="{{ formats }}" as="f" hint-placeholder-count="3">
+          <button aria-pressed="{{ f.on }}" onClick="{{ f.pick }}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; border-radius: 18px; border: 0; background: {{ f.bg }}; color: {{ f.fg }}; outline: 3px solid {{ f.ring }}; outline-offset: 2px; text-align: left">
+            <span style="font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700">{{ f.label }}</span>
+            <span style="font-size: 11px; line-height: 1.3; opacity: 0.85">{{ f.hint }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Time range</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
+          <button aria-pressed="{{ r.on }}" onClick="{{ r.pick }}" style="height: 38px; padding: 0 16px; border-radius: 19px; border: 2px solid {{ r.border }}; background: {{ r.bg }}; color: {{ r.fg }}; font-size: 13px; font-weight: 600">{{ r.label }}</button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; padding-top: 16px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Include</h2>
+      <sc-for list="{{ parts }}" as="t" hint-placeholder-count="3">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 48px">
+          <span style="flex: 1; font-size: 14px; font-weight: 600">{{ t.label }}</span>
+          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 240ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
+        </div>
+      </sc-for>
+    </section>
+
+    <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ start }}" style="min-height: 54px; flex-shrink: 0; border-radius: 27px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600; box-shadow: none">Prepare export</button>
+    </sc-if>
+
+    <sc-if value="{{ working }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 22px; background: #F6F5FC; animation: motioRise 320ms ease-out">
+        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600"><span>{{ stepLabel }}</span><span>{{ pctLabel }}</span></div>
+        <div style="height: 10px; border-radius: 5px; background: #E3E1F3; overflow: hidden"><div style="width: {{ pct }}; height: 10px; border-radius: 5px; background: #5B4FE0; transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1)"></div></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 22px; background: #DDF5E3; animation: motioRise 360ms ease-out">
+        <span style="width: 44px; height: 44px; border-radius: 22px; flex-shrink: 0; background: #3DBF5C; display: flex; align-items: center; justify-content: center; animation: motioPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+        <span style="flex: 1; display: flex; flex-direction: column; min-width: 0"><span style="font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ fileName }}</span><span style="font-size: 12px; color: #1E7A36">Ready · {{ fileSize }}</span></span>
+        <button onClick="{{ download }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">Download</button>
+      </div>
+      <button onClick="{{ reset }}" style="min-height: 44px; border-radius: 22px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Start a new export</button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  showToast(msg) {
+    clearTimeout(this.toastTimer);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  componentWillUnmount() {
+    clearInterval(this.progressTimer);
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const fmt = s.fmt || 'csv';
+    const range = s.range || 'month';
+    const phase = s.phase || 'idle';
+    const p = s.p || 0;
+    const sw = (key, label, def) => {
+      const on = s[key] ?? def;
+      return { label, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => this.setState({ [key]: !on }) };
+    };
+    const steps = ['Collecting trips', 'Adding steps & speeds', 'Packing your file'];
+    const M = window.Motio;
+    const monthName = new Date().toLocaleString('en', { month: 'long' });
+    const sizes = { week: '0.6 MB', month: '2.4 MB', all: '14.8 MB' };
+    const rangeNames = { week: 'last-week', month: monthName.toLowerCase(), all: 'all-time' };
+    const kb = (n) => (n > 900000 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+    const mimes = { csv: 'text/csv', gpx: 'application/gpx+xml', json: 'application/json' };
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, LK: { back: lk('back', 'Settings.dc.html') },
+      formats: [['csv', 'CSV', 'Spreadsheets'], ['gpx', 'GPX', 'Routes for maps'], ['json', 'JSON', 'For developers']].map(([k, label, hint]) => ({
+        label, hint, on: fmt === k,
+        bg: fmt === k ? '#1F1D47' : '#F6F5FC', fg: fmt === k ? '#FFFFFF' : '#1F1D47', ring: fmt === k ? '#F6C343' : 'transparent',
+        pick: () => this.setState({ fmt: k, phase: phase === 'ready' ? 'idle' : phase })
+      })),
+      ranges: [['week', 'Last 7 days'], ['month', monthName], ['all', 'Everything']].map(([k, label]) => ({
+        label, on: range === k,
+        bg: range === k ? '#1F1D47' : '#FFFFFF', fg: range === k ? '#FFFFFF' : '#1F1D47', border: range === k ? '#1F1D47' : '#E3E1F3',
+        pick: () => this.setState({ range: k, phase: phase === 'ready' ? 'idle' : phase })
+      })),
+      parts: [sw('routes', 'Routes (GPS points)', true), sw('steps', 'Steps & speeds', true), sw('types', 'Activity types', true)],
+      idle: phase === 'idle', working: phase === 'working', ready: phase === 'ready',
+      pct: p + '%', pctLabel: p + '%', stepLabel: steps[Math.min(2, Math.floor(p / 34))],
+      start: () => {
+        this.setState({ phase: 'working', p: 0 });
+        clearInterval(this.progressTimer);
+        let v = 0, file = null, failed = null;
+        // The bar creeps toward 90% while the server builds the file, then finishes once it arrives.
+        this.progressTimer = setInterval(() => {
+          v = file || failed ? Math.min(100, v + 18) : Math.min(90, v + 6 + Math.round(Math.random() * 6));
+          this.setState({ p: v });
+          if (failed) { clearInterval(this.progressTimer); this.setState({ phase: 'idle', p: 0 }); this.showToast(failed); return; }
+          if (v >= 100) { clearInterval(this.progressTimer); this.file = file; setTimeout(() => this.setState({ phase: 'ready', size: kb(file.length) }), 350); }
+        }, 220);
+        if (!M) { file = 'x'.repeat(600000); return; }
+        const now = Date.now();
+        const from = range === 'week' ? now - 7 * M.DAY : range === 'month' ? M.monthStart(now) : 0;
+        const part = (k) => s[k] ?? true;
+        M.exportData(fmt, from, now, { routes: part('routes'), steps: part('steps'), types: part('types') })
+          .then((t) => { file = t; })
+          .catch((e) => { failed = e.code === 'offline' ? 'You’re offline. Connect and try again' : e.status === 401 ? 'Log in again to export' : 'Export failed. Try again'; });
+      },
+      fileName: 'motio-' + rangeNames[range] + '.' + fmt,
+      fileSize: s.size || sizes[range],
+      download: () => {
+        if (!M || !this.file) { this.showToast('Download started'); return; }
+        M.saveFile('motio-' + rangeNames[range] + '.' + fmt, this.file, mimes[fmt]).then(() => this.showToast('Export saved')).catch(() => this.showToast('Couldn’t save the file'));
+      },
+      reset: () => this.setState({ phase: 'idle', p: 0 }),
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

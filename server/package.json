@@ -1,0 +1,21 @@
+{
+  "name": "motio-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Motio API: accounts, email codes, sessions, trip sync and export",
+  "scripts": {
+    "start": "node --no-warnings src/server.js",
+    "dev": "MOTIO_DEV=1 node --no-warnings --watch src/server.js",
+    "test": "node --no-warnings --test test/*.test.js",
+    "mail-test": "node src/mail-test.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.15",
+    "nodemailer": "^10.3.1",
+    "pg": "^8.23.1"
+  }
+}

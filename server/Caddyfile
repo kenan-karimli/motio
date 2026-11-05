@@ -1,0 +1,4 @@
+# Replace with your API domain (its DNS A record must point at this server).
+api.example.com {
+	reverse_proxy api:8787
+}

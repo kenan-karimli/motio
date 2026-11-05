@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · How you moved</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6C343}
+a{color:inherit}a:hover{opacity:.85}
+button{font:inherit;cursor:pointer}
+@keyframes motioPillFrom0{from{transform:translateX(calc(0 * (100% + 4px)))}}
+@keyframes motioPillFrom1{from{transform:translateX(calc(1 * (100% + 4px)))}}
+@keyframes motioPillFrom2{from{transform:translateX(calc(2 * (100% + 4px)))}}
+@keyframes motioPillFrom3{from{transform:translateX(calc(3 * (100% + 4px)))}}
+@keyframes motioTabPop{0%{transform:scale(0.7)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+.motio-tab-icon{transition:transform 140ms ease}
+nav a:active .motio-tab-icon,nav button:active .motio-tab-icon{transform:scale(0.82)}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.96)}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes motioDrip{0%{transform:translate(0,0);opacity:0}20%{opacity:1}100%{transform:translate(7px,20px);opacity:0}}
+@keyframes motioSteam{0%{transform:translateY(4px);opacity:0}30%{opacity:0.9}100%{transform:translateY(-10px);opacity:0}}
+@keyframes motioWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-1.4deg)}75%{transform:rotate(1.4deg)}}
+@keyframes motioBubble{from{opacity:0;transform:scale(0.6) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes motioListIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.motio-scroll>*{flex-shrink:0}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6C343; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; height: 236px; flex-shrink: 0; box-sizing: border-box; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 14px">
+    <svg aria-hidden="true" width="390" height="236" viewBox="0 0 390 236" style="position: absolute; left: 0; top: 0; pointer-events: none">
+      <circle cx="320" cy="170" r="110" fill="#F8D06A"></circle>
+      <circle cx="40" cy="200" r="5" fill="#F2766B"></circle>
+    </svg>
+    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
+      <span style="padding: 6px 12px; border-radius: 16px; background: rgba(255,255,255,0.6); font-size: 12px; font-weight: 600">{{ v.date }}</span>
+      <div style="display: flex; gap: 2px; padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.45)">
+        <button aria-pressed="{{ tDay.on }}" onClick="{{ tDay.pick }}" style="height: 36px; padding: 0 13px; border-radius: 18px; border: 0; background: {{ tDay.bg }}; color: #1F1D47; font-weight: {{ tDay.fw }}; font-size: 13px; box-shadow: {{ tDay.sh }}">Day</button>
+        <button aria-pressed="{{ tWeek.on }}" onClick="{{ tWeek.pick }}" style="height: 36px; padding: 0 13px; border-radius: 18px; border: 0; background: {{ tWeek.bg }}; color: #1F1D47; font-weight: {{ tWeek.fw }}; font-size: 13px; box-shadow: {{ tWeek.sh }}">Week</button>
+        <button aria-pressed="{{ tMonth.on }}" onClick="{{ tMonth.pick }}" style="height: 36px; padding: 0 13px; border-radius: 18px; border: 0; background: {{ tMonth.bg }}; color: #1F1D47; font-weight: {{ tMonth.fw }}; font-size: 13px; box-shadow: {{ tMonth.sh }}">Month</button>
+      </div>
+    </div>
+    <div style="position: relative; display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 34px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px">How you<br>moved</h1>
+      <span style="font-size: 14px; font-weight: 500">{{ v.label }}</span>
+    </div>
+    <svg role="img" aria-label="{{ T.aria }}" width="190" height="160" viewBox="0 0 190 160" style="position: absolute; right: 4px; bottom: 6px; overflow: visible">
+      <path d="M2 64 H28 M10 80 H34 M2 96 H22" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" style="opacity: {{ T.speed }}; transition: opacity 400ms ease"></path>
+      <ellipse cx="96" cy="152" rx="80" ry="6" fill="#E0A92C"></ellipse>
+      <g style="transform-origin: 100px 150px; animation: {{ T.wobble }}">
+        <g fill="none" stroke="#1F1D47" stroke-width="6"><circle cx="50" cy="122" r="26"></circle><circle cx="150" cy="122" r="26"></circle></g>
+        <circle cx="50" cy="122" r="4" fill="#1F1D47"></circle><circle cx="150" cy="122" r="4" fill="#1F1D47"></circle>
+        <path d="M50 122 L85 88 L130 88 L150 122 M85 88 L102 122 L130 88 M102 122 L50 122" fill="none" stroke="#5B4FE0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M85 88 L80 74 M70 72 H92 M130 88 L126 66 L140 62" fill="none" stroke="#1F1D47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M88 68 L114 92 L104 122" fill="none" stroke="#F2766B" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"></path>
+        <ellipse cx="106" cy="126" rx="10" ry="5" fill="#FFFFFF"></ellipse>
+        <g style="transform-origin: 86px 64px; transform: rotate({{ T.lean }}); transition: transform 560ms cubic-bezier(0.34, 1.56, 0.64, 1)">
+          <path d="M86 64 L114 38" stroke="#6E8CF7" stroke-width="22" stroke-linecap="round"></path>
+          <path d="M114 42 L136 64" stroke="#6E8CF7" stroke-width="10" stroke-linecap="round"></path>
+          <circle cx="138" cy="65" r="5" fill="#8B4A2B"></circle>
+          <g style="transform-origin: 120px 34px; transform: rotate({{ T.droop }}); transition: transform 560ms cubic-bezier(0.34, 1.56, 0.64, 1)">
+            <circle cx="125" cy="24" r="13" fill="#8B4A2B"></circle>
+            <path d="M110 22 A15 15 0 0 1 140 20 Z" fill="#3DBF5C"></path>
+            <g style="opacity: {{ T.fresh }}; transition: opacity 260ms ease">
+              <circle cx="132" cy="26" r="1.8" fill="#2A1B3D"></circle>
+              <path d="M128 31 Q132 34.5 136 30" fill="none" stroke="#2A1B3D" stroke-width="1.8" stroke-linecap="round"></path>
+            </g>
+            <g style="opacity: {{ T.tired }}; transition: opacity 260ms ease">
+              <path d="M129 25.5 H135" stroke="#2A1B3D" stroke-width="1.8" stroke-linecap="round"></path>
+              <path d="M129 24 Q132 22.5 135 24" fill="none" stroke="#2A1B3D" stroke-width="1.2" stroke-linecap="round"></path>
+              <path d="M129 32 H135" stroke="#2A1B3D" stroke-width="1.8" stroke-linecap="round"></path>
+            </g>
+            <g style="opacity: {{ T.spent }}; transition: opacity 260ms ease">
+              <path d="M128.5 24.5 Q132 27.5 135.5 24.5" fill="none" stroke="#2A1B3D" stroke-width="1.8" stroke-linecap="round"></path>
+              <ellipse cx="133" cy="32" rx="3" ry="2.6" fill="#2A1B3D"></ellipse>
+              <path d="M132 33.5 q1.2 2.6 2.4 0" fill="#F2766B"></path>
+              <circle cx="128" cy="29" r="2.2" fill="#F2766B" opacity="0.7"></circle>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g style="opacity: {{ T.drop1 }}; transition: opacity 300ms ease"><path d="M144 18 q3 5 0 7 q-3 -2 0 -7z" fill="#6E8CF7" style="animation: none"></path></g>
+      <g style="opacity: {{ T.drops }}; transition: opacity 300ms ease">
+        <path d="M150 28 q3 5 0 7 q-3 -2 0 -7z" fill="#6E8CF7" style="animation: none"></path>
+        <path d="M110 8 q3 5 0 7 q-3 -2 0 -7z" fill="#6E8CF7" style="animation: none"></path>
+        <path d="M118 0 q4 -6 8 0 q4 -6 8 0" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" style="animation: none"></path>
+      </g>
+    </svg>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 0; display: flex; flex-direction: column; gap: 14px">
+    <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; margin: 0 -20px; padding: 0 20px 96px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <h2 style="margin: 0; font-size: 18px; font-weight: 600">Time by movement</h2>
+      <sc-if value="{{ someData }}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; color: #6B6890">bar length = minutes</span></sc-if>
+    </div>
+
+    <sc-if value="{{ allZero }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px; border-radius: 24px; background: #F6F5FC; animation: motioRowIn 360ms ease-out">
+        <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#FFF4D6"></circle><path d="M10 44 C 22 34, 34 50, 54 30" fill="none" stroke="#F6C343" stroke-width="6" stroke-linecap="round"></path><path d="M10 44 C 22 34, 34 50, 54 30" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="3 4" stroke-linecap="round"></path><circle cx="54" cy="30" r="5" fill="#F2766B"></circle><circle cx="10" cy="44" r="4" fill="#5B4FE0"></circle></svg>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1"><span style="font-size: 15px; font-weight: 600">{{ emptyTitle }}</span><span style="font-size: 12.5px; line-height: 1.45; color: #4A4770">Walks, rides and drives land here, split by how you moved. Keep your phone with you.</span></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ someData }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; gap: 22px; order: {{ walk.ord }}; opacity: {{ walk.op }}; transition: opacity 300ms ease">
+        <div style="position: relative; width: {{ walk.w }}; height: 62px; transition: width 560ms cubic-bezier(0.22, 1, 0.36, 1); box-sizing: border-box; border-radius: 31px; background: #3DBF5C; box-shadow: none; padding: 0 20px; display: flex; flex-direction: column; justify-content: center">
+          <span style="font-size: 16px; font-weight: 600">Walking</span>
+          <span style="font-size: 11.5px; font-weight: 500">{{ walk.meta }}</span>
+          <svg aria-hidden="true" width="58" height="50" viewBox="0 0 58 50" style="position: absolute; right: -16px; top: -14px"><ellipse cx="30" cy="46" rx="24" ry="3" fill="rgba(0,0,0,0.15)"></ellipse><path d="M4 36 L7 16 Q10 10 17 14 L26 22 Q40 22 50 28 Q56 32 54 36 Z" fill="#FFFFFF"></path><path d="M3 36 H55 Q56 42 50 42 H8 Q2 42 3 36 Z" fill="#F2766B"></path><path d="M14 28 Q26 30 38 24" fill="none" stroke="#5B4FE0" stroke-width="3" stroke-linecap="round"></path><path d="M18 16 l4 4 M22 13 l4 4" stroke="#C9C5EC" stroke-width="2" stroke-linecap="round"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.1; white-space: nowrap">{{ walk.time }}</span><span style="font-size: 11px; color: #6B6890">{{ walk.pct }}</span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 22px; order: {{ drive.ord }}; opacity: {{ drive.op }}; transition: opacity 300ms ease">
+        <div style="position: relative; width: {{ drive.w }}; height: 62px; transition: width 560ms cubic-bezier(0.22, 1, 0.36, 1); box-sizing: border-box; border-radius: 31px; background: #F6C343; box-shadow: none; padding: 0 20px; display: flex; flex-direction: column; justify-content: center">
+          <span style="font-size: 16px; font-weight: 600">Driving</span>
+          <span style="font-size: 11.5px; font-weight: 500">{{ drive.meta }}</span>
+          <svg aria-hidden="true" width="62" height="46" viewBox="0 0 62 46" style="position: absolute; right: -18px; top: -14px"><ellipse cx="31" cy="42" rx="26" ry="3" fill="rgba(0,0,0,0.15)"></ellipse><path d="M4 32 V22 Q4 17 9 17 L16 17 L23 7 H42 L50 17 H54 Q59 17 59 22 V32 Z" fill="#F2766B"></path><path d="M26 10 H40 L45 17 H21 Z" fill="#BFD0FF"></path><rect x="4" y="28" width="55" height="5" fill="#D9534A"></rect><circle cx="16" cy="33" r="7" fill="#1F1D47"></circle><circle cx="47" cy="33" r="7" fill="#1F1D47"></circle><circle cx="16" cy="33" r="2.5" fill="#FFFFFF"></circle><circle cx="47" cy="33" r="2.5" fill="#FFFFFF"></circle></svg>
+        </div>
+        <div style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.1; white-space: nowrap">{{ drive.time }}</span><span style="font-size: 11px; color: #6B6890">{{ drive.pct }}</span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 22px; order: {{ cycle.ord }}; opacity: {{ cycle.op }}; transition: opacity 300ms ease">
+        <div style="position: relative; width: {{ cycle.w }}; height: 62px; transition: width 560ms cubic-bezier(0.22, 1, 0.36, 1); box-sizing: border-box; border-radius: 31px; background: #6E8CF7; box-shadow: none; padding: 0 20px; display: flex; flex-direction: column; justify-content: center">
+          <span style="font-size: 16px; font-weight: 600">Cycling</span>
+          <span style="font-size: 11.5px; font-weight: 500">{{ cycle.meta }}</span>
+          <svg aria-hidden="true" width="54" height="48" viewBox="0 0 54 48" style="position: absolute; right: -16px; top: -14px"><ellipse cx="27" cy="44" rx="22" ry="3" fill="rgba(0,0,0,0.15)"></ellipse><path d="M4 32 Q4 6 28 6 Q50 6 50 30 Q50 34 46 34 H8 Q4 34 4 32 Z" fill="#F6C343"></path><path d="M4 32 Q4 26 10 26 H48" fill="none" stroke="#E0A92C" stroke-width="3"></path><path d="M16 12 Q20 20 18 26 M28 8 V26 M40 12 Q36 20 38 26" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path><path d="M12 34 Q16 42 26 40" fill="none" stroke="#1F1D47" stroke-width="2.5" stroke-linecap="round"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.1; white-space: nowrap">{{ cycle.time }}</span><span style="font-size: 11px; color: #6B6890">{{ cycle.pct }}</span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 22px; order: {{ transit.ord }}; opacity: {{ transit.op }}; transition: opacity 300ms ease">
+        <div style="position: relative; width: {{ transit.w }}; height: 62px; transition: width 560ms cubic-bezier(0.22, 1, 0.36, 1); box-sizing: border-box; border-radius: 31px; background: #B57BE0; box-shadow: none; padding: 0 20px; display: flex; flex-direction: column; justify-content: center">
+          <span style="font-size: 16px; font-weight: 600">Transit</span>
+          <span style="font-size: 11.5px; font-weight: 500">{{ transit.meta }}</span>
+          <svg aria-hidden="true" width="44" height="54" viewBox="0 0 44 54" style="position: absolute; right: -12px; top: -18px"><ellipse cx="22" cy="51" rx="18" ry="3" fill="rgba(0,0,0,0.15)"></ellipse><path d="M14 4 H30 M22 4 V10" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path><rect x="4" y="10" width="36" height="34" rx="9" fill="#FFFFFF"></rect><rect x="9" y="15" width="26" height="12" rx="3" fill="#5B4FE0"></rect><circle cx="13" cy="35" r="3" fill="#F6C343"></circle><circle cx="31" cy="35" r="3" fill="#F6C343"></circle><path d="M10 50 L14 44 M34 50 L30 44" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.1; white-space: nowrap">{{ transit.time }}</span><span style="font-size: 11px; color: #6B6890">{{ transit.pct }}</span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 22px; order: {{ run.ord }}; opacity: {{ run.op }}; transition: opacity 300ms ease">
+        <div style="position: relative; width: {{ run.w }}; height: 62px; transition: width 560ms cubic-bezier(0.22, 1, 0.36, 1); box-sizing: border-box; border-radius: 31px; background: #F2766B; box-shadow: none; padding: 0 20px; display: flex; flex-direction: column; justify-content: center">
+          <span style="font-size: 16px; font-weight: 600">Running</span>
+          <span style="font-size: 11.5px; font-weight: 500">{{ run.meta }}</span>
+          <svg aria-hidden="true" width="48" height="52" viewBox="0 0 48 52" style="position: absolute; right: -14px; top: -16px"><ellipse cx="24" cy="49" rx="18" ry="3" fill="rgba(0,0,0,0.15)"></ellipse><rect x="19" y="2" width="10" height="7" rx="2" fill="#5B4FE0"></rect><circle cx="24" cy="29" r="19" fill="#E0A92C"></circle><circle cx="24" cy="27" r="19" fill="#F6C343"></circle><circle cx="24" cy="27" r="13" fill="#FFFFFF"></circle><path d="M24 27 V18 M24 27 L30 31" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; line-height: 1.1; white-space: nowrap">{{ run.time }}</span><span style="font-size: 11px; color: #6B6890">{{ run.pct }}</span></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <span style="padding: 6px 12px; border-radius: 16px; background: #EEF0F6; font-size: 12px"><b>{{ v.avg }}</b> {{ v.unit }} avg speed</span>
+      <span style="padding: 6px 12px; border-radius: 16px; background: #EEF0F6; font-size: 12px"><b>{{ v.max }}</b> {{ v.unit }} max</span>
+    </div>
+    </sc-if>
+
+    <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 14px; border-top: 1px solid #EEF0F6">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">{{ v.listTitle }}</h2><span style="font-size: 12px; color: #6B6890">{{ v.listHint }}</span></div>
+      <sc-for list="{{ v.list }}" as="t" hint-placeholder-count="4">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 58px; border-bottom: 1px solid #F3F2FA; animation: motioListIn 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
+          <span style="width: 40px; height: 40px; border-radius: 14px; flex-shrink: 0; background: {{ t.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; font-weight: 700">{{ t.badge }}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.title }}</span><span style="font-size: 12px; color: #6B6890">{{ t.sub }}</span></span>
+          <span style="display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 14px; font-weight: 700">{{ t.dur }}</span><span style="font-size: 11px; color: #6B6890">{{ t.km }}</span></span>
+        </div>
+      </sc-for>
+    </div>
+    </div>
+
+    <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
+    <nav aria-label="Main" style="position: relative; margin-top: auto; flex-shrink: 0; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18)">
+      <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
+      <a href="Breakdown.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="10" width="5" height="11" rx="2"></rect><rect x="9.5" y="3" width="5" height="18" rx="2"></rect><rect x="16" y="12.5" width="5" height="8.5" rx="2"></rect></svg></span>Moves</a>
+      <a href="You.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></span>You</a>
+      <a href="Recaps.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"></path></svg></span>Recap</a>
+    </nav>
+    </sc-if>
+    <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }  componentDidMount() {
+    // Remember this tab so the next screen can slide its pill in from here.
+    const v = String(1);
+    try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioTab = 1; } catch (e) { /* cross-origin */ }
+    window.__motioTab = 1;
+  }
+  // Day / week / month from your real trips, in the same shape as the sample views.
+  liveView(key) {
+    const M = window.Motio;
+    const now = Date.now();
+    const r = M.range(key);
+    const mi = M.settings().unit === 'mi';
+    const spd = (ms) => ms * (mi ? 2.23694 : 3.6);
+    const words = ['no', 'one', 'two', 'three', 'four', 'five'];
+    const fmt = (m) => M.fmtMin(m);
+    const pace = (p) => { if (!p.m) return '—'; const sec = (p.ms / 1000) / (p.m / (mi ? 1609.34 : 1000)); return Math.floor(sec / 60) + ':' + String(Math.round(sec % 60)).padStart(2, '0') + (mi ? '/mi' : '/km'); };
+    const pct = (k) => (r.ms ? Math.round(r.per[k].ms / r.ms * 100) : 0);
+    const row = (k, meta) => [fmt(r.per[k].ms / M.MIN), pct(k), M.fmtDist(r.per[k].m) + ' · ' + meta(r.per[k])];
+    const avgOf = (p) => M.fmtSpeed(p.ms ? p.m / (p.ms / 1000) : 0);
+    const short = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
+    const dateLabel = key === 'day' ? short(now, { weekday: 'short', day: 'numeric', month: 'short' })
+      : key === 'week' ? (() => { const e = Math.min(now, r.to - 1), same = new Date(e).getMonth() === new Date(r.from).getMonth(); return short(r.from, same ? { day: 'numeric' } : { day: 'numeric', month: 'short' }) + '–' + short(e, { day: 'numeric', month: 'short' }); })()
+      : short(r.from, { month: 'long' });
+    const view = {
+      date: dateLabel,
+      label: r.ms ? fmt(r.min) + ', ' + words[r.modes.length] + (r.modes.length === 1 ? ' way' : ' ways') : 'Nothing recorded yet',
+      avg: spd(r.avg).toFixed(1), max: Math.round(spd(r.top)), unit: mi ? 'mph' : 'km/h',
+      rows: {
+        walk: row('walk', (p) => M.fmtNum(p.steps) + ' steps'),
+        drive: row('drive', (p) => 'top ' + M.fmtSpeed(p.top)),
+        cycle: row('bike', avgOf),
+        transit: row('transit', avgOf),
+        run: row('run', pace)
+      }
+    };
+    const topWord = { walk: 'Mostly walking', run: 'Running day', bike: 'Mostly cycling', drive: 'Mostly driving', transit: 'Mostly transit' };
+    const hm = (t) => new Date(t).toTimeString().slice(0, 5);
+    let list;
+    if (key === 'day') {
+      list = { title: 'Trips', hint: r.trips.length + (r.trips.length === 1 ? ' trip' : ' trips'),
+        rows: r.trips.map((t) => [hm(t.start), M.MODES[t.mode].name + (t.live ? ' · now' : ''), t.mode, fmt((Math.min(t.end, now) - t.start) / M.MIN), M.fmtDist(t.distanceM), hm(t.start) + ' – ' + hm(t.end)]) };
+    } else if (key === 'week') {
+      const ds = M.days(r.from, 7).filter((d) => d.from <= now);
+      list = { title: 'Days', hint: ds.length + (ds.length === 1 ? ' day' : ' days'),
+        rows: ds.map((d) => [short(d.from, { weekday: 'short' }), d.ms ? topWord[d.modes[0].key] : 'No moves', d.ms ? d.modes[0].key : '', fmt(d.min), M.fmtDist(d.m), short(d.from, { month: 'short', day: 'numeric' })]) };
+    } else {
+      const rows = [];
+      for (let a = r.from; a < r.to && a <= now;) {
+        const b = Math.min(r.to, M.weekStart(a) + 7 * M.DAY);
+        const w = M.summarize(a, b);
+        const n = Math.round((Math.min(b, M.dayStart() + M.DAY) - a) / M.DAY);
+        rows.push(['W' + (rows.length + 1), short(a, { month: 'short', day: 'numeric' }) + ' – ' + short(b - 1, { day: 'numeric' }), w.ms ? w.modes[0].key : '', fmt(w.min), M.fmtDist(w.m), n + (n === 1 ? ' day' : ' days')]);
+        a = b;
+      }
+      list = { title: 'Weeks', hint: rows.length + (rows.length === 1 ? ' week' : ' weeks'), rows };
+    }
+    const elapsed = key === 'day' ? 1 : Math.max(1, Math.ceil((Math.min(now, r.to) - r.from) / M.DAY));
+    const active = (r.per.walk.ms + r.per.run.ms + r.per.bike.ms) / M.MIN;
+    return { view, list, active: [active, elapsed] };
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'none' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+    }
+    const emb = !!this.props.embedded;
+    // Inside the App prototype, links ask the shell to animate the change instead of jumping artboards.
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState({ menuOpen: false, menuClosing: false });
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    // Lists under the bars: trips for a day, days for a week, weeks for a month.
+    const MC = { walk: '#3DBF5C', drive: '#E0A92C', bike: '#6E8CF7', transit: '#B57BE0', run: '#F2766B' };
+    const LISTS = {
+      day: { title: 'Trips', hint: '4 trips', rows: [['7:40', 'Walk + bike to work', 'walk', '1h 03m', '13.6 km', '07:40 – 08:43'], ['12:30', 'Lunch hop', 'transit', '44m', '11.1 km', '12:30 – 13:22'], ['18:10', 'Drive', 'drive', '54m', '31.8 km', '18:10 – 19:04'], ['20:30', 'Night run + walk home', 'run', '31m', '3.7 km', '20:30 – 21:21']] },
+      week: { title: 'Days', hint: '7 days', rows: [['Sun', 'Long walks, slow Sunday', 'walk', '2h 41m', '37 km', 'Oct 25'], ['Mon', 'Bike commute', 'bike', '3h 05m', '52 km', 'Oct 26'], ['Tue', 'Earliest start, 6:12 AM', 'walk', '2h 58m', '48 km', 'Oct 27'], ['Wed', 'Mostly driving', 'drive', '2h 47m', '61 km', 'Oct 28'], ['Thu', 'Longest ride: 18.4 km', 'bike', '4h 50m', '96 km', 'Oct 29'], ['Fri', 'Quiet day', 'transit', '2h 27m', '58 km', 'Oct 30'], ['Sat', 'Night run', 'run', '3h 12m', '60 km', 'Oct 31']] },
+      month: { title: 'Weeks', hint: '5 weeks', rows: [['W40', 'Oct 1 – 3', 'walk', '10h 31m', '209 km', '3 days'], ['W41', 'Oct 4 – 10', 'walk', '18h 52m', '371 km', '7 days'], ['W42', 'Oct 11 – 17', 'bike', '20h 06m', '402 km', 'steps record'], ['W43', 'Oct 18 – 24', 'drive', '19h 54m', '386 km', '7 days'], ['W44', 'Oct 25 – 31', 'walk', '21h 40m', '412 km', 'ride record']] }
+    };
+    const views = {
+      day: { date: 'Sat, 31 Oct', label: '192 minutes, five ways', avg: '18.8', max: '74', rows: {
+        walk: ['68m', 35, '5.4 km · 7,310 steps'], drive: ['54m', 28, '31.8 km · top 74 km/h'], cycle: ['38m', 20, '11.6 km · 18 km/h'],
+        transit: ['22m', 12, '9.3 km · 25 km/h'], run: ['10m', 5, '2.1 km · 4:46/km'] } },
+      week: { date: 'Oct 25–31', label: '21h 40m, five ways', avg: '19.0', max: '96', rows: {
+        walk: ['7h 9m', 33, '36.2 km · 49,560 steps'], drive: ['6h 30m', 30, '214 km · top 96 km/h'], cycle: ['4h 20m', 20, '82.4 km · 19 km/h'],
+        transit: ['2h 36m', 12, '64.8 km · 25 km/h'], run: ['1h 5m', 5, '14.6 km · 4:39/km'] } },
+      month: { date: 'October', label: '93 hours, five ways', avg: '19.1', max: '118', rows: {
+        walk: ['35h 20m', 38, '155 km · 214k steps'], drive: ['23h 15m', 25, '1,010 km · top 118'], cycle: ['19h 32m', 21, '352 km · 19 km/h'],
+        transit: ['10h 14m', 11, '201 km · 20 km/h'], run: ['4h 39m', 5, '62 km · 4:31/km'] } }
+    };
+    const key = (this.state && this.state.range) || 'day';
+    // How worn out the rider looks comes from the stats: average human-powered minutes
+    // (walking + running + cycling) per day in the chosen range.
+    for (const k in views) views[k].unit = 'km/h';
+    const live = window.Motio ? this.liveView(key) : null;
+    if (live) { views[key] = live.view; LISTS[key] = live.list; }
+    const activeMin = live ? live.active : { day: [68 + 10 + 38, 1], week: [429 + 65 + 260, 7], month: [2120 + 279 + 1172, 31] }[key];
+    const perDay = activeMin[0] / activeMin[1];
+    const level = perDay < 90 ? 'fresh' : perDay <= 110 ? 'tired' : 'spent';
+    const T = {
+      fresh: { lean: '0deg', droop: '0deg', fresh: 1, tired: 0, spent: 0, drop1: 0, drops: 0, speed: 1, wobble: 'none', aria: 'A cyclist riding along, fresh and smiling' },
+      tired: { lean: '7deg', droop: '10deg', fresh: 0, tired: 1, spent: 0, drop1: 1, drops: 0, speed: 0.6, wobble: 'none', aria: 'The cyclist is leaning on the bars, a bit tired and sweating' },
+      spent: { lean: '14deg', droop: '22deg', fresh: 0, tired: 0, spent: 1, drop1: 1, drops: 1, speed: 0.25, wobble: 'motioWobble 0.9s ease-in-out infinite', aria: 'The cyclist is worn out: slumped, panting and dripping with sweat' }
+    }[level];
+    const v = views[key];
+    // Busiest way first; ways you didn't use sink to the bottom, small and faded.
+    const row = (k) => {
+      const [time, pct, meta] = v.rows[k];
+      const zero = time === '0m';
+      return { time, meta: zero ? 'Not used' : meta, pct: pct + '%', w: zero ? '150px' : Math.round(150 + pct * 2.6) + 'px', op: zero ? 0.38 : 1, ord: zero ? 200 : 100 - pct };
+    };
+    const allZero = ['walk', 'drive', 'cycle', 'transit', 'run'].every((k) => v.rows[k][0] === '0m');
+    const tab = (k) => {
+      const on = key === k;
+      return { on, pick: () => this.setState({ range: k }), bg: on ? '#FFFFFF' : 'transparent', fw: on ? 600 : 500, sh: on ? '0 2px 6px rgba(120,80,0,0.2)' : 'none' };
+    };
+    if (this.navFrom === undefined) {
+      let t = null;
+      try { t = window.localStorage.getItem('motio.tab'); } catch (e) { /* blocked */ }
+      if (t === null) { try { t = window.sessionStorage.getItem('motio.tab'); } catch (e) { /* blocked */ } }
+      if (t === null) { try { t = window.top.__motioTab; } catch (e) { /* cross-origin */ } }
+      if (t == null) t = window.__motioTab;
+      this.navFrom = t != null && !isNaN(+t) && +t >= 0 && +t <= 3 ? +t : 1;
+    }
+    const L = LISTS[key];
+    v.listTitle = L.title; v.listHint = L.hint;
+    v.list = L.rows.map(([badge, title, mode, dur, km, sub], i) => ({ badge, title, dur, km, sub, color: MC[mode] || '#C9C5EC', delay: i * 40 + 'ms' }));
+    return {
+      T,
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, standalone: !emb, LK: {  },
+      navFrom: this.navFrom,
+      v, tDay: tab('day'), tWeek: tab('week'), tMonth: tab('month'),
+      allZero, someData: !allZero, emptyTitle: { day: 'No moves yet today', week: 'No moves yet this week', month: 'No moves yet this month' }[key],
+      walk: row('walk'), drive: row('drive'), cycle: row('cycle'), transit: row('transit'), run: row('run')
+    };
+  }
+}
+</script>
+</body>
+</html>

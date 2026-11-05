@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#5B4FE0}
+a{color:inherit}a:hover{opacity:.85}
+button{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.96)}
+@keyframes motioDlgIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+@keyframes motioDlgFade{from{opacity:0}to{opacity:1}}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #5B4FE0; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box; color: #FFFFFF">
+    <svg aria-hidden="true" width="390" height="150" viewBox="0 0 390 150" style="position: absolute; left: 0; top: 0">
+      <circle cx="340" cy="40" r="110" fill="#6A5FE8"></circle>
+      <g transform="translate(270 34)">
+        <path d="M40 4 l6 0 2 10 8 4 9 -6 4 4 -6 9 4 8 10 2 0 6 -10 2 -4 8 6 9 -4 4 -9 -6 -8 4 -2 10 -6 0 -2 -10 -8 -4 -9 6 -4 -4 6 -9 -4 -8 -10 -2 0 -6 10 -2 4 -8 -6 -9 4 -4 9 6 8 -4z" fill="#F6C343"></path>
+        <circle cx="43" cy="43" r="12" fill="#5B4FE0"></circle>
+      </g>
+    </svg>
+    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="position: relative; margin: 14px 0 0; font-size: 32px; font-weight: 700">Settings</h1>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 22px">
+
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
+      <span style="font-size: 15px; font-weight: 600">Recap style</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="3">
+          <button aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
+            <span style="position: relative; display: block; height: 120px; border-radius: 16px; background: {{ o.color }}; overflow: hidden; outline: 3px solid {{ o.ring }}; outline-offset: 3px; transition: outline-color 200ms ease">
+              <sc-if value="{{ o.isBold }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; font-size: 22px; font-weight: 700; color: #1F1D47">412</span><span style="position: absolute; left: 10px; right: 10px; top: 48px; height: 30px; border-radius: 8px; background: #FFFFFF"></span><span style="position: absolute; left: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span><span style="position: absolute; right: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span></sc-if>
+              <sc-if value="{{ o.isPoster }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 8px; top: 8px; font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: -3px; color: #F6C343">412</span><span style="position: absolute; left: -6px; right: -6px; top: 66px; height: 10px; border-radius: 5px; background: #2D2A6E; transform: rotate(-8deg)"></span><span style="position: absolute; left: 10px; right: 10px; bottom: 10px; height: 18px; border-top: 1px solid rgba(255,255,255,0.3)"></span></sc-if>
+              <sc-if value="{{ o.isPlayful }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 14px; right: 14px; top: 12px; bottom: 12px; background: repeating-linear-gradient(#FFFFFF 0 9px, #E3E1F3 9px 11px); transform: rotate(-4deg)"></span><span style="position: absolute; right: 6px; top: 8px; width: 34px; height: 34px; border-radius: 17px; background: #F6C343; border: 3px solid #FFFFFF"></span></sc-if>
+            </span>
+            <span style="display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 600">{{ o.label }}</span><span style="font-size: 11px; color: #6B6890">{{ o.hint }}</span></span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; min-height: 48px; border-top: 1px solid #EEF0F6; padding-top: 6px">
+        <span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Weekly recap ready</span><span style="font-size: 12px; color: #6B6890">Every Sunday at 9 AM</span></span>
+        <span style="padding: 4px 10px; border-radius: 12px; background: #EEF0F6; font-size: 12px; font-weight: 600">Sun · 9 AM</span>
+      </div>
+      <sc-for list="{{ recapSwitches }}" as="t" hint-placeholder-count="1">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 48px">
+          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
+          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}; transition: background 200ms ease"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 220ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Home &amp; lock screen</h2>
+      <a href="{{ LK.widgets.href }}" onClick="{{ LK.widgets.go }}" style="display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 20px; background: #F6F5FC; color: #1F1D47; text-decoration: none">
+        <span aria-hidden="true" style="position: relative; width: 64px; height: 64px; flex-shrink: 0">
+          <span style="position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 9px; background: #4B3FD8"></span>
+          <span style="position: absolute; right: 0; top: 0; width: 30px; height: 30px; border-radius: 9px; background: #3DBF5C"></span>
+          <span style="position: absolute; left: 0; bottom: 0; width: 64px; height: 30px; border-radius: 9px; background: #F6C343"></span>
+        </span>
+        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Widgets</span><span style="font-size: 12px; color: #6B6890">Today ring, steps, day road, streak and more</span></span>
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 4px; padding-top: 18px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Tracking</h2>
+      <sc-for list="{{ trackSwitches }}" as="t" hint-placeholder-count="3">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
+          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}; transition: background 200ms ease"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 220ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Goals &amp; units</h2>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Daily movement goal</span><span style="font-size: 12px; color: #6B6890">Time on the move per day</span></span>
+        <button aria-label="Lower goal by 15 minutes" onClick="{{ goalDown }}" style="width: 40px; height: 40px; border-radius: 20px; border: 0; background: #EEF0F6; font-size: 20px; font-weight: 600; color: #1F1D47">−</button>
+        <span style="min-width: 64px; text-align: center; font-size: 16px; font-weight: 700">{{ goal }}</span>
+        <button aria-label="Raise goal by 15 minutes" onClick="{{ goalUp }}" style="width: 40px; height: 40px; border-radius: 20px; border: 0; background: #EEF0F6; font-size: 20px; font-weight: 600; color: #1F1D47">+</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="flex: 1; font-size: 14px; font-weight: 600">Distance units</span>
+        <div style="display: flex; gap: 2px; padding: 4px; border-radius: 20px; background: #EEF0F6">
+          <button aria-pressed="{{ km }}" onClick="{{ setKm }}" style="height: 34px; padding: 0 16px; border-radius: 17px; border: 0; background: {{ kmBg }}; color: {{ kmFg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">km</button>
+          <button aria-pressed="{{ mi }}" onClick="{{ setMi }}" style="height: 34px; padding: 0 16px; border-radius: 17px; border: 0; background: {{ miBg }}; color: {{ miFg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">mi</button>
+        </div>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; padding-top: 18px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Account &amp; data</h2>
+      <a href="{{ LK.apps.href }}" onClick="{{ LK.apps.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Connected apps</span><span style="font-size: 12px; color: #6B6890">Health, Strava</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
+      <a href="{{ LK.privacy.href }}" onClick="{{ LK.privacy.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Privacy &amp; location data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
+      <a href="{{ LK.export.href }}" onClick="{{ LK.export.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Export my data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
+      <a href="{{ LK.help.href }}" onClick="{{ LK.help.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Help &amp; feedback</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
+      <div onClick="{{ aboutTap }}" style="display: flex; align-items: center; min-height: 48px; font-size: 14px; cursor: default; user-select: none"><span style="flex: 1; font-weight: 500">About Motio</span><span style="font-size: 12px; color: #6B6890">{{ versionLabel }}</span></div>
+    </section>
+
+    <button onClick="{{ askLogout }}" style="min-height: 52px; flex-shrink: 0; border-radius: 26px; border: 0; background: #FDECEA; color: #C2412F; font-size: 15px; font-weight: 600">Log out</button>
+  </div>
+  <sc-if value="{{ logoutOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; color: #1F1D47">
+      <button aria-label="Cancel" onClick="{{ cancelLogout }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.55); cursor: default; animation: motioDlgFade 220ms ease-out"></button>
+      <div role="alertdialog" aria-label="Log out of Motio?" style="position: relative; width: 100%; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 10px; animation: motioDlgIn 300ms cubic-bezier(0.22, 1, 0.36, 1)">
+        <span style="font-size: 20px; font-weight: 700">Log out of Motio?</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Tracking pauses until you log back in. Your history stays safe in your account.</span>
+        <div style="display: flex; gap: 10px; margin-top: 8px">
+          <button onClick="{{ cancelLogout }}" style="flex: 1; height: 48px; border-radius: 24px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Stay</button>
+          <a href="{{ LK.out.href }}" onClick="{{ LK.out.go }}" style="flex: 1; height: 48px; border-radius: 24px; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Log out</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Remember which screen opened Settings so its Back returns there.
+  fromSet(v) {
+    try { window.localStorage.setItem('motio.settingsFrom', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.settingsFrom', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioSettingsFrom = v; } catch (e) { /* cross-origin */ }
+    window.__motioSettingsFrom = v;
+  }
+  fromGet() {
+    let v = null;
+    try { v = window.localStorage.getItem('motio.settingsFrom'); } catch (e) { /* blocked */ }
+    if (v === null) { try { v = window.sessionStorage.getItem('motio.settingsFrom'); } catch (e) { /* blocked */ } }
+    if (v === null) { try { v = window.top.__motioSettingsFrom; } catch (e) { /* cross-origin */ } }
+    if (v == null) v = window.__motioSettingsFrom;
+    return v || null;
+  }
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  renderVals() {
+    this.backFile = 'You.dc.html'; // Settings lives under the profile (You) tab
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+    const emb = !!this.props.embedded;
+    // Inside the App prototype, links ask the shell to animate the change instead of jumping artboards.
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState({ menuOpen: false, menuClosing: false });
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    // Real settings live in window.Motio (synced to your account); the canvas falls back to local state.
+    const M = window.Motio;
+    const cfg = M ? M.settings() : s;
+    const put = (k, v) => (M ? M.setSetting(k, v) : this.setState({ [k]: v }));
+    const style = ['bold', 'poster', 'playful'].includes(cfg.recapStyle) ? cfg.recapStyle : 'bold';
+    const sw = (key, label, hint, def) => {
+      const on = cfg[key] ?? def;
+      return { label, hint, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => put(key, !on) };
+    };
+    const goalMin = cfg.goalMin ?? 210;
+    const unit = cfg.unit || 'km';
+    const fmt = (m) => Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm';
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      logoutOpen: !!(this.state && this.state.logout),
+      askLogout: () => this.setState({ logout: true, menuOpen: false, menuClosing: false }),
+      cancelLogout: () => this.setState({ logout: false }),
+      emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
+      styles: [['bold', 'Bold', 'Big numbers', '#3DBF5C'], ['poster', 'Poster', 'One giant stat', '#1F1D47'], ['playful', 'Playful', 'Tickets, maps…', '#F2766B']]
+        .map(([k, label, hint, color]) => ({
+          label, hint, color, on: style === k, ring: style === k ? '#1F1D47' : 'transparent',
+          isBold: k === 'bold', isPoster: k === 'poster', isPlayful: k === 'playful',
+          pick: () => {
+            // The recap story reads this when it opens.
+            try { window.localStorage.setItem('motio.recapStyle', k); } catch (e) { /* storage blocked */ }
+            put('recapStyle', k);
+          }
+        })),
+      recapSwitches: [sw('dailyAlert', 'Daily recap alert', 'A short summary every evening at 9 PM', true)],
+      trackSwitches: [
+        sw('autoDetect', 'Auto-detect activity', 'Walk, run, bike, drive and transit', true),
+        sw('countSteps', 'Count steps', 'Uses your phone’s motion sensor', true),
+        sw('autoTrack', 'Track my moves', 'Background location, only while you’re moving', true)
+      ],
+      goal: fmt(goalMin),
+      goalDown: () => put('goalMin', Math.max(30, goalMin - 15)),
+      goalUp: () => put('goalMin', Math.min(600, goalMin + 15)),
+      km: unit === 'km', mi: unit === 'mi',
+      kmBg: unit === 'km' ? '#1F1D47' : 'transparent', kmFg: unit === 'km' ? '#FFFFFF' : '#1F1D47',
+      miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
+      setKm: () => put('unit', 'km'),
+      setMi: () => put('unit', 'mi'),
+      versionLabel: 'Version 2.0' + (M && M.isDemo() ? ' · sample data' : ''),
+      // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
+      aboutTap: () => {
+        if (!M) return;
+        this.taps = (this.taps || 0) + 1;
+        clearTimeout(this.tapT); this.tapT = setTimeout(() => { this.taps = 0; }, 1500);
+        if (this.taps >= 7) { this.taps = 0; M.setDemo(!M.isDemo()); this.setState({ demoFlash: Date.now() }); }
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

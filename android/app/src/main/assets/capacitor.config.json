@@ -1,0 +1,22 @@
+{
+	"appId": "com.motio.app",
+	"appName": "Motio",
+	"webDir": "www",
+	"backgroundColor": "#4B3FD8",
+	"android": {
+		"allowMixedContent": false,
+		"useLegacyBridge": true,
+		"webContentsDebuggingEnabled": true
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchAutoHide": false,
+			"backgroundColor": "#4B3FD8",
+			"launchFadeOutDuration": 220,
+			"showSpinner": false
+		},
+		"CapacitorHttp": {
+			"enabled": true
+		}
+	}
+}

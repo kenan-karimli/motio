@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Help &amp; feedback</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F2766B}
+a{color:inherit}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease,color 200ms ease}
+button:active,a:active{transform:scale(0.96)}
+input:focus,textarea:focus{outline:none;border-color:#5B4FE0 !important}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioPop{0%{transform:scale(0.6);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes motioRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F2766B; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
+    <svg aria-hidden="true" width="390" height="150" viewBox="0 0 390 150" style="position: absolute; left: 0; top: 0">
+      <circle cx="340" cy="40" r="110" fill="#F58C83"></circle>
+      <g transform="translate(270 30)">
+        <path d="M6 0 H64 Q72 0 72 8 V44 Q72 52 64 52 H30 L14 66 V52 H6 Q-2 52 -2 44 V8 Q-2 0 6 0 Z" fill="#FFFFFF"></path>
+        <text x="35" y="38" text-anchor="middle" font-family="Poppins, sans-serif" font-size="34" font-weight="700" fill="#F2766B">?</text>
+        <circle cx="88" cy="58" r="16" fill="#F6C343"></circle>
+        <path d="M81 58 l5 5 9 -10" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+      </g>
+    </svg>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700">Help &amp; feedback</h1>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 18px">
+
+    <label style="position: relative; display: block">
+      <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search help</span>
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.4" stroke-linecap="round" style="position: absolute; left: 16px; top: 15px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search: battery, steps, export…" style="width: 100%; height: 48px; box-sizing: border-box; padding: 0 16px 0 44px; border-radius: 24px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 14px">
+    </label>
+
+    <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Common questions</h2>
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
+        <div style="border-radius: 18px; background: #F6F5FC; overflow: hidden">
+          <button aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left">
+            <span style="flex: 1">{{ q.title }}</span>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{ q.rot }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"><path d="M6 9l6 6 6-6"></path></svg>
+          </button>
+          <div style="display: grid; grid-template-rows: {{ q.rows }}; transition: grid-template-rows 360ms cubic-bezier(0.22, 1, 0.36, 1)">
+            <div style="overflow: hidden"><p style="margin: 0; padding: 0 14px 14px; font-size: 13px; line-height: 1.55; color: #4A4770">{{ q.body }}</p></div>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <span style="padding: 14px; border-radius: 18px; background: #F6F5FC; font-size: 13px; color: #4A4770">Nothing matches “{{ query }}”. Ask us below and we’ll get back to you.</span>
+      </sc-if>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Send feedback</h2>
+      <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; gap: 8px">
+            <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3">
+              <button aria-pressed="{{ k.on }}" onClick="{{ k.pick }}" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: {{ k.fg }}; font-size: 12px; font-weight: 600">{{ k.label }}</button>
+            </sc-for>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Your message
+            <textarea rows="4" value="{{ message }}" onChange="{{ onMessage }}" placeholder="Tell us what happened or what you’d love to see…" style="box-sizing: border-box; padding: 12px 14px; border-radius: 16px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none"></textarea>
+          </label>
+          <button onClick="{{ send }}" aria-disabled="{{ cantSend }}" style="min-height: 52px; border-radius: 26px; border: 0; background: {{ sendBg }}; color: #FFFFFF; font-size: 15px; font-weight: 600">Send feedback</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px; border-radius: 22px; background: #DDF5E3; text-align: center; animation: motioRise 360ms ease-out">
+          <span style="width: 56px; height: 56px; border-radius: 28px; background: #3DBF5C; display: flex; align-items: center; justify-content: center; animation: motioPop 480ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+          <span style="font-size: 16px; font-weight: 700">Thanks, it’s on its way!</span>
+          <span style="font-size: 13px; color: #1E7A36">We usually reply within two days.</span>
+          <button onClick="{{ again }}" style="margin-top: 4px; height: 40px; padding: 0 16px; border-radius: 20px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600">Send another</button>
+        </div>
+      </sc-if>
+    </section>
+  </div>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  showToast(msg) {
+    clearTimeout(this.toastTimer);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const query = s.query || '';
+    const openId = s.open ?? null;
+    const all = [
+      ['How does Motio know if I’m walking or driving?', 'Your phone’s motion sensors and speed tell us how you’re moving. Walking and running have a rhythm, cycling is smooth and steady, and driving is fast with stops. You can fix any trip by tapping it.'],
+      ['Does tracking drain my battery?', 'Very little. With location set to “While moving”, GPS only turns on when you’re actually going somewhere. Most people see under 4% a day.'],
+      ['Why are my steps different from my watch?', 'Watches and phones count from different places on your body. If you connect a watch app in Connected apps, Motio uses its steps instead.'],
+      ['When does my weekly recap arrive?', 'Every Sunday at 9 AM. The monthly recap arrives on the 1st. You can change the recap style in Settings.'],
+      ['How do I export or delete my data?', 'Go to Settings › Export my data for a CSV, GPX or JSON file. To delete everything, go to Settings › Privacy & location.']
+    ];
+    const q = query.trim().toLowerCase();
+    const faqs = all
+      .map(([title, body], id) => ({ id, title, body }))
+      .filter((f) => !q || (f.title + ' ' + f.body).toLowerCase().includes(q))
+      .map((f) => {
+        const open = openId === f.id;
+        return { ...f, open, rot: open ? '180deg' : '0deg', rows: open ? '1fr' : '0fr', toggle: () => this.setState({ open: open ? null : f.id }) };
+      });
+    const kind = s.kind || 'idea';
+    const message = s.message || '';
+    const cantSend = message.trim().length < 3;
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, LK: { back: lk('back', 'Settings.dc.html') },
+      query, onQuery: (e) => this.setState({ query: e.target.value }),
+      faqs, noResults: faqs.length === 0,
+      kinds: [['idea', 'Idea'], ['bug', 'Something’s wrong'], ['love', 'Love it']].map(([k, label]) => ({
+        label, on: kind === k,
+        bg: kind === k ? '#1F1D47' : '#FFFFFF', fg: kind === k ? '#FFFFFF' : '#1F1D47', border: kind === k ? '#1F1D47' : '#E3E1F3',
+        pick: () => this.setState({ kind: k })
+      })),
+      message, onMessage: (e) => this.setState({ message: e.target.value }),
+      cantSend: cantSend ? 'true' : 'false',
+      sendBg: cantSend ? '#9A97B5' : '#1F1D47',
+      send: () => {
+        if (cantSend) { this.showToast('Write a few words first'); return; }
+        if (!window.Motio) { this.setState({ sent: true, message: '' }); return; }
+        window.Motio.sendFeedback(kind, message).then(() => this.setState({ sent: true, message: '' }))
+          .catch((e) => this.showToast(e.code === 'offline' ? 'You’re offline. Try again when connected' : 'Couldn’t send. Try again'));
+      },
+      sent: !!s.sent, notSent: !s.sent,
+      again: () => this.setState({ sent: false }),
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

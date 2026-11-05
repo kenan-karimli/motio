@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Create account</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F2766B}
+a{color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 220ms ease,color 220ms ease,border-color 220ms ease}
+button:active,a:active{transform:scale(0.96)}
+input{transition:border-color 200ms ease,box-shadow 200ms ease}
+input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rgba(91,79,224,0.15)}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStepNext{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioStepBack{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+@keyframes motioSpin{to{transform:rotate(360deg)}}
+@keyframes motioPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+@keyframes motioRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes motioCaret{0%{opacity:1}50%{opacity:0}}
+@keyframes motioBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F2766B; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="position: relative; flex-shrink: 0; padding: 16px 24px 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+    <svg aria-hidden="true" width="390" height="200" viewBox="0 0 390 200" style="position: absolute; left: 0; top: 0">
+      <circle cx="360" cy="30" r="120" fill="#F58C83"></circle>
+      <g fill="none" stroke-width="6" stroke-linecap="round" opacity="0.95">
+        <path d="M232 150 C 270 120, 290 150, 320 110 S 360 70, 384 60" stroke="#3DBF5C"></path>
+        <path d="M240 90 C 280 92, 300 60, 336 70 S 370 110, 392 100" stroke="#6E8CF7"></path>
+      </g>
+      <circle cx="384" cy="60" r="6" fill="#FFFFFF" stroke="#3DBF5C" stroke-width="3.5"></circle>
+    </svg>
+    <div style="position: relative; display: flex; align-items: center; gap: 14px">
+      <sc-if value="{{ firstStep }}" hint-placeholder-val="{{ true }}">
+        <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      </sc-if>
+      <sc-if value="{{ laterStep }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ prev }}" aria-label="Previous step" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      </sc-if>
+      <div role="progressbar" aria-label="{{ stepLabel }}" aria-valuemin="1" aria-valuemax="4" aria-valuenow="{{ stepNum }}" style="flex: 1; display: flex; gap: 6px">
+        <sc-for list="{{ segs }}" as="g" hint-placeholder-count="3"><span style="flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.4); overflow: hidden"><span style="display: block; height: 6px; width: {{ g.w }}; border-radius: 3px; background: #1F1D47; transition: width 480ms cubic-bezier(0.22, 1, 0.36, 1)"></span></span></sc-for>
+      </div>
+      <span style="font-size: 12px; font-weight: 600; white-space: nowrap">{{ stepLabel }}</span>
+    </div>
+    <h1 style="position: relative; margin: 6px 0 0; font-size: 30px; font-weight: 600; line-height: 1.15">{{ title }}</h1>
+    <p style="position: relative; margin: 0; font-size: 14px">{{ subtitle }}</p>
+  </div>
+
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 24px 24px 28px; display: flex; flex-direction: column; gap: 16px">
+
+    <sc-if value="{{ S1 }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 14px; animation: {{ stepAnim }}">
+        <div style="display: flex; flex-direction: column; gap: 14px; animation: {{ shakeAnim }}">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Your name
+            <input autocomplete="name" value="{{ name }}" onChange="{{ onName }}" placeholder="What should we call you?" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ nameBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Email
+            <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ emailBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Password
+            <input type="password" autocomplete="new-password" value="{{ pw }}" onChange="{{ onPw }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ pwBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          </label>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; gap: 4px">
+              <sc-for list="{{ strength }}" as="b" hint-placeholder-count="4"><span style="flex: 1; height: 6px; border-radius: 3px; background: {{ b.bg }}; transition: background-color 280ms ease"></span></sc-for>
+            </div>
+            <span style="font-size: 12px; font-weight: 500; color: #4A4770">{{ strengthLabel }}</span>
+          </div>
+          <button type="button" role="checkbox" aria-checked="{{ terms }}" onClick="{{ toggleTerms }}" style="display: flex; align-items: flex-start; gap: 10px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 13px; font-weight: 500; text-align: left"><span style="width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; border-radius: 7px; background: {{ termsBg }}; border: 2px solid {{ termsBorder }}; box-sizing: border-box; display: flex; align-items: center; justify-content: center"><sc-if value="{{ terms }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 260ms ease-out"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span><span>I agree to the Terms and Privacy Policy. Motio never sells location data.</span></button>
+          <span style="display: flex; gap: 14px; margin: -4px 0 0 34px; font-size: 12px"><button type="button" onClick="{{ openTerms }}" style="border: 0; padding: 4px 0; background: transparent; color: #4B3FD8; font-weight: 600">Read the terms</button><button type="button" onClick="{{ openPolicy }}" style="border: 0; padding: 4px 0; background: transparent; color: #4B3FD8; font-weight: 600">Privacy policy</button></span>
+          <sc-if value="{{ s1Err }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">{{ s1ErrText }}</span></sc-if>
+          <sc-if value="{{ takenErr }}" hint-placeholder-val="{{ false }}"><a href="{{ LK.login.href }}" onClick="{{ LK.login.go }}" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 20px; background: #EEF0F6; color: #4B3FD8; font-size: 13px; font-weight: 600; text-decoration: none; animation: motioRise 260ms ease-out">Log in instead</a></sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ S2 }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 18px; animation: {{ stepAnim }}">
+        <div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 20px; background: #F6F5FC">
+          <span style="width: 48px; height: 48px; border-radius: 24px; flex-shrink: 0; background: #6E8CF7; box-shadow: none; display: flex; align-items: center; justify-content: center; animation: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"></path><path d="M3 7l9 6 9-6"></path></svg></span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B6890">We sent a 6-digit code to</span><span style="font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ emailShown }}</span></span>
+        </div>
+        <sc-if value="{{ hasDevCode }}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="padding: 10px 14px; border-radius: 16px; background: #FFF4D6; color: #6B4E00; font-size: 12px; line-height: 1.5">Email isn’t set up on this server yet, so here’s your code: <b style="font-size: 15px; letter-spacing: 2px">{{ devCode }}</b></div>
+        </sc-if>
+        <label style="position: relative; display: block">
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">6-digit verification code</span>
+          <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; animation: {{ shakeAnim }}">
+            <sc-for list="{{ codeBoxes }}" as="c" hint-placeholder-count="6">
+              <span style="height: 58px; box-sizing: border-box; border-radius: 16px; border: 2px solid {{ c.border }}; background: {{ c.bg }}; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; transform: {{ c.tf }}; transition: border-color 200ms ease, background-color 200ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)">{{ c.digit }}<sc-if value="{{ c.caret }}" hint-placeholder-val="{{ false }}"><span style="width: 2px; height: 26px; border-radius: 1px; background: #5B4FE0; animation: motioCaret 1s steps(1) infinite"></span></sc-if></span>
+            </sc-for>
+          </div>
+          <input value="{{ code }}" onChange="{{ onCode }}" inputmode="numeric" autocomplete="one-time-code" maxlength="6" style="position: absolute; inset: 0; width: 100%; height: 100%; box-sizing: border-box; opacity: 0; border: 0; font-size: 16px; cursor: text">
+        </label>
+        <sc-if value="{{ codeErr }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">Enter all 6 digits from the email.</span></sc-if>
+        <sc-if value="{{ codeWrong }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">{{ codeWrongText }}</span></sc-if>
+        <sc-if value="{{ verifying }}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #4B3FD8; animation: motioRise 220ms ease-out"><span style="width: 16px; height: 16px; border-radius: 8px; border: 2.5px solid #C9C5EC; border-top-color: #5B4FE0; animation: motioSpin 700ms linear infinite"></span>Checking your code…</span></sc-if>
+        <sc-if value="{{ verified }}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #1E7A36"><span style="width: 22px; height: 22px; border-radius: 11px; background: #3DBF5C; display: flex; align-items: center; justify-content: center; animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>Email verified</span></sc-if>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px">
+          <button type="button" onClick="{{ resend }}" aria-disabled="{{ resendLocked }}" style="min-height: 44px; border: 0; padding: 0; background: transparent; color: {{ resendColor }}; font-size: 13px; font-weight: 600">{{ resendLabel }}</button>
+          <button type="button" onClick="{{ prev }}" style="min-height: 44px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Change email</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ S3 }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 18px; animation: {{ stepAnim }}">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 13px; font-weight: 600">Pick all that apply</span>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{ modes }}" as="m" hint-placeholder-count="5">
+              <button type="button" aria-pressed="{{ m.on }}" onClick="{{ m.toggle }}" style="position: relative; display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 20px; border: 2px solid {{ m.border }}; background: {{ m.bg }}; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left">
+                <span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: {{ m.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ m.glyph }}"></path></svg></span>
+                {{ m.label }}
+                <sc-if value="{{ m.on }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; border-radius: 10px; background: #1F1D47; display: flex; align-items: center; justify-content: center; animation: motioPop 320ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
+          <span style="font-size: 13px; font-weight: 600">Daily movement goal</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 24px; background: #F6F5FC">
+            <button type="button" aria-label="Lower goal by 15 minutes" onClick="{{ goalDown }}" style="width: 48px; height: 48px; border-radius: 24px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 22px; font-weight: 600">−</button>
+            <span style="display: flex; flex-direction: column; align-items: center"><span style="font-size: 28px; font-weight: 700; line-height: 1.1">{{ goal }}</span><span style="font-size: 12px; color: #6B6890">{{ goalHint }}</span></span>
+            <button type="button" aria-label="Raise goal by 15 minutes" onClick="{{ goalUp }}" style="width: 48px; height: 48px; border-radius: 24px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 22px; font-weight: 600">+</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ S4 }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 12px; animation: {{ stepAnim }}">
+        <sc-for list="{{ perms }}" as="p" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 22px; background: #F6F5FC">
+            <span style="width: 44px; height: 44px; border-radius: 22px; flex-shrink: 0; background: {{ p.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ p.glyph }}"></path></svg></span>
+            <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ p.label }}</span><span style="font-size: 12px; line-height: 1.4; color: #6B6890">{{ p.hint }}</span></span>
+            <button type="button" role="switch" aria-checked="{{ p.on }}" aria-label="{{ p.label }}" onClick="{{ p.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ p.bg }}"><span style="position: absolute; top: 3px; left: {{ p.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 240ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
+          </div>
+        </sc-for>
+        <span style="font-size: 12px; line-height: 1.5; color: #4A4770">You can change these any time in Settings › Privacy &amp; location.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ S5 }}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
+        <div aria-hidden="true" style="position: absolute; left: 50%; top: 40%; width: 0; height: 0">
+          <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="14"><span style="position: absolute; width: 10px; height: 6px; border-radius: 2px; background: {{ c.color }}; transform: {{ c.tf }}; opacity: {{ c.op }}; transition: transform 1200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 1200ms ease-in; transition-delay: {{ c.delay }}"></span></sc-for>
+        </div>
+        <span style="width: 92px; height: 92px; border-radius: 46px; background: #3DBF5C; box-shadow: none; display: flex; align-items: center; justify-content: center; animation: motioPop 560ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+        <span style="font-size: 24px; font-weight: 700; animation: motioRise 380ms ease-out 140ms backwards">Welcome, {{ firstName }}!</span>
+        <span style="font-size: 14px; line-height: 1.5; color: #4A4770; max-width: 270px; animation: motioRise 380ms ease-out 220ms backwards">Your first recap lands on Sunday. Until then, just move like you always do.</span>
+        <a href="{{ LK.home.href }}" onClick="{{ LK.home.go }}" style="margin-top: 14px; min-width: 230px; min-height: 56px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; animation: motioRise 380ms ease-out 300ms backwards">Start moving</a>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showNext }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px; padding-top: 8px">
+        <button type="button" onClick="{{ next }}" style="min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none">
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span style="width: 18px; height: 18px; border-radius: 9px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #FFFFFF; animation: motioSpin 700ms linear infinite"></span></sc-if>
+          {{ nextLabel }}
+        </button>
+        <sc-if value="{{ firstStep }}" hint-placeholder-val="{{ true }}">
+          <span style="text-align: center; font-size: 13px; color: #4A4770">Already have an account? <a href="{{ LK.login.href }}" onClick="{{ LK.login.go }}" style="color: #4B3FD8; font-weight: 600; text-decoration: none; display: inline-block; padding: 12px 4px">Log in</a></span>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  showToast(msg) {
+    clearTimeout(this.toastTimer);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  startResend() {
+    // 30-second cooldown before another code can be requested.
+    clearInterval(this.resendTimer);
+    this.setState({ resendLeft: 30 });
+    this.resendTimer = setInterval(() => {
+      const left = ((this.state && this.state.resendLeft) || 0) - 1;
+      this.setState({ resendLeft: Math.max(0, left) });
+      if (left <= 0) clearInterval(this.resendTimer);
+    }, 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.resendTimer);
+  }
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const step = s.step || 1;
+    const dir = s.dir || 'next';
+    const name = s.name ?? '';
+    const email = s.email ?? '';
+    const pw = s.pw ?? '';
+    const terms = !!s.terms;
+    const tried = !!s.tried;
+    const nameOk = name.trim().length > 0;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    // Rough strength: length, mixed case, digits, symbols.
+    const score = pw.length === 0 ? 0 : Math.min(4, (pw.length >= 8 ? 1 : 0) + (/[A-Z]/.test(pw) && /[a-z]/.test(pw) ? 1 : 0) + (/\d/.test(pw) ? 1 : 0) + (/[^A-Za-z0-9]/.test(pw) ? 1 : 0) + (pw.length >= 12 ? 1 : 0));
+    const pwOk = pw.length >= 8;
+    const scoreColors = ['#E3E1F3', '#F2766B', '#F6C343', '#6E8CF7', '#3DBF5C'];
+    const scoreNames = ['Use 8+ characters with a number or symbol', 'Weak', 'Okay', 'Strong', 'Very strong'];
+    const taken = !!s.taken && s.takenEmail === email.trim().toLowerCase();
+    const firstErr = !nameOk ? 'Tell us your name.' : !emailOk ? 'Enter a valid email address.' : taken ? 'An account with this email already exists.' : !pwOk ? 'Password needs at least 8 characters.' : !terms ? 'Please accept the terms to continue.' : '';
+    const picked = s.modes || { walk: true, bike: true };
+    const goalMin = s.goal ?? 180;
+    const fmt = (m) => Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm';
+    const perm = s.perm || { motion: true, location: true, notify: true };
+    const go = (to) => this.setState({ step: to, dir: to > step ? 'next' : 'back', tried: false });
+    const titles = ['Create your account', 'Check your inbox', 'How do you move?', 'Almost there', ''];
+    const subs = ['Takes less than a minute.', 'Enter the code we just emailed you.', 'We’ll tune your recaps around it.', 'Motio needs two permissions to track.', ''];
+    const code = s.code || '';
+    const codeState = s.codeState || 'idle';
+    const verify = (c) => {
+      const M = window.Motio;
+      this.setState({ codeState: 'checking' });
+      const ok = () => { this.setState({ codeState: 'ok', codeWrong: null }); setTimeout(() => { clearInterval(this.resendTimer); this.setState({ step: 3, dir: 'next', tried: false }); }, 700); };
+      if (!M) { setTimeout(ok, 800); return; }
+      M.auth.verify(email.trim(), c).then(ok).catch((e) => {
+        if (e.code === 'code_reset' || e.code === 'code_expired') {
+          this.setState({ codeState: 'idle', code: '', codeFails: 0, codeWrong: 'reset', devCode: (e.body && e.body.devCode) || null });
+          this.startResend();
+          this.showToast(e.code === 'code_expired' ? 'That code expired. We sent a new one' : 'Too many wrong codes. We sent you a new one');
+          return;
+        }
+        const left = e.body && e.body.left != null ? e.body.left : 0;
+        this.setState({ codeState: 'idle', code: '', codeFails: 3 - left, codeWrong: e.code === 'offline' ? 'offline' : 'wrong', shake: false });
+        setTimeout(() => this.setState({ shake: true }), 10);
+        setTimeout(() => this.setState({ shake: false }), 440);
+      });
+    };
+    const colors = ['#F6C343', '#F2766B', '#3DBF5C', '#6E8CF7', '#B57BE0', '#5B4FE0'];
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, LK: { back: lk('back', 'Welcome.dc.html'), login: lk('login', 'Login.dc.html'), home: lk('home', 'Main.dc.html') },
+      S1: step === 1, S2: step === 2, S3: step === 3, S4: step === 4, S5: step === 5,
+      firstStep: step === 1, laterStep: step > 1 && step < 5,
+      stepNum: Math.min(step, 4), stepLabel: step < 5 ? 'Step ' + step + ' of 4' : 'Done',
+      segs: [1, 2, 3, 4].map((k) => ({ w: step >= k ? '100%' : '0%' })),
+      title: titles[step - 1], subtitle: subs[step - 1],
+      stepAnim: (dir === 'next' ? 'motioStepNext' : 'motioStepBack') + ' 380ms cubic-bezier(0.22, 1, 0.36, 1)',
+      shakeAnim: s.shake ? 'motioShake 420ms ease' : 'none',
+      name, email, pw,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      nameBorder: tried && !nameOk ? '#C2412F' : '#E3E1F3',
+      emailBorder: tried && (!emailOk || taken) ? '#C2412F' : '#E3E1F3',
+      takenErr: tried && taken,
+      pwBorder: tried && !pwOk ? '#C2412F' : '#E3E1F3',
+      strength: [1, 2, 3, 4].map((k) => ({ bg: score >= k ? scoreColors[score] : '#E3E1F3' })),
+      strengthLabel: scoreNames[score],
+      terms, termsBg: terms ? '#5B4FE0' : '#FFFFFF', termsBorder: terms ? '#5B4FE0' : tried ? '#C2412F' : '#C9C5EC',
+      toggleTerms: () => this.setState({ terms: !terms }),
+      openTerms: () => window.Motio && window.Motio.openPage('/terms'),
+      openPolicy: () => window.Motio && window.Motio.openPage('/privacy'),
+      s1Err: tried && !!firstErr, s1ErrText: firstErr,
+      modes: [['walk', 'Walking', '#3DBF5C', 'M8 4a2 2 0 1 0 0.01 0M7 21l2-7 3 3v4M9 14l1-5 4 3 3-1'], ['run', 'Running', '#F2766B', 'M13 4a2 2 0 1 0 0.01 0M5 20l4-5 3 2 2-5 4 3M9 11l3-3 3 1'],
+              ['bike', 'Cycling', '#6E8CF7', 'M6 17a3 3 0 1 0 0.01 0M18 17a3 3 0 1 0 0.01 0M6 17l4-8h5l3 8M10 9l2 8'], ['drive', 'Driving', '#F6C343', 'M4 16v-4l2-5h12l2 5v4zM7 16v2M17 16v2M4 12h16'],
+              ['transit', 'Transit', '#B57BE0', 'M6 4h12v12H6zM6 11h12M9 20l-2 2M15 20l2 2'], ['other', 'Other', '#5B4FE0', 'M5 12h.01M12 12h.01M19 12h.01']]
+        .map(([key, label, color, glyph]) => {
+          const on = !!picked[key];
+          return { label, color, glyph, on, bg: on ? '#F3F2FA' : '#FFFFFF', border: on ? '#1F1D47' : '#E3E1F3', toggle: () => this.setState({ modes: { ...picked, [key]: !on } }) };
+        }),
+      goal: fmt(goalMin),
+      goalHint: goalMin < 120 ? 'a gentle start' : goalMin <= 210 ? 'a solid daily target' : 'ambitious!',
+      goalDown: () => this.setState({ goal: Math.max(30, goalMin - 15) }),
+      goalUp: () => this.setState({ goal: Math.min(480, goalMin + 15) }),
+      perms: [['motion', 'Motion & fitness', 'Counts steps and tells walking from cycling', '#3DBF5C', 'M4 12h4l2-5 4 10 2-5h4'],
+              ['location', 'Location while moving', 'Draws your routes; switches off when you stop', '#6E8CF7', 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z'],
+              ['notify', 'Recap notifications', 'A nudge when your weekly recap is ready', '#F6C343', 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4']]
+        .map(([key, label, hint, color, glyph]) => {
+          const on = !!perm[key];
+          return { label, hint, color, glyph, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => this.setState({ perm: { ...perm, [key]: !on } }) };
+        }),
+      confetti: Array.from({ length: 14 }, (_, k) => {
+        const a = (k / 14) * Math.PI * 2;
+        const r = 110 + (k % 3) * 30;
+        // Confetti starts bunched at the centre, then flies out once the success state has painted.
+        const tf = s.burst ? 'translate(' + Math.round(Math.cos(a) * r) + 'px, ' + Math.round(Math.sin(a) * r) + 'px) rotate(220deg)' : 'translate(0, 0) scale(0.4)';
+        return { color: colors[k % colors.length], tf, op: s.burst ? 0 : 1, delay: (k % 4) * 40 + 'ms' };
+      }),
+      firstName: name.trim().split(/\s+/)[0] || 'friend',
+      showNext: step < 5,
+      busy: !!s.busy,
+      hasDevCode: !!s.devCode, devCode: s.devCode || '',
+      nextLabel: s.busy ? (step === 1 ? 'Sending your code…' : 'Setting things up…') : step === 4 ? 'Allow and finish' : step === 2 ? 'Verify email' : 'Continue',
+      emailShown: email.trim() || 'your email',
+      code,
+      onCode: (e) => {
+        if (codeState === 'checking' || codeState === 'ok') return;
+        const c = String(e.target.value || '').replace(/\D/g, '').slice(0, 6);
+        this.setState({ code: c, codeTried: false, codeWrong: c.length ? null : s.codeWrong });
+        if (c.length === 6) verify(c);
+      },
+      codeBoxes: [0, 1, 2, 3, 4, 5].map((k) => {
+        const d = code[k] || '';
+        const ok = codeState === 'ok', bad = (!!s.codeTried && code.length < 6) || s.codeWrong === 'wrong';
+        return { digit: d, caret: !ok && codeState !== 'checking' && k === code.length,
+          border: ok ? '#3DBF5C' : bad ? '#C2412F' : k === code.length ? '#5B4FE0' : d ? '#C9C5EC' : '#E3E1F3',
+          bg: ok ? '#DDF5E3' : '#F6F5FC', tf: d && k === code.length - 1 && !ok ? 'scale(1.06)' : 'scale(1)' };
+      }),
+      codeErr: !!s.codeTried && code.length < 6,
+      codeWrong: s.codeWrong === 'wrong' || s.codeWrong === 'offline',
+      codeWrongText: s.codeWrong === 'offline' ? 'You’re offline. Connect and try again.' : 'That code doesn’t match. ' + (3 - (s.codeFails || 0)) + ((3 - (s.codeFails || 0)) === 1 ? ' try' : ' tries') + ' left.',
+      verifying: codeState === 'checking', verified: codeState === 'ok',
+      resendLocked: (s.resendLeft || 0) > 0 ? 'true' : 'false',
+      resendColor: (s.resendLeft || 0) > 0 ? '#6B6890' : '#4B3FD8',
+      resendLabel: (s.resendLeft || 0) > 0 ? 'Resend code in 0:' + String(s.resendLeft).padStart(2, '0') : 'Resend code',
+      resend: () => {
+        if ((s.resendLeft || 0) > 0) return;
+        this.setState({ code: '', codeState: 'idle', codeTried: false, codeFails: 0, codeWrong: null });
+        this.startResend();
+        if (window.Motio) window.Motio.auth.resend(email.trim()).then((d) => this.setState({ devCode: (d && d.devCode) || null })).catch(() => {});
+        this.showToast('New code sent to ' + (email.trim() || 'your email'));
+      },
+      hasToast: !!s.toast, toast: s.toast || '',
+      prev: () => go(step === 3 && codeState === 'ok' ? 1 : Math.max(1, step - 1)),
+      next: () => {
+        if (s.busy) return;
+        if (step === 1 && firstErr) {
+          this.setState({ tried: true, shake: false });
+          setTimeout(() => this.setState({ shake: true }), 10);
+          setTimeout(() => this.setState({ shake: false }), 440);
+          return;
+        }
+        if (step === 1) {
+          const M = window.Motio;
+          const toCode = () => { this.setState({ busy: false, code: '', codeState: 'idle', codeTried: false, taken: false }); this.startResend(); go(2); };
+          if (!M) { toCode(); return; }
+          this.setState({ busy: true });
+          M.auth.register(name.trim(), email.trim(), pw).then((d) => { this.setState({ devCode: (d && d.devCode) || null }); toCode(); }).catch((e) => {
+            if (e.code === 'email_taken') this.setState({ busy: false, tried: true, taken: true, takenEmail: email.trim().toLowerCase() });
+            else { this.setState({ busy: false }); this.showToast((e.body && e.body.message) || 'Couldn’t create the account. Try again'); }
+          });
+          return;
+        }
+        if (step === 2) {
+          if (codeState === 'checking' || codeState === 'ok') return;
+          if (code.length < 6) {
+            this.setState({ codeTried: true, shake: false });
+            setTimeout(() => this.setState({ shake: true }), 10);
+            setTimeout(() => this.setState({ shake: false }), 440);
+            return;
+          }
+          verify(code);
+          return;
+        }
+        if (step === 4) {
+          const M = window.Motio;
+          if (M) {
+            const p = s.perm || { motion: true, location: true, notify: true };
+            M.setSetting('goalMin', s.goal ?? 180);
+            M.setSetting('autoTrack', !!(p.location));
+          }
+          this.setState({ busy: true });
+          setTimeout(() => {
+            this.setState({ busy: false, step: 5, dir: 'next', burst: false });
+            setTimeout(() => this.setState({ burst: true }), 60);
+          }, 1200);
+          return;
+        }
+        go(step + 1);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

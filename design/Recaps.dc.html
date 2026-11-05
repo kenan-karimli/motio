@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Recaps</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#1F1D47}
+a{color:inherit}a:hover{opacity:.9}
+button{font:inherit;cursor:pointer}
+@keyframes motioPillFrom0{from{transform:translateX(calc(0 * (100% + 4px)))}}
+@keyframes motioPillFrom1{from{transform:translateX(calc(1 * (100% + 4px)))}}
+@keyframes motioPillFrom2{from{transform:translateX(calc(2 * (100% + 4px)))}}
+@keyframes motioPillFrom3{from{transform:translateX(calc(3 * (100% + 4px)))}}
+@keyframes motioTabPop{0%{transform:scale(0.7)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+.motio-tab-icon{transition:transform 140ms ease}
+nav a:active .motio-tab-icon,nav button:active .motio-tab-icon{transform:scale(0.82)}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.96)}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+@keyframes motioCoverIn{from{opacity:0;transform:translateY(16px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.motio-scroll>*{flex-shrink:0}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 0 24px; display: flex; flex-direction: column; gap: 10px">
+
+  <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none"><circle cx="360" cy="40" r="140" fill="#2D2A6E"></circle></svg>
+
+  <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: flex-end; justify-content: space-between">
+    <div style="display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Recaps</h1><span style="font-size: 13px; color: #C9C5EC">Your moves, wrapped into stories</span></div>
+    <span style="padding: 6px 12px; border-radius: 14px; background: rgba(255,255,255,0.12); font-size: 12px; font-weight: 600">{{ unseen }} new</span>
+  </div>
+
+  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 8px 0 96px">
+
+    <div style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 8px; scrollbar-width: none">
+      <sc-for list="{{ covers }}" as="c" hint-placeholder-count="3">
+        <a href="{{ c.href }}" onClick="{{ c.go }}" style="position: relative; flex-shrink: 0; width: 272px; height: 340px; box-sizing: border-box; padding: 18px; border-radius: 30px; background: {{ c.bg }}; color: {{ c.fg }}; text-decoration: none; scroll-snap-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 16px 30px rgba(0,0,0,0.3); animation: motioCoverIn 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ c.delay }}">
+          <svg aria-hidden="true" width="272" height="340" viewBox="0 0 272 340" style="position: absolute; left: 0; top: 0"><circle cx="220" cy="250" r="120" fill="{{ c.blob }}"></circle><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.road }}" stroke-width="22" stroke-linecap="round"></path><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.fg }}" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 9"></path></svg>
+          <div style="position: relative; display: flex; justify-content: space-between; align-items: center"><span style="padding: 4px 10px; border-radius: 10px; background: rgba(255,255,255,0.85); color: #1F1D47; font-size: 11px; font-weight: 700">{{ c.tag }}</span><sc-if value="{{ c.isNew }}" hint-placeholder-val="{{ false }}"><span style="width: 10px; height: 10px; border-radius: 5px; background: #F2766B; box-shadow: 0 0 0 3px rgba(255,255,255,0.7)"></span></sc-if></div>
+          <div style="position: relative; display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 14px; font-weight: 600; opacity: 0.85">{{ c.kicker }}</span>
+            <span style="font-size: 54px; font-weight: 700; line-height: 1; letter-spacing: -2px">{{ c.big }}</span>
+            <span style="font-size: 22px; font-weight: 600; line-height: 1.15">{{ c.title }}</span>
+          </div>
+          <span style="position: relative; align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600"><span style="width: 28px; height: 28px; border-radius: 14px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="#1F1D47"></path></svg></span>Play</span>
+        </a>
+      </sc-for>
+    </div>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 600">Daily recaps</h2>
+      <div style="display: flex; justify-content: space-between">
+        <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+          <a href="{{ d.href }}" onClick="{{ d.go }}" aria-label="{{ d.aria }}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none">
+            <span style="width: 42px; height: 42px; border-radius: 21px; padding: 3px; box-sizing: border-box; background: {{ d.ring }}"><span style="display: flex; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #1F1D47; box-sizing: border-box; background: {{ d.fill }}; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #1F1D47">{{ d.num }}</span></span>
+            <span style="font-size: 11px; font-weight: 600; color: {{ d.labelColor }}">{{ d.label }}</span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Past weeks</h2><span style="font-size: 12px; color: #C9C5EC">{{ pastCount }}</span></div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <sc-for list="{{ past }}" as="w" hint-placeholder-count="4">
+          <a href="{{ w.href }}" onClick="{{ w.go }}" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 22px; background: {{ w.bg }}; color: #1F1D47; text-decoration: none; animation: motioCoverIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ w.delay }}">
+            <span style="font-size: 12px; font-weight: 700">{{ w.range }}</span>
+            <span style="display: flex; align-items: flex-end; gap: 3px; height: 30px"><sc-for list="{{ w.bars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; height: {{ b }}; border-radius: 3px; background: #1F1D47; opacity: 0.8"></span></sc-for></span>
+            <span style="display: flex; justify-content: space-between; font-size: 12px"><b>{{ w.km }}</b><span>{{ w.note }}</span></span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="margin: 0 20px; padding: 18px; border-radius: 26px; background: #2D2A6E; display: flex; align-items: center; gap: 14px">
+      <span style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ yearDays }}d</span>
+      <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ yearLabel }}, wrapped</span><span style="font-size: 12px; color: #C9C5EC">Your whole year in motion unlocks on Dec 1</span></span>
+    </section>
+  </div>
+
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
+  <nav aria-label="Main" style="position: relative; margin-top: auto; flex-shrink: 0; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18)">
+    <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
+    <a href="Breakdown.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg></span>Moves</a>
+    <a href="You.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></span>You</a>
+    <a href="Recaps.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"></path></svg></span>Recap</a>
+  </nav>
+  </sc-if>
+  <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }  componentDidMount() {
+    // Remember this tab so the next screen can slide its pill in from here.
+    const v = String(3);
+    try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioTab = 3; } catch (e) { /* cross-origin */ }
+    window.__motioTab = 3;
+  }
+  // Covers, the last seven days and past weeks from your real trips. Each link says which period the story shows.
+  liveVals(L) {
+    const M = window.Motio;
+    const now = Date.now(), today = M.dayStart(), unit = M.settings().unit === 'mi' ? 'mi' : 'km';
+    const to = (t, f, period) => { const l = L(t, f); return { href: l.href, go: (e) => { window.__motioRecap = period; l.go(e); } }; };
+    const short = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
+    const span = (a, b) => { const same = new Date(a).getMonth() === new Date(b).getMonth(); return short(a, same ? { day: 'numeric' } : { day: 'numeric', month: 'short' }) + '–' + short(b, { day: 'numeric', month: 'short' }); };
+    const distNum = (m) => M.fmtNum(unit === 'mi' ? m / 1609.34 : m / 1000);
+    const w0 = M.weekStart(now), wk = M.summarize(w0, w0 + 7 * M.DAY), mon = M.range('month'), td = M.today();
+    const monthName = short(now, { month: 'long' });
+    const covers = [
+      ['THIS WEEK', span(w0, Math.min(now, w0 + 6 * M.DAY)), M.fmtDist(wk.m), wk.ms ? 'Your week, wrapped' : 'Your week starts here', '#3DBF5C', '#1F1D47', '#52CC6E', '#2FA84D', 'recap', 'Recap.dc.html', wk.ms > 0, { kind: 'week', from: w0 }],
+      [monthName.toUpperCase(), 'Month in motion', distNum(mon.m), (unit === 'mi' ? 'miles' : 'kilometres') + ' in ' + monthName, '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', mon.ms > 0, { kind: 'month', from: M.monthStart(now) }],
+      ['TODAY', short(now, { weekday: 'long' }), M.fmtMin(td.min), 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false, { kind: 'day', from: today }]
+    ].map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...to(t, f, period) }));
+    const days = Array.from({ length: 7 }, (_, k) => {
+      const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), fresh = k >= 5 && x.ms > 0;
+      return { label: short(d, { weekday: 'narrow' }), num: new Date(d).getDate(), aria: 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m),
+        ring: fresh ? '#F2766B' : 'rgba(255,255,255,0.25)', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...to('recap', 'Recap.dc.html', { kind: 'day', from: d }) };
+    });
+    const notes = { walk: 'most on foot', run: 'running week', bike: 'pedal power', drive: 'road week', transit: 'transit week' };
+    const colors = ['#B57BE0', '#6E8CF7', '#F2766B', '#F6C343'];
+    const past = [];
+    for (let k = 1; k <= 4; k++) {
+      const a = w0 - k * 7 * M.DAY, x = M.summarize(a, a + 7 * M.DAY);
+      if (!x.ms) continue;
+      const ds = M.days(a, 7), mx = Math.max(1, ...ds.map((d) => d.min));
+      past.push({ range: span(a, a + 6 * M.DAY), km: M.fmtDist(x.m), note: notes[x.modes[0].key], bg: colors[(k - 1) % 4], bars: ds.map((d) => Math.max(4, Math.round(d.min / mx * 100)) + '%'), delay: 200 + past.length * 60 + 'ms', ...to('recap', 'Recap.dc.html', { kind: 'week', from: a }) });
+    }
+    const dec1 = new Date(new Date(now).getFullYear(), 11, 1).getTime();
+    return { covers, days, past, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'none' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+    }
+    const emb = !!this.props.embedded;
+    // Inside the App prototype, links ask the shell to animate the change instead of jumping artboards.
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState({ menuOpen: false, menuClosing: false });
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    if (this.navFrom === undefined) {
+      let t = null;
+      try { t = window.localStorage.getItem('motio.tab'); } catch (e) { /* blocked */ }
+      if (t === null) { try { t = window.sessionStorage.getItem('motio.tab'); } catch (e) { /* blocked */ } }
+      if (t === null) { try { t = window.top.__motioTab; } catch (e) { /* cross-origin */ } }
+      if (t == null) t = window.__motioTab;
+      this.navFrom = t != null && !isNaN(+t) && +t >= 0 && +t <= 3 ? +t : 3;
+    }
+    return { ...(() => {
+        const L = (t, f) => lk(t, f);
+        const covers = [
+          ['THIS WEEK', 'Oct 25–31', '412 km', 'Your week, wrapped', '#3DBF5C', '#1F1D47', '#52CC6E', '#2FA84D', 'recap', 'Recap.dc.html', true],
+          ['OCTOBER', 'Month in motion', '1,780', 'kilometres in October', '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', true],
+          ['TODAY', 'Saturday', '3h 12m', 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false]
+        ].map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...L(t, f) }));
+        const dayKm = [37, 52, 48, 61, 96, 58, 60];
+        const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, i) => {
+          const fresh = i >= 5;
+          return { label, num: 25 + i, aria: 'Recap for Oct ' + (25 + i) + ', ' + dayKm[i] + ' km',
+            ring: fresh ? '#F2766B' : 'rgba(255,255,255,0.25)', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...L('recap', 'Recap.dc.html') };
+        });
+        const past = [['Oct 18–24', '386 km', 'busy Tuesday', '#B57BE0', [50, 70, 100, 60, 55, 80, 40]], ['Oct 11–17', '402 km', 'steps record', '#6E8CF7', [60, 50, 70, 80, 100, 65, 55]], ['Oct 4–10', '371 km', 'most on foot', '#F2766B', [40, 60, 55, 100, 70, 50, 60]], ['Sep 27–Oct 3', '344 km', 'rainy week', '#F6C343', [70, 40, 50, 60, 100, 45, 30]]]
+          .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
+        if (window.Motio) return this.liveVals(L);
+        return { covers, days, past, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
+      })(), rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html') }, navFrom: this.navFrom };
+  }
+}
+</script>
+</body>
+</html>

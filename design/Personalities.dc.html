@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Personality types</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#1F1D47}
+button,a{font:inherit;cursor:pointer;transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.96)}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioCardIn{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes motioShUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioShDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioShFade{from{opacity:0}to{opacity:1}}
+@keyframes motioShFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes motioBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes motioTwinkle{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes motioSpinSlow{to{transform:rotate(360deg)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.1">Movement<br>personalities</h1>
+    <span style="font-size: 13px; color: #C9C5EC">Six ways people move. Yours can change every month.</span>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 20px 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start">
+    <sc-for list="{{ types }}" as="t" hint-placeholder-count="6">
+      <button type="button" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 0 14px; border: 3px solid {{ t.ring }}; border-radius: 26px; background: {{ t.bg }}; color: {{ t.fg }}; text-align: left; overflow: hidden; animation: motioCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
+        <span style="display: block; height: 130px">
+          <sc-if value="{{ t.isWanderer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><circle cx="118" cy="30" r="42" fill="#F58C83"></circle><path d="M6 124 Q 50 92 92 106 T 160 84" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 9"></path><g style="animation: none"><g transform="translate(-6 -22) scale(0.46)"><path d="M188 214 L172 256 L160 294" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path><rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect><path d="M204 214 L226 250 L242 290" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path><path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path><path d="M216 140 L242 170 L254 150" fill="none" stroke="#5B4FE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path><g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="4" stroke-linecap="round"></path></g><circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle><circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle></g></g></svg></sc-if>
+          <sc-if value="{{ t.isSpeedster }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><circle cx="40" cy="34" r="40" fill="#8AA2F9"></circle><g stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.9"><path d="M8 58 H40"></path><path d="M18 74 H46"></path><path d="M6 90 H34"></path></g><g style="animation: none"><circle cx="100" cy="30" r="11" fill="#C47A4E"></circle><path d="M90 24 Q100 12 112 24 Z" fill="#1F1D47"></path><path d="M96 42 L84 70" stroke="#F2766B" stroke-width="15" stroke-linecap="round"></path><path d="M92 48 L76 56 L70 46 M94 48 L110 58 L120 48" fill="none" stroke="#C47A4E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M84 70 L62 84 L50 78 M84 70 L102 92 L96 112" fill="none" stroke="#1F1D47" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path><ellipse cx="46" cy="78" rx="8" ry="4" fill="#F6C343"></ellipse><ellipse cx="100" cy="114" rx="9" ry="4" fill="#F6C343"></ellipse></g><g transform="translate(118 74)"><circle cx="18" cy="20" r="18" fill="#F6C343"></circle><circle cx="18" cy="20" r="12" fill="#FFFFFF"></circle><rect x="14" y="0" width="8" height="5" rx="2" fill="#1F1D47"></rect><g style="transform-origin: 18px 20px; animation: none"><path d="M18 20 V11" stroke="#F2766B" stroke-width="3" stroke-linecap="round"></path></g></g></svg></sc-if>
+          <sc-if value="{{ t.isCommuter }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><rect x="104" y="10" width="44" height="60" rx="6" fill="#E0A92C"></rect><g fill="#FFF4D6"><rect x="112" y="18" width="10" height="8" rx="2"></rect><rect x="130" y="18" width="10" height="8" rx="2"></rect><rect x="112" y="34" width="10" height="8" rx="2"></rect><rect x="130" y="34" width="10" height="8" rx="2"></rect></g><g style="animation: none"><g fill="none" stroke="#1F1D47" stroke-width="5"><circle cx="38" cy="98" r="20"></circle><circle cx="110" cy="98" r="20"></circle></g><path d="M38 98 L62 72 L94 72 L110 98 M62 72 L74 98 L94 72 M74 98 L38 98" fill="none" stroke="#5B4FE0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M64 54 L84 74 L76 98" fill="none" stroke="#1F1D47" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path><path d="M64 52 L86 32" stroke="#F2766B" stroke-width="16" stroke-linecap="round"></path><path d="M86 34 L98 56" stroke="#F2766B" stroke-width="7" stroke-linecap="round"></path><circle cx="94" cy="20" r="10" fill="#8B4A2B"></circle><rect x="96" y="50" width="12" height="14" rx="3" fill="#FFFFFF"></rect><path d="M108 54 h3 a3 3 0 0 1 0 6 h-3" fill="none" stroke="#FFFFFF" stroke-width="2"></path></g><circle cx="26" cy="26" r="16" fill="#FFFFFF"></circle><path d="M26 26 V16 M26 26 L33 30" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path></svg></sc-if>
+          <sc-if value="{{ t.isRoadTripper }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><circle cx="128" cy="30" r="18" fill="#F6C343" style="animation: none"></circle><path d="M0 92 Q 40 70 80 86 T 160 80 V130 H0 Z" fill="#4B3FD8"></path><rect x="0" y="106" width="160" height="24" fill="#2D2A6E"></rect><path d="M6 118 H154" stroke="#F6C343" stroke-width="3" stroke-dasharray="12 10"></path><g style="animation: none"><rect x="46" y="58" width="22" height="12" rx="3" fill="#F6C343"></rect><rect x="70" y="60" width="18" height="10" rx="3" fill="#3DBF5C"></rect><path d="M30 104 V92 Q30 86 36 86 L46 86 L56 72 H90 L102 86 H110 Q118 86 118 94 V104 Z" fill="#F2766B"></path><path d="M60 76 H86 L94 86 H54 Z" fill="#BFD0FF"></path><circle cx="50" cy="106" r="9" fill="#1F1D47"></circle><circle cx="100" cy="106" r="9" fill="#1F1D47"></circle><circle cx="50" cy="106" r="3" fill="#FFFFFF"></circle><circle cx="100" cy="106" r="3" fill="#FFFFFF"></circle></g></svg></sc-if>
+          <sc-if value="{{ t.isExplorer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><path d="M-6 130 L54 36 L92 92 L112 62 L170 130 Z" fill="#2FA84D"></path><path d="M54 36 L42 55 L50 52 L56 60 L64 52 L68 56 Z" fill="#FFFFFF"></path><path d="M112 62 L104 74 L112 72 L118 78 L122 74 Z" fill="#FFFFFF"></path><path d="M54 36 V12" stroke="#1F1D47" stroke-width="3" stroke-linecap="round"></path><path d="M54 12 L74 18 L54 24 Z" fill="#F2766B" style="transform-origin: 54px 18px; animation: none"></path><g style="animation: none"><rect x="104" y="80" width="18" height="26" rx="6" fill="#F6C343"></rect><circle cx="126" cy="74" r="8" fill="#C47A4E"></circle><path d="M126 84 L124 104 M124 104 L118 122 M124 104 L132 122" fill="none" stroke="#5B4FE0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M134 88 L142 122" stroke="#8B4A2B" stroke-width="3" stroke-linecap="round"></path></g></svg></sc-if>
+          <sc-if value="{{ t.isNightOwl }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="100%" height="130" viewBox="0 0 160 130"><path d="M132 14 a20 20 0 1 0 14 34 a16 16 0 1 1 -14 -34 z" fill="#F6C343"></path><g fill="#FFFFFF"><circle cx="20" cy="18" r="2" style="animation: none"></circle><circle cx="60" cy="10" r="1.6" style="animation: none"></circle><circle cx="94" cy="28" r="2" style="animation: none"></circle><circle cx="36" cy="44" r="1.4" style="animation: none"></circle></g><path d="M86 52 L22 82 L22 100 Z" fill="#F6C343" opacity="0.28"></path><g style="animation: none"><circle cx="92" cy="50" r="10" fill="#8B4A2B"></circle><rect x="84" y="42" width="16" height="5" rx="2" fill="#F6C343"></rect><path d="M90 62 L80 88" stroke="#B57BE0" stroke-width="13" stroke-linecap="round"></path><path d="M86 66 L72 76 M88 66 L102 74" stroke="#8B4A2B" stroke-width="5" stroke-linecap="round"></path><path d="M80 88 L62 102 M80 88 L94 108" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"></path></g><rect x="0" y="116" width="160" height="14" fill="#2D2A6E"></rect></svg></sc-if>
+        </span>
+        <span style="padding: 0 14px; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 15px; font-weight: 700; line-height: 1.2">{{ t.name }}</span>
+          <span style="font-size: 11px; font-weight: 500; opacity: 0.85">{{ t.tag }}</span>
+        </span>
+        <sc-if value="{{ t.yours }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; padding: 3px 9px; border-radius: 10px; background: #FFFFFF; color: #1F1D47; font-size: 10px; font-weight: 700; letter-spacing: 0.5px">{{ t.badge }}</span></sc-if>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; color: #1F1D47">
+      <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(10,8,40,0.6); cursor: default; animation: {{ scrimAnim }}"></button>
+      <section aria-label="{{ cur.name }}" style="position: relative; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 10px 20px 28px; display: flex; flex-direction: column; gap: 12px; animation: {{ sheetAnim }}">
+        <span aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span style="width: 52px; height: 52px; border-radius: 18px; flex-shrink: 0; background: {{ cur.bg }}"></span>
+          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 22px; font-weight: 700; line-height: 1.15">{{ cur.name }}</span><span style="font-size: 12px; color: #6B6890">{{ cur.note }}</span></span>
+        </div>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4A4770">{{ cur.desc }}</p>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 18px; background: #F3F2FA">
+          <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: #6B6890">HOW TO GET IT</span>
+          <sc-for list="{{ cur.how }}" as="h" hint-placeholder-count="3"><span style="display: flex; gap: 8px; font-size: 13px; line-height: 1.45"><span style="width: 6px; height: 6px; margin-top: 7px; border-radius: 3px; flex-shrink: 0; background: {{ cur.bg }}"></span>{{ h }}</span></sc-for>
+        </div>
+        <button type="button" onClick="{{ close }}" style="min-height: 52px; border-radius: 26px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600">Got it</button>
+      </section>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    // Only the type your trips actually give you gets the badge; nobody gets one before there's enough data.
+    const mine = window.Motio ? window.Motio.personality().key : 'wanderer';
+    const monthTag = 'YOU · ' + new Date().toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
+    const TYPES = [
+      ['wanderer', 'The Urban Wanderer', 'Feet first, long way home', '#F2766B', '#1F1D47', '12%', 'You’d rather take the long way. Most of your moving is on foot, you range far from home and you rarely take the fastest route.', ['A third or more of your moving time on foot', 'Daily trips that are longer than the fastest route', 'At least three ways of moving in a month']],
+      ['speedster', 'The Speedster', 'Fast, focused, gone', '#6E8CF7', '#1F1D47', '9%', 'Short trips, high speeds. You run more than most and your average pace keeps creeping up.', ['Runs on at least 8 days of the month', 'A top-third average running pace', 'Little time spent idling between trips']],
+      ['commuter', 'The Commuter', 'Clockwork mornings', '#F6C343', '#1F1D47', '31%', 'Same time, same route, every weekday. Your peak hours line up like clockwork around work.', ['Weekday trips that start within 20 minutes of each other', 'Most moving between 7–9 AM and 5–7 PM', 'A steady weekday routine for 3+ weeks']],
+      ['roadtripper', 'The Road Tripper', 'Wheels and long hauls', '#5B4FE0', '#FFFFFF', '22%', 'You cover serious ground. Driving is your main way to move, and your weekends go far.', ['Half or more of your distance by car', 'At least one trip over 100 km', 'Weekend distance higher than weekdays']],
+      ['explorer', 'The Explorer', 'Always somewhere new', '#3DBF5C', '#1F1D47', '14%', 'New streets, new trails, new places. A big share of your trips go somewhere you’ve never been.', ['A quarter of trips to places you haven’t visited', 'Moves spread across lots of neighbourhoods', 'Weekend walks or rides over 10 km']],
+      ['nightowl', 'The Night Owl', 'Moves after dark', '#2D2A6E', '#FFFFFF', '12%', 'The city is yours after 8 PM. Your busiest hours come long after most people are home.', ['A third of your moving after 8 PM', 'Late runs or walks at least once a week', 'Quiet mornings before 10 AM']]
+    ];
+    const pick = s.open || null;
+    const cur = TYPES.find((t) => t[0] === pick) || TYPES[0];
+    const close = () => {
+      if (s.closing) return;
+      this.setState({ closing: true });
+      setTimeout(() => this.setState({ open: null, closing: false }), 260);
+    };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Personality.dc.html') },
+      types: TYPES.map(([key, name, tag, bg, fg], i) => ({
+        name, tag, bg, fg, delay: i * 60 + 'ms', yours: key === mine, badge: monthTag,
+        ring: key === mine ? '#FFFFFF' : 'transparent', aria: name + (key === mine ? ', your type' : ''),
+        isWanderer: key === 'wanderer', isSpeedster: key === 'speedster', isCommuter: key === 'commuter',
+        isRoadTripper: key === 'roadtripper', isExplorer: key === 'explorer', isNightOwl: key === 'nightowl',
+        open: () => this.setState({ open: key, closing: false })
+      })),
+      sheetOpen: !!pick,
+      cur: { name: cur[1], bg: cur[3], share: cur[5], note: cur[0] === mine ? 'Your type right now' : mine ? 'Not your type right now' : 'Your type shows after 3h of moving', desc: cur[6], how: cur[7] },
+      close,
+      sheetAnim: s.closing ? 'motioShDown 260ms ease-in forwards' : 'motioShUp 380ms cubic-bezier(0.22, 1, 0.36, 1)',
+      scrimAnim: s.closing ? 'motioShFadeOut 260ms ease-in forwards' : 'motioShFade 240ms ease-out'
+    };
+  }
+}
+</script>
+</body>
+</html>

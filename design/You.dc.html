@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · You</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#8C7CF0}
+a{color:inherit}a:hover{opacity:.9}
+button,input,textarea{font:inherit;cursor:pointer}
+input,textarea{cursor:text}
+@keyframes motioUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioFade{from{opacity:0}to{opacity:1}}
+@keyframes motioDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes motioPillFrom0{from{transform:translateX(calc(0 * (100% + 4px)))}}
+@keyframes motioPillFrom1{from{transform:translateX(calc(1 * (100% + 4px)))}}
+@keyframes motioPillFrom2{from{transform:translateX(calc(2 * (100% + 4px)))}}
+@keyframes motioPillFrom3{from{transform:translateX(calc(3 * (100% + 4px)))}}
+@keyframes motioTabPop{0%{transform:scale(0.7)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+.motio-tab-icon{transition:transform 140ms ease}
+nav a:active .motio-tab-icon,nav button:active .motio-tab-icon{transform:scale(0.82)}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.96)}
+@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
+@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #8C7CF0; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 12px">
+
+  <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none">
+    <circle cx="350" cy="30" r="120" fill="#9888F4"></circle>
+  </svg>
+
+  <div style="position: relative; display: flex; align-items: center; gap: 14px; min-height: 64px">
+    <span style="width: 60px; height: 60px; border-radius: 30px; background: #C9BDFF; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 3px #FFFFFF"><sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ photo }}" alt="Profile photo" style="width: 60px; height: 60px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #1F1D47; color: #FFFFFF; font-size: 21px; font-weight: 600; letter-spacing: 0.5px">{{ initials }}</span></sc-if></span>
+    <div style="display: flex; flex-direction: column; flex: 1; color: #FFFFFF">
+      <span style="font-size: 22px; font-weight: 700; line-height: 1.2">{{ name }}</span>
+      <sc-if value="{{ hasBio }}" hint-placeholder-val="{{ true }}">
+        <span style="font-size: 12px; line-height: 1.4; color: #FFFFFF">{{ bio }}</span>
+      </sc-if>
+    </div>
+    <a href="{{ LK.settings.href }}" onClick="{{ LK.settings.go }}" aria-label="Settings" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></a>
+    <button onClick="{{ openEdit }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-shrink: 0"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>Edit</button>
+  </div>
+
+  <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" style="position: relative; display: block; height: 176px; border-radius: 28px; background: #F2766B; overflow: hidden; text-decoration: none; color: #1F1D47; box-shadow: 0 12px 28px rgba(40,20,120,0.3)">
+    <svg aria-hidden="true" width="350" height="176" viewBox="0 0 350 176" style="position: absolute; inset: 0">
+      <path d="M150 60 Q 220 10 360 50 V 176 H 150 Z" fill="#F58C83"></path>
+      <path d="M170 176 Q 210 120 260 140 T 350 90" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12"></path>
+      <g transform="translate(168 20) scale(0.52)">
+        <ellipse cx="200" cy="304" rx="70" ry="9" fill="#D9534A" opacity="0.6"></ellipse>
+        <path d="M188 214 L172 256 L160 294" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M144 300 Q146 290 160 290 Q170 290 172 300 Z" fill="#FFFFFF"></path>
+        <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
+        <path d="M180 142 L164 186" stroke="#4B3FD8" stroke-width="17" stroke-linecap="round"></path>
+        <circle cx="163" cy="190" r="8" fill="#8B4A2B"></circle>
+        <path d="M204 214 L226 250 L242 290" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M232 298 Q234 286 248 286 Q262 286 264 298 Z" fill="#FFFFFF"></path>
+        <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path>
+        <path d="M216 140 L242 170 L254 150" fill="none" stroke="#5B4FE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
+        <g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round"></path><circle cx="300" cy="112" r="4" fill="#F2766B"></circle></g>
+        <circle cx="254" cy="148" r="8" fill="#8B4A2B"></circle>
+        <rect x="190" y="108" width="15" height="18" rx="5" fill="#7A3F24"></rect>
+        <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
+        <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle><circle cx="179" cy="90" r="10" fill="#2A1B3D"></circle>
+        <circle cx="212" cy="96" r="2.6" fill="#2A1B3D"></circle>
+        <path d="M206 105 Q212 110 218 104" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
+      </g>
+    </svg>
+    <div style="position: absolute; left: 20px; top: 18px; bottom: 18px; width: 170px; display: flex; flex-direction: column; justify-content: space-between">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 12px; font-weight: 600">Your movement personality</span>
+        <span style="font-size: 24px; font-weight: 600; line-height: 1.15">{{ persA }}<br>{{ persB }}</span>
+      </div>
+      <div style="display: flex; gap: 6px">
+        <span style="padding: 5px 10px; border-radius: 14px; background: #FFFFFF; font-size: 11px"><b>{{ persStatB }}</b> {{ persStatT }}</span>
+        <span style="display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 14px; background: #FFFFFF; font-size: 11px; font-weight: 600">See why<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span>
+      </div>
+    </div>
+  </a>
+
+  <div style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 28px; background: #FFFFFF">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 600">{{ monthTitle }}</h2>
+      <span style="font-size: 12px; color: #6B6890">tap a day</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 3px; height: 54px">
+      <sc-for list="{{ days }}" as="d" hint-placeholder-count="31">
+        <button aria-label="{{ d.label }}" onClick="{{ d.pick }}" style="flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: transparent; display: flex; align-items: flex-end"><span style="display: block; width: 100%; height: {{ d.h }}; border-radius: 3px; background: {{ d.bg }}"></span></button>
+      </sc-for>
+    </div>
+    <button onClick="{{ openMonth }}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
+      <span style="padding: 5px 10px; border-radius: 14px; background: #EEF0F6; font-size: 12px"><b>{{ mHours }}</b> moved</span>
+      <span style="padding: 5px 10px; border-radius: 14px; background: #EEF0F6; font-size: 12px"><b>{{ mDist }}</b> {{ mUnit }}</span>
+      <span style="padding: 5px 10px; border-radius: 14px; background: #EEF0F6; font-size: 12px"><b>{{ mSteps }}</b> steps</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto"><path d="M9 5l7 7-7 7"></path></svg>
+    </button>
+  </div>
+
+  <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 28px; background: #FFFFFF">
+    <h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 600">Personal records</h2>
+    <sc-if value="{{ noRecords }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #6B6890">Your longest ride, most steps and fastest run show up here once you’ve moved a bit.</span></sc-if>
+    <sc-for list="{{ records }}" as="r" hint-placeholder-count="3">
+      <button onClick="{{ r.pick }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
+        <span style="width: 40px; height: 40px; border-radius: 20px; flex-shrink: 0; background: {{ r.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M12 14v4M8 21h8"></path></svg></span>
+        <span style="display: flex; flex-direction: column; flex: 1"><span style="font-size: 14px; font-weight: 600">{{ r.title }}</span><span style="font-size: 12px; color: #6B6890">{{ r.date }}</span></span>
+        <span style="font-size: 16px; font-weight: 700">{{ r.value }}</span>
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
+  <nav aria-label="Main" style="position: relative; margin-top: auto; flex-shrink: 0; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18)">
+    <a href="Main.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>Today</a>
+    <a href="Breakdown.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg></span>Moves</a>
+    <a href="You.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.5"></circle><path d="M3.5 21.5c1.3-4.6 4.6-7 8.5-7s7.2 2.4 8.5 7z"></path></svg></span>You</a>
+    <a href="Recaps.dc.html" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #6B6890; font-weight: 500"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"></path></svg></span>Recap</a>
+  </nav>
+  </sc-if>
+  <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
+
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end">
+      <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5); cursor: default; animation: {{ scrimAnim }}"></button>
+      <section ref="{{ sheetRef }}" aria-label="{{ sheetTitle }}" style="position: relative; height: {{ sheetH }}; max-height: {{ sheetMax }}; transform: translateY({{ dragY }}); transition: {{ sheetTrans }}; animation: {{ sheetAnim }}; box-sizing: border-box; overflow-y: auto; border-radius: {{ sheetRadius }}; background: #FFFFFF; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -12px 40px rgba(20,14,70,0.3)">
+        <button aria-label="{{ handleLabel }}" onPointerDown="{{ dragStart }}" style="align-self: stretch; flex-shrink: 0; height: 26px; margin: 0 -20px -10px; border: 0; padding: 0; background: transparent; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center"><span style="width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span></button>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <button aria-label="Back" onClick="{{ close }}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: 0; background: #EEF0F6; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <h2 style="margin: 0; font-size: 18px; font-weight: 600">{{ sheetTitle }}</h2>
+        </div>
+
+        <sc-if value="{{ isDay }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div style="display: flex; flex-direction: column">
+              <span style="font-size: 13px; color: #6B6890">On the move for</span>
+              <span style="font-size: 48px; font-weight: 700; line-height: 1.05; letter-spacing: -1.5px">{{ day.time }}</span>
+              <span style="align-self: flex-start; margin-top: 6px; padding: 4px 10px; border-radius: 12px; background: {{ day.vsBg }}; font-size: 12px; font-weight: 600">{{ day.vs }}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ day.km }} km</span><span style="font-size: 11px; color: #6B6890">travelled</span></div>
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ day.steps }}</span><span style="font-size: 11px; color: #6B6890">steps</span></div>
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ day.top }} km/h</span><span style="font-size: 11px; color: #6B6890">top speed</span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="display: flex; height: 14px; gap: 3px">
+                <sc-for list="{{ day.parts }}" as="p" hint-placeholder-count="5"><span style="width: {{ p.w }}; border-radius: 7px; background: {{ p.color }}"></span></sc-for>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; font-weight: 500">
+                <sc-for list="{{ day.parts }}" as="p" hint-placeholder-count="5"><span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ p.color }}"></span>{{ p.label }}</span></sc-for>
+              </div>
+            </div>
+
+            <sc-if value="{{ notFull }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ expand }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 22px; border: 2px dashed #E3E1F3; background: transparent; color: #4A4770; font-size: 13px; font-weight: 600"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A4770" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"></path></svg>Drag up for trips &amp; hour by hour</button>
+            </sc-if>
+
+            <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 16px; padding-top: 4px; border-top: 1px solid #EEF0F6">
+                <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 12px">
+                  <h3 style="margin: 0; font-size: 15px; font-weight: 600">Hour by hour</h3>
+                  <div role="img" aria-label="{{ day.hourLabel }}" style="display: flex; align-items: flex-end; gap: 3px; height: 70px">
+                    <sc-for list="{{ day.hours }}" as="hr" hint-placeholder-count="18"><span style="flex: 1; height: {{ hr.h }}; border-radius: 3px; background: {{ hr.bg }}"></span></sc-for>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: #6B6890"><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11 PM</span></div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <h3 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Trips</h3>
+                  <sc-for list="{{ day.trips }}" as="t" hint-placeholder-count="5">
+                    <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
+                      <span style="width: 44px; font-size: 12px; font-weight: 600; color: #6B6890">{{ t.time }}</span>
+                      <span style="width: 34px; height: 34px; border-radius: 17px; flex-shrink: 0; background: {{ t.color }}; box-shadow: none"></span>
+                      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.km }}</span></span>
+                      <span style="font-size: 14px; font-weight: 700">{{ t.dur }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isRecord }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div style="position: relative; height: 130px; border-radius: 22px; background: #F3F2FA; overflow: hidden">
+              <svg aria-hidden="true" width="350" height="130" viewBox="0 0 350 130" style="position: absolute; inset: 0">
+                <path d="M0 40 H350 M0 95 H350 M90 0 V130 M230 0 V130" stroke="#E3E1F3" stroke-width="10"></path>
+                <path d="M34 104 C 70 104, 70 60, 120 64 S 170 104, 214 82 S 270 26, 312 30" fill="none" stroke="{{ rec.color }}" stroke-width="6" stroke-linecap="round"></path>
+                <circle cx="34" cy="104" r="8" fill="#FFFFFF" stroke="#1F1D47" stroke-width="3"></circle>
+                <circle cx="312" cy="30" r="9" fill="#1F1D47"></circle>
+              </svg>
+              <span style="position: absolute; right: 12px; bottom: 10px; padding: 4px 10px; border-radius: 12px; background: #F6C343; font-size: 11px; font-weight: 700">NEW PR</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; justify-content: space-between">
+              <div style="display: flex; flex-direction: column"><span style="font-size: 40px; font-weight: 700; line-height: 1.05; letter-spacing: -1px">{{ rec.value }}</span><span style="font-size: 13px; color: #6B6890">{{ rec.date }}</span></div>
+              <span style="padding: 4px 10px; border-radius: 12px; background: #DDF5E3; color: #1E7A36; font-size: 12px; font-weight: 600">{{ rec.gain }}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+              <sc-for list="{{ rec.stats }}" as="st" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 15px; font-weight: 700">{{ st.v }}</span><span style="font-size: 11px; color: #6B6890">{{ st.k }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ mHours }}</span><span style="font-size: 11px; color: #6B6890">moved</span></div>
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ mDist }} {{ mUnit }}</span><span style="font-size: 11px; color: #6B6890">travelled</span></div>
+              <div style="display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #F3F2FA"><span style="font-size: 17px; font-weight: 700">{{ mSteps }}</span><span style="font-size: 11px; color: #6B6890">steps</span></div>
+            </div>
+            <sc-for list="{{ monthModes }}" as="m" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; gap: 6px">
+                <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 600">{{ m.label }}</span><span><b>{{ m.time }}</b> · {{ m.pct }}</span></div>
+                <div style="height: 10px; border-radius: 5px; background: #F3F2FA"><div style="width: {{ m.w }}; height: 10px; border-radius: 5px; background: {{ m.color }}"></div></div>
+              </div>
+            </sc-for>
+            <span style="padding: 10px 14px; border-radius: 16px; background: #FFF4D6; font-size: 13px">{{ busyPre }}<b>{{ busyDay }}</b>{{ busyPost }}</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; align-items: center; gap: 14px">
+              <span style="width: 72px; height: 72px; border-radius: 36px; background: #C9BDFF; overflow: hidden; flex-shrink: 0"><sc-if value="{{ hasDraftPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ draftPhoto }}" alt="New profile photo" style="width: 72px; height: 72px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noDraftPhoto }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="72" height="72" viewBox="0 0 48 48"><path d="M6 50 Q24 30 42 50 Z" fill="#F2766B"></path><circle cx="24" cy="24" r="11" fill="#8B4A2B"></circle><path d="M12 22 Q12 10 24 10 Q36 10 36 22 Q31 15 24 16 Q17 15 12 22 Z" fill="#2A1B3D"></path></svg></sc-if></span>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <label style="position: relative; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 20px; background: #EEF0F6; color: #1F1D47; font-size: 13px; font-weight: 600; cursor: pointer"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>Upload photo<input type="file" accept="image/*" onChange="{{ onPhoto }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer"></label>
+                <span style="font-size: 11px; color: #6B6890">JPG or PNG, square works best</span>
+              </div>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Name
+              <input value="{{ draftName }}" onChange="{{ onName }}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 16px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 15px; font-weight: 500">
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Bio <span style="font-weight: 400; color: #6B6890">Optional · shown under your name</span>
+              <textarea rows="3" value="{{ draftBio }}" onChange="{{ onBio }}" style="box-sizing: border-box; padding: 12px 14px; border-radius: 16px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none"></textarea>
+            </label>
+            <button onClick="{{ save }}" style="height: 52px; border-radius: 26px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600; box-shadow: none">Save</button>
+          </div>
+        </sc-if>
+      </section>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Remember which screen opened Settings so its Back returns there.
+  fromSet(v) {
+    try { window.localStorage.setItem('motio.settingsFrom', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.settingsFrom', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioSettingsFrom = v; } catch (e) { /* cross-origin */ }
+    window.__motioSettingsFrom = v;
+  }
+  fromGet() {
+    let v = null;
+    try { v = window.localStorage.getItem('motio.settingsFrom'); } catch (e) { /* blocked */ }
+    if (v === null) { try { v = window.sessionStorage.getItem('motio.settingsFrom'); } catch (e) { /* blocked */ } }
+    if (v === null) { try { v = window.top.__motioSettingsFrom; } catch (e) { /* cross-origin */ } }
+    if (v == null) v = window.__motioSettingsFrom;
+    return v || null;
+  }
+  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
+  dirGet() {
+    let d = null;
+    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
+    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
+    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
+    if (d == null) d = window.__motioDir;
+    return d || null;
+  }
+  dirSet(v) {
+    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
+    window.__motioDir = v;
+  }
+  standaloneNav(e, target) {
+    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
+    const el = e && e.currentTarget;
+    if (!el) return;
+    e.preventDefault();
+    this.dirSet('back');
+    this.setState({ leaving: true });
+    setTimeout(() => { this.navNow = true; el.click(); }, 200);
+  }
+  componentDidMount() {
+    // Remember this tab so the next screen can slide its pill in from here.
+    const v = String(2);
+    try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.sessionStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
+    try { window.top.__motioTab = 2; } catch (e) { /* cross-origin */ }
+    window.__motioTab = 2;
+  }
+  // Profile numbers from your real trips (window.Motio). Shapes match the sample data below.
+  liveVals(sh, open, s) {
+    const M = window.Motio;
+    const fmt = (m) => M.fmtMin(m).replace(/ 0(\d)m$/, ' $1m');
+    // A rolling 30 days, so the chart is never nearly empty at the start of a month.
+    const now = Date.now(), nDays = 30, m0 = M.dayStart(now) - (nDays - 1) * M.DAY;
+    const list = M.days(m0, nDays);
+    const maxMin = Math.max(1, ...list.map((x) => x.min));
+    const dayName = (t, long) => new Date(t).toLocaleDateString('en-GB', { weekday: long ? 'long' : 'short', day: 'numeric', month: 'short' });
+    const days = list.map((x, i) => {
+      const p = Math.round(x.min / maxMin * 100), sel = sh.kind === 'day' && sh.i === i, future = x.from > now;
+      return { h: Math.max(future ? 0 : 3, p) + '%', bg: sel ? '#1F1D47' : x.min && p === 100 ? '#F2766B' : p >= 64 ? '#5B4FE0' : '#C9C5EC', label: dayName(x.from, true), pick: future ? () => {} : open({ kind: 'day', i }) };
+    });
+    const mon = M.summarize(m0, M.dayStart(now) + M.DAY);
+    const unit = M.settings().unit === 'mi' ? 'mi' : 'km';
+    const dist = unit === 'mi' ? mon.m / 1609.34 : mon.m / 1000;
+    const big = (n) => (n >= 10000 ? Math.round(n / 1000) + 'k' : M.fmtNum(n));
+    const busiest = list.reduce((a, x) => (x.min > (a ? a.min : 0) ? x : a), null);
+    const monthModes = mon.modes.map((x) => ({ label: x.label, color: x.color, time: fmt(x.min || x.ms / M.MIN), pct: x.pct + '%', w: Math.round(x.pct / Math.max(1, mon.modes[0].pct) * 100) + '%' }));
+
+    let day = null;
+    if (sh.kind === 'day' && list[sh.i]) {
+      const x = list[sh.i];
+      const past = list.filter((y) => y.from < M.dayStart() && y.min > 0);
+      const avg = past.length ? past.reduce((a, y) => a + y.min, 0) / past.length : 0;
+      const diff = avg ? Math.round((x.min / avg - 1) * 100) : 0;
+      const hrs = x.hourly.slice(6, 24), hmax = Math.max(1, ...hrs);
+      day = {
+        title: dayName(x.from, true),
+        time: fmt(x.min),
+        vs: avg ? (diff >= 0 ? '+' : '') + diff + '% vs your daily average' : 'Your first tracked day',
+        vsBg: diff >= 0 ? '#DDF5E3' : '#EEF0F6',
+        km: M.fmtDist(x.m).replace(/ (km|mi)$/, ''),
+        steps: M.fmtNum(x.steps),
+        top: Math.round(x.top * (unit === 'mi' ? 2.23694 : 3.6)),
+        parts: x.modes.map((y) => ({ w: y.pct + '%', color: y.color, label: y.label + ' ' + y.pct + '%' })),
+        hours: hrs.map((v) => ({ h: Math.max(4, Math.round(v / hmax * 100)) + '%', bg: v === hmax && v ? '#F2766B' : v / hmax >= 0.5 ? '#5B4FE0' : '#C9C5EC' })),
+        hourLabel: x.peak != null ? 'Minutes moved per hour, busiest at ' + M.fmtHour(x.peak) : 'No moves recorded this day',
+        trips: x.trips.map((t) => ({ time: new Date(t.start).toTimeString().slice(0, 5), label: M.MODES[t.mode].label, color: M.MODES[t.mode].color, dur: fmt((t.end - t.start) / M.MIN), km: M.fmtDist(t.distanceM) }))
+      };
+    }
+
+    const r = M.records();
+    const short = (t) => new Date(t).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const recs = [];
+    if (r.ride) recs.push({ title: 'Longest ride', value: M.fmtDist(r.ride.distanceM), date: short(r.ride.start), color: '#6E8CF7', gain: 'Your best so far',
+      stats: [{ k: 'ride time', v: fmt((r.ride.end - r.ride.start) / M.MIN) }, { k: 'avg speed', v: M.fmtSpeed(r.ride.distanceM / ((r.ride.end - r.ride.start) / 1000)) }, { k: 'top speed', v: M.fmtSpeed(r.ride.maxSpeed || 0) }] });
+    if (r.stepsDay) { const sd = M.summarize(r.stepsDay.day, r.stepsDay.day + M.DAY); recs.push({ title: 'Most steps in a day', value: M.fmtNum(r.stepsDay.steps), date: short(r.stepsDay.day), color: '#3DBF5C', gain: 'Your best so far',
+      stats: [{ k: 'travelled', v: M.fmtDist(sd.m) }, { k: 'on the move', v: fmt(sd.min) }, { k: 'trips', v: String(sd.trips.length) }] }); }
+    if (r.run) { const sec = r.run.pace * (unit === 'mi' ? 1609.34 : 1000) / 1000, t = r.run.t; recs.push({ title: 'Fastest run pace', value: Math.floor(sec / 60) + ':' + String(Math.round(sec % 60)).padStart(2, '0') + ' /' + unit, date: short(t.start), color: '#F2766B', gain: 'Your best so far',
+      stats: [{ k: 'distance', v: M.fmtDist(t.distanceM) }, { k: 'total time', v: fmt((t.end - t.start) / M.MIN) }, { k: 'top speed', v: M.fmtSpeed(t.maxSpeed || 0) }] }); }
+    const records = recs.map((x, i) => ({ ...x, pick: open({ kind: 'record', i }) }));
+
+    const pers = M.personality();
+    const words = pers.name.replace(/^The /, 'The\u00a0').split(' ');
+    const half = Math.ceil(words.length / 2);
+    const top = mon.modes[0];
+    return {
+      days, records, day, monthModes, monthTitle: 'Last 30 days',
+      vals: {
+        monthTitle: 'Last 30 days',
+        mHours: Math.round(mon.min / 60) + 'h', mDist: M.fmtNum(dist), mUnit: unit, mSteps: big(mon.steps),
+        busyPre: busiest ? 'Busiest day: ' : 'No moves in the last 30 days. ',
+        busyDay: busiest ? short(busiest.from) : '',
+        busyPost: busiest ? ', ' + fmt(busiest.min) + ' on the move' : 'Your days will fill in here.',
+        persA: words.slice(0, half).join(' ').replace('\u00a0', ' '), persB: words.slice(half).join(' '),
+        persStatB: pers.enough && top ? top.pct + '%' : M.fmtMin(M.summarize(now - 30 * M.DAY, now).min),
+        persStatT: pers.enough && top ? top.label.toLowerCase() : 'of 3h needed',
+        noRecords: records.length === 0
+      }
+    };
+  }
+  renderVals() {
+    if (this.entryAnim === undefined) {
+      const d = this.props.embedded ? null : this.dirGet();
+      if (d) this.dirSet('');
+      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
+      // inside the App prototype the full slides play over the real page behind.
+      this.entryAnim = this.props.embedded ? 'none' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+    }
+    const emb = !!this.props.embedded;
+    // Inside the App prototype, links ask the shell to animate the change instead of jumping artboards.
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (target === 'settings') this.fromSet('you');
+      if (!emb) { this.standaloneNav(e, target); return; }
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState({ menuOpen: false, menuClosing: false });
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const sh = s.sheet || {};
+    const me = window.Motio ? window.Motio.auth.user() || {} : null;
+    const name = me ? me.name || 'You' : s.name ?? 'Alex';
+    const bio = me ? me.bio || '' : s.bio ?? 'Coffee walks, bike commutes, and always the long way home.';
+    const photo = me ? me.avatar || '' : s.photo || '';
+    const open = (sheet) => () => this.setState({ sheet, sheetFull: false, closing: false, drag: null });
+    const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    // Slide the sheet down, then unmount it.
+    const close = () => {
+      if (s.closing) return;
+      this.setState({ closing: true, drag: null });
+      setTimeout(() => this.setState({ sheet: null, closing: false, sheetFull: false }), 260);
+    };
+    const full = !!s.sheetFull;
+    const drag = s.drag;
+    // Grab handle: drag up to go full screen, down to shrink or dismiss; a tap toggles.
+    const dragStart = (e) => {
+      const el = this.sheetEl;
+      if (!el) return;
+      const startY = e.clientY;
+      const h0 = el.offsetHeight;
+      const parentH = el.parentElement.offsetHeight;
+      const scale = el.getBoundingClientRect().height / h0 || 1;
+      const move = (ev) => this.setState({ drag: { h0, parentH, dy: (ev.clientY - startY) / scale } });
+      const up = (ev) => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        const dy = (ev.clientY - startY) / scale;
+        const isFull = !!(this.state && this.state.sheetFull);
+        if (Math.abs(dy) < 6) this.setState({ drag: null, sheetFull: !isFull });
+        else if (dy < -50) this.setState({ drag: null, sheetFull: true });
+        else if (dy > 80 && isFull) this.setState({ drag: null, sheetFull: false });
+        else if (dy > 80) close();
+        else this.setState({ drag: null });
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    };
+    let sheetH = full ? 'calc(100% - 8px)' : 'auto';
+    let dragY = '0px';
+    let sheetTrans = 'height 340ms ' + ease + ', transform 340ms ' + ease + ', border-radius 340ms ' + ease;
+    if (drag) {
+      sheetTrans = 'none';
+      if (drag.dy < 0 || full) sheetH = Math.min(drag.parentH - 8, Math.max(200, drag.h0 - drag.dy)) + 'px';
+      else dragY = drag.dy + 'px';
+    }
+    const fmt = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + 'm');
+    const modes = [['Walk', '#3DBF5C'], ['Drive', '#F6C343'], ['Bike', '#6E8CF7'], ['Transit', '#B57BE0'], ['Run', '#F2766B']];
+    const wk = ['Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed'];
+    const wkLong = ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
+    // Bar heights as % of the busiest day (Fri 16 Oct, 290 min); 31 Oct matches the Today screen.
+    const pcts = [40, 55, 48, 62, 70, 85, 30, 52, 58, 44, 66, 74, 90, 36, 60, 100, 64, 50, 78, 82, 34, 56, 46, 60, 68, 72, 58, 54, 62, 92, 66];
+
+    let days = pcts.map((p, i) => {
+      const sel = sh.kind === 'day' && sh.i === i;
+      return {
+        h: p + '%',
+        bg: sel ? '#1F1D47' : p === 100 ? '#F2766B' : p >= 64 ? '#5B4FE0' : '#C9C5EC',
+        label: wk[i % 7] + ' ' + (i + 1) + ' October',
+        pick: open({ kind: 'day', i })
+      };
+    });
+
+    let records = [
+      { title: 'Longest ride', value: '18.4 km', date: 'Thu, 29 Oct', color: '#6E8CF7', gain: '+2.5 km vs last best',
+        stats: [{ k: 'ride time', v: '58 min' }, { k: 'avg speed', v: '19 km/h' }, { k: 'previous', v: '15.9 km' }] },
+      { title: 'Most steps in a day', value: '18,930', date: 'Sun, 11 Oct', color: '#3DBF5C', gain: '+2,528 vs last best',
+        stats: [{ k: 'walked', v: '13.1 km' }, { k: 'on foot', v: '4h 2m' }, { k: 'previous', v: '16,402' }] },
+      { title: 'Fastest run pace', value: '4:21 /km', date: 'Tue, 20 Oct', color: '#F2766B', gain: '13 s/km faster',
+        stats: [{ k: 'distance', v: '5.0 km' }, { k: 'total time', v: '21:45' }, { k: 'previous', v: '4:34 /km' }] }
+    ].map((r, i) => ({ ...r, pick: open({ kind: 'record', i }) }));
+
+    let day = null;
+    if (sh.kind === 'day' && !window.Motio) {
+      const i = sh.i, p = pcts[i], last = i === 30;
+      const min = last ? 192 : Math.round(p * 2.9);
+      const weekend = wk[i % 7] === 'Sat' || wk[i % 7] === 'Sun';
+      const split = last ? [35, 28, 20, 12, 5] : weekend ? [48, 18, 16, 8, 10] : [30, 32, 20, 12, 6];
+      const diff = Math.round((min / 180 - 1) * 100);
+      day = {
+        title: wkLong[i % 7] + ', ' + (i + 1) + ' Oct',
+        time: fmt(min),
+        vs: (diff >= 0 ? '+' : '') + diff + '% vs your daily average',
+        vsBg: diff >= 0 ? '#DDF5E3' : '#EEF0F6',
+        km: last ? '60.2' : (min * 0.313).toFixed(1),
+        steps: last ? '9,842' : Math.round(min * (split[0] + split[4]) / 100 * 126).toLocaleString('en-US'),
+        top: last ? 74 : 40 + Math.round(p * 0.5),
+        parts: split.map((w, k) => ({ w: w + '%', color: modes[k][1], label: modes[k][0] + ' ' + w + '%' }))
+      };
+      // 6 AM to 11 PM; weekdays peak at commute times, weekends midday.
+      const shape = weekend
+        ? [0, 5, 15, 30, 55, 80, 100, 70, 60, 75, 50, 35, 40, 30, 20, 15, 8, 2]
+        : [8, 45, 100, 50, 10, 15, 55, 40, 12, 15, 35, 85, 90, 35, 30, 40, 12, 3];
+      const peak = shape.indexOf(100) + 6;
+      day.hours = shape.map((v, h) => ({ h: Math.max(4, v) + '%', bg: v === 100 ? '#F2766B' : v >= 50 ? '#5B4FE0' : '#C9C5EC' }));
+      day.hourLabel = 'Minutes moved per hour, busiest at ' + (peak > 12 ? peak - 12 + ' PM' : peak + ' AM');
+      const trip = (time, k, mins, km) => ({ time, label: modes[k][0], color: modes[k][1], dur: fmt(mins), km: km + ' km' });
+      day.trips = last
+        ? [trip('7:40', 0, 25, '2.0'), trip('8:05', 2, 38, '11.6'), trip('12:30', 0, 22, '1.8'), trip('13:00', 3, 22, '9.3'),
+           trip('18:10', 1, 54, '31.8'), trip('20:30', 4, 10, '2.1'), trip('21:00', 0, 21, '1.6')]
+        : (weekend ? ['10:20', '13:05', '11:30', '16:40', '9:15'] : ['7:45', '8:20', '17:50', '12:40', '19:30'])
+            .map((t, k) => { const m = Math.round(min * split[k] / 100); return { t, k, m }; })
+            .filter((x) => x.m > 0)
+            .sort((a, b) => parseInt(a.t) * 60 + parseInt(a.t.split(':')[1]) - (parseInt(b.t) * 60 + parseInt(b.t.split(':')[1])))
+            .map((x) => trip(x.t, x.k, x.m, (x.m * [0.08, 0.6, 0.3, 0.42, 0.21][x.k]).toFixed(1)));
+    }
+    const rec = sh.kind === 'record' ? records[sh.i] : null;
+
+    let monthModes = [['35h 20m', 38], ['23h 15m', 25], ['19h 32m', 21], ['10h 14m', 11], ['4h 39m', 5]]
+      .map(([time, pct], k) => ({ label: modes[k][0], color: modes[k][1], time, pct: pct + '%', w: Math.round(pct / 38 * 100) + '%' }));
+
+    const live = window.Motio ? this.liveVals(sh, open, s) : null;
+    if (live) { days = live.days; records = live.records; day = live.day; monthModes = live.monthModes; }
+    const rec2 = sh.kind === 'record' ? records[sh.i] : null;
+    const titles = { day: day && day.title, record: rec2 && rec2.title, month: live ? live.monthTitle : 'Your October', edit: 'Edit profile' };
+
+    if (this.navFrom === undefined) {
+      let t = null;
+      try { t = window.localStorage.getItem('motio.tab'); } catch (e) { /* blocked */ }
+      if (t === null) { try { t = window.sessionStorage.getItem('motio.tab'); } catch (e) { /* blocked */ } }
+      if (t === null) { try { t = window.top.__motioTab; } catch (e) { /* cross-origin */ } }
+      if (t == null) t = window.__motioTab;
+      this.navFrom = t != null && !isNaN(+t) && +t >= 0 && +t <= 3 ? +t : 2;
+    }
+    return {
+      rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
+      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html') },
+      navFrom: this.navFrom,
+      name, bio, hasBio: bio.trim().length > 0,
+      initials: name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''),
+      days, records, day, rec: rec2, monthModes,
+      persA: 'The Urban', persB: 'Wanderer', persStatB: '1 in 8', persStatT: 'users',
+      monthTitle: 'Your October', mHours: '93h', mDist: '1,780', mUnit: 'km', mSteps: '296k',
+      noRecords: false, busyPre: 'Busiest day: ', busyDay: 'Fri, 16 Oct', busyPost: ', 4h 50m on the move',
+      ...(live ? live.vals : {}),
+      sheetOpen: !!sh.kind,
+      sheetTitle: titles[sh.kind] || '',
+      sheetRef: (el) => { this.sheetEl = el; },
+      sheetH, dragY, sheetTrans,
+      sheetMax: full || drag ? '100%' : '92%',
+      sheetRadius: full && !drag ? '24px 24px 0 0' : '32px 32px 0 0',
+      sheetAnim: s.closing ? 'motioDown 260ms ease-in forwards' : 'motioUp 380ms ' + ease,
+      scrimAnim: s.closing ? 'motioFadeOut 260ms ease-in forwards' : 'motioFade 260ms ease-out',
+      dragStart,
+      handleLabel: full ? 'Drag down to shrink' : 'Drag up to expand',
+      isFull: full, notFull: !full,
+      expand: () => this.setState({ sheetFull: true }),
+      isDay: sh.kind === 'day', isRecord: sh.kind === 'record', isMonth: sh.kind === 'month', isEdit: sh.kind === 'edit',
+      close,
+      openMonth: open({ kind: 'month' }),
+      openEdit: () => this.setState({ sheet: { kind: 'edit' }, draftName: name, draftBio: bio, draftPhoto: photo }),
+      draftName: s.draftName ?? name,
+      draftBio: s.draftBio ?? bio,
+      photo, hasPhoto: !!photo, noPhoto: !photo,
+      draftPhoto: s.draftPhoto || '', hasDraftPhoto: !!s.draftPhoto, noDraftPhoto: !s.draftPhoto,
+      onName: (e) => this.setState({ draftName: e.target.value }),
+      onBio: (e) => this.setState({ draftBio: e.target.value }),
+      // The photo is shrunk to a 256 px square JPEG before it's saved to your profile.
+      onPhoto: (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas'); c.width = c.height = 256;
+          const k = Math.min(img.width, img.height);
+          c.getContext('2d').drawImage(img, (img.width - k) / 2, (img.height - k) / 2, k, k, 0, 0, 256, 256);
+          URL.revokeObjectURL(img.src);
+          this.setState({ draftPhoto: c.toDataURL('image/jpeg', 0.85) });
+        };
+        img.src = URL.createObjectURL(f);
+      },
+      save: () => {
+        const next = { name: (s.draftName ?? name).trim() || name, bio: (s.draftBio ?? bio).trim(), avatar: s.draftPhoto || photo || '' };
+        if (!window.Motio) { this.setState({ name: next.name, bio: next.bio, photo: next.avatar, sheet: null }); return; }
+        this.setState({ sheet: null });
+        window.Motio.updateProfile(next).catch(() => {});
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
