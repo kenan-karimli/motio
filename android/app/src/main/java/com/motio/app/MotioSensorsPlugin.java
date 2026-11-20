@@ -122,48 +122,50 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
     }
 
     // Google Activity Recognition: an update every ~10 s while moving; results arrive as "activity" events.
-    private PendingIntent activityIntent() {
-        Intent i = new Intent(getContext(), ActivityReceiver.class);
-        return PendingIntent.getBroadcast(getContext(), 7, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-    }
-    private PendingIntent transitionIntent() {
-        Intent i = new Intent(getContext(), ActivityReceiver.class);
-        return PendingIntent.getBroadcast(getContext(), 8, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-    }
     // Enter/exit events for still, walking, running, cycling and driving.
-    private ActivityTransitionRequest transitions() {
-        List<ActivityTransition> list = new ArrayList<>();
-        for (int a : new int[] { DetectedActivity.STILL, DetectedActivity.WALKING, DetectedActivity.RUNNING, DetectedActivity.ON_BICYCLE, DetectedActivity.IN_VEHICLE })
-            for (int t : new int[] { ActivityTransition.ACTIVITY_TRANSITION_ENTER, ActivityTransition.ACTIVITY_TRANSITION_EXIT })
-                list.add(new ActivityTransition.Builder().setActivityType(a).setActivityTransition(t).build());
-        return new ActivityTransitionRequest(list);
-    }
 
+    // Tracking runs in TrackService. Starting hands back what was recorded while the app wasn't running
+    // (location fixes and activity readings, oldest first), then new ones arrive as "location"/"activity" events.
     @PluginMethod
-    public void startActivity(PluginCall call) {
-        if (!allowed()) { call.reject("permission"); return; }
-        ActivityReceiver.setListener((type, confidence, at) -> {
-            JSObject e = new JSObject();
-            e.put("type", type); e.put("confidence", confidence); e.put("at", at);
-            notifyListeners("activity", e, true);
+    public void startTracking(PluginCall call) {
+        if (!TrackService.canRun(getContext())) { call.reject("permission", "denied"); return; }
+        if (allowed()) ActivityReceiver.register(getContext());
+        org.json.JSONArray backlog = TrackService.attach(getContext(), (item) -> {
+            JSObject e;
+            try { e = JSObject.fromJSONObject(item); } catch (Exception ex) { return; }
+            notifyListeners("a".equals(item.optString("k")) ? "activity" : "location", e, false);
         });
-        try {
-            ActivityRecognition.getClient(getContext()).requestActivityTransitionUpdates(transitions(), transitionIntent());
-            ActivityRecognition.getClient(getContext()).requestActivityUpdates(10000, activityIntent())
-                .addOnSuccessListener((v) -> call.resolve())
-                .addOnFailureListener((err) -> call.reject(err.getMessage()));
-        } catch (SecurityException e) { call.reject("permission"); }
+        TrackService.start(getContext());
+        JSObject r = new JSObject();
+        r.put("backlog", backlog);
+        call.resolve(r);
     }
 
     @PluginMethod
-    public void stopActivity(PluginCall call) {
-        try {
-            ActivityRecognition.getClient(getContext()).removeActivityUpdates(activityIntent());
-            ActivityRecognition.getClient(getContext()).removeActivityTransitionUpdates(transitionIntent());
-        } catch (SecurityException e) { /* never started */ }
-        ActivityReceiver.setListener(null);
+    public void setTrackingMode(PluginCall call) {
+        TrackService.setSaver(getContext(), call.getBoolean("saver", false));
         call.resolve();
     }
+
+    @PluginMethod
+    public void stopTracking(PluginCall call) {
+        TrackService.stop(getContext());
+        ActivityReceiver.unregister(getContext());
+        call.resolve();
+    }
+
+    // "Allow all the time" location: needed for tracking to restart by itself after a reboot.
+    @PluginMethod
+    public void requestBackgroundLocation(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 29 && !backgroundAllowed())
+            androidx.core.app.ActivityCompat.requestPermissions(getActivity(), new String[] { Manifest.permission.ACCESS_BACKGROUND_LOCATION }, 77);
+        call.resolve();
+    }
+
+    private boolean backgroundAllowed() {
+        return Build.VERSION.SDK_INT < 29 || androidx.core.content.ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED;
+    }
+
 
 
     // Which of the given fitness apps are installed, so Connected apps can offer the right ones.
@@ -226,6 +228,7 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         r.put("battery", pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName()));
         boolean xiaomi = Build.MANUFACTURER.toLowerCase().matches(".*(xiaomi|redmi|poco).*");
         r.put("xiaomi", xiaomi);
+        r.put("background", backgroundAllowed());
         if (xiaomi) {
             // MIUI/HyperOS keep Autostart as hidden app-op 10008 (0 = allowed); no public API exposes it.
             try {
@@ -243,7 +246,9 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         String what = call.getString("what", "battery");
         String pkg = getContext().getPackageName();
         Intent i;
-        if ("autostart".equals(what)) {
+        if ("app".equals(what)) {
+            i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg));
+        } else if ("autostart".equals(what)) {
             i = new Intent().setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
         } else {
             i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + pkg));
@@ -301,5 +306,7 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
     @Override
     protected void handleOnDestroy() {
         if (sensors != null) sensors.unregisterListener(this);
+        // The WebView is going away (app closed): new readings wait in TrackService's file until it's back.
+        TrackService.detach();
     }
 }

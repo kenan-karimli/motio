@@ -6,10 +6,10 @@
   "scripts": {
     "sync": "node scripts/build-www.mjs && npx cap sync android",
     "apk": "./scripts/build-apk.sh",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "release:github": "bash scripts/release-github.sh"
   },
   "dependencies": {
-    "@capacitor-community/background-geolocation": "^1.3.1",
     "@capacitor/android": "^8.6.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/browser": "^8.0.5",

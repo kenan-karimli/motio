@@ -122,7 +122,7 @@ button,a{cursor:pointer}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  componentDidMount() { this.load(); this.takeInvite(); }
+  componentDidMount() { this.load(); this.takeInvite(); this.onInvite = () => this.takeInvite(); window.addEventListener('motio:invite', this.onInvite); }
   // Opened from an invite link: send the request (or accept theirs) straight away.
   takeInvite() {
     const M = window.Motio, code = window.__motioInvite;
@@ -136,7 +136,7 @@ class Component extends DCLogic {
     this.showToast(r.requested ? 'Request sent to ' + r.requested.name.split(' ')[0] : r.already ? 'You’re already friends' : r.friend.name.split(' ')[0] + ' is now your friend');
     this.load();
   }
-  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.searchT); }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.searchT); window.removeEventListener('motio:invite', this.onInvite); }
   load() {
     const M = window.Motio;
     if (!M) return;

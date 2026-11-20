@@ -10,7 +10,6 @@ import { features, classifyTrip, vector } from './classify.js';
 import { toCanvas, getFontEmbedCSS } from 'html-to-image';
 import { renderStory } from './stories.js';
 
-const BG = registerPlugin('BackgroundGeolocation');
 const Sensors = registerPlugin('MotioSensors');
 const Health = registerPlugin('MotioHealth');
 const native = Capacitor.isNativePlatform();
@@ -246,6 +245,7 @@ export function setSetting(k, v) {
   changed();
   if (S.token) api('PATCH', '/v1/me', { settings: { [k]: v } }).catch(() => {});
   if (k === 'autoTrack') (v ? startTracking() : stopTracking());
+  if (k === 'gpsSaver' && native) Sensors.setTrackingMode({ saver: !!v }).catch(() => {});
   if (k === 'countSteps' && S.tracking) { stopTracking(); startTracking(); }
   if (k === 'dailyAlert') scheduleAlert();
   if (k === 'lockCard') pushLockCard(true);
@@ -364,7 +364,7 @@ export async function saveFile(name, text, mime) {
 // A trip starts when you move and ends after 4 still minutes. Each trip holds one way of moving;
 // a change of pace that lasts 2+ minutes starts a new trip of the new type.
 const STILL_END = 4 * MIN;
-let watcherId = null, live = S.live || null, lastStepTotal = null;
+let trackingOn = false, live = S.live || null;
 
 const hav = (a, b) => {
   const R = 6371000, toR = Math.PI / 180;
@@ -377,9 +377,10 @@ const KIND = { walk: 'foot', run: 'foot', bike: 'bike', drive: 'vehicle', transi
 const typeOf = (t) => (t.locked ? t.mode : classifyTrip(features(t), S.settings.learned || []));
 
 // Google Activity Recognition (on-device ML): the latest guess, and time per activity during the live trip.
-let ar = null, arSub = null;
+let ar = null, arSub = null, locSub = null;
 function onActivity(e) {
-  const now = Date.now();
+  // Readings recorded while Motio was closed are replayed later with their own time.
+  const now = e.at && e.at <= Date.now() + 5000 ? e.at : Date.now();
   // Every reading counts, "still" too: a trip that was mostly still isn't a drive because of one vehicle guess.
   if (live && ar) {
     live.ar = live.ar || {};
@@ -510,7 +511,7 @@ function workoutFix(p, loc) {
   changed(false);
 }
 export async function startWorkout(mode) {
-  const wasOff = native && !watcherId;
+  const wasOff = native && !trackingOn;
   if (wasOff && !(await startTracking()).ok) return { ok: false };
   if (live) closeLive(Date.now());
   const now = Date.now(), f = S.lastFix && now - S.lastFix[2] < 2 * MIN ? [S.lastFix[0], S.lastFix[1], now, S.lastFix[3]] : null;
@@ -552,46 +553,57 @@ if (live && !live.workout && Date.now() - live.lastMove > STILL_END) setTimeout(
 if (live && live.workout && native) setTimeout(() => startTracking(), 0); // keep recording a workout after the app restarts
 function onSteps(total) {
   if (total == null) return;
-  const now = Date.now();
-  if (lastStepTotal != null && total >= lastStepTotal) {
-    const delta = total - lastStepTotal;
-    const day = new Date().toDateString();
-    S.stepsDay = S.stepsDay && S.stepsDay.day === day ? S.stepsDay : { day, steps: 0 };
-    S.stepsDay.steps += delta;
-    if (live && !(live.workout && live.workout.pausedAt)) live.steps += delta;
-  }
-  lastStepTotal = total;
+  const now = Date.now(), day = new Date().toDateString(), last = S.stepTotal;
+  // The phone counts steps since it was switched on, also while Motio is closed. The last total is saved,
+  // so those steps count too; a smaller number means the phone restarted and counting began again at zero.
+  const delta = last == null ? 0 : total >= last ? total - last : total;
+  S.stepsDay = S.stepsDay && S.stepsDay.day === day ? S.stepsDay : { day, steps: 0 };
+  S.stepsDay.steps += delta;
+  // Only steps taken just now belong to the trip in progress, not a backlog from hours closed.
+  if (live && !(live.workout && live.workout.pausedAt) && S.stepAt && now - S.stepAt < 2 * MIN) live.steps += delta;
+  S.stepTotal = total; S.stepAt = now;
   changed(false);
 }
 
 let stepSub = null;
+// Tracking runs in a native service (TrackService) that keeps recording with Motio closed and restarts
+// after a reboot. Starting it replays what it recorded meanwhile, oldest first, then events arrive live.
 export async function startTracking() {
-  if (!native || watcherId) return { ok: !!watcherId };
+  if (!native || trackingOn) return { ok: trackingOn };
   try {
+    // Ask only when not yet allowed: requesting an already granted permission can hang on some phones.
+    let perm = await Geolocation.checkPermissions().catch(() => null);
+    if (!perm || perm.location !== 'granted') perm = await Geolocation.requestPermissions({ permissions: ['location'] }).catch(() => null);
+    if (!perm || perm.location !== 'granted') { S.trackError = 'denied'; changed(false); return { ok: false }; }
     if (S.settings.countSteps !== false) {
       try { await Sensors.requestStepPermission(); } catch { /* no step sensor */ }
       stepSub = await Sensors.addListener('steps', (e) => onSteps(e.steps)).catch(() => null);
       const st = await Sensors.getSteps().catch(() => ({}));
       onSteps(st.steps);
     }
-    // Same permission as steps; without it, trips are typed from speed and steps alone.
     arSub = await Sensors.addListener('activity', onActivity).catch(() => null);
-    await Sensors.startActivity().catch(() => {});
-    watcherId = await BG.addWatcher({ backgroundTitle: 'Motio is tracking your moves', backgroundMessage: 'Tap to open. Turn off in Settings › Tracking.', requestPermissions: true, stale: false, distanceFilter: 10 },
-      (loc, err) => { if (err) { S.trackError = err.code === 'NOT_AUTHORIZED' ? 'denied' : 'error'; stopTracking(); changed(false); return; } S.trackError = null; onLocation(loc); });
-    S.tracking = true; changed();
+    locSub = await Sensors.addListener('location', onLocation).catch(() => null);
+    const { backlog } = await Sensors.startTracking();
+    const items = (backlog || []).filter((x) => x && (x.at || x.time)).sort((x, y) => (x.at || x.time) - (y.at || y.time));
+    for (const x of items) { if (x.k === 'a') onActivity(x); else onLocation(x); }
+    trackingOn = true; S.tracking = true; S.trackError = null; changed();
+    // "Allow all the time" lets tracking restart by itself after a reboot; ask once, Settings offers it again.
+    if (!S.askedBackground) { S.askedBackground = true; setTimeout(() => Sensors.requestBackgroundLocation().catch(() => {}), 1500); }
     return { ok: true };
-  } catch (e) { S.trackError = 'error'; changed(false); return { ok: false }; }
+  } catch (e) { S.trackError = e && e.code === 'denied' ? 'denied' : 'error'; changed(false); return { ok: false }; }
 }
 export function stopTracking() {
   closeLive(Date.now());
-  if (watcherId) { BG.removeWatcher({ id: watcherId }).catch(() => {}); watcherId = null; }
+  if (native) Sensors.stopTracking().catch(() => {});
+  trackingOn = false;
+  if (locSub) { locSub.remove(); locSub = null; }
   if (stepSub) { stepSub.remove(); stepSub = null; }
-  if (arSub) { arSub.remove(); arSub = null; Sensors.stopActivity().catch(() => {}); }
+  if (arSub) { arSub.remove(); arSub = null; }
   S.tracking = false; changed();
 }
-export const tracking = () => ({ on: !!watcherId, live: !!live, error: S.trackError || null, mode: live ? live.mode : null });
-export const openLocationSettings = () => BG.openSettings().catch(() => {});
+export const tracking = () => ({ on: trackingOn, live: !!live, error: S.trackError || null, mode: live ? live.mode : null });
+export const requestBackgroundLocation = () => (native ? Sensors.requestBackgroundLocation() : Promise.resolve());
+export const openLocationSettings = () => (native ? Sensors.openSetup({ what: 'app' }) : Promise.resolve());
 
 // ---------------------------------------------------------------- share cards
 // Draws a 1080×1920 story card and shares, saves or copies it. Returns the message to show.
@@ -734,7 +746,8 @@ export const fmtSpeed = (ms, unit = S.settings.unit) => unit === 'mi' ? Math.rou
 export const fmtNum = (n) => Math.round(n).toLocaleString('en-US');
 export const fmtHour = (h) => (h % 12 || 12) + (h < 12 ? ' AM' : ' PM');
 export const dayStart = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
-export const weekStart = (t = Date.now()) => dayStart(t) - new Date(t).getDay() * DAY;
+// Weeks start on Sunday, or Monday when that's set in Settings.
+export const weekStart = (t = Date.now()) => dayStart(t) - ((new Date(t).getDay() - (S.settings.weekMonday ? 1 : 0) + 7) % 7) * DAY;
 export const monthStart = (t = Date.now()) => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); };
 
 export function summarize(from, to) {
@@ -1095,7 +1108,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) setTimeout(prune, 5000);
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, PARTNERS, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, live: () => live };
 window.Motio = Motio;

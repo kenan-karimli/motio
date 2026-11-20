@@ -17,9 +17,11 @@ button{font:inherit;cursor:pointer}
 @keyframes motioTabPop{0%{transform:scale(0.7)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
 .motio-tab-icon{transition:transform 140ms ease}
 nav button:active .motio-tab-icon{transform:scale(0.82)}
+nav a:focus:not(:focus-visible),nav button:focus:not(:focus-visible){outline:none}
 button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
 button:active,a:active{transform:scale(0.96)}
 @keyframes motioFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes motioUpdIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @keyframes motioFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes motioAutoIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 [data-page="overlay"] .motio-scroll>*{animation:motioAutoIn 520ms cubic-bezier(0.22,1,0.36,1) 640ms backwards}
@@ -56,7 +58,7 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
   </sc-if>
   <nav aria-label="Main" style="position: absolute; left: 20px; right: 20px; bottom: 24px; z-index: 10; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18); opacity: {{ navOp }}; transform: translateY({{ navY }}); transition: opacity 260ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1)">
     <button aria-current="{{ T0.current }}" onClick="{{ T0.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T0.fg }}; font-size: 11px; font-weight: {{ T0.fw }}">
-      <sc-if value="{{ T0.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"></circle><path d="M12 7v5l3 2" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></sc-if>
+      <sc-if value="{{ T0.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><mask id="motioTodayHands"><rect width="24" height="24" fill="#FFFFFF"></rect><path d="M12 7v5l3 2" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></mask><circle cx="12" cy="12" r="10" fill="currentColor" mask="url(#motioTodayHands)"></circle></svg></span></sc-if>
       <sc-if value="{{ T0.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span></sc-if>
       Today
     </button>
@@ -207,6 +209,11 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
       <dc-import name="Profile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.update.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.update.kind }}" style="position: absolute; inset: 0; z-index: {{ O.update.z }}; animation: {{ O.update.anim }}; box-shadow: {{ O.update.shadow }}">
+      <dc-import name="Update" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.friend.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.friend.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friend.z }}; animation: {{ O.friend.anim }}; box-shadow: {{ O.friend.shadow }}">
       <dc-import name="FriendProfile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -250,6 +257,17 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
   <sc-if value="{{ O.map.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.map.kind }}" style="position: absolute; inset: 0; z-index: {{ O.map.z }}; animation: {{ O.map.anim }}; box-shadow: {{ O.map.shadow }}">
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ upd.show }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 20px; right: 20px; bottom: 100px; z-index: 9; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; box-shadow: 0 12px 28px rgba(20,14,70,0.3); overflow: hidden; animation: motioUpdIn 420ms cubic-bezier(0.22, 1, 0.36, 1)">
+      <button type="button" onClick="{{ upd.open }}" aria-label="{{ upd.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+        <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 12px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ upd.title }}</span><span style="font-size: 11px; color: #C9C5EC">{{ upd.sub }}</span></span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+      </button>
+      <button type="button" onClick="{{ upd.later }}" aria-label="Hide until next time" style="width: 30px; height: 30px; flex-shrink: 0; border: 0; border-radius: 15px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <sc-if value="{{ upd.busy }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; left: 0; bottom: 0; height: 3px; width: {{ upd.w }}; background: #F6C343; transition: width 300ms ease"></span></sc-if>
     </div>
   </sc-if>
 </div>
@@ -306,10 +324,14 @@ class Component extends DCLogic {
     if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false }); }
   }
   componentDidMount() {
+    // In-app update card (src/main.js finds the update and runs the download).
+    window.addEventListener('motio:update', () => this.setState({ upd: { ...window.__motioUpdate } }));
     // Changing the theme reloads the app; come back to Settings where the switch was.
     let reopen = null;
     try { reopen = window.sessionStorage.getItem('motio.reopen'); window.sessionStorage.removeItem('motio.reopen'); } catch (e) { /* storage blocked */ }
     if (reopen) setTimeout(() => { if (this.goFn) { this.goFn('you'); this.goFn(reopen); } }, 0);
+    // An invite link that started the app arrived before the app could open Friends: open it now.
+    else if (window.__motioInvite && window.Motio && window.Motio.auth.isSignedIn()) setTimeout(() => this.goFn && this.goFn('friends'), 0);
     // Android back button: pop a page, return to Today, or let the app close.
     window.__motioBack = () => {
       // A back gesture can arrive mid-swipe: drop the swipe and put the pages back in place first.
@@ -377,7 +399,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;
@@ -418,7 +440,18 @@ class Component extends DCLogic {
       T0: item(0, 'today'), T1: item(1, 'moves'), T2: item(2, 'you'), T3: item(3, 'recaps'),
       baseShift: settled && !stories.includes(top) && top !== 'welcome' ? 'translateX(-72px)' : settled && stories.includes(top) ? 'scale(0.96)' : 'none',
       navOp: coversNav ? 0 : 1,
-      navY: coversNav ? '24px' : '0px'
+      navY: coversNav ? '24px' : '0px',
+      // Update card: only on the main tabs (never over a page); tapping it opens the Update page.
+      upd: (() => {
+        const u = s.upd;
+        if (!u || s.updLater || stack.length || u.state === 'installing') return { show: false };
+        const st = u.state, busy = st === 'downloading';
+        return { show: true, busy, w: Math.max(3, u.pct || 0) + '%',
+          title: 'Motio ' + u.name + ' is ready',
+          sub: busy ? 'Downloading… ' + (u.pct || 0) + '%' : st === 'paused' ? 'Paused at ' + (u.pct || 0) + '%' : st === 'downloaded' || st === 'permission' ? 'Downloaded: tap to install' : st === 'failed' ? 'Download stopped: tap to retry' : 'Tap to see what’s new',
+          aria: 'Motio ' + u.name + ' update. Open details',
+          open: () => go('update'), later: () => this.setState({ updLater: true }) };
+      })()
     };
   }
 }

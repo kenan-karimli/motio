@@ -318,3 +318,28 @@ test('sign in with Google: checks the token, creates or reuses the account', asy
   r = await call('POST', '/v1/auth/google', { idToken: 'good-token-123456789012' });
   assert.equal(r.status, 501, 'off without GOOGLE_CLIENT_ID');
 });
+
+test('profile highlights: modes, all-time totals, streak, mutual friends, head to head', async () => {
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Ivy', 'ivy@example.com'), b = await join('Jon', 'jon@example.com'), c = await join('Kim', 'kim@example.com');
+  const befriend = async (x, y) => {
+    const code = (await call('GET', '/v1/friends', null, y)).body.code;
+    const id = (await call('POST', '/v1/friends/add', { code }, x)).body.requested.id;
+    const me = (await call('GET', '/v1/friends', null, y)).body.incoming[0].id;
+    await call('POST', '/v1/friends/respond', { id: me, accept: true }, y);
+    return id;
+  };
+  const jonId = await befriend(a, b); await befriend(a, c); await befriend(b, c);
+  // Jon walks today and yesterday (a 2-day streak) and rides once, 10 km.
+  const day = 86400000, from = clock - 2 * day;
+  const t = (id, start, mode, m) => ({ id, start, end: start + 1800000, mode, distanceM: m, steps: 0, maxSpeed: 2, points: [], updatedAt: clock });
+  await call('POST', '/v1/trips/sync', { trips: [t('j1', clock - 3600000, 'walk', 2000), t('j2', clock - day - 3600000, 'walk', 3000), t('j3', clock - 2 * 3600000, 'bike', 10000)] }, b);
+  const p = (await call('GET', `/v1/profile?id=${jonId}&from=${from}`, null, a)).body.profile;
+  assert.equal(p.highlights.allKm, 15); assert.equal(p.highlights.longestKm, 10); assert.equal(p.highlights.allTrips, 3);
+  assert.equal(p.highlights.streak, 2); assert.equal(p.highlights.modes.walk, 60); assert.equal(p.highlights.modes.bike, 30);
+  assert.equal(p.mutual.count, 1); assert.equal(p.mutual.people[0].name, 'Kim');
+  assert.deepEqual(p.duel, { won: 0, lost: 0 });
+});

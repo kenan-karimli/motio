@@ -52,13 +52,125 @@ button:active,a:active{transform:scale(0.96)}
 
   <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none"><circle cx="360" cy="40" r="140" fill="#2D2A6E"></circle></svg>
 
-  <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: flex-end; justify-content: space-between">
-    <div style="display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Social</h1><span style="font-size: 13px; color: #C9C5EC">Your recaps and your people</span></div>
-    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Friends and invites" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a>
+  <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: center; justify-content: space-between">
+    <h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Social</h1>
+    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a>
+  </div>
+  <div role="tablist" aria-label="Social" style="position: relative; margin: 4px 20px 0; display: flex; padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.08)">
+    <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 18px; background: #F6C343; transform: translateX({{ segX }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
+    <sc-for list="{{ segs }}" as="g" hint-placeholder-count="2">
+      <button type="button" role="tab" aria-selected="{{ g.on }}" onClick="{{ g.pick }}" style="position: relative; flex: 1; height: 38px; border: 0; border-radius: 18px; background: transparent; color: {{ g.fg }}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: color 240ms ease">{{ g.label }}<sc-if value="{{ g.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #F2766B; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{ g.badge }}</span></sc-if></button>
+    </sc-for>
   </div>
 
-  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 8px 0 96px">
+  <sc-if value="{{ viewFriends }}" hint-placeholder-val="{{ true }}">
+  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 12px 0 96px">
 
+    <sc-if value="{{ hasInbox }}" hint-placeholder-val="{{ false }}">
+      <div role="region" aria-label="Waiting for you" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Waiting for you</h2>
+        <sc-for list="{{ inbox }}" as="q" hint-placeholder-count="1">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; border: 1px solid rgba(246,195,67,0.35); animation: motioRowSlide 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
+            <a href="{{ q.href }}" onClick="{{ q.go }}" aria-label="{{ q.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
+              <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ q.ini }}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.title }}</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.sub }}</span></span>
+            </a>
+            <button type="button" onClick="{{ q.no }}" aria-label="{{ q.noAria }}" disabled="{{ q.busy }}" style="width: 38px; height: 38px; flex-shrink: 0; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+            <button type="button" onClick="{{ q.yes }}" aria-label="{{ q.yesAria }}" disabled="{{ q.busy }}" style="height: 38px; flex-shrink: 0; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">{{ q.yesLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="margin: 0 20px; height: 230px; border-radius: 28px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
+
+    <sc-if value="{{ hasPodium }}" hint-placeholder-val="{{ true }}">
+      <div role="region" aria-label="This week's leaderboard" style="margin: 0 20px; padding: 18px 16px 16px; border-radius: 28px; background: linear-gradient(160deg, #2D2A6E 0%, #221F55 100%); display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">This week</h2><span style="font-size: 12px; color: #C9C5EC">{{ weekRange }}</span></div>
+        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding-top: 6px">
+          <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+            <a href="{{ p.href }}" onClick="{{ p.go }}" aria-label="{{ p.aria }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none; animation: motioRecapsIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+              <span style="position: relative; width: {{ p.size }}; height: {{ p.size }}">
+                <span style="position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: {{ p.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 0 0 3px {{ p.ring }}"><sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ p.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ true }}">{{ p.ini }}</sc-if></span>
+                <span style="position: absolute; right: -4px; bottom: -4px; width: 24px; height: 24px; border-radius: 12px; background: {{ p.ring }}; color: #1F1D47; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #2D2A6E">{{ p.rank }}</span>
+              </span>
+              <span style="max-width: 100%; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
+              <span style="width: 100%; height: {{ p.step }}; border-radius: 14px 14px 6px 6px; background: rgba(255,255,255,0.08); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; box-sizing: border-box; font-size: 13px; font-weight: 700; transform-origin: bottom; animation: motioBarUp 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">{{ p.time }}</span>
+            </a>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; color: #C9C5EC; text-align: center">{{ standLine }}</span>
+        <sc-for list="{{ rest }}" as="r" hint-placeholder-count="1">
+          <a href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: {{ r.bg }}; color: #FFFFFF; text-decoration: none">
+            <span style="width: 18px; font-size: 13px; font-weight: 700; color: #C9C5EC">{{ r.rank }}</span>
+            <span style="width: 32px; height: 32px; border-radius: 16px; overflow: hidden; flex-shrink: 0; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700"><sc-if value="{{ r.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ r.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ r.noPhoto }}" hint-placeholder-val="{{ true }}">{{ r.ini }}</sc-if></span>
+            <span style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span>
+            <span style="font-size: 14px; font-weight: 700">{{ r.time }}</span>
+          </a>
+        </sc-for>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <button type="button" onClick="{{ cheerAll }}" style="height: 44px; border: 0; border-radius: 22px; background: {{ cheerAllBg }}; color: {{ cheerAllFg }}; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 220ms ease"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="{{ cheerAllFill }}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>{{ cheerAllLabel }}</button>
+          <a href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="height: 44px; border-radius: 22px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Challenge</a>
+          <button type="button" onClick="{{ inviteFriend }}" style="height: 44px; border: 0; border-radius: 22px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 13px; font-weight: 600">Invite</button>
+        </div>
+        <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="align-self: center; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #F6C343; text-decoration: none">All friends ›</a>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ alone }}" hint-placeholder-val="{{ false }}">
+      <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="margin: 0 20px; padding: 22px 18px; border-radius: 28px; background: linear-gradient(160deg, #2D2A6E 0%, #221F55 100%); color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+        <span style="display: flex"><span style="width: 46px; height: 46px; border-radius: 23px; background: #3DBF5C; border: 3px solid #2D2A6E"></span><span style="width: 46px; height: 46px; margin-left: -12px; border-radius: 23px; background: #F6C343; border: 3px solid #2D2A6E; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span><span style="width: 46px; height: 46px; margin-left: -12px; border-radius: 23px; background: #6E8CF7; border: 3px solid #2D2A6E"></span></span>
+        <span style="font-size: 17px; font-weight: 700">Moving is better together</span>
+        <span style="max-width: 260px; font-size: 13px; line-height: 1.45; color: #C9C5EC">Add friends to compare weeks, cheer each other on and start challenges.</span>
+        <span style="margin-top: 4px; padding: 10px 18px; border-radius: 20px; background: #F6C343; color: #1F1D47; font-size: 14px; font-weight: 700">Find or invite friends</span>
+      </a>
+    </sc-if>
+    <sc-if value="{{ socialError }}" hint-placeholder-val="{{ false }}"><span role="status" style="padding: 0 20px; font-size: 12px; color: #FFB3AB">{{ socialErrorText }}</span></sc-if>
+
+    <sc-if value="{{ hasFriends }}" hint-placeholder-val="{{ true }}">
+      <div role="region" aria-label="Challenges" style="display: flex; flex-direction: column; gap: 10px">
+        <div style="padding: 0 20px; display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Challenges</h2><span style="font-size: 12px; color: #C9C5EC">{{ chalCount }}</span></div>
+        <div class="motio-scroll" style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 20px 6px; scrollbar-width: none">
+          <sc-for list="{{ chals }}" as="c" hint-placeholder-count="2">
+            <a href="{{ c.href }}" onClick="{{ c.go }}" aria-label="{{ c.aria }}" style="flex-shrink: 0; width: 250px; box-sizing: border-box; padding: 16px; border-radius: 24px; background: {{ c.bg }}; color: #1F1D47; text-decoration: none; scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px">
+              <span style="display: flex; justify-content: space-between; align-items: center"><span style="padding: 3px 9px; border-radius: 9px; background: rgba(255,255,255,0.7); font-size: 11px; font-weight: 700">{{ c.tag }}</span><span style="font-size: 12px; font-weight: 600">{{ c.left }}</span></span>
+              <span style="font-size: 19px; font-weight: 700; line-height: 1.15">{{ c.title }}</span>
+              <span aria-hidden="true" style="position: relative; height: 30px; border-radius: 15px; background: rgba(31,29,71,0.12)">
+                <sc-for list="{{ c.racers }}" as="m" hint-placeholder-count="2"><span style="position: absolute; top: 3px; left: {{ m.x }}; width: 24px; height: 24px; margin-left: -12px; border-radius: 12px; overflow: hidden; background: {{ m.c }}; border: 2px solid #FFFFFF; box-sizing: border-box; color: #1F1D47; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: motioRacer 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ m.d }} backwards"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span></sc-for>
+              </span>
+              <span style="font-size: 12px; font-weight: 600">{{ c.lead }}</span>
+            </a>
+          </sc-for>
+          <a href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="flex-shrink: 0; width: 150px; box-sizing: border-box; padding: 16px; border-radius: 24px; border: 2px dashed rgba(255,255,255,0.25); color: #FFFFFF; text-decoration: none; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center">
+            <span style="width: 40px; height: 40px; border-radius: 20px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span>
+            <span style="font-size: 13px; font-weight: 600">New challenge</span>
+          </a>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasMoments }}" hint-placeholder-val="{{ false }}">
+      <div role="region" aria-label="Activity" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Activity</h2>
+        <div style="border-radius: 24px; background: rgba(255,255,255,0.06); overflow: hidden">
+          <sc-for list="{{ moments }}" as="m" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: {{ m.line }}">
+              <a href="{{ m.href }}" onClick="{{ m.go }}" aria-label="{{ m.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
+                <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
+              </a>
+              <sc-if value="{{ m.canCheer }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 40px; height: 40px; flex-shrink: 0; border: 0; border-radius: 20px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button></sc-if>
+              <sc-if value="{{ m.noCheer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-right: 6px"><path d="M9 5l7 7-7 7"></path></svg></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ viewRecaps }}" hint-placeholder-val="{{ false }}">
+  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 12px 0 96px">
     <div style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 8px; scrollbar-width: none">
       <sc-if value="{{ noCovers }}" hint-placeholder-val="{{ false }}"><div style="flex-shrink: 0; width: 272px; height: 200px; box-sizing: border-box; padding: 20px; border-radius: 30px; background: #2D2A6E; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px"><span style="font-size: 20px; font-weight: 700">Your first recap is on its way</span><span style="font-size: 13px; color: #C9C5EC">Move a little today and it appears here, wrapped into stories.</span></div></sc-if>
       <sc-for list="{{ covers }}" as="c" hint-placeholder-count="3">
@@ -75,84 +187,32 @@ button:active,a:active{transform:scale(0.96)}
       </sc-for>
     </div>
 
-    <sc-if value="{{ hasInbox }}" hint-placeholder-val="{{ false }}">
-      <section aria-label="Waiting for you" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Waiting for you</h2>
-        <sc-for list="{{ inbox }}" as="q" hint-placeholder-count="1">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; border: 1px solid rgba(246,195,67,0.35); animation: motioRowSlide 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
-            <a href="{{ q.href }}" onClick="{{ q.go }}" aria-label="{{ q.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
-              <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ q.ini }}</span>
-              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.title }}</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.sub }}</span></span>
-            </a>
-            <button type="button" onClick="{{ q.no }}" aria-label="{{ q.noAria }}" disabled="{{ q.busy }}" style="width: 38px; height: 38px; flex-shrink: 0; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-            <button type="button" onClick="{{ q.yes }}" aria-label="{{ q.yesAria }}" disabled="{{ q.busy }}" style="height: 38px; flex-shrink: 0; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">{{ q.yesLabel }}</button>
-          </div>
-        </sc-for>
-      </section>
-    </sc-if>
-
-    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
-      <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Active time this week</h2><a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="font-size: 12px; color: #C9C5EC; text-decoration: none">{{ boardNote }}</a></div>
-      <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="height: 64px; border-radius: 20px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
-      <sc-for list="{{ board }}" as="r" hint-placeholder-count="3">
-        <a href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; color: #FFFFFF; text-decoration: none; animation: motioRowSlide 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards">
-          <span style="display: flex; align-items: center; gap: 12px"><span style="width: 18px; font-size: 15px; font-weight: 700; color: {{ r.rc }}">{{ r.rank }}</span><sc-if value="{{ r.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ r.photo }}" alt="" style="width: 38px; height: 38px; border-radius: 19px; object-fit: cover; box-shadow: 0 0 0 2px {{ r.tint }}"></sc-if><sc-if value="{{ r.noPhoto }}" hint-placeholder-val="{{ true }}"><span style="width: 38px; height: 38px; border-radius: 19px; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ r.ini }}</span></sc-if><span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 15px; font-weight: 700">{{ r.time }}</span></span>
-          <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08)"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.tint }}; transform-origin: left; animation: motioBarIn 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.bd }} backwards"></span></span>
-        </a>
-      </sc-for>
-      <sc-if value="{{ alone }}" hint-placeholder-val="{{ false }}">
-        <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none"><span style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; flex-shrink: 0; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></span><span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Invite a friend</span><span style="font-size: 12px; color: #C9C5EC">Compare weeks and start challenges together</span></span></a>
-      </sc-if>
-      <sc-if value="{{ socialError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #FFB3AB">{{ socialErrorText }}</span></sc-if>
-    </section>
-
-    <a href="{{ chal.href }}" onClick="{{ chal.go }}" style="margin: 0 20px; padding: 16px; border-radius: 24px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; gap: 12px">
-      <span style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px"><span style="font-size: 15px; font-weight: 700">{{ chal.title }}</span><span style="font-size: 12px; color: #C9C5EC; text-align: right">{{ chal.sub }}</span></span>
-      <span aria-hidden="true" style="position: relative; height: 34px; border-radius: 17px; background: rgba(255,255,255,0.08)">
-        <sc-for list="{{ chal.racers }}" as="m" hint-placeholder-count="2"><span style="position: absolute; top: 5px; left: {{ m.x }}; width: 24px; height: 24px; margin-left: -12px; border-radius: 12px; background: {{ m.c }}; color: #1F1D47; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: motioRacer 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ m.d }} backwards">{{ m.ini }}</span></sc-for>
-        <span style="position: absolute; right: 12px; top: 8px; font-size: 11px; font-weight: 700; color: #F6C343">{{ chal.goal }}</span>
-      </span>
-    </a>
-
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 20px">
-      <a href="{{ LK.insights.href }}" onClick="{{ LK.insights.go }}" style="position: relative; overflow: hidden; height: 112px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #5B4FE0; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
-        <span aria-hidden="true" style="position: absolute; right: 10px; top: 12px; display: flex; align-items: flex-end; gap: 3px; height: 30px"><span style="width: 6px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.5); transform-origin: bottom; animation: motioBarUp 600ms ease-out 300ms backwards"></span><span style="width: 6px; height: 28px; border-radius: 2px; background: #F6C343; transform-origin: bottom; animation: motioBarUp 600ms ease-out 380ms backwards"></span><span style="width: 6px; height: 18px; border-radius: 2px; background: rgba(255,255,255,0.5); transform-origin: bottom; animation: motioBarUp 600ms ease-out 460ms backwards"></span></span>
-        <span style="font-size: 12px; opacity: 0.8">Insights</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ insightLine }}</span>
-      </a>
-      <a href="{{ memo.href }}" onClick="{{ memo.go }}" style="height: 112px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: {{ memo.bg }}; color: #1F1D47; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
-        <span style="font-size: 12px; font-weight: 600; opacity: 0.8">On this day</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ memo.line }}</span>
-      </a>
-    </div>
-
-    <sc-if value="{{ hasMoments }}" hint-placeholder-val="{{ false }}">
-      <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Moments</h2>
-        <sc-for list="{{ moments }}" as="m" hint-placeholder-count="2">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: rgba(255,255,255,0.06)">
-            <a href="{{ m.href }}" onClick="{{ m.go }}" aria-label="{{ m.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
-              <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span>
-              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
-            </a>
-            <sc-if value="{{ m.canCheer }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button></sc-if>
-            <sc-if value="{{ m.noCheer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-right: 6px"><path d="M9 5l7 7-7 7"></path></svg></sc-if>
-          </div>
-        </sc-for>
-      </section>
-    </sc-if>
-
-    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
-      <h2 style="margin: 0; font-size: 16px; font-weight: 600">Daily recaps</h2>
-      <div style="display: flex; justify-content: space-between">
+    <div role="region" aria-label="Daily recaps" style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Daily recaps</h2><span style="font-size: 12px; color: #C9C5EC">last 7 days</span></div>
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
         <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
-          <a href="{{ d.href }}" onClick="{{ d.go }}" aria-label="{{ d.aria }}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none">
-            <span style="width: 42px; height: 42px; border-radius: 21px; padding: 3px; box-sizing: border-box; background: {{ d.ring }}"><span style="display: flex; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #1F1D47; box-sizing: border-box; background: {{ d.fill }}; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #1F1D47">{{ d.num }}</span></span>
-            <span style="font-size: 11px; font-weight: 600; color: {{ d.labelColor }}">{{ d.label }}</span>
+          <a href="{{ d.href }}" onClick="{{ d.go }}" aria-label="{{ d.aria }}" style="height: 84px; border-radius: 16px; background: {{ d.fill }}; color: {{ d.fg }}; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 0; box-sizing: border-box; border: 2px solid {{ d.ring }}">
+            <span style="font-size: 11px; font-weight: 600; opacity: 0.8">{{ d.label }}</span>
+            <span style="font-size: 17px; font-weight: 700">{{ d.num }}</span>
+            <span style="font-size: 10px; font-weight: 600; opacity: 0.85">{{ d.dist }}</span>
           </a>
         </sc-for>
       </div>
-    </section>
+    </div>
 
-    <section style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 20px">
+      <a href="{{ LK.insights.href }}" onClick="{{ LK.insights.go }}" style="position: relative; overflow: hidden; height: 120px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+        <span aria-hidden="true" style="position: absolute; right: 12px; top: 14px; display: flex; align-items: flex-end; gap: 3px; height: 30px"><span style="width: 6px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.35)"></span><span style="width: 6px; height: 28px; border-radius: 2px; background: #F6C343"></span><span style="width: 6px; height: 18px; border-radius: 2px; background: rgba(255,255,255,0.35)"></span></span>
+        <span style="font-size: 12px; color: #C9C5EC">Insights</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ insightLine }}</span>
+      </a>
+      <a href="{{ memo.href }}" onClick="{{ memo.go }}" style="position: relative; overflow: hidden; height: 120px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+        <span aria-hidden="true" style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border-radius: 15px; background: {{ memo.dot }}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path></svg></span>
+        <span style="font-size: 12px; color: #C9C5EC">On this day</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ memo.line }}</span>
+      </a>
+    </div>
+
+    <sc-if value="{{ hasPast }}" hint-placeholder-val="{{ true }}">
+    <div role="region" aria-label="Past weeks" style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
       <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Past weeks</h2><span style="font-size: 12px; color: #C9C5EC">{{ pastCount }}</span></div>
       <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
         <sc-for list="{{ past }}" as="w" hint-placeholder-count="4">
@@ -163,13 +223,15 @@ button:active,a:active{transform:scale(0.96)}
           </a>
         </sc-for>
       </div>
-    </section>
+    </div>
+    </sc-if>
 
     <section style="margin: 0 20px; padding: 18px; border-radius: 26px; background: #2D2A6E; display: flex; align-items: center; gap: 14px">
       <span style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ yearDays }}d</span>
       <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ yearLabel }}, wrapped</span><span style="font-size: 12px; color: #C9C5EC">Your whole year in motion unlocks on Dec 1</span></span>
     </section>
   </div>
+  </sc-if>
 
   <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
   <nav aria-label="Main" style="position: relative; margin-top: auto; flex-shrink: 0; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18)">
@@ -219,7 +281,6 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     this.loadSocial();
-    this.refreshT = setInterval(() => this.loadSocial(), 120000);
     this.onTab = (e) => { if (e.detail === 3) this.loadSocial(); };
     window.addEventListener('motio:tab', this.onTab);
     // Remember this tab so the next screen can slide its pill in from here.
@@ -229,7 +290,7 @@ class Component extends DCLogic {
     try { window.top.__motioTab = 3; } catch (e) { /* cross-origin */ }
     window.__motioTab = 3;
   }
-  componentWillUnmount() { clearInterval(this.refreshT); window.removeEventListener('motio:tab', this.onTab); }
+  componentWillUnmount() { window.removeEventListener('motio:tab', this.onTab); }
   // Social parts, from the server's answer (or sample data on the design canvas).
   socialVals(L) {
     const M = window.Motio, s = this.state || {};
@@ -244,6 +305,24 @@ class Component extends DCLogic {
     const people = S ? S.board.people.slice().sort((a, b) => b.activeMin - a.activeMin) : [];
     const max = Math.max(1, ...people.map((p) => p.activeMin));
     const friendLink = (p) => { const l = L('friend', 'FriendProfile.dc.html'); return { href: l.href, go: (e) => { window.__motioFriend = p.id; l.go(e); } }; };
+    const meU = M ? M.auth.user() || {} : {};
+    const face = (p) => p.avatar || (p.me ? meU.avatar || '' : '');
+    const RING = ['#F6C343', '#C9C5EC', '#F2A25F'];
+    // Podium: 2nd, 1st, 3rd from left to right, like a real one.
+    const top3 = people.slice(0, 3);
+    const order = top3.length === 3 ? [1, 0, 2] : top3.length === 2 ? [1, 0] : top3.length ? [0] : [];
+    const podium = order.map((i) => { const p = top3[i]; return {
+      rank: i + 1, name: p.me ? 'You' : p.name.split(' ')[0], ini: ini(p.name), photo: face(p), hasPhoto: !!face(p), noPhoto: !face(p), tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1],
+      ring: RING[i], size: i === 0 ? '72px' : '56px', step: ['70px', '50px', '38px'][i], time: p.hidden ? 'Private' : fmtMin(p.activeMin), d: [180, 60, 300][i] + 'ms',
+      aria: '#' + (i + 1) + ' ' + (p.me ? 'you' : p.name) + ', ' + fmtMin(p.activeMin), ...(p.me ? L('profile', 'Profile.dc.html') : friendLink(p)) }; });
+    const rest = people.slice(3, 8).map((p, i) => ({ rank: i + 4, name: p.me ? 'You' : p.name, ini: ini(p.name), photo: face(p), hasPhoto: !!face(p), noPhoto: !face(p),
+      tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1], time: p.hidden ? 'Private' : fmtMin(p.activeMin), bg: p.me ? 'rgba(246,195,67,0.14)' : 'rgba(255,255,255,0.05)',
+      aria: '#' + (i + 4) + ' ' + (p.me ? 'you' : p.name), ...(p.me ? L('profile', 'Profile.dc.html') : friendLink(p)) }));
+    const myIdx = people.findIndex((p) => p.me), mine = people[myIdx];
+    const ahead = myIdx > 0 ? people[myIdx - 1] : null, behind = people[myIdx + 1];
+    const standLine = !mine ? '' : !mine.activeMin && !(people[0] || {}).activeMin ? 'Nobody has moved yet this week. Be first.'
+      : myIdx === 0 ? (behind ? 'You lead by ' + fmtMin(mine.activeMin - behind.activeMin) + '. Keep it up.' : 'You lead this week.')
+      : 'You’re #' + (myIdx + 1) + ' · ' + fmtMin(ahead.activeMin - mine.activeMin) + ' behind ' + (ahead.name || '').split(' ')[0];
     const board = people.slice(0, 4).map((p, i) => ({
       rank: i + 1, rc: i === 0 ? '#F6C343' : '#C9C5EC', name: p.me ? 'You' : p.name, ini: ini(p.name), photo: p.avatar || (p.me && M ? (M.auth.user() || {}).avatar || '' : ''),
       hasPhoto: !!(p.avatar || (p.me && M && (M.auth.user() || {}).avatar)), noPhoto: !(p.avatar || (p.me && M && (M.auth.user() || {}).avatar)), tint: p.me ? '#F6C343' : TINTS[(p.id % 4) + 1],
@@ -271,6 +350,19 @@ class Component extends DCLogic {
         yesLabel: 'Accept', yes: act('r' + r.id, () => M.friends.respond(r.id, true)), no: act('r' + r.id, () => M.friends.respond(r.id, false)), link: friendLink(r) }))
     ].map((q, i) => ({ ...q, ini: ini(q.who), tint: TINTS[((q.id || i) % 4) + 1], d: 60 + i * 70 + 'ms', busy: !!busyIds[q.key], href: q.link.href, go: q.link.go,
       aria: 'Open ' + q.title, noAria: 'Decline: ' + q.title, yesAria: q.yesLabel + ': ' + q.title }));
+    const CBG = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B'];
+    const chals = running.map((x, i) => {
+      const l = L('challenge', 'Challenge.dc.html'), lead = x.members[0], dl = Math.max(0, Math.ceil((x.end - now) / DAY));
+      const faceOf = (m) => { const p = people.find((q) => q.id === m.id); return p ? face(p) : ''; };
+      return { tag: { km: 'DISTANCE', min: 'ACTIVE TIME', runs: 'RUNS' }[x.kind], title: KNAME(x), bg: CBG[i % 4],
+        left: dl ? dl + (dl === 1 ? ' day left' : ' days left') : 'Last day',
+        lead: !lead || lead.value <= 0 ? 'Nobody has started yet' : (lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + ' · ' + lead.value + ' ' + unitOf[x.kind],
+        // Racers at the same spot fan out a little so every face shows.
+        racers: (() => { let prev = -99; return x.members.filter((m) => m.joined !== false).slice(0, 5).map((m) => ({ m, x: Math.min(92, 8 + m.value / x.target * 84) })).sort((a, b) => a.x - b.x)
+          .map(({ m, x: px }, k) => { const at = Math.max(px, prev + 9); prev = at; return { ini: ini(m.name), photo: faceOf(m), hasPhoto: !!faceOf(m), noPhoto: !faceOf(m), c: m.me ? '#FFFFFF' : TINTS[(m.id % 4) + 1], x: Math.min(92, at).toFixed(1) + '%', d: 200 + k * 90 + 'ms' }; }); })(),
+        aria: KNAME(x) + ', open the challenge', href: l.href, go: (e) => { window.__motioChallenge = x.id; l.go(e); } };
+    });
+    const newChal = (() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = 'new'; l.go(e); } }; })();
     const left = c ? Math.max(0, Math.ceil((c.end - now) / DAY)) : 0;
     const lead = c && c.members[0];
     const chal = c ? {
@@ -286,16 +378,22 @@ class Component extends DCLogic {
     let sent = {};
     try { sent = JSON.parse(window.localStorage.getItem('motio.cheered') || '{}'); } catch (e) { /* storage blocked */ }
     const faceOf = new Map(people.map((p) => [p.id, p.avatar || '']));
-    const moments = (S ? S.moments : []).slice(0, 6).map((m) => {
+    // The same thing from the same person (two cheers from Leyla) shows once, with a count.
+    const grouped = [];
+    for (const m of (S ? S.moments : [])) {
+      const g = grouped.find((x) => x.kind === m.kind && x.who.id === m.who.id && (m.kind === 'cheer' || m.kind === 'request'));
+      if (g) g.n = (g.n || 1) + 1; else grouped.push({ ...m });
+    }
+    const moments = grouped.slice(0, 5).map((m, mi) => {
       const key = m.kind + ':' + m.who.id + ':' + m.at, on = !!(cheered[key] || sent[key]);
       const photo = faceOf.get(m.who.id) || '';
       const open = m.kind === 'challenge' || m.kind === 'won'
         ? (() => { const l = L('challenge', 'Challenge.dc.html'); return { href: l.href, go: (e) => { window.__motioChallenge = m.challenge.id; l.go(e); } }; })()
         : friendLink(m.who);
-      const what = m.kind === 'request' ? 'wants to be friends' : m.kind === 'cheer' ? 'cheered you on' : m.kind === 'won' ? 'won a challenge'
+      const what = m.kind === 'request' ? 'wants to be friends' : m.kind === 'cheer' ? 'cheered you on' + (m.n > 1 ? ' ×' + m.n : '') : m.kind === 'won' ? 'won a challenge'
         : 'challenged you: ' + ({ km: 'first to ' + m.challenge.target + ' km', min: m.challenge.target + ' active minutes', runs: m.challenge.target + ' runs' })[m.challenge.kind];
       const canCheer = m.kind === 'cheer' || m.kind === 'won';
-      return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], photo, hasPhoto: !!photo, noPhoto: !photo, what, when: ago(m.at), on,
+      return { who: m.who.name.split(' ')[0], ini: ini(m.who.name), tint: TINTS[(m.who.id % 4) + 1], photo, hasPhoto: !!photo, noPhoto: !photo, what, when: ago(m.at), on, line: mi ? '1px solid rgba(255,255,255,0.06)' : '0',
         href: open.href, go: open.go, openAria: m.kind === 'challenge' || m.kind === 'won' ? 'Open the challenge' : 'Open ' + m.who.name + '’s profile',
         canCheer, noCheer: !canCheer,
         aria: (on ? 'Cheered ' : 'Cheer ') + m.who.name, btnBg: on ? 'rgba(242,118,107,0.25)' : 'rgba(255,255,255,0.08)', fill: on ? '#F2766B' : 'none', stroke: on ? '#F2766B' : '#FFFFFF',
@@ -311,12 +409,35 @@ class Component extends DCLogic {
     const mem = M ? M.memories() : [{ label: '1 year', trip: { distanceM: 10400, mode: 'bike' } }];
     const ml = mem[mem.length - 1];
     return {
+      // One tap cheers every friend (the server allows one cheer per friend every 10 minutes).
+      cheerAll: () => {
+        if (!M || s.cheeredAll) return;
+        this.setState({ cheeredAll: true });
+        Promise.all(people.filter((p) => !p.me).map((p) => M.friends.cheer(p.id).catch(() => null))).catch(() => {});
+      },
+      cheerAllLabel: s.cheeredAll ? 'Cheered' : 'Cheer all', cheerAllBg: s.cheeredAll ? 'rgba(242,118,107,0.25)' : '#F2766B', cheerAllFg: s.cheeredAll ? '#F2766B' : '#1F1D47', cheerAllFill: s.cheeredAll ? '#F2766B' : 'none',
+      inviteFriend: () => { if (M && S && S.board.code) M.friends.invite(S.board.code).catch(() => {}); },
+      podium, rest, standLine, hasPodium: !!S && people.length >= 2, hasFriends: !!S && people.length >= 2, chals, newChal,
+      chalCount: running.length ? running.length + ' running' : 'none running',
+      weekRange: (() => { const a = M ? M.weekStart() : now - 3 * DAY; const f = (t, o) => new Date(t).toLocaleDateString('en-GB', o); return f(a, { day: 'numeric', month: 'short' }) + ' – ' + f(Math.min(now, a + 6 * DAY), { day: 'numeric', month: 'short' }); })(),
       board, alone: !!S && people.length < 2, boardLoading: !!s.socialLoading && !S, boardNote: people.length > 1 ? 'See all' : '',
-      socialError: !!s.socialError && !S, socialErrorText: s.socialError || '', chal, moments, hasMoments: moments.length > 0, inbox, hasInbox: inbox.length > 0,
+      socialError: !!s.socialError && !S, socialErrorText: s.socialError || '', chal, moments, ...((this.lastInbox = inbox.length), {}), hasMoments: moments.length > 0, inbox, hasInbox: inbox.length > 0,
       insightLine: F.length ? F[0].text.split(':')[0].split(',')[0] : 'Move a little more this week to unlock insights',
-      memo: ml ? { line: ml.label + ' ago: ' + (M ? M.fmtDist(ml.trip.distanceM) : '10.4 km') + ' ' + ({ walk: 'walk', run: 'run', bike: 'ride', drive: 'drive', transit: 'trip' })[ml.trip.mode], bg: '#F6C343', ...L('onthisday', 'OnThisDay.dc.html') }
-        : { line: 'Memories appear here as your history grows', bg: '#C9C5EC', href: '#', go: (e) => e && e.preventDefault && e.preventDefault() }
+      memo: ml ? { line: ml.label + ' ago: ' + (M ? M.fmtDist(ml.trip.distanceM) : '10.4 km') + ' ' + ({ walk: 'walk', run: 'run', bike: 'ride', drive: 'drive', transit: 'trip' })[ml.trip.mode], bg: '#F6C343', dot: '#F6C343', ...L('onthisday', 'OnThisDay.dc.html') }
+        : { line: 'Memories appear here as your history grows', bg: '#C9C5EC', dot: '#C9C5EC', href: '#', go: (e) => e && e.preventDefault && e.preventDefault() }
     };
+  }
+  // Friends | Recaps switch; it remembers the last one you picked.
+  segVals() {
+    const s = this.state || {};
+    let v = s.view;
+    if (!v) { try { v = window.localStorage.getItem('motio.socialView'); } catch (e) { /* storage blocked */ } }
+    v = v === 'recaps' ? 'recaps' : 'friends';
+    const pick = (k) => () => { try { window.localStorage.setItem('motio.socialView', k); } catch (e) { /* storage blocked */ } this.setState({ view: k }); };
+    const n = (this.lastInbox || 0);
+    // The selected label stays dark on the yellow pill in both themes (#1B1940 isn't remapped in dark mode).
+    return { viewFriends: v === 'friends', viewRecaps: v === 'recaps', segX: v === 'friends' ? '0px' : '100%',
+      segs: [['friends', 'Friends'], ['recaps', 'Recaps']].map(([k, label]) => ({ label, on: k === v, fg: k === v ? '#1B1940' : '#FFFFFF', pick: pick(k), hasBadge: k === 'friends' && n > 0, badge: String(n) })) };
   }
   // Covers, the last seven days and past weeks from your real trips. Each link says which period the story shows.
   liveVals(L) {
@@ -337,8 +458,8 @@ class Component extends DCLogic {
     const days = Array.from({ length: 7 }, (_, k) => {
       const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), moved = x.min >= 1, fresh = k >= 5 && moved;
       const off = { href: '#', go: (e) => { if (e && e.preventDefault) e.preventDefault(); } };
-      return { label: short(d, { weekday: 'narrow' }), num: new Date(d).getDate(), aria: moved ? 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m) : short(d, { weekday: 'long' }) + ': no moves, no recap',
-        ring: fresh ? '#F2766B' : moved ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)', fill: fresh ? '#FFFFFF' : moved ? '#C9C5EC' : 'rgba(255,255,255,0.12)', labelColor: moved ? (fresh ? '#FFFFFF' : '#C9C5EC') : 'rgba(255,255,255,0.35)',
+      return { label: short(d, { weekday: 'short' }), num: new Date(d).getDate(), dist: moved ? M.fmtDist(x.m).replace(' ', '') : '—', fg: moved ? '#1F1D47' : 'rgba(255,255,255,0.4)', aria: moved ? 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m) : short(d, { weekday: 'long' }) + ': no moves, no recap',
+        ring: k === 6 ? '#F6C343' : 'transparent', fill: fresh ? '#FFFFFF' : moved ? '#C9C5EC' : 'rgba(255,255,255,0.06)', labelColor: moved ? (fresh ? '#FFFFFF' : '#C9C5EC') : 'rgba(255,255,255,0.35)',
         ...(moved ? to('recap', 'Recap.dc.html', { kind: 'day', from: d }) : off) };
     });
     const notes = { walk: 'most on foot', run: 'running week', bike: 'pedal power', drive: 'road week', transit: 'transit week' };
@@ -351,7 +472,7 @@ class Component extends DCLogic {
       past.push({ range: span(a, a + 6 * M.DAY), km: M.fmtDist(x.m), note: notes[x.modes[0].key], bg: colors[(k - 1) % 4], bars: ds.map((d) => Math.max(4, Math.round(d.min / mx * 100)) + '%'), delay: 200 + past.length * 60 + 'ms', ...to('recap', 'Recap.dc.html', { kind: 'week', from: a }) });
     }
     const dec1 = new Date(new Date(now).getFullYear(), 11, 1).getTime();
-    return { covers, days, past, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
+    return { covers, days, past, hasPast: past.length > 0, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
   }
   renderVals() {
     if (this.entryAnim === undefined) {
@@ -387,14 +508,14 @@ class Component extends DCLogic {
         const dayKm = [37, 52, 48, 61, 96, 58, 60];
         const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, i) => {
           const fresh = i >= 5;
-          return { label, num: 25 + i, aria: 'Recap for Oct ' + (25 + i) + ', ' + dayKm[i] + ' km',
-            ring: fresh ? '#F2766B' : 'rgba(255,255,255,0.25)', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...L('recap', 'Recap.dc.html') };
+          return { label, num: 25 + i, dist: dayKm[i] + 'km', fg: '#1F1D47', aria: 'Recap for Oct ' + (25 + i) + ', ' + dayKm[i] + ' km',
+            ring: i === 6 ? '#F6C343' : 'transparent', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...L('recap', 'Recap.dc.html') };
         });
         const past = [['Oct 18–24', '386 km', 'busy Tuesday', '#B57BE0', [50, 70, 100, 60, 55, 80, 40]], ['Oct 11–17', '402 km', 'steps record', '#6E8CF7', [60, 50, 70, 80, 100, 65, 55]], ['Oct 4–10', '371 km', 'most on foot', '#F2766B', [40, 60, 55, 100, 70, 50, 60]], ['Sep 27–Oct 3', '344 km', 'rainy week', '#F6C343', [70, 40, 50, 60, 100, 45, 30]]]
           .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
         if (window.Motio) return this.liveVals(L);
-        return { covers, days, past, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
-      })(), ...this.socialVals((t, f) => lk(t, f)), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
+        return { covers, days, past, hasPast: true, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
+      })(), ...this.socialVals((t, f) => lk(t, f)), ...this.segVals(), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
   }
 }
 </script>

@@ -89,7 +89,7 @@ button:active,a:active{transform:scale(0.96)}
         <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>02 · Distance</span><span style="color: #C9C5EC">{{ R.dist }}</span></span>
         <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>03 · Time</span><span style="color: #C9C5EC">{{ R.time }}</span></span>
         <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>04 · Records</span><span style="color: #C9C5EC">{{ R.prCount }}</span></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px"><span>05 · You</span><span style="color: #C9C5EC">?</span></span>
+        <span style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px"><span>05 · You</span><span style="color: #C9C5EC">Revealed last</span></span>
       </div>
     </div>
     </sc-if>
@@ -632,7 +632,7 @@ class Component extends DCLogic {
     const user = M.auth.user() || {};
     const waysWord = (n) => (n >= 5 ? 'all 5 ways' : n + (n === 1 ? ' way' : ' ways'));
     const nextLine = kind === 'week' ? 'See you next Sunday for week ' + (no + 1) + '.' : kind === 'day' ? 'See you tomorrow.' : 'See you next month.';
-    const byDist = r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, dist: d1(x.m) + ' ' + unit, distShort: d1(x.m), pct: Math.max(2, Math.round(x.m / Math.max(1, r.m) * 100)) + '%', color: x.color, dark: x.color }));
+    const byDist = r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, dist: d1(x.m) + ' ' + unit, distShort: d1(x.m) + ' ' + unit, pct: Math.max(2, Math.round(x.m / Math.max(1, r.m) * 100)) + '%', color: x.color, dark: x.color }));
     const tmax = Math.max(1, ...r.modes.map((x) => x.ms));
     const byTime = r.modes.map((x) => ({ label: x.label, LABEL: x.name.toUpperCase(), time: M.fmtMin(x.ms / M.MIN), rel: Math.round(x.ms / tmax * 100) + '%', color: x.color }));
     return {
@@ -658,7 +658,7 @@ class Component extends DCLogic {
       PRHEAD: isPR ? 'NEW PERSONAL RECORD' : 'LONGEST TRIP', prNum: longest ? d1(longest.distanceM) : '0',
       prUnitLine: longest ? unit + ' · ' + (isPR ? 'your longest ' + nouns[longest.mode] + ' ever' : 'your longest ' + nouns[longest.mode]) : unit,
       prDetail: longest ? fmtD(longest.start, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtMin((longest.end - longest.start) / M.MIN) + ' at ' + M.fmtSpeed(longest.distanceM / Math.max(1, (longest.end - longest.start) / 1000)) : '',
-      wildShort: wild ? dowS(wild.from) : '—', wildWays: wild ? waysWord(wild.modes.length) : '—',
+      wildShort: wild ? dowS(wild.from) : '—', wildWays: wild ? (wild.modes.length >= 4 ? waysWord(wild.modes.length) : wild.modes.map((x) => x.label.toLowerCase()).join(' + ')) : '—',
       prUnitShort: longest ? unit + ' ' + nouns[longest.mode] + (isPR ? ' · new PR' : '') : unit, longWalk: walkLong ? M.fmtDist(walkLong.distanceM) : '—', longWalkSub: walkLong ? dow(walkLong.start) + ' stroll' : 'no walks yet',
       persA: words.slice(0, half).join(' '), persB: words.slice(half).join(' '), pers: pers.name,
       rareB: top ? top.pct + '%' : '0%', rareT: top ? top.name.toLowerCase() : 'moving', rareLabel: 'Top mode', RARE: top ? 'TOP · ' + top.label.toUpperCase() + ' ' + top.pct + '%' : 'NEW MOVER',

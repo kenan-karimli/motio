@@ -57,6 +57,17 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     hasRequest: db.prepare('SELECT 1 AS ok FROM friend_requests WHERE from_id = ? AND to_id = ?'),
     dropRequests: db.prepare('DELETE FROM friend_requests WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)'),
     search: db.prepare("SELECT id, name, avatar, settings FROM users WHERE verified = 1 AND name ILIKE ? ESCAPE '\\' AND id <> ? ORDER BY LENGTH(name), name LIMIT 20"),
+    modesIn: db.prepare(`SELECT mode, SUM("end" - start)::float8 AS ms FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ? GROUP BY mode`),
+    allTime: db.prepare(`SELECT COALESCE(SUM(distance_m), 0)::float8 AS m, COUNT(*)::int AS n, COALESCE(MAX(distance_m), 0)::float8 AS best
+      FROM trips WHERE user_id = ? AND deleted = 0 AND mode IN ('walk', 'run', 'bike')`),
+    activeDays: db.prepare(`SELECT DISTINCT FLOOR((start - ?) / 86400000.0)::int AS d FROM trips
+      WHERE user_id = ? AND deleted = 0 AND mode IN ('walk', 'run', 'bike') AND start >= ?`),
+    together: db.prepare(`SELECT c.* FROM challenges c
+      JOIN challenge_members a ON a.challenge_id = c.id AND a.user_id = ? AND a.status = 'joined'
+      JOIN challenge_members b ON b.challenge_id = c.id AND b.user_id = ? AND b.status = 'joined'
+      WHERE c."end" <= ? ORDER BY c."end" DESC LIMIT 20`),
+    mutual: db.prepare(`SELECT u.id, u.name, u.avatar FROM friends a JOIN friends b ON b.friend_id = a.friend_id JOIN users u ON u.id = a.friend_id
+      WHERE a.user_id = ? AND b.user_id = ? ORDER BY u.name LIMIT 50`),
     byId: db.prepare('SELECT id, name FROM users WHERE id = ? AND verified = 1'),
     userById: db.prepare('SELECT id, name, bio, avatar, settings, created_at FROM users WHERE id = ?'),
     since: db.prepare('SELECT created_at FROM friends WHERE user_id = ? AND friend_id = ?'),
@@ -122,6 +133,21 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     const days = [0, 0, 0, 0, 0, 0, 0];
     for (const r of await q.perDay.all(from, from, from + WEEK, [id])) if (r.d >= 0 && r.d < 7) days[r.d] = Math.round(r.active_ms / 60000);
     return { activeMin: Math.round((s.active_ms || 0) / 60000), km: Math.round((s.m || 0) / 100) / 10, trips: s.trips || 0, lastMin: Math.round((l.active_ms || 0) / 60000), days, activeDays: days.filter((m) => m > 0).length };
+  }
+
+  // The profile page's highlights: this week's time per mode, all-time totals, longest outing and the
+  // active-day streak (days counted from the phone's own midnight, `from`).
+  async function highlightsOf(id, url) {
+    const t = now(), asked = Number(url.searchParams.get('from'));
+    const from = Number.isFinite(asked) && asked > t - 8 * WEEK && asked <= t ? asked : t - WEEK;
+    const modes = { walk: 0, run: 0, bike: 0, drive: 0, transit: 0 };
+    for (const r of await q.modesIn.all(id, from, from + WEEK)) if (r.mode in modes) modes[r.mode] = Math.round(r.ms / 60000);
+    const all = await q.allTime.get(id);
+    const days = new Set((await q.activeDays.all(from, id, t - 400 * DAY)).map((r) => r.d));
+    const today = Math.floor((t - from) / DAY);
+    let streak = 0;
+    for (let d = days.has(today) ? today : today - 1; days.has(d); d--) streak++;
+    return { modes, allKm: Math.round(all.m / 100) / 10, allTrips: all.n, longestKm: Math.round(all.best / 100) / 10, streak };
   }
 
   async function inviteOf(id) {
@@ -209,7 +235,21 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       if (rel !== 'me' && rel !== 'friend' && cfg.privateProfile) return { profile: { ...base, private: true } };
       const since = rel === 'friend' ? (await q.since.get(user.id, id)).created_at : null;
       const hidden = rel !== 'me' && !!cfg.hideActivity;
-      return { profile: { ...base, bio: u.bio, friendsSince: since, hidden, week: hidden ? null : await weekOf(id, url) } };
+      const out = { ...base, bio: u.bio, friendsSince: since, hidden, week: hidden ? null : await weekOf(id, url), highlights: hidden ? null : await highlightsOf(id, url) };
+      if (rel !== 'me') {
+        const m = await q.mutual.all(user.id, id);
+        out.mutual = { count: m.length, people: m.slice(0, 4).map((p) => ({ id: p.id, name: p.name, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '' })) };
+      }
+      // Head to head: finished challenges you both raced in, won by whoever got further.
+      if (rel === 'friend') {
+        let won = 0, lost = 0;
+        for (const c of await q.together.all(user.id, id, now())) {
+          const ms = (await challengeOut(c, user.id)).members, a = ms.find((x) => x.id === user.id), b = ms.find((x) => x.id === id);
+          if (a && b && a.value > b.value) won++; else if (a && b && b.value > a.value) lost++;
+        }
+        out.duel = { won, lost };
+      }
+      return { profile: out };
     },
 
     // Find people by name. Private profiles are listed too (name and photo only), like other social apps.
