@@ -152,6 +152,7 @@ button:active,a:active{transform:scale(0.96)}
     </section>
 
     <button onClick="{{ askLogout }}" style="min-height: 52px; flex-shrink: 0; border-radius: 26px; border: 0; background: #FDECEA; color: #C2412F; font-size: 15px; font-weight: 600">Log out</button>
+    <button type="button" onClick="{{ openSite }}" style="flex-shrink: 0; min-height: 44px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">motio-api.onrender.com</button>
   </div>
   <sc-if value="{{ logoutOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; color: #1F1D47">
@@ -295,7 +296,9 @@ class Component extends DCLogic {
       miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
       setKm: () => put('unit', 'km'),
       setMi: () => put('unit', 'mi'),
-      versionLabel: 'Version 3.6' + (M && M.isDemo() ? ' · sample data' : ''),
+      // The Motio website, opened in the in-app browser.
+      openSite: () => M && M.openPage('/'),
+      versionLabel: 'Version 3.7' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;
