@@ -373,26 +373,32 @@ test('announce: admin token only, counts first, emails each verified user once',
 test('website: release line, counted downloads, images, waitlist, admin stats', async () => {
   const fake = async (url, opt = {}) => (opt.method === 'HEAD'
     ? { ok: true, headers: new Headers({ 'content-length': '6291456' }) }
-    : { ok: true, text: async () => '<feed><updated>2026-11-21T11:00:00Z</updated><entry><updated>2026-11-21T10:00:00Z</updated><link href="https://github.com/kenan-karimli/motio/releases/tag/v3.9"/><title>Motio 3.9</title></entry></feed>' });
+    : { ok: true, text: async () => '<feed><updated>2026-11-21T11:00:00Z</updated><entry><updated>2026-11-21T10:00:00Z</updated><link href="https://github.com/kenan-karimli/motio/releases/tag/v3.9"/><title>Motio 3.9</title><content type="html">&lt;ul&gt;&lt;li&gt;New What&amp;#39;s new screen&lt;/li&gt;&lt;li&gt;Faster &amp;lt;b&amp;gt;tabs&lt;/li&gt;&lt;/ul&gt;</content></entry></feed>' });
   const app = createServer(await createApp({ db: await openDb(':memory:'), mailer: createMailer({}), now: () => clock, env: { ADMIN_TOKEN: 'z'.repeat(32) }, fetchImpl: fake }));
   await new Promise((r) => app.listen(0, r));
   const url = `http://127.0.0.1:${app.address().port}`;
   const ua = { 'User-Agent': 'Mozilla/5.0 (Linux; Android 14)' };
   const home = await fetch(url + '/', { headers: ua });
   assert.match(home.headers.get('content-type'), /text\/html/);
-  assert.match(await home.text(), /data-version="3.9" data-mb="6.0" data-date="2026-11-21"/);
+  const html = await home.text();
+  assert.match(html, /data-version="3.9" data-mb="6.0" data-date="2026-11-21"/);
+  assert.match(html, /<li>New What&amp;#39;s new screen<\/li>/, 'notes are escaped into the page');
   const dl = await fetch(url + '/download', { headers: ua, redirect: 'manual' });
   assert.equal(dl.status, 302); assert.match(dl.headers.get('location'), /latest\/download\/motio\.apk$/);
   await fetch(url + '/download', { headers: { 'User-Agent': 'WhatsApp/2.23' }, redirect: 'manual' }); // link preview: not counted
   const img = await fetch(url + '/site/today.jpg');
   assert.equal(img.status, 200); assert.equal(img.headers.get('content-type'), 'image/jpeg');
   assert.equal((await fetch(url + '/site/..%2Fsite.js')).status, 404);
-  const join = (email) => fetch(url + '/v1/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, platform: 'ios' }) });
+  const join = (email, name) => fetch(url + '/v1/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name, platform: 'ios' }) });
   assert.equal((await join('nope')).status, 400);
-  assert.equal((await join('Ann@Example.com')).status, 200); await join('ann@example.com');
+  assert.equal((await join('Ann@Example.com', 'Ann')).status, 200);
+  assert.equal((await (await join('ann@example.com')).json()).waiting, 1, 'same email once, name kept');
   assert.equal((await fetch(url + '/v1/admin/stats')).status, 401);
   const st = await (await fetch(url + '/v1/admin/stats', { headers: { Authorization: 'Bearer ' + 'z'.repeat(32) } })).json();
   assert.deepEqual(Object.values(st.days)[0], { view: 1, download: 1 });
   assert.deepEqual(st.waitlist, { ios: 1 }, 'same email once');
+  assert.equal((await fetch(url + '/v1/admin/waitlist')).status, 401);
+  const wl = await (await fetch(url + '/v1/admin/waitlist', { headers: { Authorization: 'Bearer ' + 'z'.repeat(32) } })).json();
+  assert.deepEqual(wl.people.map((p) => [p.name, p.email]), [['Ann', 'ann@example.com']]);
   app.close();
 });

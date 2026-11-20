@@ -11,4 +11,7 @@ src="dist/motio-$name.apk"
 # fixed name, so https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk always serves the newest.
 cp "$src" "dist/motio-$code.apk"
 cp "$src" "dist/motio.apk"
-gh release create "v$name" "dist/motio-$code.apk" "dist/motio.apk" --repo kenan-karimli/motio --title "Motio $name" --notes "Motio $name (build $code)" --latest
+# What's new: release-notes/<version>.md (shown on the website and in the app's What's new sheet).
+notes="release-notes/$name.md"
+[ -f "$notes" ] || { echo "Write $notes first (one '- ' line per change)" >&2; exit 1; }
+gh release create "v$name" "dist/motio-$code.apk" "dist/motio.apk" --repo kenan-karimli/motio --title "Motio $name" --notes-file "$notes" --latest

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · What's new</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioWnPop{0%{opacity:0;transform:scale(0.5) rotate(-12deg)}70%{opacity:1;transform:scale(1.08) rotate(3deg)}100%{transform:none}}
+@keyframes motioWnIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes motioWnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 24px">
+    <section style="position: relative; overflow: hidden; padding: 72px 24px 30px; background: linear-gradient(135deg, #4B3FD8 0%, #8C7CF0 60%, #F2766B 100%); color: #FFFFFF">
+      <svg aria-hidden="true" width="390" height="260" viewBox="0 0 390 260" style="position: absolute; left: 0; top: 0"><path d="M-20 210 C 80 150, 160 250, 260 180 S 380 110, 420 140" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="26" stroke-linecap="round"></path><path d="M-20 210 C 80 150, 160 250, 260 180 S 380 110, 420 140" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"></path><circle cx="320" cy="44" r="62" fill="#FFFFFF" fill-opacity="0.08"></circle></svg>
+      <span aria-hidden="true" style="position: relative; width: 70px; height: 70px; border-radius: 24px; background: #F6C343; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 26px rgba(20,14,70,0.3); animation: motioWnPop 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards, motioWnFloat 3.2s ease-in-out 1.2s infinite"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"></path><path d="M19 15l.8 1.9 1.9.8-1.9.8L19 20.4l-.8-1.9-1.9-.8 1.9-.8z"></path></svg></span>
+      <div style="position: relative; margin-top: 18px; font-size: 14px; font-weight: 600; opacity: 0.85; animation: motioWnIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">{{ kicker }}</div>
+      <h1 style="position: relative; margin: 2px 0 0; font-size: 38px; font-weight: 700; line-height: 1.05; animation: motioWnIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">{{ title }}</h1>
+    </section>
+
+    <section aria-label="{{ listLabel }}" style="padding: 20px 20px 0; display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{ items }}" as="n" hint-placeholder-count="4">
+        <div style="display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 22px; background: #FFFFFF; animation: motioWnIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ n.d }} backwards">
+          <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 12px; background: {{ n.c }}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+          <span style="flex: 1; font-size: 14.5px; line-height: 1.5; font-weight: 500">{{ n.t }}</span>
+        </div>
+      </sc-for>
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><span style="padding: 16px; border-radius: 22px; background: #FFFFFF; font-size: 14px; color: #4A4770">Fixes and improvements to keep Motio running smoothly.</span></sc-if>
+    </section>
+
+    <sc-if value="{{ hasEarlier }}" hint-placeholder-val="{{ true }}">
+      <section style="padding: 24px 20px 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 700">Earlier updates</h2>
+        <sc-for list="{{ earlier }}" as="e" hint-placeholder-count="2">
+          <div style="padding: 14px 16px; border-radius: 20px; background: #EEF0F6; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; font-weight: 700; color: #5B4FE0">{{ e.v }}</span>
+            <sc-for list="{{ e.items }}" as="t" hint-placeholder-count="2"><span style="font-size: 13px; line-height: 1.45; color: #4A4770">{{ t }}</span></sc-for>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+  </div>
+  <div style="flex-shrink: 0; padding: 12px 20px 24px; background: #F6F5FC">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" style="height: 56px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; text-decoration: none">Got it</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    // Notes come from release-notes/<version>.md, bundled into the app at build time (scripts/build-www.mjs).
+    const NOTES = window.__MOTIO_NOTES || { '3.9': ['See what changed after every update', 'A new Motio website with iPhone sign-up'], '3.8': ['Smoother motion everywhere'] };
+    const version = window.__MOTIO_VERSION || '3.9';
+    const older = (v) => v.localeCompare(version, undefined, { numeric: true }) < 0;
+    const byNewest = Object.keys(NOTES).filter(older).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    const mine = NOTES[version] || [];
+    const COLORS = ['#3DBF5C', '#F6C343', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const base = emb ? 380 : 0;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms ease',
+      LK: { back: lk('back', 'Main.dc.html') },
+      d0: base + 'ms', d1: base + 140 + 'ms',
+      kicker: 'What’s new in', title: 'Motio ' + version,
+      listLabel: 'Changes in Motio ' + version,
+      items: mine.map((t, i) => ({ t, c: COLORS[i % COLORS.length], d: base + 260 + i * 90 + 'ms' })),
+      empty: !mine.length,
+      earlier: byNewest.filter((v) => NOTES[v].length).slice(0, 3).map((v) => ({ v: 'Motio ' + v, items: NOTES[v] })),
+      hasEarlier: byNewest.some((v) => NOTES[v].length)
+    };
+  }
+}
+</script>
+</body>
+</html>

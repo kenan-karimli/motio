@@ -16,7 +16,11 @@ for (const [name, src] of Object.entries(sources)) {
   try { new Function('DCLogic', src.slice(i, src.lastIndexOf('</script>')) + '; return Component'); }
   catch (e) { console.error(`design/${name}.dc.html: ${e.message}`); process.exit(1); }
 }
-writeFileSync('www/dc-sources.js', 'window.__DC_SOURCES=' + JSON.stringify(sources) + ';window.__MOTIO_API=' + JSON.stringify(process.env.MOTIO_API || 'http://localhost:8787') + ';');
+// What's new: release-notes/<version>.md ("- " lines) and this build's version, for the app's What's new screen.
+const notes = {};
+try { for (const f of readdirSync('release-notes').filter((f) => f.endsWith('.md'))) notes[f.slice(0, -3)] = readFileSync('release-notes/' + f, 'utf8').split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2).trim()); } catch { /* no notes yet */ }
+const appVersion = (/versionName "([^"]+)"/.exec(readFileSync('android/app/build.gradle', 'utf8')) || [])[1] || '';
+writeFileSync('www/dc-sources.js', 'window.__DC_SOURCES=' + JSON.stringify(sources) + ';window.__MOTIO_API=' + JSON.stringify(process.env.MOTIO_API || 'http://localhost:8787') + ';window.__MOTIO_NOTES=' + JSON.stringify(notes) + ';window.__MOTIO_VERSION=' + JSON.stringify(appVersion) + ';');
 
 const fonts = [['poppins', 'Poppins', [400, 500, 600, 700]], ['space-mono', 'Space Mono', [400, 700]]];
 let css = '';

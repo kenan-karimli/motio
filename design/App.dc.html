@@ -214,6 +214,11 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
       <dc-import name="Update" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.whatsnew.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.whatsnew.kind }}" style="position: absolute; inset: 0; z-index: {{ O.whatsnew.z }}; animation: {{ O.whatsnew.anim }}; box-shadow: {{ O.whatsnew.shadow }}">
+      <dc-import name="WhatsNew" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.friend.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.friend.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friend.z }}; animation: {{ O.friend.anim }}; box-shadow: {{ O.friend.shadow }}">
       <dc-import name="FriendProfile" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -332,6 +337,15 @@ class Component extends DCLogic {
     if (reopen) setTimeout(() => { if (this.goFn) { this.goFn('you'); this.goFn(reopen); } }, 0);
     // An invite link that started the app arrived before the app could open Friends: open it now.
     else if (window.__motioInvite && window.Motio && window.Motio.auth.isSignedIn()) setTimeout(() => this.goFn && this.goFn('friends'), 0);
+    // What's new: once, the first time a newer version starts (not on a fresh install).
+    try {
+      const v = window.__MOTIO_VERSION, seen = window.localStorage.getItem('motio.seenVersion');
+      if (v && seen !== v) {
+        window.localStorage.setItem('motio.seenVersion', v);
+        const notes = (window.__MOTIO_NOTES || {})[v];
+        if (seen && notes && notes.length) setTimeout(() => { if (this.goFn && window.Motio && window.Motio.auth.isSignedIn()) this.goFn('whatsnew'); }, 1200);
+      }
+    } catch (e) { /* storage blocked: skip What's new */ }
     // Android back button: pop a page, return to Today, or let the app close.
     window.__motioBack = () => {
       // A back gesture can arrive mid-swipe: drop the swipe and put the pages back in place first.
@@ -399,7 +413,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;
