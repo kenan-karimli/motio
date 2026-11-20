@@ -370,11 +370,12 @@ test('announce: admin token only, counts first, emails each verified user once',
   assert.equal((await call('POST', '/v1/admin/announce', msg)).status, 404, 'no route without ADMIN_TOKEN');
 });
 
-test('website: release line, counted downloads, images, waitlist, admin stats', async () => {
+test('website: release line, counted downloads, images, waitlist, problem reports, admin stats', async () => {
   const fake = async (url, opt = {}) => (opt.method === 'HEAD'
     ? { ok: true, headers: new Headers({ 'content-length': '6291456' }) }
     : { ok: true, text: async () => '<feed><updated>2026-11-21T11:00:00Z</updated><entry><updated>2026-11-21T10:00:00Z</updated><link href="https://github.com/kenan-karimli/motio/releases/tag/v3.9"/><title>Motio 3.9</title><content type="html">&lt;ul&gt;&lt;li&gt;New What&amp;#39;s new screen&lt;/li&gt;&lt;li&gt;Faster &amp;lt;b&amp;gt;tabs&lt;/li&gt;&lt;/ul&gt;</content></entry></feed>' });
-  const app = createServer(await createApp({ db: await openDb(':memory:'), mailer: createMailer({}), now: () => clock, env: { ADMIN_TOKEN: 'z'.repeat(32) }, fetchImpl: fake }));
+  const mailer = createMailer({});
+  const app = createServer(await createApp({ db: await openDb(':memory:'), mailer, now: () => clock, env: { ADMIN_TOKEN: 'z'.repeat(32) }, fetchImpl: fake }));
   await new Promise((r) => app.listen(0, r));
   const url = `http://127.0.0.1:${app.address().port}`;
   const ua = { 'User-Agent': 'Mozilla/5.0 (Linux; Android 14)' };
@@ -391,9 +392,24 @@ test('website: release line, counted downloads, images, waitlist, admin stats', 
   assert.equal(img.status, 200); assert.equal(img.headers.get('content-type'), 'image/jpeg');
   assert.equal((await fetch(url + '/site/..%2Fsite.js')).status, 404);
   const join = (email, name) => fetch(url + '/v1/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name, platform: 'ios' }) });
-  assert.equal((await join('nope')).status, 400);
+  assert.equal((await join('nope', 'Ann')).status, 400);
+  assert.equal((await (await join('ann@example.com', '  ')).json()).error, 'name_missing');
+  assert.equal((await join('ann@example.com', 'A'.repeat(61))).status, 400);
   assert.equal((await join('Ann@Example.com', 'Ann')).status, 200);
-  assert.equal((await (await join('ann@example.com')).json()).waiting, 1, 'same email once, name kept');
+  assert.equal((await (await join('ann@example.com', 'Ann')).json()).waiting, 1, 'same email once');
+  assert.equal(mailer.outbox[0].to, 'noreply.motio@gmail.com');
+  assert.match(mailer.outbox[0].text, /Ann <ann@example\.com>/);
+  // Report a problem: validated, stored, emailed to the Motio inbox.
+  const report = (b) => fetch(url + '/v1/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+  assert.equal((await (await report({ name: 'Bo', email: 'bo@example.com', message: 'short' })).json()).error, 'message_short');
+  assert.equal((await (await report({ name: 'Bo', email: 'bo@', message: 'The map stays empty.' })).json()).error, 'email_invalid');
+  assert.equal((await report({ name: 'Bo', email: 'bo@example.com', message: 'x'.repeat(2001) })).status, 400);
+  const sent = mailer.outbox.length;
+  assert.equal((await report({ name: 'Bo\r\nBcc: x', email: 'Bo@Example.com', message: 'The map stays empty after a walk.' })).status, 200);
+  assert.equal(mailer.outbox.length, sent + 1);
+  assert.equal(mailer.outbox[0].to, 'noreply.motio@gmail.com');
+  assert.equal(mailer.outbox[0].subject, 'Motio problem report from Bo Bcc: x', 'no line breaks in the subject');
+  assert.match(mailer.outbox[0].text, /bo@example\.com>\n\nThe map stays empty after a walk\./);
   assert.equal((await fetch(url + '/v1/admin/stats')).status, 401);
   const st = await (await fetch(url + '/v1/admin/stats', { headers: { Authorization: 'Bearer ' + 'z'.repeat(32) } })).json();
   assert.deepEqual(Object.values(st.days)[0], { view: 1, download: 1 });

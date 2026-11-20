@@ -1,5 +1,6 @@
 // The Motio website: the landing page at /, its images under /site/, a short download link, a no-cookie
-// count of page views and downloads, and an iPhone waitlist. Stats are for ADMIN_TOKEN holders only.
+// count of page views and downloads, the iPhone waitlist and the "Report a problem" form. Both forms are stored and
+// emailed to the Motio inbox. Stats and lists are for ADMIN_TOKEN holders only.
 import { readFileSync, existsSync } from 'node:fs';
 import { isAdmin } from './announce.js';
 
@@ -7,17 +8,31 @@ const DOWNLOAD = 'https://github.com/kenan-karimli/motio/releases/latest/downloa
 // GitHub's release feed, not its API: the API limits requests per IP, and hosting IPs are shared.
 const FEED = 'https://github.com/kenan-karimli/motio/releases.atom';
 const TYPES = { jpg: 'image/jpeg', png: 'image/png', svg: 'image/svg+xml' };
-const validEmail = (e) => /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e);
+const INBOX = 'noreply.motio@gmail.com';
+const validEmail = (e) => e.length <= 254 && /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e);
 
-export async function siteRoutes({ db, env, now, fetchImpl, HttpError, bad }) {
+export async function siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, bad }) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS site_stats (day TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, kind));
     CREATE TABLE IF NOT EXISTS waitlist (email TEXT PRIMARY KEY, platform TEXT NOT NULL, created_at BIGINT NOT NULL);
     ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS name TEXT;
+    CREATE TABLE IF NOT EXISTS site_messages (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, message TEXT NOT NULL, created_at BIGINT NOT NULL);
   `);
+  // The same checks the page makes, repeated here because the page can be skipped.
+  const person = (body) => {
+    const name = String(body.name || '').trim().replace(/\s+/g, ' ');
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!name) throw bad('name_missing', 'Enter your name.');
+    if (name.length > 60) throw bad('name_long', 'Keep your name under 60 characters.');
+    if (!validEmail(email)) throw bad('email_invalid', 'Enter a valid email address.');
+    return { name, email };
+  };
+  // Stored first, so a mail outage never loses a message.
+  const notify = (subject, text) => mailer.sendText(INBOX, subject, text).catch((e) => console.error('[site] mail failed:', e.message));
   const q = {
     hit: db.prepare('INSERT INTO site_stats (day, kind, n) VALUES (?, ?, 1) ON CONFLICT (day, kind) DO UPDATE SET n = site_stats.n + 1'),
     stats: db.prepare('SELECT day, kind, n FROM site_stats WHERE day >= ? ORDER BY day'),
+    say: db.prepare('INSERT INTO site_messages (name, email, message, created_at) VALUES (?, ?, ?, ?)'),
     join: db.prepare('INSERT INTO waitlist (email, platform, created_at, name) VALUES (?, ?, ?, ?) ON CONFLICT (email) DO UPDATE SET name = COALESCE(excluded.name, waitlist.name)'),
     list: db.prepare('SELECT name, email, platform, created_at FROM waitlist ORDER BY created_at DESC'),
     waiting: db.prepare('SELECT platform, COUNT(*)::int AS n FROM waitlist GROUP BY platform')
@@ -69,11 +84,21 @@ export async function siteRoutes({ db, env, now, fetchImpl, HttpError, bad }) {
       return { type: TYPES[ext], raw: readFileSync(file), cache: 'public, max-age=86400' };
     },
     'POST /v1/waitlist': async ({ body }) => {
-      const email = String(body.email || '').trim().toLowerCase();
-      if (!validEmail(email)) throw bad('email_invalid', 'Enter a valid email address.');
-      const name = String(body.name || '').trim().slice(0, 60) || null;
-      await q.join.run(email, body.platform === 'ios' ? 'ios' : 'other', now(), name);
+      const { name, email } = person(body);
+      const platform = body.platform === 'ios' ? 'ios' : 'other';
+      await q.join.run(email, platform, now(), name);
+      notify(`Motio iPhone sign-up: ${name}`, `${name} <${email}> joined the iPhone list (${platform}).`);
       return { ok: true, waiting: (await q.waiting.all()).reduce((a, x) => a + x.n, 0) };
+    },
+    // "Report a problem" on the website.
+    'POST /v1/contact': async ({ body }) => {
+      const { name, email } = person(body);
+      const message = String(body.message || '').trim();
+      if (message.length < 10) throw bad('message_short', 'Describe the problem in at least 10 characters.');
+      if (message.length > 2000) throw bad('message_long', 'Keep it under 2000 characters.');
+      await q.say.run(name, email, message, now());
+      notify(`Motio problem report from ${name}`, `From: ${name} <${email}>\n\n${message}`);
+      return { ok: true };
     },
     // Everyone on the iPhone list, newest first (admin only: these are people's emails).
     'GET /v1/admin/waitlist': async ({ req }) => {

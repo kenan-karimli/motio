@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Motio: every move tells a story</title>
-<meta name="description" content="Motio notices when you walk, run, ride or drive, draws your day as a road, and turns your week into stories worth sharing. Free for Android, coming to iPhone.">
-<meta name="theme-color" content="#4B3FD8">
+<title>Motio: your day, recorded on its own</title>
+<meta name="description" content="Motio records your walks, runs, rides and drives without a tap, draws your day as one route, and lets you race your friends. Free for Android.">
+<meta name="theme-color" content="#161618">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Motio">
-<meta property="og:title" content="Motio: every move tells a story">
-<meta property="og:description" content="Your walks, runs, rides and drives, drawn as a road and turned into weekly stories. Race your friends. Free for Android.">
+<meta property="og:title" content="Motio: your day, recorded on its own">
+<meta property="og:description" content="Walks, runs, rides and drives, recorded without a tap and drawn as one route. Weekly recaps, a friends leaderboard and live widgets. Free for Android.">
 <meta property="og:url" content="https://motio-api.onrender.com/">
 <meta property="og:image" content="https://motio-api.onrender.com/site/og.png">
 <meta property="og:image:width" content="1200">
@@ -17,479 +17,552 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--purple:#4B3FD8;--violet:#5B4FE0;--navy:#1F1D47;--ink:#16142F;--page:#F6F5FC;--muted:#6B6890;--body:#4A4770;--yellow:#F6C343;--coral:#F2766B;--green:#3DBF5C;--blue:#6E8CF7;--lilac:#B57BE0;--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.56,.64,1)}
+:root{--bg:#161618;--panel:#1E1E21;--line:#2B2B30;--text:#F2F2F0;--soft:#9C9CA3;--card:#F4F4F1;--ink:#18181A;--body:#5C5C63;--bad:#C2362B;--glow:#4B3FD8;--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.4,.64,1)}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{margin:0;background:var(--page);color:var(--navy);font-family:Poppins,system-ui,sans-serif;font-size:17px;line-height:1.6;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Inter Tight",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,ol,ul{margin:0}
+h1,h2,h3{font-weight:500;letter-spacing:-.02em;overflow-wrap:break-word;text-wrap:balance}
 a{color:inherit}
-img{display:block;max-width:100%}
-:focus-visible{outline:3px solid var(--yellow);outline-offset:3px;border-radius:8px}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-h1,h2,h3{margin:0;line-height:1.02;letter-spacing:-0.03em}
-p{margin:0}
-.big{font-size:clamp(40px,7.2vw,88px);font-weight:800}
-.panel{position:relative;overflow:hidden;padding:110px 0}
-.lede{margin-top:20px;font-size:clamp(17px,2vw,20px);max-width:32em}
+img{display:block;max-width:100%;height:auto}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.center{text-align:center}
+.muted{color:var(--soft)}
+h2.big{font-size:clamp(1.9rem,4.2vw,3rem);line-height:1.12;max-width:20ch;margin:0 auto}
 
-/* Things that come alive when they scroll into view */
-.rv{opacity:0;transform:translateY(34px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
-.in .rv,.rv.in{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+/* Header */
+.top{display:flex;align-items:center;gap:28px;padding:20px 0}
+.mark{display:flex;align-items:center;gap:8px;font-weight:600;font-size:19px;text-decoration:none;margin-right:auto}
+.top .link{text-decoration:none;color:var(--soft);font-size:15px}
+.top .link:hover{color:var(--text)}
+.lang{font-size:14px;font-weight:500;background:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;color:var(--soft)}
+.lang:hover{color:var(--text);border-color:var(--soft)}
 
 /* Hero */
-.hero{background:var(--purple);color:#fff;padding:22px 0 0}
-.blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;animation:drift 18s ease-in-out infinite alternate}
-.blob.a{width:520px;height:520px;right:-180px;top:-220px;background:#5B4FE0}
-.blob.b{width:300px;height:300px;left:-120px;top:300px;background:#6255E8;animation-duration:22s}
-@keyframes drift{to{transform:translate(-60px,50px) scale(1.12)}}
-.nav{position:relative;z-index:3;display:flex;align-items:center;gap:14px}
-.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:22px;text-decoration:none;margin-right:auto}
-.nav a.small{font-size:15px;font-weight:600;text-decoration:none;opacity:.88}
-.lang{height:36px;padding:0 14px;border:2px solid rgba(255,255,255,.35);border-radius:18px;background:transparent;color:#fff;font:700 13px Poppins,sans-serif;cursor:pointer;transition:background .2s}
-.lang:hover{background:rgba(255,255,255,.14)}
-.hero-copy{position:relative;z-index:2;padding:60px 0 0;max-width:820px}
-.hero h1{font-size:clamp(50px,10vw,118px);font-weight:800}
-.swap{display:inline-grid;vertical-align:bottom;height:1.02em;overflow:hidden}
-.swap span{grid-area:1/1;display:block;transform:translateY(105%);transition:transform .7s var(--ease)}
-.swap span.on{transform:none}
-.swap span.out{transform:translateY(-105%)}
-.hero .lede{color:#E4E1FF;opacity:0;animation:rise .9s var(--ease) .4s forwards}
-@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
-.cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:32px;opacity:0;animation:rise .9s var(--ease) .6s forwards}
-.btn{position:relative;display:inline-flex;align-items:center;gap:10px;height:60px;padding:0 30px;border-radius:30px;background:var(--yellow);color:var(--navy);font-weight:700;font-size:17px;text-decoration:none;box-shadow:0 12px 30px rgba(22,20,47,.3);transition:transform .25s var(--spring),box-shadow .25s;overflow:hidden;border:0;cursor:pointer}
-.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.6) 50%,transparent 60%);transform:translateX(-120%);animation:shine 4.5s ease-in-out 2.2s infinite}
-@keyframes shine{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
-.btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 18px 36px rgba(22,20,47,.35)}
-.btn:active{transform:scale(.96)}
-.rel{display:flex;flex-direction:column;font-size:14px;line-height:1.45;color:#D9D5FF}
-.rel b{font-weight:600;color:#fff}
-.road{position:relative;z-index:1;display:block;width:100%;height:auto}
-.road .track{stroke:#fff;stroke-opacity:.14;stroke-width:46;fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.4s var(--ease) .2s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.road .dash{stroke:#fff;stroke-opacity:.7;stroke-width:3;fill:none;stroke-dasharray:3 14;stroke-linecap:round;animation:flow 1.4s linear infinite}
-@keyframes flow{to{stroke-dashoffset:-34}}
-.chip{font:600 15px Poppins,sans-serif}.chip-l{font-size:19px}
-.pin{opacity:0;animation:pop .6s var(--spring) forwards;transform-box:fill-box;transform-origin:center}
-@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
-.live{opacity:0;animation:fade .6s ease 2.4s forwards}
-@keyframes fade{to{opacity:1}}
-.road-tall .track{stroke-width:34}
-.road-wide{display:none}
-@media(min-width:900px){.road-tall{display:none}.road-wide{display:block;max-width:1440px;margin:-20px auto 0}}
+.hero{padding:72px 0 0;text-align:center}
+.pill{display:inline-flex;align-items:center;gap:12px;border:5px solid var(--text);border-radius:999px;padding:10px 34px 12px;font-size:clamp(2.2rem,5vw,3.4rem);font-weight:600;letter-spacing:-.04em;line-height:1}
+.pill svg{width:.9em;height:.9em}
+.say{font-size:clamp(1.55rem,3.6vw,2.6rem);line-height:1.38;font-weight:500;letter-spacing:-.02em;max-width:26ch;margin:56px auto 0}
+.chip{display:inline-flex;align-items:center;gap:.28em;vertical-align:baseline;background:#26262A;border:0;border-radius:.5em;padding:0 .3em 0 .14em;margin:0 .06em;font:inherit;letter-spacing:inherit;cursor:pointer;transition:background .2s,transform .25s var(--spring);white-space:nowrap}
+.chip:hover{background:#303036}
+.chip:active{transform:scale(.95)}
+.chip[aria-pressed="true"]{background:#3A3A41;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+.chip i{display:inline-grid;place-items:center;width:1.05em;height:1.05em;border-radius:.3em;background:var(--c);transform:rotate(-6deg);transition:transform .35s var(--spring)}
+.chip:hover i,.chip[aria-pressed="true"] i{transform:rotate(4deg) scale(1.08)}
+.chip i svg{width:.66em;height:.66em}
+.hint{font-size:15px;color:var(--soft);margin-top:22px}
+.cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:600;color:var(--ink);background:var(--text);border:0;border-radius:999px;padding:14px 26px;text-decoration:none;cursor:pointer;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:#fff}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.dark:hover{background:#000}
+.rel{font-size:14px;color:var(--soft)}
+.ios-only{display:none}
+.is-ios .ios-only{display:block}
+.is-ios .hero .ios-only{margin-top:14px;font-size:15px;color:var(--soft)}
 
-/* Ticker of trips */
-.ticker{background:var(--ink);color:#fff;padding:22px 0;overflow:hidden}
-.row{display:flex;gap:12px;width:max-content;animation:slide 38s linear infinite}
-.row.rev{animation-direction:reverse;margin-top:12px;animation-duration:46s}
-@keyframes slide{to{transform:translateX(-50%)}}
-.t{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px 0 10px;border-radius:24px;background:rgba(255,255,255,.07);font-weight:600;font-size:15px;white-space:nowrap}
-.t i{width:28px;height:28px;border-radius:14px;flex:none}
-.t span{color:#9F9CC4;font-weight:500}
+/* Stage: one screen at a time, switched by the words above or the tabs below */
+.stage{position:relative;margin:72px auto 0;max-width:1080px;height:760px;border-radius:32px;background:var(--panel);border:1px solid var(--line);overflow:hidden;isolation:isolate}
+.glow{position:absolute;left:50%;top:44%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;background:var(--glow);filter:blur(110px);opacity:.42;transition:background-color .8s var(--ease);z-index:-1}
+.phone{position:absolute;left:50%;top:44px;width:286px;aspect-ratio:780/1688;margin-left:-143px;border-radius:40px;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 50px 90px -30px rgba(0,0,0,.7)}
+.phone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:translateY(14px) scale(.985);transition:opacity .5s var(--ease),transform .7s var(--ease)}
+.phone img.on{opacity:1;transform:none}
+.tile{position:absolute;max-width:240px;background:rgba(30,30,33,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:16px 20px;text-align:left;box-shadow:0 24px 50px -20px rgba(0,0,0,.6)}
+.tile b{display:block;font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.tile span{display:block;color:var(--soft);font-size:15px;margin-top:4px}
+.tile i{display:block;width:10px;height:10px;border-radius:50%;background:var(--glow);margin-bottom:10px;transition:background-color .8s}
+.t1{right:calc(50% + 190px);top:150px}
+.t2{left:calc(50% + 190px);top:360px}
+.tile.in{animation:tileIn .7s var(--spring) both}
+.t2.in{animation-delay:.12s}
+@keyframes tileIn{from{opacity:0;transform:translateY(18px) scale(.94)}}
+.seg{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;max-width:calc(100% - 32px);overflow-x:auto;scrollbar-width:none;background:rgba(14,14,16,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;background:none;border:0;border-radius:999px;padding:8px 16px;font-size:15px;color:var(--soft);cursor:pointer;transition:background .25s,color .25s}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed="true"]{background:#2E2E33;color:var(--text)}
+.caption{min-height:3.2em;max-width:36em;margin:26px auto 0;color:var(--soft);text-align:center}
 
-/* Counted for you (yellow) */
-.yellow{background:var(--yellow)}
-.yellow .lede{color:#3a3567}
-.count-grid{display:grid;gap:14px;margin-top:44px}
-@media(min-width:860px){.count-grid{grid-template-columns:1.2fr 1fr 1fr;align-items:end}}
-.stat{border-radius:30px;background:var(--navy);color:#fff;padding:26px 26px 22px;transform-origin:bottom left}
-.stat:nth-child(2){background:#fff;color:var(--navy)}
-.stat:nth-child(3){background:var(--coral);color:var(--navy)}
-.stat b{display:block;font-size:clamp(46px,6vw,74px);font-weight:800;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.stat span{display:block;margin-top:10px;font-weight:600;opacity:.8}
-.float{position:absolute;right:4%;top:70px;width:220px;transform:rotate(8deg);animation:bob 6s ease-in-out infinite;display:none}
-@keyframes bob{50%{transform:rotate(5deg) translateY(-16px)}}
-@media(min-width:1100px){.float{display:block}.yellow .wrap{padding-right:290px}}
-.phone{border-radius:38px;background:var(--ink);padding:9px;box-shadow:0 30px 60px rgba(31,29,71,.35)}
-.phone img{border-radius:30px}
+/* Features */
+.feat{padding-top:150px;padding-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:64px 80px;max-width:820px;margin:84px auto 0;padding:0;list-style:none}
+.grid svg,.cells svg{width:26px;height:26px;stroke:var(--text);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:22px}
+.grid h3,.cells h3{font-size:17px;font-weight:500;letter-spacing:-.01em}
+.grid p,.cells p{color:var(--soft);margin-top:4px}
 
-/* Ways of moving (bars grow) */
-.modes{background:#fff}
-.bars{display:grid;gap:12px;margin-top:44px}
-.bar{position:relative;height:74px;border-radius:37px;background:#F3F2FA;overflow:hidden}
-.bar .fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:37px;transition:width 1.4s var(--ease)}
-.in .bar .fill{width:var(--w)}
-.bar .lab{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-weight:700;font-size:20px}
-.bar .lab em{font-style:normal;font-size:15px;font-weight:600;opacity:.75}
-.modes .note{margin-top:22px;color:var(--muted);font-size:15px;max-width:40em}
+/* Install */
+.install{padding-top:150px}
+.cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;margin:72px 0 0;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.cells li{padding:32px 30px 36px}
+.cells li + li{border-left:1px solid var(--line)}
+.cells .n{display:block;color:var(--soft);font-size:14px;margin-bottom:6px}
 
-/* Weekly recap cards fan out (coral) */
-.coral{background:var(--coral)}
-.coral .lede{color:#3a1f2a}
-.fan-wrap{display:grid;gap:40px;align-items:center}
-@media(min-width:900px){.fan-wrap{grid-template-columns:1fr 1fr}}
-.fan{position:relative;height:460px}
-.card{position:absolute;left:50%;top:20px;width:230px;height:400px;margin-left:-115px;border-radius:30px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 26px 50px rgba(31,29,71,.28);transition:transform .2s linear;will-change:transform}
-.card .k{font-size:13px;font-weight:700}
-.card .n{font-size:78px;font-weight:800;line-height:.9;letter-spacing:-.04em}
-.card .u{font-size:17px;font-weight:600}
-.card.c1{background:var(--navy);color:#fff}
-.card.c2{background:var(--yellow)}
-.card.c3{background:#fff}
-.mini{display:flex;gap:6px;align-items:flex-end;height:64px}
-.mini i{flex:1;border-radius:6px;background:currentColor;opacity:.85}
+/* Download card */
+.get{padding-top:150px}
+.card{max-width:440px;margin:0 auto;background:var(--card);color:var(--ink);border-radius:28px;padding:40px 40px 36px}
+.card h2{font-size:18px;font-weight:500}
+.card .free{font-size:56px;font-weight:600;letter-spacing:-.04em;line-height:1;margin:14px 0 26px}
+.card .btn{width:100%}
+.card .rel{display:block;color:var(--body);margin-top:12px;text-align:center}
+.checks{list-style:none;padding:0;margin:28px 0 0;color:#2A2A2E}
+.checks li{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+.checks svg{flex:none;width:18px;height:18px;margin-top:3px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.new{max-width:440px;margin:56px auto 0}
+.new h3{font-size:17px;font-weight:500}
+.new .ver{color:var(--soft);font-size:15px}
+.notes{margin-top:14px;padding-left:1.1em;color:var(--soft)}
+.notes li{margin:6px 0}
 
-/* Friends race (navy) */
-.navy{background:var(--navy);color:#fff}
-.navy .lede{color:#C9C5EC}
-.race{margin-top:56px;display:grid;gap:40px}
-.lane{position:relative;height:64px;border-radius:32px;background:rgba(255,255,255,.07)}
-.runner{position:absolute;top:8px;left:8px;width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--navy);transition:left 2s var(--ease)}
-.in .runner{left:calc(var(--p) - 56px)}
-.lane .tm{position:absolute;right:8px;top:-30px;font-weight:700;opacity:0;transition:opacity .6s 1.6s}
-.in .lane .tm{opacity:1}
-.flag{position:absolute;right:-2px;top:-6px}
-.race-note{margin-top:22px;color:#C9C5EC;font-size:15px}
+/* iPhone sign-up (iPhone and iPad only) */
+.iphone{padding-top:150px}
+.iphone .form,.iphone .thanks{max-width:440px;margin:44px auto 0}
 
-/* What's new */
-.new{background:var(--page)}
-.new ul{list-style:none;padding:0;margin:36px 0 0;display:grid;gap:12px}
-@media(min-width:860px){.new ul{grid-template-columns:1fr 1fr}}
-.new li{position:relative;border-radius:24px;background:#fff;padding:20px 22px 20px 58px;font-weight:500}
-.new li::before{content:"";position:absolute;left:22px;top:26px;width:16px;height:16px;border-radius:8px;background:var(--c,var(--violet))}
-.new li:nth-child(5n+1){--c:var(--green)}.new li:nth-child(5n+2){--c:var(--coral)}.new li:nth-child(5n+3){--c:var(--blue)}.new li:nth-child(5n+4){--c:var(--yellow)}.new li:nth-child(5n){--c:var(--lilac)}
-.ver{display:inline-block;margin-top:18px;padding:6px 14px;border-radius:16px;background:var(--navy);color:#fff;font-size:14px;font-weight:700}
+/* FAQ */
+.faq{padding-top:150px;max-width:720px}
+.faq h2{font-size:clamp(1.9rem,4.2vw,3rem)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details:first-of-type{margin-top:40px;border-top:1px solid var(--line)}
+.faq summary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;cursor:pointer;list-style:none;font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:9px;height:9px;margin-right:3px;border-right:1.5px solid var(--soft);border-bottom:1.5px solid var(--soft);transform:rotate(45deg) translateY(-3px);transition:transform .3s var(--ease)}
+.faq details[open] summary::after{transform:rotate(225deg) translateY(-3px)}
+.faq details p{color:var(--soft);padding:0 0 24px;max-width:40em}
+.faq details[open] p{animation:open .4s var(--ease)}
+@keyframes open{from{opacity:0;transform:translateY(-6px)}}
+.textlink{background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;color:var(--text)}
 
-/* iPhone sign-up (violet) */
-.ios{background:var(--violet);color:#fff}
-.ios-grid{display:grid;gap:36px;align-items:center}
-@media(min-width:900px){.ios-grid{grid-template-columns:1.1fr 1fr}}
-.ios .lede{color:#E4E1FF}
-.wait{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:10px 18px 10px 12px;border-radius:24px;background:rgba(255,255,255,.14);font-weight:600}
-.wait i{width:12px;height:12px;border-radius:6px;background:var(--green);box-shadow:0 0 0 0 rgba(61,191,92,.7);animation:ping 1.8s infinite}
-@keyframes ping{70%{box-shadow:0 0 0 12px rgba(61,191,92,0)}100%{box-shadow:0 0 0 0 rgba(61,191,92,0)}}
-.form{border-radius:32px;background:#fff;color:var(--navy);padding:28px;display:grid;gap:14px;box-shadow:0 30px 60px rgba(22,20,47,.3)}
-.form h3{font-size:24px}
-.form label{display:grid;gap:6px;font-size:14px;font-weight:600}
-.form input{height:54px;border:2px solid #E3E1F3;border-radius:16px;padding:0 16px;font:500 16px Poppins,sans-serif;color:var(--navy);transition:border-color .2s}
-.form input:focus{outline:none;border-color:var(--violet)}
-.form .btn{justify-content:center;width:100%}
-.form .msg{min-height:1.4em;font-size:14px;font-weight:600}
-.form .msg.ok{color:#1E7A36}.form .msg.err{color:#C2412F}
-.small-print{font-size:12.5px;color:var(--muted)}
+/* Closing fan of real screens: an arc that sways slowly; the card under the pointer lifts */
+.fan-wrap{position:relative;height:500px;margin-top:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.fan{position:absolute;left:50%;top:40px;width:130px;height:281px;margin-left:-65px;transform-origin:50% 1200px}
+.fan img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 20px 40px -16px rgba(0,0,0,.8);transform-origin:50% 1200px;transform:rotate(calc(var(--i) * 6deg));transition:translate .4s var(--spring)}
+.fan img:hover{translate:0 -18px}
+@media (prefers-reduced-motion:no-preference){.fan{animation:sway 14s ease-in-out infinite alternate}}
+@keyframes sway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
 
-/* Privacy + install */
-.privacy{background:var(--ink);color:#fff;padding:90px 0}
-.privacy .lede{color:#C9C5EC}
-.privacy a{color:var(--yellow);font-weight:600}
-.install{padding:100px 0}
-.steps{list-style:none;padding:0;margin:36px 0 0;display:grid;gap:14px}
-@media(min-width:860px){.steps{grid-template-columns:repeat(3,1fr)}}
-.steps li{border-radius:26px;background:#fff;padding:24px}
-.num{width:44px;height:44px;border-radius:22px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
-.steps h3{margin-top:16px;font-size:20px}
-.steps p{margin-top:6px;font-size:15px;color:var(--body)}
-.trust{margin-top:16px;display:flex;gap:14px;align-items:flex-start;border-radius:26px;background:#EEF0FF;padding:20px 22px}
-.trust svg{flex:none;margin-top:3px}
-.trust h3{font-size:17px;letter-spacing:0}
-.trust p{margin-top:4px;font-size:15px;color:var(--body)}
-.install-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:30px}
-.install .rel{color:var(--muted)}.install .rel b{color:var(--navy)}
-footer{padding:36px 0 48px;color:var(--muted);font-size:14px}
-footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
-footer nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+footer{padding:24px 0 56px;font-size:14px;color:var(--soft)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:center}
+footer a,footer button{color:var(--soft);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+footer a:hover,footer button:hover{color:var(--text)}
 
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  .rv{opacity:1;transform:none}
-  .live{display:none}
-  .row{animation:none}
+/* Forms */
+.form{display:grid;gap:18px;background:var(--card);border-radius:24px;padding:30px;color:var(--ink);text-align:left}
+.field{display:grid;gap:6px}
+.field label{font-weight:500;font-size:15px}
+.field input,.field textarea{font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1px solid #D4D4D0;border-radius:12px;padding:12px 14px;width:100%}
+.field textarea{min-height:140px;resize:vertical}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(24,24,26,.12)}
+.field [aria-invalid="true"]{border-color:var(--bad)}
+.err{font-size:14px;color:var(--bad)}
+.err:empty{display:none}
+.form .note{font-size:14px;color:var(--body)}
+.form .fail{font-size:14px;color:var(--bad)}
+.form .fail:empty{display:none}
+.thanks{background:var(--card);border-radius:24px;padding:30px;color:var(--ink);text-align:left}
+.thanks h3{font-size:22px;margin-bottom:6px}
+.thanks p{color:var(--body)}
+dialog{border:0;padding:0;border-radius:26px;width:min(500px,calc(100% - 32px));max-height:calc(100% - 32px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+.dlg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.dlg-head h2{font-size:22px}
+.x{font-size:14px;font-weight:500;background:none;border:1px solid #D4D4D0;border-radius:999px;padding:5px 12px;cursor:pointer;color:var(--ink);flex:none}
+
+/* Entrances: one load sequence, then each section once as it scrolls in */
+@media (prefers-reduced-motion:no-preference){
+  .js .hero > *{animation:up .9s var(--ease) both}
+  .js .hero > :nth-child(2){animation-delay:.12s}
+  .js .hero > :nth-child(3){animation-delay:.24s}
+  .js .hero > :nth-child(n+4){animation-delay:.36s}
+  .js .stage{animation:rise 1.1s var(--ease) .45s both}
+  .js .rv{opacity:0;transform:translateY(24px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .js .rv.in{opacity:1;transform:none}
+  dialog[open]{animation:up .35s var(--ease)}
+}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+@keyframes rise{from{opacity:0;transform:translateY(40px) scale(.97)}}
+
+@media (max-width:860px){
+  .stage{height:auto;padding:36px 16px 96px;border-radius:26px;margin-top:56px}
+  .phone{position:relative;left:auto;top:auto;margin:0 auto;width:min(250px,70%)}
+  .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:-34px;position:relative}
+  .tile{position:static;max-width:100%;padding:12px 16px}
+  .tile b{font-size:22px}
+  .tile i{display:none}
+  .grid{grid-template-columns:1fr;gap:44px;margin-top:56px}
+  .cells{grid-template-columns:1fr}
+  .cells li + li{border-left:0;border-top:1px solid var(--line)}
+  .feat,.install,.get,.iphone,.faq{padding-top:110px}
+  .fan-wrap{height:360px;margin-top:110px}
+  .fan,.fan img{transform-origin:50% 800px}
+  .fan{width:96px;height:208px;margin-left:-48px;top:30px}
+  .fan img{border-radius:14px;transform:rotate(calc(var(--i) * 8deg))}
+}
+@media (max-width:420px){
+  .wrap{padding-left:20px;padding-right:20px}
+  .stage{padding-bottom:20px}
+  .seg{position:static;transform:none;width:max-content;max-width:100%;margin:18px auto 0;gap:2px}
+  .seg button{padding:7px 8px;font-size:14px}
+  .top{gap:18px}
+  .hero{padding-top:48px}
+  .pill{border-width:4px;padding:8px 26px 10px}
+  .say{margin-top:40px}
+  .card{padding:30px 24px}
+  .form,.thanks{padding:22px}
 }
 </style>
 </head>
 <body data-release="" data-waiting="0">
+<script>document.documentElement.classList.add('js')</script>
 
-<header class="hero panel" style="padding-bottom:0">
-  <div class="blob a" aria-hidden="true"></div><div class="blob b" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="nav">
-      <a class="logo" href="/" aria-label="Motio"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</a>
-      <a class="small" href="#iphone" data-t="navios">iPhone</a>
-      <a class="small" href="#install" data-t="howto">Install</a>
-      <button class="lang" type="button" id="lang" aria-label="Azərbaycan dilinə keç">AZ</button>
-    </div>
-    <div class="hero-copy">
-      <h1><span data-t="h1a">Every</span> <span class="swap" id="swap" aria-hidden="true"><span class="on" style="color:#7FE39A" data-t="w1">walk</span><span style="color:#FFB3AB" data-t="w2">run</span><span style="color:#A9BCFF" data-t="w3">ride</span><span style="color:#F6C343" data-t="w4">drive</span></span><br><span data-t="h1b">tells a story.</span></h1>
-      <p class="lede" data-t="lead">Motio notices when you walk, run, ride or drive, draws your day as a road, and turns your week into stories worth sharing.</p>
-      <div class="cta">
-        <a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
-        <span class="rel"><b class="relline"></b><span data-t="free">Free. Needs Android 8 or newer.</span></span>
-      </div>
-    </div>
-  </div>
-  <svg class="road road-tall" viewBox="0 0 390 290" role="img" aria-label="A day drawn as a road: a walk, a ride and a drive">
-    <path id="rt" class="track" pathLength="1" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
-    <path class="dash" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
-    <g class="pin" style="animation-delay:.9s"><circle cx="128" cy="69" r="12" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="4"/><rect x="146" y="22" width="132" height="34" rx="17" fill="#fff"/><text class="chip" x="212" y="44" text-anchor="middle" fill="#1F1D47" data-t="c1">8:12 Walk</text></g>
-    <g class="pin" style="animation-delay:1.3s"><circle cx="340" cy="134" r="12" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="4"/><rect x="186" y="143" width="140" height="34" rx="17" fill="#fff"/><text class="chip" x="256" y="165" text-anchor="middle" fill="#1F1D47" data-t="c2">12:40 Ride</text></g>
-    <g class="pin" style="animation-delay:1.7s"><circle cx="132" cy="239" r="12" fill="#F6C343" stroke="#4B3FD8" stroke-width="4"/><rect x="150" y="242" width="132" height="34" rx="17" fill="#fff"/><text class="chip" x="216" y="264" text-anchor="middle" fill="#1F1D47" data-t="c3">18:05 Drive</text></g>
-    <g class="live"><circle r="9" fill="#fff"/><circle r="9" fill="none" stroke="#fff" stroke-width="3" opacity=".6"><animate attributeName="r" values="9;20" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0" dur="1.6s" repeatCount="indefinite"/></circle><animateMotion dur="11s" begin="2.4s" repeatCount="indefinite"><mpath href="#rt"/></animateMotion></g>
-  </svg>
-  <svg class="road road-wide" viewBox="0 0 1200 300" role="img" aria-label="A day drawn as a road: a walk, a ride and a drive">
-    <path id="rw" class="track" pathLength="1" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
-    <path class="dash" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
-    <g class="pin" style="animation-delay:.9s"><circle cx="232" cy="181" r="16" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="6"/><rect x="254" y="118" width="170" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="339" y="148" text-anchor="middle" fill="#1F1D47" data-t="c1">8:12 Walk</text></g>
-    <g class="pin" style="animation-delay:1.3s"><circle cx="640" cy="190" r="16" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="6"/><rect x="554" y="218" width="180" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="644" y="248" text-anchor="middle" fill="#1F1D47" data-t="c2">12:40 Ride</text></g>
-    <g class="pin" style="animation-delay:1.7s"><circle cx="1090" cy="98" r="16" fill="#F6C343" stroke="#4B3FD8" stroke-width="6"/><rect x="950" y="124" width="180" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="1040" y="154" text-anchor="middle" fill="#1F1D47" data-t="c3">18:05 Drive</text></g>
-    <g class="live"><circle r="12" fill="#fff"/><circle r="12" fill="none" stroke="#fff" stroke-width="4" opacity=".6"><animate attributeName="r" values="12;28" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0" dur="1.6s" repeatCount="indefinite"/></circle><animateMotion dur="14s" begin="2.4s" repeatCount="indefinite"><mpath href="#rw"/></animateMotion></g>
-  </svg>
-</header>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="/" aria-label="Motio"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</a>
+    <a class="link" href="#install" data-t="nav">Install</a>
+    <button class="lang" type="button" id="lang" lang="az" aria-label="Azərbaycan dilinə keç">AZ</button>
+  </header>
 
-<div class="ticker" aria-hidden="true">
-  <div class="row" id="row1"></div>
-  <div class="row rev" id="row2"></div>
+  <section class="hero">
+    <div class="pill" aria-hidden="true"><svg viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</div>
+    <h1 class="say" id="say">Motio records how you move on its own, draws your day as one route, lets you race your friends and keeps your streak going.</h1>
+    <p class="hint" data-t="hint">Tap a highlighted word to see that screen.</p>
+    <div class="cta">
+      <a class="btn" href="/download"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
+      <span class="rel"><span class="relline"></span></span>
+    </div>
+    <p class="ios-only"><a href="#iphone" data-t="onios">On iPhone? Get an email when Motio arrives.</a></p>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="stage" aria-label="Motio's screens">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="phone">
+      <img src="/site/today.jpg" data-s="today" class="on" width="780" height="1688" alt="Motio's Today screen: 1 hour 7 minutes on the move, the day drawn as a route, 12.6 km and 3,553 steps" data-ta="todayalt">
+      <img src="/site/moves.jpg" data-s="moves" width="780" height="1688" alt="The Moves screen: cycling 39 minutes, walking 28 minutes" data-ta="movesalt">
+      <img src="/site/social.jpg" data-s="social" width="780" height="1688" alt="The Social screen: this week's board of three friends and their active time" data-ta="socialalt">
+      <img src="/site/profile.jpg" data-s="profile" width="780" height="1688" alt="A friend's profile: a 6-day streak, 149 km all time and this week's active days" data-ta="profilealt">
+    </div>
+    <div class="tiles" aria-live="polite">
+      <div class="tile t1"><i></i><b></b><span></span></div>
+      <div class="tile t2"><i></i><b></b><span></span></div>
+    </div>
+    <div class="seg" id="seg">
+      <button type="button" data-s="today" aria-pressed="true"></button>
+      <button type="button" data-s="moves" aria-pressed="false"></button>
+      <button type="button" data-s="social" aria-pressed="false"></button>
+      <button type="button" data-s="profile" aria-pressed="false"></button>
+    </div>
+  </section>
+  <p class="caption" id="caption"></p>
 </div>
 
 <main>
-  <section class="panel yellow io">
-    <div class="float phone" aria-hidden="true"><img src="/site/today.jpg" alt="" width="390" height="844" loading="lazy"></div>
-    <div class="wrap">
-      <h2 class="big rv" data-t="s1h">Your day, counted for you.</h2>
-      <p class="lede rv d1" data-t="s1p">Keep your phone in your pocket. Motio records each trip on its own and lays your day out as one road, from the first step to the last drive home.</p>
-      <div class="count-grid">
-        <div class="stat rv d1"><b data-count="103" data-fmt="hm">0m</b><span data-t="k1">on the move today</span></div>
-        <div class="stat rv d2"><b data-count="9410">0</b><span data-t="k2">steps</span></div>
-        <div class="stat rv d3"><b data-count="12.6" data-dec="1" data-unit=" km">0 km</b><span data-t="k3">travelled</span></div>
-      </div>
+  <section class="feat wrap">
+    <h2 class="big center rv" data-t="fh">Everything happens while your phone stays in your pocket.</h2>
+    <ul class="grid">
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><h3 data-t="f1h">Knows how you moved</h3><p data-t="f1p">Walking, running, cycling, driving and transit, told apart by motion sensors and activity recognition.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg><h3 data-t="f2h">Your day as one route</h3><p data-t="f2p">Open Today and see where the hours went, trip by trip.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg><h3 data-t="f3h">Steps from Health Connect</h3><p data-t="f3p">Steps from Samsung Health and your watch show up next to your trips.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="12" height="16" rx="2"/><path d="M8 21h10a2 2 0 0 0 2-2V7"/><path d="M8 8h4M8 12h4"/></svg><h3 data-t="f4h">Recaps worth sharing</h3><p data-t="f4p">Weekly and monthly recaps in eight themes, with an editor for the image you share.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21V11M12 21V5M16 21v-7"/><path d="M4 21h16"/></svg><h3 data-t="f5h">Friends and a weekly board</h3><p data-t="f5p">Race friends, start a challenge with a link and see where you stand on the weekly leaderboard.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><h3 data-t="f6h">You choose what friends see</h3><p data-t="f6p">Weekly totals by default. Routes, places or live location only for the friends you pick.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/></svg><h3 data-t="f7h">Widgets that stay current</h3><p data-t="f7p">Today, friends and challenge widgets update even when the app is closed.</p></li>
+      <li class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><h3 data-t="f8h">Your history stays safe</h3><p data-t="f8p">Trips are backed up to your account. Export them any time; deleting the account deletes them.</p></li>
+    </ul>
+  </section>
+
+  <section class="install wrap" id="install">
+    <h2 class="big center rv" data-t="ih">Install in a minute.</h2>
+    <ol class="cells rv">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="n">1</span><h3 data-t="i1h">Download the app</h3><p data-t="i1p">Tap Download on your Android phone.</p></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="n">2</span><h3 data-t="i2h">Allow the install</h3><p data-t="i2p">Android asks once whether your browser may install apps. Allow it, then tap Install.</p></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></svg><span class="n">3</span><h3 data-t="i3h">Open Motio</h3><p data-t="i3p">Create an account and allow location and physical activity, so trips are recorded on their own.</p></li>
+    </ol>
+  </section>
+
+  <section class="get wrap">
+    <div class="card rv">
+      <h2 data-t="ch">Motio for Android</h2>
+      <p class="free" data-t="cfree">Free</p>
+      <a class="btn dark" href="/download"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
+      <span class="rel"><span class="relline"></span></span>
+      <ul class="checks">
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-t="c1">No ads</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-t="c2">Updates arrive inside the app</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-t="c3">Android 8 or newer</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-t="c4">Signed with Motio's own key</span></li>
+      </ul>
+    </div>
+    <div class="new rv" id="new">
+      <h3 data-t="nh">What's new</h3>
+      <span class="ver" id="ver"></span>
+      <ul class="notes"><!--NOTES--></ul>
     </div>
   </section>
 
-  <section class="panel modes io">
-    <div class="wrap">
-      <h2 class="big rv" data-t="s2h">It knows how you moved.</h2>
-      <p class="lede rv d1" style="color:var(--body)" data-t="s2p">Motion sensors and Google's activity recognition tell a walk from a run, a ride from a drive. Fix a trip once and Motio learns it for next time.</p>
-      <div class="bars">
-        <div class="bar rv d1"><div class="fill" style="--w:84%;background:#3DBF5C"></div><div class="lab"><span data-t="m1">Walking</span><em>42%</em></div></div>
-        <div class="bar rv d2"><div class="fill" style="--w:62%;background:#6E8CF7"></div><div class="lab"><span data-t="m3">Riding</span><em>31%</em></div></div>
-        <div class="bar rv d3"><div class="fill" style="--w:36%;background:#F6C343"></div><div class="lab"><span data-t="m4">Driving</span><em>18%</em></div></div>
-        <div class="bar rv d4"><div class="fill" style="--w:18%;background:#F2766B"></div><div class="lab"><span data-t="m2">Running</span><em>6%</em></div></div>
-        <div class="bar rv d4"><div class="fill" style="--w:9%;background:#B57BE0"></div><div class="lab"><span data-t="m5">Transit</span><em>3%</em></div></div>
-      </div>
-      <p class="note rv" data-t="s2n">An example week. Yours fills in as you move.</p>
+  <section class="iphone wrap ios-only" id="iphone" aria-labelledby="iph">
+    <h2 class="big center" id="iph" data-t="iph">Motio for iPhone is on the way.</h2>
+    <p class="center muted" style="margin-top:18px" data-t="ipp">Leave your name and email and we'll write once, on the day it's ready.</p>
+    <p class="center muted" style="margin-top:6px" id="waitn"></p>
+    <form class="form" id="wl" novalidate data-url="/v1/waitlist">
+      <div class="field"><label for="wl-name" data-t="fname">Your name</label><input id="wl-name" name="name" autocomplete="name" maxlength="60" placeholder="Your name" data-tp="fname" aria-describedby="wl-name-e"><span class="err" id="wl-name-e"></span></div>
+      <div class="field"><label for="wl-email" data-t="femail">Your email</label><input id="wl-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Your email" data-tp="femail" aria-describedby="wl-email-e"><span class="err" id="wl-email-e"></span></div>
+      <button class="btn dark" type="submit" data-t="notify">Notify me</button>
+      <span class="fail" role="alert"></span>
+      <span class="note" data-t="wlnote">We use your email only to tell you about Motio for iPhone.</span>
+    </form>
+    <div class="thanks" hidden tabindex="-1">
+      <h3 data-t="wlok">You're on the list.</h3>
+      <p data-t="wlokp">We'll email you once, when Motio arrives on iPhone.</p>
     </div>
   </section>
 
-  <section class="panel coral io" id="recaps">
-    <div class="wrap fan-wrap">
-      <div>
-        <h2 class="big rv" data-t="s3h">Your week, wrapped.</h2>
-        <p class="lede rv d1" data-t="s3p">Every week and month becomes a set of story cards: your distance, your busiest day, your favourite way to move. Share them in one tap.</p>
-      </div>
-      <div class="fan" id="fan" aria-hidden="true">
-        <div class="card c1"><div class="k" data-t="r1">Month in motion</div><div><div class="n">96</div><div class="u" data-t="r1u">km in November</div></div></div>
-        <div class="card c3"><div class="k" data-t="r3">Busiest day</div><div><div class="n">Sat</div><div class="u" data-t="r3u">2h 40m on the move</div></div><div class="mini" style="color:#5B4FE0"><i style="height:35%"></i><i style="height:50%"></i><i style="height:28%"></i><i style="height:62%"></i><i style="height:45%"></i><i style="height:100%"></i><i style="height:58%"></i></div></div>
-        <div class="card c2"><div class="k" data-t="r2">Your week, wrapped</div><div><div class="n">23</div><div class="u" data-t="r2u">km, mostly on foot</div></div><div class="mini" style="color:#1F1D47"><i style="height:40%"></i><i style="height:65%"></i><i style="height:30%"></i><i style="height:90%"></i><i style="height:55%"></i><i style="height:100%"></i><i style="height:70%"></i></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="panel navy io">
-    <div class="wrap">
-      <h2 class="big rv" data-t="s4h">Race the people who keep you moving.</h2>
-      <p class="lede rv d1" data-t="s4p">Add friends with a link, compare your weeks and start a challenge: first to 30 km, most active minutes, or the most runs.</p>
-      <div class="race" aria-hidden="true">
-        <div class="lane"><span class="runner" style="--p:100%;background:#F2766B">LA</span><span class="tm">7h 25m</span></div>
-        <div class="lane"><span class="runner" style="--p:72%;background:#F6C343">AM</span><span class="tm">5h 10m</span></div>
-        <div class="lane"><span class="runner" style="--p:44%;background:#3DBF5C">MH</span><span class="tm">2h 40m</span></div>
-      </div>
-      <p class="race-note rv" data-t="s4n">Friends see weekly totals only, never where you went.</p>
-    </div>
-  </section>
-
-  <section class="panel new io">
-    <div class="wrap">
-      <h2 class="big rv" data-t="nh">What's new.</h2>
-      <span class="ver rv d1" id="ver"></span>
-      <ul class="rv d2"><!--NOTES--></ul>
-    </div>
-  </section>
-
-  <section class="panel ios io" id="iphone">
-    <div class="wrap ios-grid">
-      <div>
-        <h2 class="big rv" data-t="ih">Motio is coming to iPhone.</h2>
-        <p class="lede rv d1" data-t="ip">Sign up and we'll email you once, the day the iPhone version is ready. Nothing else, and you can ask us to remove you any time.</p>
-        <span class="wait rv d2" id="waitline"><i></i><span id="waitn"></span></span>
-      </div>
-      <form class="form rv d2" id="wl" novalidate>
-        <h3 data-t="fh">Get Motio for iPhone</h3>
-        <label><span data-t="fn">Your name</span><input id="wln" autocomplete="name" maxlength="60" placeholder="Aysel"></label>
-        <label><span data-t="fe">Email</span><input id="wle" type="email" autocomplete="email" required placeholder="you@example.com"></label>
-        <button class="btn" type="submit"><span data-t="fb">Notify me</span></button>
-        <span class="msg" id="wlm" role="status"></span>
-        <span class="small-print" data-t="fp">We only use your email to tell you about Motio for iPhone.</span>
-      </form>
-    </div>
-  </section>
-
-  <section class="privacy io">
-    <div class="wrap">
-      <h2 class="big rv" data-t="ph">Your routes stay yours.</h2>
-      <p class="lede rv d1" data-t="pp">Friends see weekly totals, never where you went. Your trips live in your account, you can export them any time, and deleting your account deletes all of it.</p>
-      <p class="rv d2" style="margin-top:18px"><a href="/privacy" data-t="pl">Read the privacy policy</a></p>
-    </div>
-  </section>
-
-  <section class="install io" id="install">
-    <div class="wrap">
-      <h2 class="big rv" data-t="sh">Install in a minute.</h2>
-      <ol class="steps">
-        <li class="rv d1"><div class="num">1</div><h3 data-t="i1h">Download the app</h3><p data-t="i1p">Tap the button below on your Android phone.</p></li>
-        <li class="rv d2"><div class="num">2</div><h3 data-t="i2h">Allow the install</h3><p data-t="i2p">Android asks once whether your browser may install apps. Allow it, then tap Install.</p></li>
-        <li class="rv d3"><div class="num">3</div><h3 data-t="i3h">Open Motio</h3><p data-t="i3p">Create your account and allow location and activity, so trips are recorded on their own.</p></li>
-      </ol>
-      <div class="trust rv">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B3FD8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-        <div><h3 data-t="th">Why does Android warn me?</h3><p data-t="tp">Motio isn't on Google Play yet, so Android asks before it installs an app from outside the store. The file comes straight from Motio's release page on GitHub, signed with Motio's own key, and has no ads. After that, new versions arrive inside the app.</p></div>
-      </div>
-      <div class="install-cta rv">
-        <a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
-        <span class="rel"><b class="relline"></b></span>
-      </div>
-    </div>
+  <section class="faq wrap">
+    <h2 class="rv" data-t="qh">Questions</h2>
+    <details><summary data-t="q1">Why does Android warn me before installing?</summary><p data-t="a1">Motio isn't on Google Play yet, so Android checks before installing an app from outside the store. The file comes straight from Motio's release page on GitHub, signed with Motio's own key. After that, updates arrive inside the app.</p></details>
+    <details><summary data-t="q2">Who can see where I went?</summary><p data-t="a2">Only you, unless you decide otherwise. Friends see weekly totals. You can share routes, places or live location with each friend separately and turn it off any time.</p></details>
+    <details><summary data-t="q3">Is there an iPhone version?</summary><p data-t="a3">It's on the way. Open this page on your iPhone or iPad to get one email when it's ready.</p></details>
+    <details><summary data-t="q4">Can I take my data with me?</summary><p data-t="a4">Yes. Export all your trips from the app at any time. Deleting your account deletes every trip with it.</p></details>
+    <details><summary data-t="q5">Something isn't working?</summary><p><span data-t="a5">Tell us what happened and on which phone.</span> <button class="textlink" type="button" data-report data-t="f3">Report a problem</button></p></details>
   </section>
 </main>
+
+<div class="fan-wrap" aria-hidden="true">
+  <div class="fan"><img src="/site/today.jpg" style="--i:-5" alt="" loading="lazy"><img src="/site/moves.jpg" style="--i:-4" alt="" loading="lazy"><img src="/site/social.jpg" style="--i:-3" alt="" loading="lazy"><img src="/site/profile.jpg" style="--i:-2" alt="" loading="lazy"><img src="/site/today.jpg" style="--i:-1" alt="" loading="lazy"><img src="/site/moves.jpg" style="--i:0" alt="" loading="lazy"><img src="/site/social.jpg" style="--i:1" alt="" loading="lazy"><img src="/site/profile.jpg" style="--i:2" alt="" loading="lazy"><img src="/site/today.jpg" style="--i:3" alt="" loading="lazy"><img src="/site/moves.jpg" style="--i:4" alt="" loading="lazy"><img src="/site/social.jpg" style="--i:5" alt="" loading="lazy"></div>
+</div>
 
 <footer>
   <div class="wrap">
     <span>© Motio</span>
-    <nav><a href="/privacy" data-t="f1">Privacy</a><a href="/terms" data-t="f2">Terms</a><a href="https://github.com/kenan-karimli/motio/issues/new" rel="noopener" data-t="f3">Report a problem</a></nav>
+    <a href="/privacy" data-t="f1">Privacy</a><a href="/terms" data-t="f2">Terms</a><button type="button" data-report data-t="f3">Report a problem</button>
   </div>
 </footer>
 
+<dialog id="rp" aria-labelledby="rph">
+  <form class="form" id="rpf" novalidate data-url="/v1/contact">
+    <div class="dlg-head"><h2 id="rph" data-t="rph">Report a problem</h2><button class="x" type="button" data-close data-t="close">Close</button></div>
+    <p class="note" data-t="rpp">Tell us what went wrong and on which phone. We reply by email if we need more.</p>
+    <div class="field"><label for="rp-name" data-t="fname">Your name</label><input id="rp-name" name="name" autocomplete="name" maxlength="60" placeholder="Your name" data-tp="fname" aria-describedby="rp-name-e"><span class="err" id="rp-name-e"></span></div>
+    <div class="field"><label for="rp-email" data-t="femail">Your email</label><input id="rp-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Your email" data-tp="femail" aria-describedby="rp-email-e"><span class="err" id="rp-email-e"></span></div>
+    <div class="field"><label for="rp-message" data-t="fmsg">What happened?</label><textarea id="rp-message" name="message" maxlength="2000" aria-describedby="rp-message-e"></textarea><span class="err" id="rp-message-e"></span></div>
+    <button class="btn dark" type="submit" data-t="send">Send report</button>
+    <span class="fail" role="alert"></span>
+  </form>
+  <div class="thanks" hidden tabindex="-1">
+    <div class="dlg-head"><h3 data-t="rpok">Report sent.</h3><button class="x" type="button" data-close data-t="close">Close</button></div>
+    <p data-t="rpokp">Thanks for taking the time. We read every report and will email you if we need more detail.</p>
+  </div>
+</dialog>
+
 <script>
 (() => {
+  // Icons for the highlighted words, in the app's own colours.
+  const ICON = {
+    moves: ['#3DBF5C', '<path d="M3 12h4l3-8 4 16 3-8h4"/>'],
+    today: ['#6E5CF2', '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/>'],
+    social: ['#F2766B', '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 0 1 0 6.3M18 14c2 .8 3 2.8 3 6"/>'],
+    profile: ['#F6C343', '<path d="M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.6 1.6-3.8 2-6 1 1.2 2 1.8 3 2 .2-2.2 0-4-0-6z"/>']
+  };
+  const GLOW = { today: '#4B3FD8', moves: '#E0A928', social: '#5B4FE0', profile: '#B05BD8' };
   const T = {
-    az: {
-      navios: 'iPhone', howto: 'Quraşdır', h1a: 'Hər', h1b: 'bir hekayədir.', w1: 'yeriş', w2: 'qaçış', w3: 'gəzinti', w4: 'yol',
-      lead: 'Motio nə vaxt yeridiyini, qaçdığını, velosiped və ya maşın sürdüyünü özü tanıyır, gününü bir yol kimi çəkir və həftəni paylaşmağa dəyər hekayələrə çevirir.',
-      download: 'Android üçün yüklə', free: 'Pulsuzdur. Android 8 və daha yenisi lazımdır.',
-      c1: '8:12 Yeriş', c2: '12:40 Velosiped', c3: '18:05 Maşın',
-      s1h: 'Günün sənin üçün sayılır.', s1p: 'Telefonu cibində saxla. Motio hər səfəri özü qeyd edir və gününü ilk addımdan evə son yola qədər bir yol kimi düzür.',
-      k1: 'bu gün hərəkətdə', k2: 'addım', k3: 'qət edildi',
-      s2h: 'Necə hərəkət etdiyini bilir.', s2p: 'Hərəkət sensorları və Google-un fəaliyyət tanıma sistemi yerişi qaçışdan, velosipedi maşından ayırır. Bir səfəri bir dəfə düzəlt, Motio növbəti dəfə üçün yadda saxlayır.',
-      m1: 'Yeriş', m2: 'Qaçış', m3: 'Velosiped', m4: 'Maşın', m5: 'İctimai nəqliyyat', s2n: 'Nümunə həftə. Seninki hərəkət etdikcə dolur.',
-      s3h: 'Həftən, bir hekayədə.', s3p: 'Hər həftə və ay hekayə kartlarına çevrilir: məsafən, ən aktiv günün, sevimli hərəkət növün. Bir toxunuşla paylaş.',
-      r1: 'Ayın hərəkəti', r1u: 'km noyabrda', r2: 'Həftən, bir hekayədə', r2u: 'km, çoxu piyada', r3: 'Ən aktiv gün', r3u: '2s 40d hərəkətdə',
-      s4h: 'Səni hərəkətdə saxlayanlarla yarış.', s4p: 'Dostlarını linklə əlavə et, həftələrinizi müqayisə edin və yarış başladın: 30 km-ə ilk çatan, ən çox aktiv dəqiqə və ya ən çox qaçış.', s4n: 'Dostlar yalnız həftəlik cəmi görür, hara getdiyini heç vaxt görmür.',
-      nh: 'Yeniliklər.',
-      ih: 'Motio iPhone-a gəlir.', ip: 'Qeydiyyatdan keç, iPhone versiyası hazır olan gün sənə bir dəfə e-poçt göndərəcəyik. Başqa heç nə, və istədiyin vaxt səni siyahıdan çıxara bilərik.',
-      fh: 'Motio-nu iPhone-da al', fn: 'Adın', fe: 'E-poçt', fb: 'Xəbər ver', fp: 'E-poçtunu yalnız iPhone üçün Motio haqqında xəbər vermək üçün istifadə edirik.',
-      ph: 'Marşrutların sənə məxsus qalır.', pp: 'Dostlar yalnız həftəlik cəmi görür, hara getdiyini heç vaxt görmür. Səfərlərin öz hesabında saxlanılır, istədiyin vaxt ixrac edə bilərsən, hesabı silsən, hamısı silinir.', pl: 'Məxfilik siyasətini oxu',
-      sh: 'Bir dəqiqəyə quraşdır.', i1h: 'Tətbiqi yüklə', i1p: 'Android telefonunda aşağıdakı düyməyə toxun.',
-      i2h: 'Quraşdırmaya icazə ver', i2p: 'Android bir dəfə soruşur ki, brauzer tətbiq quraşdıra bilərmi. İcazə ver, sonra Quraşdır düyməsinə toxun.',
-      i3h: 'Motio-nu aç', i3p: 'Hesab yarat, məkan və fəaliyyət icazəsi ver ki, səfərlər özü qeyd olunsun.',
-      th: 'Android niyə xəbərdarlıq edir?', tp: 'Motio hələ Google Play-də deyil, ona görə Android mağazadan kənar tətbiqi quraşdırmazdan əvvəl soruşur. Fayl birbaşa Motio-nun GitHub-dakı buraxılış səhifəsindən gəlir, Motio-nun öz açarı ilə imzalanıb və reklamsızdır. Bundan sonra yeni versiyalar tətbiqin içində gəlir.',
-      f1: 'Məxfilik', f2: 'Şərtlər', f3: 'Problem bildir',
-      rel: (v, mb, d) => 'Versiya ' + v + ', ' + mb + ' MB, yeniləndi: ' + d, ver: (v) => 'Versiya ' + v,
-      waiting: (n) => n === 0 ? 'İlk sən ol' : n + ' nəfər gözləyir',
-      ok: 'Siyahıdasan! iPhone versiyası çıxanda yazacağıq.', bad: 'Düzgün e-poçt ünvanı yaz.', fail: 'Alınmadı. Bir az sonra yenidən yoxla.',
-      months: ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'], switchTo: 'EN', switchLabel: 'Switch to English', hm: (m) => Math.floor(m / 60) + 's ' + String(m % 60).padStart(2, '0') + 'd'
-    },
     en: {
+      say: 'Motio records how you {moves} on its own, draws your {today} as one route, lets you race your {social} and keeps your {profile} going.',
+      chips: { moves: 'move', today: 'day', social: 'friends', profile: 'streak' },
+      tabs: { today: 'Today', moves: 'Moves', social: 'Friends', profile: 'Profile' },
+      tiles: { today: [['1h 07m', 'on the move today'], ['12.6 km', '3,553 steps']], moves: [['39 min', 'cycling, 10 km'], ['28 min', 'walking, 2.4 km']], social: [['#2', 'this week, behind Leyla'], ['4h 40m', 'your week so far']], profile: [['6 days', 'active streak'], ['149 km', 'all time, 22 trips']] },
+      caps: { today: 'Trips are recorded on their own and laid out as one route, from the first step to the drive home.', moves: 'Motion sensors tell a walk from a ride. Correct a trip once and Motio remembers.', social: 'A weekly board with your friends, and challenges you start with a link.', profile: 'Streaks, longest outings and favourite ways to move, for you and your friends.' },
+      e: { name: 'Enter your name.', nameLong: 'Keep your name under 60 characters.', email: 'Check the email address: it needs an @ and a domain.', msg: 'Describe the problem in at least 10 characters.', msgLong: 'Keep it under 2000 characters.', fail: "Couldn't send. Check your connection and try again.", slow: 'Too many tries. Wait a minute and send again.' },
       rel: (v, mb, d) => 'Version ' + v + ', ' + mb + ' MB, updated ' + d, ver: (v) => 'Version ' + v,
-      waiting: (n) => n === 0 ? 'Be the first on the list' : n + (n === 1 ? ' person' : ' people') + ' waiting',
-      ok: "You're on the list! We'll email you when Motio comes to iPhone.", bad: 'Enter a valid email address.', fail: "That didn't go through. Try again in a moment.",
-      months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], switchTo: 'AZ', switchLabel: 'Azərbaycan dilinə keç', hm: (m) => Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'
+      waiting: (n) => n > 0 ? n + (n === 1 ? ' person is' : ' people are') + ' on the list.' : '',
+      months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], switchTo: 'AZ', switchLang: 'az', switchLabel: 'Azərbaycan dilinə keç'
+    },
+    az: {
+      say: 'Motio necə {moves} etdiyini özü qeyd edir, {today} bir marşrut kimi çəkir, {social} yarışmağa imkan verir və {profile} qoruyur.',
+      chips: { moves: 'hərəkət', today: 'gününü', social: 'dostlarınla', profile: 'seriyanı' },
+      tabs: { today: 'Bu gün', moves: 'Hərəkətlər', social: 'Dostlar', profile: 'Profil' },
+      tiles: { today: [['1s 07d', 'bu gün hərəkətdə'], ['12,6 km', '3 553 addım']], moves: [['39 dəq', 'velosiped, 10 km'], ['28 dəq', 'yeriş, 2,4 km']], social: [['#2', 'bu həftə, Leyladan sonra'], ['4s 40d', 'bu həftəki vaxtın']], profile: [['6 gün', 'aktiv seriya'], ['149 km', 'ümumilikdə, 22 səfər']] },
+      caps: { today: 'Səfərlər özü qeyd olunur və ilk addımdan evə son yola qədər bir marşrut kimi düzülür.', moves: 'Hərəkət sensorları yerişi velosipeddən ayırır. Bir səfəri bir dəfə düzəlt, Motio yadda saxlayır.', social: 'Dostlarınla həftəlik sıralama və linklə başladığın yarışlar.', profile: 'Seriyalar, ən uzun səfərlər və sevimli hərəkət növləri, həm sənin, həm dostlarının.' },
+      nav: 'Quraşdır', hint: 'Həmin ekranı görmək üçün işarələnmiş sözə toxun.', download: 'Android üçün yüklə', onios: 'iPhone-dasan? Motio gələndə sənə e-poçt yazaq.',
+      todayalt: 'Motio-nun Bu gün ekranı: 1 saat 7 dəqiqə hərəkətdə, gün marşrut kimi, 12,6 km və 3 553 addım', movesalt: 'Hərəkətlər ekranı: velosiped 39 dəqiqə, yeriş 28 dəqiqə', socialalt: 'Sosial ekranı: bu həftə üç dostun sıralaması və aktiv vaxtları', profilealt: 'Dostun profili: 6 günlük seriya, ümumilikdə 149 km və bu həftənin aktiv günləri',
+      fh: 'Hər şey telefon cibində olanda baş verir.',
+      f1h: 'Necə hərəkət etdiyini bilir', f1p: 'Yeriş, qaçış, velosiped, maşın və ictimai nəqliyyat hərəkət sensorları və fəaliyyət tanıma ilə ayırd edilir.',
+      f2h: 'Günün bir marşrutda', f2p: 'Bu gün ekranını aç və saatların hara getdiyini səfər-səfər gör.',
+      f3h: 'Health Connect-dən addımlar', f3p: 'Samsung Health və saatından gələn addımlar səfərlərinin yanında görünür.',
+      f4h: 'Paylaşmağa dəyər xülasələr', f4p: 'Səkkiz mövzuda həftəlik və aylıq xülasələr, paylaşdığın şəkil üçün redaktorla.',
+      f5h: 'Dostlar və həftəlik sıralama', f5p: 'Dostlarınla yarış, linklə yarış başlat və həftəlik sıralamada yerini gör.',
+      f6h: 'Dostların nə görəcəyini sən seçirsən', f6p: 'Standart olaraq yalnız həftəlik cəmi. Marşrut, məkanlar və ya canlı məkan yalnız seçdiyin dostlara.',
+      f7h: 'Həmişə təzə vidjetlər', f7p: 'Bu gün, dostlar və yarış vidjetləri tətbiq bağlı olanda da yenilənir.',
+      f8h: 'Tarixçən qorunur', f8p: 'Səfərlər hesabına yedəklənir. İstədiyin vaxt ixrac et; hesabı silsən, hamısı silinir.',
+      ih: 'Bir dəqiqəyə quraşdır.', i1h: 'Tətbiqi yüklə', i1p: 'Android telefonunda Yüklə düyməsinə toxun.',
+      i2h: 'Quraşdırmaya icazə ver', i2p: 'Android bir dəfə soruşur ki, brauzer tətbiq quraşdıra bilərmi. İcazə ver, sonra Quraşdır düyməsinə toxun.',
+      i3h: 'Motio-nu aç', i3p: 'Hesab yarat, məkan və fiziki fəaliyyət icazəsi ver ki, səfərlər özü qeyd olunsun.',
+      ch: 'Android üçün Motio', cfree: 'Pulsuz', c1: 'Reklamsız', c2: 'Yeniləmələr tətbiqin içində gəlir', c3: 'Android 8 və ya daha yenisi', c4: 'Motio-nun öz açarı ilə imzalanıb',
+      nh: 'Yeniliklər',
+      iph: 'Motio iPhone üçün yoldadır.', ipp: 'Adını və e-poçtunu yaz, hazır olan gün bir dəfə yazacağıq.',
+      fname: 'Adın', femail: 'E-poçtun', notify: 'Xəbər ver', wlnote: 'E-poçtunu yalnız iPhone üçün Motio barədə xəbər vermək üçün istifadə edirik.',
+      wlok: 'Siyahıdasan.', wlokp: 'Motio iPhone-a gələndə sənə bir dəfə yazacağıq.',
+      qh: 'Suallar',
+      q1: 'Android quraşdırmadan əvvəl niyə xəbərdarlıq edir?', a1: 'Motio hələ Google Play-də deyil, ona görə Android mağazadan kənar tətbiqi quraşdırmazdan əvvəl yoxlayır. Fayl birbaşa Motio-nun GitHub-dakı buraxılış səhifəsindən gəlir və Motio-nun öz açarı ilə imzalanıb. Bundan sonra yeniləmələr tətbiqin içində gəlir.',
+      q2: 'Hara getdiyimi kim görə bilər?', a2: 'Başqa cür qərar verməsən, yalnız sən. Dostlar həftəlik cəmi görür. Marşrutu, məkanları və ya canlı məkanı hər dostla ayrıca paylaşa və istədiyin vaxt söndürə bilərsən.',
+      q3: 'iPhone versiyası var?', a3: 'Yoldadır. Hazır olanda bir e-poçt almaq üçün bu səhifəni iPhone və ya iPad-də aç.',
+      q4: 'Məlumatlarımı götürə bilərəm?', a4: 'Bəli. Bütün səfərlərini istədiyin vaxt tətbiqdən ixrac et. Hesabı silsən, bütün səfərlər də silinir.',
+      q5: 'Nəsə işləmir?', a5: 'Nə baş verdiyini və hansı telefonda olduğunu yaz.',
+      f1: 'Məxfilik', f2: 'Şərtlər', f3: 'Problem bildir',
+      rph: 'Problem bildir', rpp: 'Nə baş verdiyini və hansı telefonda olduğunu yaz. Daha çox məlumat lazım olsa, e-poçtla cavab verəcəyik.', fmsg: 'Nə baş verdi?', send: 'Göndər', close: 'Bağla',
+      rpok: 'Göndərildi.', rpokp: 'Vaxt ayırdığın üçün sağ ol. Hər mesajı oxuyuruq və lazım olsa, e-poçtla yazacağıq.',
+      e: { name: 'Adını yaz.', nameLong: 'Ad 60 simvoldan qısa olmalıdır.', email: 'E-poçt ünvanını yoxla: @ işarəsi və domen olmalıdır.', msg: 'Problemi ən azı 10 simvolla təsvir et.', msgLong: 'Mesaj 2000 simvoldan qısa olmalıdır.', fail: 'Göndərilmədi. İnterneti yoxla və yenidən cəhd et.', slow: 'Çox tez-tez göndərilir. Bir dəqiqə gözlə.' },
+      rel: (v, mb, d) => 'Versiya ' + v + ', ' + mb + ' MB, yeniləndi: ' + d, ver: (v) => 'Versiya ' + v,
+      waiting: (n) => n > 0 ? 'Siyahıda ' + n + ' nəfər var.' : '',
+      months: ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'], switchTo: 'EN', switchLang: 'en', switchLabel: 'Switch to English'
     }
   };
   // English is the page as written; keep it so switching back restores it.
   document.querySelectorAll('[data-t]').forEach((el) => { T.en[el.dataset.t] = el.textContent; });
+  document.querySelectorAll('[data-ta]').forEach((el) => { T.en[el.dataset.ta] = el.getAttribute('alt'); });
   const R = document.body.dataset;
-  let lang = 'en', waiting = +R.waiting || 0;
-  try { lang = localStorage.getItem('motio.lang') || ((navigator.language || '').toLowerCase().startsWith('az') ? 'az' : 'en'); } catch (e) { /* storage blocked */ }
-  const btn = document.getElementById('lang');
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lang = 'en', waiting = +R.waiting || 0, cur = 'today';
+  try { lang = localStorage.getItem('motio.lang') || ((navigator.language || '').toLowerCase().startsWith('az') ? 'az' : 'en'); } catch (e) { /* storage blocked */ }
+  const btn = $('#lang');
+
+  // The iPhone sign-up is only for iPhone and iPad (iPadOS reports itself as a Mac with touch).
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios) document.documentElement.classList.add('is-ios');
+
+  // Stage: the words in the sentence and the tabs both pick a screen.
+  function show(s, animate) {
+    cur = s; const t = T[lang];
+    document.documentElement.style.setProperty('--glow', GLOW[s]);
+    $$('.phone img').forEach((im) => im.classList.toggle('on', im.dataset.s === s));
+    $$('[data-s][aria-pressed]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === s)));
+    $$('.tile').forEach((el, i) => {
+      el.querySelector('b').textContent = t.tiles[s][i][0];
+      el.querySelector('span').textContent = t.tiles[s][i][1];
+      if (animate && !reduce) { el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); }
+    });
+    $('#caption').textContent = t.caps[s];
+  }
+  function pick(s) { stopAuto(); if (s !== cur) show(s, true); }
+
+  function sentence() {
+    const t = T[lang], say = $('#say');
+    say.textContent = '';
+    t.say.split(/\{(\w+)\}/).forEach((part, i) => {
+      if (i % 2 === 0) { say.append(part); return; }
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.dataset.s = part; b.setAttribute('aria-pressed', String(part === cur));
+      b.innerHTML = '<i style="--c:' + ICON[part][0] + '"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[part][1] + '</svg></i>';
+      b.append(t.chips[part]);
+      b.addEventListener('click', () => { pick(part); $('.stage').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); });
+      say.append(b);
+    });
+  }
 
   function apply(l) {
     lang = l; const t = T[l];
     document.documentElement.lang = l;
-    document.querySelectorAll('[data-t]').forEach((el) => { if (t[el.dataset.t]) el.textContent = t[el.dataset.t]; });
+    $$('[data-t]').forEach((el) => { if (t[el.dataset.t]) el.textContent = t[el.dataset.t]; });
+    $$('[data-tp]').forEach((el) => { if (t[el.dataset.tp]) el.placeholder = t[el.dataset.tp]; });
+    $$('[data-ta]').forEach((el) => { if (t[el.dataset.ta]) el.alt = t[el.dataset.ta]; });
+    $$('#seg button').forEach((b) => { b.textContent = t.tabs[b.dataset.s]; });
+    sentence(); show(cur, false);
     if (R.version) {
       const [, mo, dd] = R.date.split('-').map(Number);
-      document.querySelectorAll('.relline').forEach((el) => { el.textContent = t.rel(R.version, R.mb, +dd + ' ' + t.months[mo - 1]); });
-      document.getElementById('ver').textContent = t.ver(R.version);
+      $$('.relline').forEach((el) => { el.textContent = t.rel(R.version, R.mb, +dd + ' ' + t.months[mo - 1]); });
+      $('#ver').textContent = t.ver(R.version);
     }
-    document.getElementById('waitn').textContent = t.waiting(waiting);
-    btn.textContent = t.switchTo; btn.setAttribute('aria-label', t.switchLabel);
-    document.querySelectorAll('[data-count]').forEach((el) => { if (el.dataset.done) el.textContent = fmt(el, +el.dataset.count); });
+    $('#waitn').textContent = t.waiting(waiting);
+    btn.textContent = t.switchTo; btn.lang = t.switchLang; btn.setAttribute('aria-label', t.switchLabel);
+    // Errors already on screen follow the language too.
+    $$('.err[data-k]').forEach((el) => { el.textContent = t.e[el.dataset.k]; });
   }
   btn.addEventListener('click', () => { const l = lang === 'az' ? 'en' : 'az'; try { localStorage.setItem('motio.lang', l); } catch (e) { /* storage blocked */ } apply(l); });
+  $$('#seg button').forEach((b) => b.addEventListener('click', () => pick(b.dataset.s)));
 
-  // Hero: the middle word cycles through the ways of moving.
-  const words = [...document.querySelectorAll('#swap span')];
-  let wi = 0;
-  if (!reduce) setInterval(() => {
-    const cur = words[wi]; wi = (wi + 1) % words.length; const nxt = words[wi];
-    cur.classList.remove('on'); cur.classList.add('out');
-    nxt.classList.remove('out'); nxt.classList.add('on');
-    setTimeout(() => cur.classList.remove('out'), 750);
-  }, 2200);
+  // The stage plays through the screens on its own while it's on screen, until someone picks one.
+  const ORDER = ['today', 'moves', 'social', 'profile'];
+  let timer = 0, stopped = reduce;
+  function stopAuto() { stopped = true; clearInterval(timer); }
+  new IntersectionObserver(([e]) => {
+    clearInterval(timer);
+    if (e.isIntersecting && !stopped) timer = setInterval(() => show(ORDER[(ORDER.indexOf(cur) + 1) % 4], true), 4200);
+  }, { threshold: 0.5 }).observe($('.stage'));
 
-  // Ticker of example trips.
-  const TRIPS = [['#3DBF5C', '7:48 Walk', '1.2 km'], ['#6E8CF7', '8:06 Ride', '6.4 km'], ['#F6C343', '9:30 Drive', '14 km'], ['#F2766B', '18:10 Run', '5.2 km'], ['#B57BE0', '12:15 Metro', '9 km'], ['#3DBF5C', '13:02 Walk', '2.1 km'], ['#6E8CF7', '17:40 Ride', '7.8 km'], ['#F6C343', '19:20 Drive', '11 km']];
-  const chipHtml = (list) => list.map(([c, a, b]) => '<span class="t"><i style="background:' + c + '"></i>' + a + ' <span>' + b + '</span></span>').join('');
-  const r1 = chipHtml(TRIPS), r2 = chipHtml(TRIPS.slice().reverse());
-  document.getElementById('row1').innerHTML = r1 + r1;
-  document.getElementById('row2').innerHTML = r2 + r2;
+  // Sections come in once as they scroll into view.
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+  $$('.rv').forEach((el) => io.observe(el));
 
-  // Counters count up the first time their panel is seen.
-  function fmt(el, v) {
-    if (el.dataset.fmt === 'hm') return T[lang].hm(Math.round(v));
-    const d = +el.dataset.dec || 0;
-    return (d ? v.toFixed(d) : Math.round(v).toLocaleString('en-US')) + (el.dataset.unit || '');
+  // Field checks, the same as the server's.
+  const CHECK = {
+    name: (v) => (!v ? 'name' : v.length > 60 ? 'nameLong' : ''),
+    email: (v) => (v.length <= 254 && /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(v) ? '' : 'email'),
+    message: (v) => (v.length < 10 ? 'msg' : v.length > 2000 ? 'msgLong' : '')
+  };
+  const SERVER = { name_missing: ['name', 'name'], name_long: ['name', 'nameLong'], email_invalid: ['email', 'email'], message_short: ['message', 'msg'], message_long: ['message', 'msgLong'] };
+
+  function wire(form, done) {
+    const fields = [...form.querySelectorAll('input,textarea')];
+    const fail = form.querySelector('.fail');
+    const showErr = (input, k) => {
+      const err = $('#' + input.getAttribute('aria-describedby'));
+      if (k) { err.dataset.k = k; err.textContent = T[lang].e[k]; input.setAttribute('aria-invalid', 'true'); }
+      else { delete err.dataset.k; err.textContent = ''; input.removeAttribute('aria-invalid'); }
+    };
+    const check = (input) => { const k = CHECK[input.name](input.value.trim()); showErr(input, k); return !k; };
+    // Errors appear after leaving a field and clear as soon as it's fixed.
+    fields.forEach((f) => {
+      f.addEventListener('blur', () => { if (f.value.trim()) check(f); });
+      f.addEventListener('input', () => { if (f.hasAttribute('aria-invalid')) check(f); });
+    });
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fail.textContent = '';
+      const bad = fields.filter((f) => !check(f));
+      if (bad.length) { bad[0].focus(); return; }
+      const body = Object.fromEntries(fields.map((f) => [f.name, f.value.trim()]));
+      if (form.id === 'wl') body.platform = 'ios';
+      const send = form.querySelector('button[type=submit]');
+      send.disabled = true;
+      try {
+        const r = await fetch(form.dataset.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const s = SERVER[j.error];
+          if (s) { const f = form.elements[s[0]]; showErr(f, s[1]); f.focus(); }
+          else fail.textContent = T[lang].e[r.status === 429 ? 'slow' : 'fail'];
+          return;
+        }
+        form.reset();
+        form.hidden = true;
+        const thanks = form.nextElementSibling;
+        thanks.hidden = false; thanks.focus();
+        done && done(j);
+      } catch (e) { fail.textContent = T[lang].e.fail; }
+      finally { send.disabled = false; }
+    });
   }
-  function count(el) {
-    if (el.dataset.done) return;
-    el.dataset.done = 1;
-    const to = +el.dataset.count, t0 = performance.now(), dur = reduce ? 1 : 1600;
-    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(el, to * e); if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  }
 
-  // Panels come alive as they scroll in: reveals, growing bars, racing friends, counters.
-  const io = new IntersectionObserver((es) => es.forEach((e) => {
-    if (!e.isIntersecting) return;
-    e.target.classList.add('in');
-    e.target.querySelectorAll('[data-count]').forEach(count);
-    io.unobserve(e.target);
-  }), { threshold: 0.18 });
-  document.querySelectorAll('.io').forEach((el) => (reduce ? (el.classList.add('in'), el.querySelectorAll('[data-count]').forEach(count)) : io.observe(el)));
+  wire($('#wl'), (j) => { if (j.waiting) { waiting = j.waiting; $('#waitn').textContent = T[lang].waiting(waiting); } });
 
-  // Recap cards fan out as the coral panel moves through the screen.
-  const fan = document.getElementById('fan'), cards = fan ? [...fan.querySelectorAll('.card')] : [];
-  let raf = 0;
-  function onScroll() {
-    raf = 0;
-    const r = fan.getBoundingClientRect(), k = Math.max(0, Math.min(1, 1 - (r.top + r.height / 2) / innerHeight * 1.1 + 0.35));
-    const spread = innerWidth < 600 ? 80 : 165;
-    cards[0].style.transform = 'translateX(' + (-spread * k) + 'px) rotate(' + (-12 * k) + 'deg)';
-    cards[1].style.transform = 'translateX(' + (spread * k) + 'px) rotate(' + (12 * k) + 'deg)';
-    cards[2].style.transform = 'translateY(' + (-14 * k) + 'px) rotate(' + (-2 + 2 * k) + 'deg) scale(' + (1 + 0.04 * k) + ')';
-  }
-  if (cards.length && !reduce) { addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(onScroll); }, { passive: true }); onScroll(); }
+  // Report a problem: a dialog; it opens fresh each time.
+  const dlg = $('#rp'), rpf = $('#rpf');
+  wire(rpf);
+  $$('[data-report]').forEach((b) => b.addEventListener('click', () => {
+    rpf.hidden = false; dlg.querySelector('.thanks').hidden = true;
+    dlg.showModal(); $('#rp-name').focus();
+  }));
+  dlg.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => dlg.close()));
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
 
-  // iPhone sign-up.
-  const form = document.getElementById('wl'), msg = document.getElementById('wlm');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('wle').value.trim(), name = document.getElementById('wln').value.trim();
-    msg.className = 'msg';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = T[lang].bad; msg.classList.add('err'); return; }
-    try {
-      const r = await fetch('/v1/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name, platform: 'ios' }) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) { msg.textContent = T[lang].bad; msg.classList.add('err'); return; }
-      msg.textContent = T[lang].ok; msg.classList.add('ok');
-      if (j.waiting) { waiting = j.waiting; document.getElementById('waitn').textContent = T[lang].waiting(waiting); }
-      form.querySelector('button').disabled = true;
-    } catch (err) { msg.textContent = T[lang].fail; msg.classList.add('err'); }
-  });
-
-  // No release notes reached the server: leave the What's new panel out rather than show it empty.
-  const notesList = document.querySelector('.new ul');
-  if (notesList && !notesList.querySelector('li')) notesList.closest('section').hidden = true;
+  // No release notes reached the server: leave What's new out rather than show it empty.
+  if (!document.querySelector('.notes li')) $('#new').hidden = true;
   apply(lang);
 })();
 </script>
