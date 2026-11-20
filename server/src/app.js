@@ -310,7 +310,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
     ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
-    ...siteRoutes(),
+    ...(await siteRoutes({ db, env, now, fetchImpl, HttpError, bad })),
     ...legalRoutes(env),
 
     'GET /dev/outbox': async () => {
@@ -337,7 +337,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
     const url = new URL(req.url, 'http://localhost');
     // Invite links carry the code in the path: /i/ABC123.
-    const key = url.pathname.startsWith('/i/') ? 'GET /i' : `${req.method} ${url.pathname}`;
+    const key = url.pathname.startsWith('/i/') ? 'GET /i' : url.pathname.startsWith('/site/') ? 'GET /site' : `${req.method} ${url.pathname}`;
     const send = (status, obj) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
     try {
       const route = routes[key];
@@ -352,7 +352,8 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
       const out = await route({ req, body, url });
       if (out && out.redirect) { res.writeHead(302, { Location: out.redirect }); res.end(); return; }
       if (out && out.raw !== undefined) {
-        const h = { 'Content-Type': out.type + '; charset=utf-8' };
+        const h = { 'Content-Type': out.type + (Buffer.isBuffer(out.raw) ? '' : '; charset=utf-8') };
+        if (out.cache) h['Cache-Control'] = out.cache;
         if (out.name) h['Content-Disposition'] = `attachment; filename="${out.name}"`;
         res.writeHead(200, h); res.end(out.raw); return;
       }

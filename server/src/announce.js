@@ -6,6 +6,12 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 
 const sha = (s) => createHash('sha256').update(String(s)).digest();
 
+// True when the request carries the server's ADMIN_TOKEN (set only in the hosting environment).
+export function isAdmin(req, env) {
+  const token = String(env.ADMIN_TOKEN || ''), m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
+  return token.length >= 24 && !!m && timingSafeEqual(sha(m[1]), sha(token));
+}
+
 export async function announceRoutes({ db, env, mailer, HttpError, bad }) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS announced (
@@ -25,8 +31,7 @@ export async function announceRoutes({ db, env, mailer, HttpError, bad }) {
     // Body: { key, subject, text, limit?, send? }. Without send: true it only counts who would get it.
     // {name} in the text becomes each person's first name.
     'POST /v1/admin/announce': async ({ req, body }) => {
-      const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
-      if (!m || !timingSafeEqual(sha(m[1]), sha(token))) throw new HttpError(401, 'unauthorized', 'Wrong admin token.');
+      if (!isAdmin(req, env)) throw new HttpError(401, 'unauthorized', 'Wrong admin token.');
       const key = String(body.key || '').trim(), subject = String(body.subject || '').trim(), text = String(body.text || '');
       if (!/^[\w.-]{3,40}$/.test(key)) throw bad('key_invalid', 'Give the announcement a short key, like "v3.6".');
       if (!subject || !text.trim()) throw bad('empty', 'Subject and text are required.');

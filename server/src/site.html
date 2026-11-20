@@ -6,228 +6,271 @@
 <title>Motio: every move tells a story</title>
 <meta name="description" content="Motio notices when you walk, run, ride or drive, draws your day as a road, and turns your week into stories worth sharing. Free for Android.">
 <meta name="theme-color" content="#4B3FD8">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Motio">
+<meta property="og:title" content="Motio: every move tells a story">
+<meta property="og:description" content="Your walks, runs, rides and drives, drawn as a road and turned into weekly stories. Race your friends. Free for Android.">
+<meta property="og:url" content="https://motio-api.onrender.com/">
+<meta property="og:image" content="https://motio-api.onrender.com/site/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--purple:#4B3FD8;--violet:#5B4FE0;--navy:#1F1D47;--ink:#16142F;--page:#F6F5FC;--soft:#EEF0F6;--muted:#6B6890;--body:#4A4770;--yellow:#F6C343;--coral:#F2766B;--green:#3DBF5C;--blue:#6E8CF7;--lilac:#B57BE0}
+:root{--purple:#4B3FD8;--violet:#5B4FE0;--navy:#1F1D47;--ink:#16142F;--page:#F6F5FC;--muted:#6B6890;--body:#4A4770;--yellow:#F6C343;--coral:#F2766B;--green:#3DBF5C;--blue:#6E8CF7;--lilac:#B57BE0;--ease:cubic-bezier(.22,1,.36,1)}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--page);color:var(--navy);font-family:Poppins,system-ui,sans-serif;font-size:17px;line-height:1.6}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--navy);font-family:Poppins,system-ui,sans-serif;font-size:17px;line-height:1.6;overflow-x:hidden}
 a{color:inherit}
+img{display:block;max-width:100%}
 :focus-visible{outline:3px solid var(--yellow);outline-offset:3px;border-radius:8px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 h1,h2,h3{margin:0;line-height:1.08;letter-spacing:-0.02em}
 p{margin:0}
 
-/* Hero: the app's day road, drawn across the purple page. */
+/* Hero */
 .hero{position:relative;overflow:hidden;background:var(--purple);color:#fff;padding:22px 0 0}
-.nav{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;text-decoration:none}
-.nav a.small{font-size:15px;font-weight:600;text-decoration:none;opacity:.85}
-.hero-copy{position:relative;z-index:2;padding:56px 0 0;max-width:620px}
-.hero h1{font-size:clamp(46px,9vw,92px);font-weight:700}
-.hero p.lead{margin-top:20px;font-size:clamp(17px,2.2vw,20px);color:#E4E1FF;max-width:520px}
-.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:30px}
-.btn{display:inline-flex;align-items:center;gap:10px;height:58px;padding:0 28px;border-radius:29px;background:var(--yellow);color:var(--navy);font-weight:700;font-size:17px;text-decoration:none;box-shadow:0 10px 26px rgba(22,20,47,.28);transition:transform .15s ease}
+.hero::before{content:"";position:absolute;width:720px;height:720px;right:-260px;top:-300px;border-radius:50%;background:rgba(255,255,255,.06)}
+.nav{position:relative;z-index:2;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;text-decoration:none;margin-right:auto}
+.nav a.small{font-size:15px;font-weight:600;text-decoration:none;opacity:.88}
+.lang{height:36px;padding:0 14px;border:2px solid rgba(255,255,255,.35);border-radius:18px;background:transparent;color:#fff;font:600 13px Poppins,sans-serif;cursor:pointer}
+.lang:hover{background:rgba(255,255,255,.12)}
+.hero-copy{position:relative;z-index:2;padding:52px 0 0;max-width:640px}
+.hero h1{font-size:clamp(46px,9vw,96px);font-weight:700}
+.hero h1 .w{display:inline-block;opacity:0;transform:translateY(.45em);animation:rise .8s var(--ease) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.lead{margin-top:20px;font-size:clamp(17px,2.2vw,20px);color:#E4E1FF;max-width:520px;opacity:0;animation:rise .8s var(--ease) .55s forwards}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:30px;opacity:0;animation:rise .8s var(--ease) .7s forwards}
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;height:58px;padding:0 28px;border-radius:29px;background:var(--yellow);color:var(--navy);font-weight:700;font-size:17px;text-decoration:none;box-shadow:0 10px 26px rgba(22,20,47,.28);transition:transform .2s var(--ease),box-shadow .2s ease;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-120%);animation:shine 4.5s ease-in-out 2.4s infinite}
+@keyframes shine{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(22,20,47,.32)}
 .btn:active{transform:scale(.97)}
-.btn svg{flex:none}
-.cta .note{font-size:14px;color:#D9D5FF}
-.road{position:relative;display:block;width:100%;height:auto;margin-top:-10px}
+.rel{display:flex;flex-direction:column;font-size:14px;line-height:1.45}
+.rel b{font-weight:600}
+.hero .rel{color:#D9D5FF}
+.road{position:relative;display:block;width:100%;height:auto}
 .road .track{stroke:#fff;stroke-opacity:.14;stroke-width:46;fill:none;stroke-linecap:round}
-.road .dash{stroke:#fff;stroke-opacity:.7;stroke-width:3;fill:none;stroke-dasharray:3 14;stroke-linecap:round}
-.road .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.2s cubic-bezier(.22,1,.36,1) .25s forwards}
+.road .dash{stroke:#fff;stroke-opacity:.7;stroke-width:3;fill:none;stroke-dasharray:3 14;stroke-linecap:round;animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-34}}
+.road .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.2s var(--ease) .25s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 .chip{font:600 15px Poppins,sans-serif}
-.road-tall{margin-top:10px}
+.chip-l{font-size:19px}
+.pin{opacity:0;animation:pop .6s var(--ease) forwards}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.live{opacity:0;animation:pop .6s ease 2.4s forwards}
+.road-tall{margin-top:6px}
 .road-tall .track{stroke-width:34}
 .road-wide{display:none}
 @media(min-width:900px){.road-tall{display:none}.road-wide{display:block;max-width:1440px;margin:-10px auto 0}}
-.chip-l{font-size:19px}
-.pin{opacity:0;animation:pin .5s ease forwards}
-@keyframes pin{to{opacity:1}}
 
-/* Sections */
-section{padding:88px 0}
-.split{display:grid;gap:44px;align-items:center}
-@media(min-width:860px){.split{grid-template-columns:1fr 1fr}.split.flip>:first-child{order:2}}
-h2{font-size:clamp(34px,5vw,52px);font-weight:700}
-.text p{margin-top:18px;color:var(--body);max-width:30em}
+/* Tour: a phone that stays while the story scrolls past (wide screens) */
+.tour{padding:96px 0 40px}
+.tour-grid{display:grid;gap:0}
+.step{padding:28px 0 56px}
+.step h2{font-size:clamp(34px,5vw,52px);font-weight:700}
+.step p{margin-top:18px;color:var(--body);max-width:30em}
+.inline-phone{margin-top:30px}
+.phone{position:relative;width:300px;max-width:100%;margin:0 auto;border-radius:46px;background:var(--ink);padding:11px;box-shadow:0 34px 70px rgba(31,29,71,.28)}
+.phone .screen{position:relative;border-radius:36px;overflow:hidden;aspect-ratio:390/844;background:#4B3FD8}
+.phone .screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sticky{display:none}
+@media(min-width:900px){
+  .tour-grid{grid-template-columns:1fr 380px;gap:60px}
+  .step{min-height:78vh;display:flex;flex-direction:column;justify-content:center;padding:0}
+  .inline-phone{display:none}
+  .sticky{display:block;position:sticky;top:calc(50vh - 330px);height:660px;perspective:1200px}
+  .sticky .phone{width:320px;transition:transform .5s var(--ease)}
+  .sticky .screen img{opacity:0;transform:scale(1.04) translateY(14px);transition:opacity .55s var(--ease),transform .7s var(--ease)}
+  .sticky .screen img.on{opacity:1;transform:none}
+  .step{opacity:.28;transition:opacity .5s ease}
+  .step.on{opacity:1}
+  .dots{position:absolute;right:-28px;top:50%;display:flex;flex-direction:column;gap:10px;transform:translateY(-50%)}
+  .dots i{width:8px;height:8px;border-radius:4px;background:#C9C5EC;transition:height .4s var(--ease),background .4s}
+  .dots i.on{height:26px;background:var(--purple)}
+}
+.modes{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.mode{display:flex;align-items:center;gap:8px;height:44px;padding:0 18px 0 8px;border-radius:22px;background:#fff;font-weight:600;font-size:15px;box-shadow:0 2px 0 rgba(31,29,71,.04);transition:transform .25s var(--ease),box-shadow .25s}
+.mode i{width:28px;height:28px;border-radius:14px;display:block;transition:transform .35s var(--ease)}
+.mode:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(31,29,71,.1)}
+.mode:hover i{transform:scale(1.15) rotate(-8deg)}
 
-/* Today on a phone */
-.phone{justify-self:center;width:300px;max-width:100%;border-radius:40px;background:var(--navy);padding:12px;box-shadow:0 30px 60px rgba(31,29,71,.25)}
-.screen{border-radius:30px;overflow:hidden;background:var(--purple);color:#fff;padding:22px 18px 18px}
-.screen .hi{font-size:12px;color:#D9D5FF}
-.screen .name{font-size:20px;font-weight:700}
-.screen .big{margin-top:14px;font-size:44px;font-weight:700;line-height:1}
-.screen .sub{font-size:12px;color:#D9D5FF}
-.mini{margin-top:16px;border-radius:22px;background:#fff;padding:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.stat{border-radius:16px;background:#fff;color:var(--navy);padding:10px 8px}
-.stat b{display:block;font-size:16px}
-.stat span{font-size:10px;color:var(--muted)}
-
-/* Ways of moving */
-.modes{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
-.mode{display:flex;align-items:center;gap:8px;height:44px;padding:0 18px 0 8px;border-radius:22px;background:#fff;font-weight:600;font-size:15px}
-.mode i{width:28px;height:28px;border-radius:14px;display:block}
-
-/* Story */
-.story-stage{position:relative;height:440px;justify-self:center;width:330px;max-width:100%}
-.story{position:absolute;width:250px;height:400px;border-radius:28px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 26px 50px rgba(31,29,71,.22)}
-.story.back{left:0;top:30px;background:var(--coral);transform:rotate(-8deg);justify-content:flex-start}
-.story .peek{width:58px}
-.story .pn{font-size:34px;font-weight:700;line-height:1.1;margin-top:6px}
-.story.front{right:0;top:0;background:var(--yellow);transform:rotate(4deg)}
-.story .t{font-size:13px;font-weight:600}
-.story .n{font-size:84px;font-weight:700;line-height:.9;letter-spacing:-.04em}
-.story .u{font-size:18px;font-weight:600}
-.bars{display:flex;gap:6px;align-items:flex-end;height:70px}
-.bars i{flex:1;border-radius:6px;background:var(--navy)}
-
-/* Friends */
-.board{justify-self:center;width:340px;max-width:100%;border-radius:26px;background:var(--ink);color:#fff;padding:18px;display:flex;flex-direction:column;gap:10px}
-.row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:rgba(255,255,255,.06)}
-.row.me{background:rgba(246,195,67,.12);box-shadow:inset 0 0 0 1px rgba(246,195,67,.45)}
-.av{width:38px;height:38px;border-radius:19px;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
-.row .who{flex:1;display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}
-.row .line{display:flex;justify-content:space-between}
-.row .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.1)}
-.row .bar i{display:block;height:6px;border-radius:3px}
-.race{margin-top:4px;border-radius:18px;background:var(--coral);color:var(--navy);padding:14px;font-weight:700;font-size:14px}
-.race span{display:block;font-weight:500;font-size:12px}
+/* Reveal on scroll */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
 
 /* Privacy */
-.privacy{background:var(--navy);color:#fff}
-.privacy h2{max-width:16em}
+.privacy{position:relative;overflow:hidden;background:var(--navy);color:#fff;padding:96px 0}
+.privacy h2{font-size:clamp(34px,5vw,52px);max-width:14em}
 .privacy p{margin-top:18px;color:#C9C5EC;max-width:34em}
 .privacy a{color:var(--yellow);font-weight:600}
+.lock{position:absolute;right:-40px;bottom:-60px;width:320px;height:320px;opacity:.08}
 
 /* Install */
+.install{padding:96px 0}
+.install h2{font-size:clamp(34px,5vw,52px)}
 .steps{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:14px}
 @media(min-width:860px){.steps{grid-template-columns:repeat(3,1fr)}}
 .steps li{border-radius:24px;background:#fff;padding:22px}
-.steps .num{width:40px;height:40px;border-radius:20px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.num{width:40px;height:40px;border-radius:20px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
 .steps h3{margin-top:16px;font-size:20px}
 .steps p{margin-top:6px;font-size:15px;color:var(--body)}
+.trust{margin-top:18px;display:flex;gap:14px;align-items:flex-start;border-radius:24px;background:#EEF0FF;padding:20px 22px}
+.trust svg{flex:none;margin-top:3px}
+.trust h3{font-size:17px}
+.trust p{margin-top:4px;font-size:15px;color:var(--body)}
 .after{margin-top:22px;color:var(--muted);font-size:15px}
-.install-cta{margin-top:30px}
+.install-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:30px}
+.install .rel{color:var(--muted)}
+
+/* iPhone waitlist (shown on iPhone and iPad) */
+.ios{display:none;padding:0 0 80px}
+.ios.show{display:block}
+.ios .box{border-radius:28px;background:#fff;padding:26px;display:grid;gap:14px}
+@media(min-width:860px){.ios .box{grid-template-columns:1fr 1fr;align-items:center}}
+.ios h2{font-size:28px}
+.ios p{margin-top:6px;color:var(--body);font-size:15px}
+.ios form{display:flex;gap:10px;flex-wrap:wrap}
+.ios input{flex:1;min-width:200px;height:52px;border:2px solid #E3E1F3;border-radius:26px;padding:0 18px;font:500 16px Poppins,sans-serif;color:var(--navy)}
+.ios button{height:52px;padding:0 24px;border:0;border-radius:26px;background:var(--navy);color:#fff;font:600 15px Poppins,sans-serif;cursor:pointer}
+.ios .msg{width:100%;font-size:14px;min-height:1.4em}
 
 footer{padding:36px 0 48px;color:var(--muted);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
-footer nav{display:flex;gap:20px}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 20px}
 
-@media(prefers-reduced-motion:reduce){.road .draw{animation:none;stroke-dashoffset:0}.pin{animation:none;opacity:1}.btn{transition:none}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+  .live{display:none}
+}
 </style>
 </head>
-<body>
+<body data-release="">
 
 <header class="hero">
   <div class="wrap">
     <div class="nav">
-      <a class="logo" href="/" aria-label="Motio home"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</a>
-      <a class="small" href="#install">How to install</a>
+      <a class="logo" href="/" aria-label="Motio"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</a>
+      <a class="small" href="#install" data-t="howto">How to install</a>
+      <button class="lang" type="button" id="lang" aria-label="Azərbaycan dilinə keç">AZ</button>
     </div>
     <div class="hero-copy">
-      <h1>Every move tells a story.</h1>
-      <p class="lead">Motio notices when you walk, run, ride or drive, draws your day as a road, and turns your week into stories worth sharing.</p>
+      <h1 id="headline" data-t="h1">Every move tells a story.</h1>
+      <p class="lead" data-t="lead">Motio notices when you walk, run, ride or drive, draws your day as a road, and turns your week into stories worth sharing.</p>
       <div class="cta">
-        <a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download for Android</a>
-        <span class="note">Free. Needs Android 8 or newer.</span>
+        <a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
+        <span class="rel"><b class="relline"></b><span data-t="free">Free. Needs Android 8 or newer.</span></span>
       </div>
     </div>
   </div>
   <svg class="road road-tall" viewBox="0 0 390 290" role="img" aria-label="A day drawn as a road: a walk at 8:12, a ride at 12:40 and a drive at 18:05">
-    <path class="track draw" pathLength="1" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
-    <path class="dash pin" style="animation-delay:1.6s" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
-    <g class="pin" style="animation-delay:.9s"><circle cx="128" cy="69" r="12" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="4"/><rect x="146" y="22" width="112" height="34" rx="17" fill="#fff"/><text class="chip" x="202" y="44" text-anchor="middle" fill="#1F1D47">8:12 Walk</text></g>
-    <g class="pin" style="animation-delay:1.4s"><circle cx="340" cy="134" r="12" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="4"/><rect x="206" y="143" width="112" height="34" rx="17" fill="#fff"/><text class="chip" x="262" y="165" text-anchor="middle" fill="#1F1D47">12:40 Ride</text></g>
-    <g class="pin" style="animation-delay:1.9s"><circle cx="132" cy="239" r="12" fill="#F6C343" stroke="#4B3FD8" stroke-width="4"/><rect x="150" y="242" width="118" height="34" rx="17" fill="#fff"/><text class="chip" x="209" y="264" text-anchor="middle" fill="#1F1D47">18:05 Drive</text></g>
+    <path id="rt" class="track draw" pathLength="1" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
+    <path class="dash" d="M-30 50 C 90 0, 170 130, 250 100 S 380 120, 300 190 S 80 220, -30 270"/>
+    <g class="pin" style="animation-delay:.9s"><circle cx="128" cy="69" r="12" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="4"/><rect x="146" y="22" width="132" height="34" rx="17" fill="#fff"/><text class="chip" x="212" y="44" text-anchor="middle" fill="#1F1D47" data-t="c1">8:12 Walk</text></g>
+    <g class="pin" style="animation-delay:1.4s"><circle cx="340" cy="134" r="12" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="4"/><rect x="186" y="143" width="140" height="34" rx="17" fill="#fff"/><text class="chip" x="256" y="165" text-anchor="middle" fill="#1F1D47" data-t="c2">12:40 Ride</text></g>
+    <g class="pin" style="animation-delay:1.9s"><circle cx="132" cy="239" r="12" fill="#F6C343" stroke="#4B3FD8" stroke-width="4"/><rect x="150" y="242" width="132" height="34" rx="17" fill="#fff"/><text class="chip" x="216" y="264" text-anchor="middle" fill="#1F1D47" data-t="c3">18:05 Drive</text></g>
+    <g class="live"><circle r="9" fill="#fff"/><circle r="9" fill="none" stroke="#fff" stroke-width="3" opacity=".6"><animate attributeName="r" values="9;20" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0" dur="1.6s" repeatCount="indefinite"/></circle><animateMotion dur="11s" begin="2.4s" repeatCount="indefinite"><mpath href="#rt"/></animateMotion></g>
   </svg>
   <svg class="road road-wide" viewBox="0 0 1200 300" role="img" aria-label="A day drawn as a road: a walk at 8:12, a ride at 12:40 and a drive at 18:05">
-    <path class="track draw" pathLength="1" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
-    <path class="dash pin" style="animation-delay:1.6s" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
-    <g class="pin" style="animation-delay:.9s"><circle cx="232" cy="181" r="16" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="6"/><rect x="254" y="118" width="150" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="329" y="148" text-anchor="middle" fill="#1F1D47">8:12 Walk</text></g>
-    <g class="pin" style="animation-delay:1.4s"><circle cx="640" cy="190" r="16" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="6"/><rect x="568" y="218" width="150" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="643" y="248" text-anchor="middle" fill="#1F1D47">12:40 Ride</text></g>
-    <g class="pin" style="animation-delay:1.9s"><circle cx="1090" cy="98" r="16" fill="#F6C343" stroke="#4B3FD8" stroke-width="6"/><rect x="960" y="124" width="160" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="1040" y="154" text-anchor="middle" fill="#1F1D47">18:05 Drive</text></g>
+    <path id="rw" class="track draw" pathLength="1" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
+    <path class="dash" d="M-40 230 C 220 120, 380 300, 640 190 S 1040 60, 1480 150"/>
+    <g class="pin" style="animation-delay:.9s"><circle cx="232" cy="181" r="16" fill="#3DBF5C" stroke="#4B3FD8" stroke-width="6"/><rect x="254" y="118" width="170" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="339" y="148" text-anchor="middle" fill="#1F1D47" data-t="c1">8:12 Walk</text></g>
+    <g class="pin" style="animation-delay:1.4s"><circle cx="640" cy="190" r="16" fill="#6E8CF7" stroke="#4B3FD8" stroke-width="6"/><rect x="554" y="218" width="180" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="644" y="248" text-anchor="middle" fill="#1F1D47" data-t="c2">12:40 Ride</text></g>
+    <g class="pin" style="animation-delay:1.9s"><circle cx="1090" cy="98" r="16" fill="#F6C343" stroke="#4B3FD8" stroke-width="6"/><rect x="950" y="124" width="180" height="46" rx="23" fill="#fff"/><text class="chip chip-l" x="1040" y="154" text-anchor="middle" fill="#1F1D47" data-t="c3">18:05 Drive</text></g>
+    <g class="live"><circle r="12" fill="#fff"/><circle r="12" fill="none" stroke="#fff" stroke-width="4" opacity=".6"><animate attributeName="r" values="12;28" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0" dur="1.6s" repeatCount="indefinite"/></circle><animateMotion dur="14s" begin="2.4s" repeatCount="indefinite"><mpath href="#rw"/></animateMotion></g>
   </svg>
 </header>
 
 <main>
-  <section>
-    <div class="wrap split">
-      <div class="text">
-        <h2>Your day, drawn for you.</h2>
-        <p>Keep your phone in your pocket. Motio tracks each trip on its own and lays them out as one road from morning to night, with your time on the move, steps and distance.</p>
-      </div>
-      <div class="phone" aria-hidden="true">
-        <div class="screen">
-          <div class="hi">Good evening, Fri 20 Nov</div>
-          <div class="name">Leyla</div>
-          <div class="big">1h 43m</div>
-          <div class="sub">on the move today</div>
-          <div class="mini">
-            <svg viewBox="0 0 240 120" width="100%" height="110"><path d="M10 30 H 200 a 25 25 0 0 1 0 50 H 40 a 20 20 0 0 0 0 40" fill="none" stroke="#ECEAF8" stroke-width="14" stroke-linecap="round"/><circle cx="60" cy="30" r="7" fill="#3DBF5C"/><circle cx="150" cy="30" r="7" fill="#6E8CF7"/><circle cx="130" cy="80" r="7" fill="#F6C343"/><circle cx="60" cy="80" r="7" fill="#F2766B"/></svg>
+  <section class="tour">
+    <div class="wrap tour-grid">
+      <div>
+        <article class="step" data-shot="0">
+          <h2 data-t="s1h">Your day, drawn for you.</h2>
+          <p data-t="s1p">Keep your phone in your pocket. Motio records each trip on its own and lays them out as one road from morning to night, with your time on the move, steps and distance.</p>
+          <div class="inline-phone rv"><div class="phone"><div class="screen"><img src="/site/today.jpg" alt="Motio's Today screen: 1 hour 7 minutes on the move, a walk and a bike ride on the day's road" loading="lazy" width="390" height="844"></div></div></div>
+        </article>
+        <article class="step" data-shot="1">
+          <h2 data-t="s2h">It knows how you moved.</h2>
+          <p data-t="s2p">Your phone's motion sensors and Google's activity recognition tell a walk from a run, a ride from a drive. Fix a trip once and Motio learns it for next time.</p>
+          <div class="modes">
+            <span class="mode"><i style="background:#3DBF5C"></i><span data-t="m1">Walk</span></span>
+            <span class="mode"><i style="background:#F2766B"></i><span data-t="m2">Run</span></span>
+            <span class="mode"><i style="background:#6E8CF7"></i><span data-t="m3">Ride</span></span>
+            <span class="mode"><i style="background:#F6C343"></i><span data-t="m4">Drive</span></span>
+            <span class="mode"><i style="background:#B57BE0"></i><span data-t="m5">Transit</span></span>
           </div>
-          <div class="stats"><div class="stat"><b>14.2 km</b><span>travelled</span></div><div class="stat"><b>9,410</b><span>steps</span></div><div class="stat"><b>38 km/h</b><span>top speed</span></div></div>
+          <div class="inline-phone rv"><div class="phone"><div class="screen"><img src="/site/moves.jpg" alt="Motio's Moves screen: time by way of moving, cycling and walking" loading="lazy" width="390" height="844"></div></div></div>
+        </article>
+        <article class="step" data-shot="2">
+          <h2 data-t="s3h">Race the people who keep you moving.</h2>
+          <p data-t="s3p">Add friends with a link, compare your weeks and start a challenge: first to 30 km, most active minutes, or the most runs. Cheer each other on when someone pulls ahead.</p>
+          <div class="inline-phone rv"><div class="phone"><div class="screen"><img src="/site/social.jpg" alt="Motio's Social screen: this week's podium with three friends" loading="lazy" width="390" height="844"></div></div></div>
+        </article>
+        <article class="step" data-shot="3">
+          <h2 data-t="s4h">Every friend gets a page.</h2>
+          <p data-t="s4p">Streaks, all-time distance, longest outing and favourite way to move, plus your record against each other. Keep your own profile private whenever you like.</p>
+          <div class="inline-phone rv"><div class="phone"><div class="screen"><img src="/site/profile.jpg" alt="A friend's profile in Motio: 6-day streak, 149 km all time and their week" loading="lazy" width="390" height="844"></div></div></div>
+        </article>
+      </div>
+      <div class="sticky" aria-hidden="true">
+        <div class="phone" id="tilt">
+          <div class="screen">
+            <img class="on" src="/site/today.jpg" alt="" width="390" height="844">
+            <img src="/site/moves.jpg" alt="" loading="lazy" width="390" height="844">
+            <img src="/site/social.jpg" alt="" loading="lazy" width="390" height="844">
+            <img src="/site/profile.jpg" alt="" loading="lazy" width="390" height="844">
+          </div>
+          <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section style="background:#fff">
-    <div class="wrap split flip">
-      <div class="text">
-        <h2>It knows how you moved.</h2>
-        <p>Your phone's motion sensors and Google's activity recognition tell a walk from a run, a ride from a drive. Fix a trip once and Motio learns it for next time.</p>
-        <div class="modes">
-          <span class="mode"><i style="background:#3DBF5C"></i>Walk</span>
-          <span class="mode"><i style="background:#F2766B"></i>Run</span>
-          <span class="mode"><i style="background:#6E8CF7"></i>Ride</span>
-          <span class="mode"><i style="background:#F6C343"></i>Drive</span>
-          <span class="mode"><i style="background:#B57BE0"></i>Transit</span>
-        </div>
-      </div>
-      <div class="story-stage" aria-hidden="true">
-        <div class="story back"><div class="peek"><div class="t">November</div><div class="pn">96</div><div class="t">km</div></div></div>
-        <div class="story front"><div class="t">Your week, wrapped</div><div><div class="n">23</div><div class="u">km, mostly on foot</div></div><div class="bars"><i style="height:40%"></i><i style="height:65%"></i><i style="height:30%"></i><i style="height:90%"></i><i style="height:55%"></i><i style="height:100%"></i><i style="height:70%"></i></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap split">
-      <div class="text">
-        <h2>Race the people who keep you moving.</h2>
-        <p>Add friends with a link, compare your weeks and start a challenge: first to 30 km, most active minutes, or the most runs. Cheer each other on when someone pulls ahead.</p>
-      </div>
-      <div class="board" aria-hidden="true">
-        <div class="row"><span class="av" style="background:#6E8CF7">LA</span><span class="who"><span class="line"><span>Leyla</span><span>7h 25m</span></span><span class="bar"><i style="width:100%;background:#6E8CF7"></i></span></span></div>
-        <div class="row me"><span class="av" style="background:#F6C343">KK</span><span class="who"><span class="line"><span>You</span><span>5h 10m</span></span><span class="bar"><i style="width:70%;background:#F6C343"></i></span></span></div>
-        <div class="row"><span class="av" style="background:#3DBF5C">MH</span><span class="who"><span class="line"><span>Murad</span><span>2h 40m</span></span><span class="bar"><i style="width:36%;background:#3DBF5C"></i></span></span></div>
-        <div class="race">First to 30 km<span>Leyla leads by 2.6 km, 2 days left</span></div>
       </div>
     </div>
   </section>
 
   <section class="privacy">
-    <div class="wrap">
-      <h2>Your routes stay yours.</h2>
-      <p>Friends see weekly totals, never where you went. Your trips live in your account, you can export them any time, and deleting your account deletes all of it.</p>
-      <p><a href="/privacy">Read the privacy policy</a></p>
+    <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    <div class="wrap rv">
+      <h2 data-t="ph">Your routes stay yours.</h2>
+      <p data-t="pp">Friends see weekly totals, never where you went. Your trips live in your account, you can export them any time, and deleting your account deletes all of it.</p>
+      <p><a href="/privacy" data-t="pl">Read the privacy policy</a></p>
     </div>
   </section>
 
-  <section id="install">
+  <section class="install" id="install">
     <div class="wrap">
-      <h2>Install in a minute.</h2>
+      <h2 class="rv" data-t="ih">Install in a minute.</h2>
       <ol class="steps">
-        <li><div class="num">1</div><h3>Download the app</h3><p>Tap the button below on your Android phone.</p></li>
-        <li><div class="num">2</div><h3>Allow the install</h3><p>Android asks once whether your browser may install apps. Allow it, then tap Install.</p></li>
-        <li><div class="num">3</div><h3>Open Motio</h3><p>Create your account and allow location and activity, so trips are recorded on their own.</p></li>
+        <li class="rv"><div class="num">1</div><h3 data-t="i1h">Download the app</h3><p data-t="i1p">Tap the button below on your Android phone.</p></li>
+        <li class="rv" style="transition-delay:.1s"><div class="num">2</div><h3 data-t="i2h">Allow the install</h3><p data-t="i2p">Android asks once whether your browser may install apps. Allow it, then tap Install.</p></li>
+        <li class="rv" style="transition-delay:.2s"><div class="num">3</div><h3 data-t="i3h">Open Motio</h3><p data-t="i3p">Create your account and allow location and activity, so trips are recorded on their own.</p></li>
       </ol>
-      <p class="after">After that, new versions arrive inside the app: tap Update when it asks.</p>
-      <div class="install-cta"><a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download for Android</a></div>
+      <div class="trust rv">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B3FD8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div><h3 data-t="th">Why does Android warn me?</h3><p data-t="tp">Motio isn't on Google Play yet, so Android asks before it installs an app from outside the store. The file comes straight from Motio's release page on GitHub, signed with Motio's own key, and has no ads.</p></div>
+      </div>
+      <p class="after" data-t="after">After that, new versions arrive inside the app: tap Update when it asks.</p>
+      <div class="install-cta">
+        <a class="btn" href="/download"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span data-t="download">Download for Android</span></a>
+        <span class="rel"><b class="relline"></b></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ios" id="ios">
+    <div class="wrap">
+      <div class="box">
+        <div><h2 data-t="ioh">On iPhone?</h2><p data-t="iop">Motio is Android-only for now. Leave your email and we'll write once, when it comes to iPhone.</p></div>
+        <form id="wl" novalidate>
+          <input id="wle" type="email" autocomplete="email" required placeholder="you@example.com" aria-label="Email" data-tph="ioe">
+          <button type="submit" data-t="iob">Notify me</button>
+          <span class="msg" id="wlm" role="status"></span>
+        </form>
+      </div>
     </div>
   </section>
 </main>
@@ -235,8 +278,110 @@ footer nav{display:flex;gap:20px}
 <footer>
   <div class="wrap">
     <span>© Motio</span>
-    <nav><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+    <nav><a href="/privacy" data-t="f1">Privacy</a><a href="/terms" data-t="f2">Terms</a><a href="https://github.com/kenan-karimli/motio/issues/new" rel="noopener" data-t="f3">Report a problem</a></nav>
   </div>
 </footer>
+
+<script>
+(() => {
+  const T = {
+    az: {
+      howto: 'Necə quraşdırılır', h1: 'Hər addımın bir hekayəsi var.',
+      lead: 'Motio nə vaxt yeridiyini, qaçdığını, velosiped və ya maşın sürdüyünü özü tanıyır, gününü bir yol kimi çəkir və həftəni paylaşmağa dəyər hekayələrə çevirir.',
+      download: 'Android üçün yüklə', free: 'Pulsuzdur. Android 8 və daha yenisi lazımdır.',
+      c1: '8:12 Yeriş', c2: '12:40 Velosiped', c3: '18:05 Maşın',
+      s1h: 'Günün bir yol kimi çəkilir.', s1p: 'Telefonu cibində saxla. Motio hər səfəri özü qeyd edir və səhərdən axşama qədər bir yol kimi düzür: hərəkətdə keçən vaxt, addımlar və məsafə ilə birlikdə.',
+      s2h: 'Necə hərəkət etdiyini bilir.', s2p: 'Telefonun hərəkət sensorları və Google-un fəaliyyət tanıma sistemi yerişi qaçışdan, velosipedi maşından ayırır. Bir səfəri bir dəfə düzəlt, Motio növbəti dəfə üçün yadda saxlayır.',
+      m1: 'Yeriş', m2: 'Qaçış', m3: 'Velosiped', m4: 'Maşın', m5: 'İctimai nəqliyyat',
+      s3h: 'Səni hərəkətdə saxlayanlarla yarış.', s3p: 'Dostlarını linklə əlavə et, həftələrinizi müqayisə edin və yarış başladın: 30 km-ə ilk çatan, ən çox aktiv dəqiqə və ya ən çox qaçış. Kimsə önə keçəndə bir-birinizi ruhlandırın.',
+      s4h: 'Hər dostun öz səhifəsi var.', s4p: 'Seriyalar, ümumi məsafə, ən uzun səfər və sevimli hərəkət növü, üstəlik bir-birinizə qarşı nəticəniz. Öz profilini istədiyin vaxt gizli saxlaya bilərsən.',
+      ph: 'Marşrutların sənə məxsus qalır.', pp: 'Dostlar yalnız həftəlik cəmi görür, hara getdiyini heç vaxt görmür. Səfərlərin öz hesabında saxlanılır, istədiyin vaxt ixrac edə bilərsən, hesabı silsən, hamısı silinir.', pl: 'Məxfilik siyasətini oxu',
+      ih: 'Bir dəqiqəyə quraşdır.', i1h: 'Tətbiqi yüklə', i1p: 'Android telefonunda aşağıdakı düyməyə toxun.',
+      i2h: 'Quraşdırmaya icazə ver', i2p: 'Android bir dəfə soruşur ki, brauzer tətbiq quraşdıra bilərmi. İcazə ver, sonra Quraşdır düyməsinə toxun.',
+      i3h: 'Motio-nu aç', i3p: 'Hesab yarat, məkan və fəaliyyət icazəsi ver ki, səfərlər özü qeyd olunsun.',
+      th: 'Android niyə xəbərdarlıq edir?', tp: 'Motio hələ Google Play-də deyil, ona görə Android mağazadan kənar tətbiqi quraşdırmazdan əvvəl soruşur. Fayl birbaşa Motio-nun GitHub-dakı buraxılış səhifəsindən gəlir, Motio-nun öz açarı ilə imzalanıb və reklamsızdır.',
+      after: 'Bundan sonra yeni versiyalar tətbiqin içində gəlir: soruşanda Yenilə düyməsinə toxun.',
+      ioh: 'iPhone istifadə edirsən?', iop: 'Motio hələ yalnız Android üçündür. E-poçtunu qoy, iPhone versiyası çıxanda bir dəfə yazacağıq.', iob: 'Xəbər ver', ioe: 'sen@misal.com',
+      f1: 'Məxfilik', f2: 'Şərtlər', f3: 'Problem bildir',
+      rel: (v, mb, d) => 'Versiya ' + v + ', ' + mb + ' MB, yeniləndi: ' + d,
+      ok: 'Siyahıdasan. iPhone versiyası çıxanda yazacağıq.', bad: 'Düzgün e-poçt ünvanı yaz.', fail: 'Alınmadı. Bir az sonra yenidən yoxla.',
+      months: ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'], switchTo: 'EN', switchLabel: 'Switch to English'
+    },
+    en: { rel: (v, mb, d) => 'Version ' + v + ', ' + mb + ' MB, updated ' + d, ok: "You're on the list. We'll write when Motio comes to iPhone.", bad: 'Enter a valid email address.', fail: "That didn't go through. Try again in a moment.", months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], switchTo: 'AZ', switchLabel: 'Azərbaycan dilinə keç' }
+  };
+  // English is the page as written; remember it so switching back restores it.
+  document.querySelectorAll('[data-t]').forEach((el) => { T.en[el.dataset.t] = el.textContent; });
+  document.querySelectorAll('[data-tph]').forEach((el) => { T.en[el.dataset.tph] = el.placeholder; });
+  const R = document.body.dataset;
+  let lang = 'en', first = true;
+  try { lang = localStorage.getItem('motio.lang') || ((navigator.language || '').toLowerCase().startsWith('az') ? 'az' : 'en'); } catch (e) { /* storage blocked */ }
+  const btn = document.getElementById('lang');
+  // The headline rises in word by word on load; after a language switch it simply shows.
+  function splitHeadline() {
+    const h = document.getElementById('headline');
+    const words = h.textContent.trim().split(/\s+/);
+    h.textContent = '';
+    words.forEach((w, i) => {
+      const s = document.createElement('span');
+      s.className = 'w'; s.textContent = w;
+      if (first) s.style.animationDelay = (0.08 + i * 0.09) + 's';
+      else { s.style.animation = 'none'; s.style.opacity = 1; s.style.transform = 'none'; }
+      h.append(s, ' ');
+    });
+    first = false;
+  }
+  function apply(l) {
+    lang = l; const t = T[l];
+    document.documentElement.lang = l;
+    document.querySelectorAll('[data-t]').forEach((el) => { if (t[el.dataset.t]) el.textContent = t[el.dataset.t]; });
+    document.querySelectorAll('[data-tph]').forEach((el) => { if (t[el.dataset.tph]) el.placeholder = t[el.dataset.tph]; });
+    if (R.version) {
+      // Month names spelled out here: not every browser knows Azerbaijani ones.
+      const [, mo, dd] = R.date.split('-').map(Number), d = +dd + ' ' + t.months[mo - 1];
+      document.querySelectorAll('.relline').forEach((el) => { el.textContent = t.rel(R.version, R.mb, d); });
+    }
+    btn.textContent = t.switchTo; btn.setAttribute('aria-label', t.switchLabel);
+    splitHeadline();
+  }
+  btn.addEventListener('click', () => { const l = lang === 'az' ? 'en' : 'az'; try { localStorage.setItem('motio.lang', l); } catch (e) { /* storage blocked */ } apply(l); });
+  apply(lang);
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Content rises in as it scrolls into view.
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+  document.querySelectorAll('.rv').forEach((el) => (reduce ? el.classList.add('in') : io.observe(el)));
+
+  // Wide screens: the phone stays put and its screen follows the story beside it.
+  const shots = document.querySelectorAll('.sticky .screen img'), dots = document.querySelectorAll('.sticky .dots i'), steps = document.querySelectorAll('.step');
+  const show = (i) => { shots.forEach((s, k) => s.classList.toggle('on', k === i)); dots.forEach((d, k) => d.classList.toggle('on', k === i)); steps.forEach((s, k) => s.classList.toggle('on', k === i)); };
+  show(0);
+  const so = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) show(+e.target.dataset.shot); }), { rootMargin: '-45% 0px -45% 0px' });
+  steps.forEach((s) => so.observe(s));
+
+  // The phone leans a little towards the pointer.
+  const tilt = document.getElementById('tilt');
+  if (tilt && !reduce && matchMedia('(hover: hover)').matches) {
+    let raf = 0;
+    addEventListener('pointermove', (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5; tilt.style.transform = 'rotateY(' + (x * 10).toFixed(2) + 'deg) rotateX(' + (-y * 8).toFixed(2) + 'deg)'; });
+    });
+  }
+
+  // iPhone and iPad visitors get the waitlist.
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.getElementById('ios').classList.add('show');
+  const form = document.getElementById('wl'), msg = document.getElementById('wlm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('wle').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = T[lang].bad || T.en.bad; return; }
+    try {
+      const r = await fetch('/v1/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, platform: 'ios' }) });
+      msg.textContent = r.ok ? (T[lang].ok || T.en.ok) : (T[lang].bad || T.en.bad);
+      if (r.ok) form.querySelector('button').disabled = true;
+    } catch (err) { msg.textContent = T[lang].fail || T.en.fail; }
+  });
+})();
+</script>
 </body>
 </html>
