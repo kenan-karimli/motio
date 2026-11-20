@@ -371,7 +371,9 @@ test('announce: admin token only, counts first, emails each verified user once',
 });
 
 test('website: release line, counted downloads, images, waitlist, admin stats', async () => {
-  const fake = async () => ({ ok: true, json: async () => ({ tag_name: 'v3.9', published_at: '2026-11-21T10:00:00Z', assets: [{ name: 'motio.apk', size: 6291456 }] }) });
+  const fake = async (url, opt = {}) => (opt.method === 'HEAD'
+    ? { ok: true, headers: new Headers({ 'content-length': '6291456' }) }
+    : { ok: true, text: async () => '<feed><updated>2026-11-21T11:00:00Z</updated><entry><updated>2026-11-21T10:00:00Z</updated><link href="https://github.com/kenan-karimli/motio/releases/tag/v3.9"/><title>Motio 3.9</title></entry></feed>' });
   const app = createServer(await createApp({ db: await openDb(':memory:'), mailer: createMailer({}), now: () => clock, env: { ADMIN_TOKEN: 'z'.repeat(32) }, fetchImpl: fake }));
   await new Promise((r) => app.listen(0, r));
   const url = `http://127.0.0.1:${app.address().port}`;

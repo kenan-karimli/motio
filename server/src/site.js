@@ -4,7 +4,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { isAdmin } from './announce.js';
 
 const DOWNLOAD = 'https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk';
-const RELEASES = 'https://api.github.com/repos/kenan-karimli/motio/releases/latest';
+// GitHub's release feed, not its API: the API limits requests per IP, and hosting IPs are shared.
+const FEED = 'https://github.com/kenan-karimli/motio/releases.atom';
 const TYPES = { jpg: 'image/jpeg', png: 'image/png', svg: 'image/svg+xml' };
 const validEmail = (e) => /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e);
 
@@ -31,10 +32,11 @@ export async function siteRoutes({ db, env, now, fetchImpl, HttpError, bad }) {
     if (now() - relAt < 600000) return rel;
     relAt = now();
     try {
-      const r = await fetchImpl(RELEASES, { headers: { Accept: 'application/vnd.github+json' } });
-      const j = r.ok ? await r.json() : null;
-      const a = j && (j.assets || []).find((x) => x.name === 'motio.apk');
-      if (a) rel = { version: String(j.tag_name).replace(/^v/, ''), mb: (a.size / 1048576).toFixed(1), date: String(j.published_at).slice(0, 10) };
+      const feed = await (await fetchImpl(FEED)).text();
+      const m = /<entry>[\s\S]*?<updated>(\d{4}-\d\d-\d\d)[\s\S]*?releases\/tag\/v([\d.]+)"/.exec(feed);
+      const head = await fetchImpl(DOWNLOAD, { method: 'HEAD', redirect: 'follow' });
+      const size = Number(head.headers.get('content-length'));
+      if (m && size > 0) rel = { version: m[2], mb: (size / 1048576).toFixed(1), date: m[1] };
     } catch { /* keep the last known release */ }
     return rel;
   }
