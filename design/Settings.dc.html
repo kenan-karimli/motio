@@ -50,17 +50,15 @@ button:active,a:active{transform:scale(0.96)}
 
     <section style="display: flex; flex-direction: column; gap: 12px">
       <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
-      <span style="font-size: 15px; font-weight: 600">Recap style</span>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px">
-        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="4">
-          <button aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
-            <span style="position: relative; display: block; height: 104px; border-radius: 16px; background: {{ o.color }}; overflow: hidden; outline: 3px solid {{ o.ring }}; outline-offset: 3px; transition: outline-color 200ms ease">
-              <sc-if value="{{ o.isMix }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; display: flex"><span style="flex: 1; background: #3DBF5C"></span><span style="flex: 1; background: #1F1D47"></span><span style="flex: 1; background: #F2766B"></span></span><span style="position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 23px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg></span></sc-if>
-              <sc-if value="{{ o.isBold }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; font-size: 22px; font-weight: 700; color: #1F1D47">412</span><span style="position: absolute; left: 10px; right: 10px; top: 48px; height: 30px; border-radius: 8px; background: #FFFFFF"></span><span style="position: absolute; left: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span><span style="position: absolute; right: 10px; top: 84px; width: 40px; height: 24px; border-radius: 6px; background: #FFFFFF"></span></sc-if>
-              <sc-if value="{{ o.isPoster }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 8px; top: 8px; font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: -3px; color: #F6C343">412</span><span style="position: absolute; left: -6px; right: -6px; top: 66px; height: 10px; border-radius: 5px; background: #2D2A6E; transform: rotate(-8deg)"></span><span style="position: absolute; left: 10px; right: 10px; bottom: 10px; height: 18px; border-top: 1px solid rgba(255,255,255,0.3)"></span></sc-if>
-              <sc-if value="{{ o.isPlayful }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 14px; right: 14px; top: 12px; bottom: 12px; background: repeating-linear-gradient(#FFFFFF 0 9px, #E3E1F3 9px 11px); transform: rotate(-4deg)"></span><span style="position: absolute; right: 6px; top: 8px; width: 34px; height: 34px; border-radius: 17px; background: #F6C343; border: 3px solid #FFFFFF"></span></sc-if>
+      <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Recap style</span><span style="font-size: 12px; color: #6B6890">Your recaps and share images use it. You can still change each image before you share it.</span></span>
+      <div role="radiogroup" aria-label="Recap style" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 2px">
+        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="9">
+          <button role="radio" aria-checked="{{ o.on }}" aria-label="{{ o.label }}: {{ o.hint }}" onClick="{{ o.pick }}" style="flex-shrink: 0; width: 72px; display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
+            <span style="position: relative; display: block; width: 72px; height: 128px; border-radius: 12px; overflow: hidden; background: #EEF0F6; outline: 3px solid {{ o.ring }}; outline-offset: 2px; transition: outline-color 200ms ease">
+              <span aria-hidden="true" ref="{{ o.paint }}" style="position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform: scale(0.2); transform-origin: 0 0; pointer-events: none"></span>
+              <sc-if value="{{ o.isMix }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 20px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg></span></sc-if>
             </span>
-            <span style="display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 600">{{ o.label }}</span><span style="font-size: 11px; color: #6B6890">{{ o.hint }}</span></span>
+            <span style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 600; white-space: nowrap">{{ o.label }}</span><span style="font-size: 10.5px; color: #6B6890; line-height: 1.3">{{ o.hint }}</span></span>
           </button>
         </sc-for>
       </div>
@@ -144,6 +142,10 @@ button:active,a:active{transform:scale(0.96)}
 
     <section style="display: flex; flex-direction: column; padding-top: 18px; border-top: 1px solid #EEF0F6">
       <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Account &amp; data</h2>
+      <button type="button" onClick="{{ backup.now }}" aria-label="{{ backup.aria }}" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
+        <span aria-hidden="true" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: {{ backup.bg }}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ backup.icon }}"></path></svg></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">{{ backup.title }}</span><span style="font-size: 12px; color: #6B6890">{{ backup.sub }}</span></span>
+      </button>
       <a href="{{ LK.apps.href }}" onClick="{{ LK.apps.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Connected apps</span><span style="font-size: 12px; color: #6B6890">Health, Strava</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
       <a href="{{ LK.privacy.href }}" onClick="{{ LK.privacy.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Privacy &amp; location data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
       <a href="{{ LK.export.href }}" onClick="{{ LK.export.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Export my data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
@@ -236,7 +238,11 @@ class Component extends DCLogic {
     const M = window.Motio;
     const cfg = M ? M.settings() : s;
     const put = (k, v) => (M ? M.setSetting(k, v) : this.setState({ [k]: v }));
-    const style = ['mix', 'bold', 'poster', 'playful'].includes(cfg.recapStyle) ? cfg.recapStyle : 'mix';
+    // Recap style: a theme from the share-image kit (stories.js), or Mix. Styles from before 4.0 map to their nearest theme.
+    const K = M && M.storyImage && M.storyImage.kit;
+    const TH = K ? K.THEMES : {};
+    const style = TH[cfg.recapStyle] ? cfg.recapStyle : ({ bold: 'numbers', poster: 'night', playful: 'gradient' })[cfg.recapStyle] || 'mix';
+    const sample = { kicker: 'Week 44', title: 'Your week,\nwrapped', bigLabel: 'covered', big: '412 km', sub: 'Oct 25–31', routes: [{ color: '#6E8CF7', points: [[40.409, 49.867], [40.405, 49.872], [40.404, 49.879], [40.399, 49.884], [40.398, 49.892], [40.392, 49.894], [40.389, 49.901], [40.383, 49.903]] }] };
     const sw = (key, label, hint, def) => {
       const on = cfg[key] ?? def;
       return { label, hint, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => put(key, !on) };
@@ -249,14 +255,26 @@ class Component extends DCLogic {
       logoutOpen: !!(this.state && this.state.logout),
       askLogout: () => this.setState({ logout: true, menuOpen: false, menuClosing: false }),
       cancelLogout: () => this.setState({ logout: false }),
+      // Cloud backup: every trip uploads to your account; this says whether all of them have, and when.
+      backup: (() => {
+        const st = M ? M.status() : { signedIn: true, trips: 214, pending: 0, syncedAt: Date.now() - 120000 };
+        const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+        const CHECK = 'M5 12l5 5 9-10', CLOUD = 'M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9zM12 11v5M9.5 13.5L12 11l2.5 2.5';
+        const ok = st.signedIn && !st.pending && !st.syncError && st.syncedAt;
+        const title = !st.signedIn ? 'Not backed up' : st.pending ? st.pending + (st.pending === 1 ? ' trip' : ' trips') + ' waiting to back up' : 'All ' + st.trips + (st.trips === 1 ? ' trip' : ' trips') + ' backed up';
+        const sub = !st.signedIn ? 'Sign in to keep your trips safe' : st.syncError ? (st.syncError === 'offline' ? 'You’re offline. Tap to try again' : 'Couldn’t reach Motio. Tap to try again') : st.syncedAt ? 'Last backup ' + ago(st.syncedAt) + ' · tap to back up now' : 'Tap to back up now';
+        return { title, sub, aria: title + '. ' + sub, bg: ok ? '#DDF5E3' : '#FDECEA', icon: ok ? CHECK : CLOUD,
+          now: () => { if (M && st.signedIn) M.sync().then(() => this.forceUpdate()); } };
+      })(),
       emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
-      styles: [['mix', 'Mix', 'A new look every time', '#FFFFFF'], ['bold', 'Bold', 'Big numbers', '#3DBF5C'], ['poster', 'Poster', 'One giant stat', '#1F1D47'], ['playful', 'Playful', 'Tickets, maps…', '#F2766B']]
-        .map(([k, label, hint, color]) => ({
-          label, hint, color, on: style === k, ring: style === k ? '#1F1D47' : 'transparent',
-          isMix: k === 'mix', isBold: k === 'bold', isPoster: k === 'poster', isPlayful: k === 'playful',
+      styles: [['mix', 'Mix', 'A new style each story'], ...Object.keys(TH).map((k) => [k, TH[k].name, TH[k].hint])]
+        .map(([k, label, hint]) => ({
+          label, hint, on: style === k, ring: style === k ? '#5B4FE0' : 'transparent', isMix: k === 'mix',
+          paint: (el) => { if (!el || !K || k === 'mix') return; const html = K.storyHTML('cover', sample, { theme: k, name: '' }); if (el.__card !== html) { el.innerHTML = html; el.__card = html; } },
           pick: () => {
-            // The recap story reads this when it opens.
+            // Recaps read this when they open; share images start from it too.
             try { window.localStorage.setItem('motio.recapStyle', k); } catch (e) { /* storage blocked */ }
+            if (K) K.saveLook({ ...K.loadLook(), theme: k === 'mix' ? null : k });
             put('recapStyle', k);
           }
         })),
@@ -298,7 +316,7 @@ class Component extends DCLogic {
       setMi: () => put('unit', 'mi'),
       // The Motio website, opened in the in-app browser.
       openSite: () => M && M.openPage('/'),
-      versionLabel: 'Version 3.9' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 4.0' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

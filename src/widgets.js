@@ -2,10 +2,15 @@
 const INK = '#1F1D47';
 const FONT = (w, px) => `${w} ${px}px Poppins, sans-serif`;
 
+function rr(g, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+
 function card(w, h, bg) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d');
-  g.beginPath(); g.roundRect(0, 0, w, h, 56); g.fillStyle = bg; g.fill();
+  g.beginPath(); rr(g, 0, 0, w, h, 56); g.fillStyle = bg; g.fill();
   g.textBaseline = 'alphabetic';
   return [c, g];
 }
@@ -15,36 +20,8 @@ function fit(g, text, weight, px, maxW) {
   while (g.measureText(text).width > maxW && px > 14) { px -= 2; g.font = FONT(weight, px); }
 }
 
+// Ring, steps, streak and the compact bar are drawn natively (MotioWidget.java), so they stay right with Motio closed.
 const draw = {
-  ring(D) {
-    const [c, g] = card(400, 400, '#4B3FD8');
-    g.lineCap = 'round'; g.lineWidth = 30;
-    g.strokeStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.arc(200, 200, 150, 0, Math.PI * 2); g.stroke();
-    if (D.pct > 0) { g.strokeStyle = '#F6C343'; g.beginPath(); g.arc(200, 200, 150, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, D.pct)); g.stroke(); }
-    g.fillStyle = '#FFFFFF'; g.textAlign = 'center';
-    fit(g, D.time, 700, 66, 230); g.fillText(D.time, 200, 210);
-    g.font = FONT(500, 26); g.globalAlpha = 0.8; g.fillText('of ' + D.goal, 200, 252);
-    return c;
-  },
-  steps(D) {
-    const [c, g] = card(400, 400, '#3DBF5C');
-    g.fillStyle = INK;
-    g.beginPath(); g.ellipse(64, 70, 12, 18, -0.2, 0, Math.PI * 2); g.ellipse(94, 98, 12, 18, 0.2, 0, Math.PI * 2); g.fill();
-    fit(g, D.steps, 700, 84, 330); g.fillText(D.steps, 40, 248);
-    g.font = FONT(500, 26); g.fillText('steps · ' + Math.round(D.stepPct * 100) + '% of ' + D.stepGoalK + 'k', 40, 292);
-    g.fillStyle = 'rgba(31,29,71,0.18)'; g.beginPath(); g.roundRect(40, 330, 320, 18, 9); g.fill();
-    g.fillStyle = INK; g.beginPath(); g.roundRect(40, 330, Math.max(18, 320 * Math.min(1, D.stepPct)), 18, 9); g.fill();
-    return c;
-  },
-  streak(D) {
-    const [c, g] = card(400, 400, '#F2766B');
-    g.fillStyle = INK;
-    g.beginPath(); g.moveTo(70, 112); g.bezierCurveTo(40, 80, 64, 50, 78, 34); g.bezierCurveTo(84, 60, 108, 62, 104, 92); g.bezierCurveTo(102, 108, 88, 118, 70, 112); g.fill();
-    fit(g, String(D.streak), 700, 132, 320); g.fillText(String(D.streak), 40, 270);
-    g.font = FONT(600, 28); g.fillText(D.streak === 1 ? 'day moving' : 'days moving', 40, 316);
-    g.font = FONT(500, 24); g.globalAlpha = 0.75; g.fillText('in a row', 40, 350);
-    return c;
-  },
   persona(D) {
     const [c, g] = card(400, 400, INK);
     g.fillStyle = '#F6C343'; g.font = FONT(600, 22); g.fillText('THIS MONTH', 40, 72);
@@ -85,9 +62,45 @@ const draw = {
     D.bars.forEach((v, i) => {
       const h = v ? Math.max(14, Math.round(v / max * 230)) : 10, x = 44 + i * (bw + gap);
       g.fillStyle = i === D.todayI ? '#F2766B' : v === max && v ? '#5B4FE0' : '#C9C5EC';
-      g.beginPath(); g.roundRect(x, 480 - h, bw, h, 14); g.fill();
+      g.beginPath(); rr(g, x, 480 - h, bw, h, 14); g.fill();
       g.fillStyle = i === D.todayI ? INK : '#6B6890'; g.font = FONT(i === D.todayI ? 700 : 500, 22); g.fillText(D.labels[i], x + bw / 2, 520);
     });
+    return c;
+  },
+  friends(D) {
+    const [c, g] = card(840, 400, '#FFFFFF'), F = D.friends;
+    g.fillStyle = '#6B6890'; g.font = FONT(600, 26); g.fillText('This week with friends', 44, 72);
+    if (!F || F.n < 2) {
+      g.fillStyle = INK; fit(g, 'Compare your week', 700, 56, 740); g.fillText('Compare your week', 44, 210);
+      g.fillStyle = '#6B6890'; g.font = FONT(500, 26); g.fillText(F ? 'Add a friend in Motio › Social' : 'Open Social in Motio to load your friends', 44, 258);
+      return c;
+    }
+    const max = Math.max(1, ...F.rows.map((r) => r.min));
+    F.rows.forEach((r, i) => {
+      const y = 140 + i * 76, col = r.me ? '#F2766B' : r.rank === 1 ? '#5B4FE0' : '#C9C5EC';
+      g.fillStyle = col; g.beginPath(); g.arc(68, y, 24, 0, Math.PI * 2); g.fill();
+      g.fillStyle = r.me || r.rank === 1 ? '#FFFFFF' : INK; g.font = FONT(700, 22); g.textAlign = 'center'; g.fillText(String(r.rank), 68, y + 8);
+      g.textAlign = 'left'; g.fillStyle = INK; fit(g, r.name, r.me ? 700 : 500, 28, 210); g.fillText(r.name, 108, y + 10);
+      g.fillStyle = '#EEF0F6'; g.beginPath(); rr(g, 340, y - 9, 290, 18, 9); g.fill();
+      g.fillStyle = col; g.beginPath(); rr(g, 340, y - 9, Math.max(18, 290 * r.min / max), 18, 9); g.fill();
+      g.fillStyle = INK; g.font = FONT(600, 26); g.textAlign = 'right'; g.fillText(r.time, 796, y + 10); g.textAlign = 'left';
+    });
+    if (F.rank > 3) { g.fillStyle = '#6B6890'; g.font = FONT(500, 22); g.fillText('You’re #' + F.rank + ' of ' + F.n, 44, 372); }
+    return c;
+  },
+  challenge(D) {
+    const [c, g] = card(840, 400, '#F6C343'), C = D.challenge;
+    g.fillStyle = INK; g.globalAlpha = 0.7; g.font = FONT(600, 24); g.fillText(C ? 'CHALLENGE · ' + C.left.toUpperCase() : 'CHALLENGE', 44, 72); g.globalAlpha = 1;
+    if (!C) {
+      fit(g, 'No challenge running', 700, 56, 740); g.fillText('No challenge running', 44, 210);
+      g.font = FONT(500, 26); g.fillText('Start one with friends in Motio › Social', 44, 258);
+      return c;
+    }
+    fit(g, C.mine + ' of ' + C.goal, 700, 72, 752); g.fillText(C.mine + ' of ' + C.goal, 44, 168);
+    g.fillStyle = 'rgba(31,29,71,0.15)'; g.beginPath(); rr(g, 44, 204, 752, 26, 13); g.fill();
+    g.fillStyle = INK; g.beginPath(); rr(g, 44, 204, Math.max(26, 752 * Math.min(1, C.pct)), 26, 13); g.fill();
+    fit(g, C.lead, 600, 28, 752); g.fillText(C.lead, 44, 300);
+    g.globalAlpha = 0.7; g.font = FONT(500, 22); g.fillText(C.n === 1 ? 'Just you so far' : C.n + ' taking part', 44, 342);
     return c;
   }
 };

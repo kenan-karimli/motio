@@ -66,6 +66,17 @@ button,a{cursor:pointer}
       <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 18px; background: rgba(255,255,255,0.05); font-size: 13px"><span style="flex: 1; min-width: 0; opacity: 0.8">Waiting for <b>{{ q.name }}</b> to accept</span><button type="button" onClick="{{ q.cancel }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: transparent; color: #FFB3AB; font-size: 12px; font-weight: 600">Cancel</button></div>
     </sc-for>
 
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="{{ LK.board.href }}" onClick="{{ LK.board.go }}" style="min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; background: #F6C343; color: #16142F; text-decoration: none">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg>
+        <span style="min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Leaderboard</span><span style="font-size: 11px; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Everyone, this week</span></span>
+      </a>
+      <a href="{{ LK.sharing.href }}" onClick="{{ LK.sharing.go }}" style="min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #FFFFFF; text-decoration: none">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"></path></svg>
+        <span style="min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Sharing</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Routes, places, live</span></span>
+      </a>
+    </div>
+
     <div style="display: flex; align-items: baseline; justify-content: space-between">
       <span style="font-size: 15px; font-weight: 600">Active time this week</span>
       <span style="font-size: 12px; opacity: 0.6">{{ weekLabel }}</span>
@@ -112,7 +123,7 @@ button,a{cursor:pointer}
         <button type="button" onClick="{{ addFriend }}" disabled="{{ addOff }}" style="height: 48px; padding: 0 20px; border: 0; border-radius: 14px; background: {{ addBg }}; color: #16142F; font-size: 14px; font-weight: 700; transition: background-color 200ms ease">{{ addLabel }}</button>
       </div>
       <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #C2412F">{{ addError }}</span></sc-if>
-      <span style="font-size: 11px; line-height: 1.5; color: #6B6890">Friends see only your weekly totals: active time, distance and number of trips. Never your routes or places.</span>
+      <span style="font-size: 11px; line-height: 1.5; color: #6B6890">Friends see your weekly totals: active time, distance and number of trips. Routes, places and live location only if you share them.</span>
     </section>
   </div>
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
@@ -197,7 +208,7 @@ class Component extends DCLogic {
           .catch((err) => this.setState({ searchBusy: false, searchError: (err && err.message) || 'Couldn’t search. Try again.' })), 300);
       },
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-      LK: { back: lk('back', 'You.dc.html') },
+      LK: { back: lk('back', 'You.dc.html'), board: lk('leaderboard', 'Leaderboard.dc.html'), sharing: lk('sharing', 'Sharing.dc.html') },
       weekLabel: 'since ' + new Date(ws).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
       loading: !!s.loading, hasError: !!s.error, error: s.error || '', reload: () => this.load(),
       alone: !!B && people.length < 2,
@@ -216,7 +227,7 @@ class Component extends DCLogic {
           name, first_name: p.name.split(' ')[0], initials: p.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(),
           hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', tint: TINTS[p.id % TINTS.length],
           sub: (mi ? (p.km / 1.609).toFixed(1) + ' mi' : p.km + ' km') + ' · ' + p.trips + (p.trips === 1 ? ' trip' : ' trips'),
-          time: p.hidden ? 'Private' : fmtMin(p.activeMin), trend: d == null ? 'new this week' : (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%', trendColor: d == null || d >= 0 ? '#7FE39A' : '#FFB3AB',
+          time: p.hidden ? 'Private' : fmtMin(p.activeMin), trend: p.hidden ? '' : d != null ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%' : p.joined && Date.now() - p.joined < 7 * 86400000 ? 'new this week' : '', trendColor: d == null || d >= 0 ? '#7FE39A' : '#FFB3AB',
           w: Math.max(2, p.activeMin / max * 100).toFixed(1) + '%', barColor: p.me ? '#F6C343' : TINTS[p.id % TINTS.length],
           bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', border: p.me ? 'rgba(246,195,67,0.45)' : 'transparent',
           delay: base + i * 70 + 'ms', barDelay: base + 160 + i * 70 + 'ms',

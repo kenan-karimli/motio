@@ -38,152 +38,37 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; transition: background 320ms ease, color 320ms ease; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+
+  <div role="group" aria-roledescription="story" aria-label="{{ storyLabel }}" style="position: absolute; inset: 0; overflow: hidden">
+    <div ref="{{ paintCard }}" style="position: absolute; left: 0; top: 0; width: 360px; transform-origin: 0 0; animation: motioSwap 360ms ease-out"></div>
+  </div>
 
   <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="5" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
-    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 4px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
   </div>
 
   <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
-    <span style="padding: 6px 12px; border-radius: 16px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">{{ T.month }}, wrapped</span>
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+    <span style="padding: 6px 12px; border-radius: 16px; background: {{ L.chip }}; color: {{ L.fg }}; font-size: 12px; font-weight: 600">{{ R.head }}</span>
+    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: {{ L.chip }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ L.fg }}" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column">
-
-    <sc-if value="{{ S1 }}" hint-placeholder-val="{{ true }}">
-    <div style="display: flex; flex-direction: column; gap: 10px; flex: 1; animation: motioSwap 380ms ease-out">
-      <span style="font-size: 15px; font-weight: 500; margin-top: 8px">{{ T.days }} days · 5 stories</span>
-      <h1 style="margin: 0; font-size: 58px; font-weight: 700; line-height: 0.98; letter-spacing: -2px">{{ T.month }},<br>wrapped</h1>
-      <svg aria-hidden="true" width="330" height="330" viewBox="110 50 220 260" style="align-self: center; margin-top: 6px">
-        <path d="M60 330 Q 80 220 180 250 T 330 170 T 380 80" fill="none" stroke="#F6C343" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14"></path>
-        <path d="M188 214 L172 256 L160 294" fill="none" stroke="#1F1D47" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M144 300 Q146 290 160 290 Q170 290 172 300 Z" fill="#FFFFFF"></path>
-        <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
-        <path d="M180 142 L164 186" stroke="#F2766B" stroke-width="17" stroke-linecap="round"></path>
-        <path d="M204 214 L226 250 L242 290" fill="none" stroke="#1F1D47" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M232 298 Q234 286 248 286 Q262 286 264 298 Z" fill="#FFFFFF"></path>
-        <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#F2766B"></path>
-        <path d="M216 140 L242 170 L254 150" fill="none" stroke="#F2766B" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
-        <g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round"></path><circle cx="300" cy="112" r="4" fill="#F2766B"></circle></g>
-        <circle cx="254" cy="148" r="8" fill="#8B4A2B"></circle>
-        <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-        <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle><circle cx="179" cy="90" r="10" fill="#2A1B3D"></circle>
-        <path d="M206 105 Q212 110 218 104" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
-      </svg>
-      <span style="align-self: center; margin-top: auto; padding: 8px 16px; border-radius: 18px; background: rgba(255,255,255,0.18); font-size: 13px; font-weight: 600">Tap the right side to start</span>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ S2 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 14px; animation: motioSwap 380ms ease-out">
-      <div style="display: flex; flex-direction: column">
-        <span style="font-size: 16px; font-weight: 500">In {{ T.month }} you covered</span>
-        <span style="font-size: 76px; font-weight: 700; line-height: 1.05; letter-spacing: -3px">{{ T.distNum }}<span style="font-size: 30px; letter-spacing: 0"> {{ T.unit }}</span></span>
-        <span style="font-size: 15px; line-height: 1.45">{{ T.compare }}</span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 26px; background: #FFFFFF; color: #1F1D47">
-        <span style="font-size: 13px; font-weight: 600">{{ T.unitLong }} per week</span>
-        <div style="display: flex; align-items: flex-end; gap: 10px; height: 170px">
-          <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="5">
-            <div style="flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px">
-              <span style="font-size: 12px; font-weight: 700">{{ w.km }}</span>
-              <span style="display: block; width: 100%; height: {{ w.h }}; border-radius: 10px; background: {{ w.color }}; transform-origin: bottom; animation: motioGrow 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ w.delay }}"></span>
-              <span style="font-size: 11px; color: #6B6890">{{ w.label }}</span>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ S3 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 14px; animation: motioSwap 380ms ease-out">
-      <div style="display: flex; flex-direction: column">
-        <span style="font-size: 16px; font-weight: 500">You were on the move for</span>
-        <span style="font-size: 84px; font-weight: 700; line-height: 1.05; letter-spacing: -3px">{{ T.hoursLong }}</span>
-        <span style="font-size: 15px">{{ T.perDayLine }}</span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 26px; background: #FFFFFF; color: #1F1D47">
-        <sc-for list="{{ modes }}" as="m" hint-placeholder-count="5">
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 13px">
-            <span style="width: 58px; font-weight: 600">{{ m.label }}</span>
-            <span style="flex: 1; height: 12px; border-radius: 6px; background: #F3F2FA; overflow: hidden"><span style="display: block; width: {{ m.w }}; height: 12px; border-radius: 6px; background: {{ m.color }}; transform-origin: left; animation: motioGrowX 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ m.delay }}"></span></span>
-            <span style="width: 62px; text-align: right">{{ m.time }}</span>
-          </div>
-        </sc-for>
-      </div>
-      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; background: rgba(255,255,255,0.22)">
-        <span style="font-size: 28px; font-weight: 700">{{ T.busyDay }}</span>
-        <span style="font-size: 13px; line-height: 1.4">your busiest day:<br>{{ T.busyTime }}</span>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ S4 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 380ms ease-out">
-      <span style="font-size: 34px; font-weight: 700; line-height: 1.15">{{ T.recTitle }}<br>{{ T.recSub }}</span>
-      <sc-for list="{{ records }}" as="r" hint-placeholder-count="3">
-        <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47; animation: motioSwap 420ms ease-out backwards; animation-delay: {{ r.delay }}">
-          <span style="width: 52px; height: 52px; border-radius: 26px; flex-shrink: 0; background: {{ r.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M12 14v4M8 21h8"></path></svg></span>
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #6B6890">{{ r.kicker }}</span><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ r.value }}</span><span style="font-size: 12px; color: #6B6890">{{ r.when }}</span></span>
-        </div>
-      </sc-for>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ S5 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 380ms ease-out">
-      <span style="font-size: 15px; font-weight: 500">{{ T.persLine }}</span>
-      <span style="font-size: 44px; font-weight: 700; line-height: 1.02; letter-spacing: -1px">{{ T.persPre }}<br>{{ T.pers }}</span>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 6px; color: #1F1D47">
-        <div style="display: flex; flex-direction: column; padding: 16px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 24px; font-weight: 700">{{ T.dist }}</span><span style="font-size: 12px; color: #6B6890">covered</span></div>
-        <div style="display: flex; flex-direction: column; padding: 16px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 24px; font-weight: 700">{{ T.hours }}</span><span style="font-size: 12px; color: #6B6890">on the move</span></div>
-        <div style="display: flex; flex-direction: column; padding: 16px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 24px; font-weight: 700">{{ T.steps }}</span><span style="font-size: 12px; color: #6B6890">steps</span></div>
-        <div style="display: flex; flex-direction: column; padding: 16px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 24px; font-weight: 700">{{ T.prs }}</span><span style="font-size: 12px; color: #6B6890">{{ T.prsLabel }}</span></div>
-      </div>
-      <span style="font-size: 14px; font-weight: 500">{{ T.nextLine }}</span>
-    </div>
-    </sc-if>
-
+  <div style="position: relative; flex: 1; min-height: 0">
     <button aria-label="Previous story" onClick="{{ prev }}" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 35%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: w-resize"></button>
     <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
       <button aria-label="Next story" onClick="{{ next }}" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: e-resize"></button>
     </sc-if>
     <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
-      <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Finish recap and go back to Recaps" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; z-index: 5; cursor: e-resize"></a>
+      <a href="{{ LK.k1.href }}" onClick="{{ LK.k1.go }}" aria-label="Finish recap and go back to Recaps" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; z-index: 5; cursor: e-resize"></a>
     </sc-if>
   </div>
 
   <div style="position: relative; display: flex; gap: 8px">
-    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.shareBg }}; color: {{ L.shareFg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle></svg>Share to your story</button>
-    <button aria-label="More ways to share" onClick="{{ openShare }}" style="width: 52px; height: 52px; border-radius: 26px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
+    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.fg }}; color: {{ L.bg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ L.bg }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share this story</button>
   </div>
 
   <sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; color: #1F1D47">
-      <button aria-label="Close" onClick="{{ closeShare }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5); cursor: default; animation: {{ shareScrim }}"></button>
-      <section aria-label="Share" style="position: relative; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 10px 20px 30px; display: flex; flex-direction: column; gap: 18px; animation: {{ shareAnim }}">
-        <span aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span>
-        <h2 style="margin: 0; font-size: 18px; font-weight: 600">Share your recap</h2>
-        <div aria-label="Preview of the image you’ll share" style="display: flex; justify-content: center; margin: 4px 0 14px">
-          <sc-if value="{{ hasShot }}" hint-placeholder-val="{{ false }}"><img src="{{ shot }}" alt="" style="height: 220px; aspect-ratio: 9 / 16; border-radius: 16px; box-shadow: 0 8px 24px rgba(31,29,71,0.22); animation: motioShFade 240ms ease-out"></sc-if>
-          <sc-if value="{{ noShot }}" hint-placeholder-val="{{ true }}"><div style="height: 220px; aspect-ratio: 9 / 16; border-radius: 16px; background: #EEF0F6; display: flex; align-items: center; justify-content: center; color: #6B6890; font-size: 12px">Making your image…</div></sc-if>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
-          <sc-for list="{{ targets }}" as="t" hint-placeholder-count="4">
-            <button onClick="{{ t.pick }}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 11px; font-weight: 600">
-              <span style="width: 56px; height: 56px; border-radius: 28px; background: {{ t.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.glyph }}"></path></svg></span>
-              {{ t.label }}
-            </button>
-          </sc-for>
-        </div>
-        <div style="display: flex; flex-direction: column; border-top: 1px solid #EEF0F6">
-          <button onClick="{{ saveImage }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Save image</button>
-          <button onClick="{{ copyLink }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"></path></svg>Copy text</button>
-        </div>
-      </section>
-    </div>
+    <dc-import name="ShareEditor" job="{{ shareJob }}" on-close="{{ closeShare }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
@@ -223,51 +108,22 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: msg }), 30);
     this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
   }
-  // Real sharing on the phone: a story card image through the share sheet, saved to Documents, or copied as text.
-  shareOut(how, fallback) {
-    if (!window.Motio) { this.shareDone(fallback); return; }
-    this.shareDone(null);
-    const c = this.shareCardData(), text = `${c.kicker}: ${c.big}. ${c.line}. Tracked with Motio.`;
-    Promise.resolve(this.shotP || window.Motio.captureScreen())
-      .then((img) => window.Motio.shareImage(img || '', how, text))
-      .then((msg) => { if (msg) this.showToast(msg); })
-      .catch((e) => { if (!/cancel/i.test(String(e && e.message))) this.showToast('Couldn’t share right now'); });
-  }
-  // Each month slide has its own share card.
-  storyJob() {
-    const M = window.Motio, L = this.liveVals(), T = L.T, i = (this.state && this.state.i) || 0;
+  // The card for the slide you're on: the same card the share image is made from.
+  storyJob(L) {
+    const i = (this.state && this.state.i) || 0;
+    if (!L) return { kind: 'cover', data: {}, i, text: '' };
+    const T = L.T;
     const wmax = Math.max(0.001, ...L.weeks.map((w) => w[1]));
     const recTiles = L.records.length ? L.records.map(([k, v, s]) => ({ k, v, s })) : [{ k: 'Records', v: '—', s: 'Your bests show up as you move' }];
     const cards = [
-      ['cover', { bg: '#5B4FE0', kicker: T.month, title: T.month + ',\nwrapped', sub: T.days + ' days · ' + T.hours + ' on the move', bigLabel: 'covered', big: T.dist, routes: L.routes }],
-      ['distance', { bg: '#F2766B', kicker: T.month + ', wrapped', lead: 'In ' + T.month + ' you covered', num: T.distNum, unit: T.unit, line: T.compare, bars: L.weeks.map(([label, v]) => ({ label: 'Week of ' + label, value: Math.round(v) + ' ' + L.unit, pct: Math.round(v / wmax * 100) })) }],
-      ['distance', { bg: '#6E8CF7', kicker: T.month + ', wrapped', lead: 'You were on the move for', num: T.hours, unit: '', line: T.perDayLine, bars: L.modes.map(([label, color, time, pct]) => ({ label, value: time, pct, color })) }],
-      ['highlights', { bg: '#3DBF5C', kicker: T.month + ', wrapped', title: T.recTitle + '\n' + T.recSub, tiles: recTiles }],
+      ['cover', { kicker: T.month, title: T.month + ',\nwrapped', sub: T.days + ' days · ' + T.hours + ' on the move', bigLabel: 'covered', big: T.dist, routes: L.routes }],
+      ['distance', { kicker: T.month + ', wrapped', lead: 'In ' + T.month + ' you covered', num: T.distNum, unit: T.unit, line: T.compare, bars: L.weeks.map(([label, v]) => ({ label: 'Week of ' + label, value: Math.round(v) + ' ' + L.unit, pct: Math.round(v / wmax * 100) })) }],
+      ['distance', { kicker: T.month + ', wrapped', lead: 'You were on the move for', num: T.hours, unit: '', line: T.perDayLine, bars: L.modes.map(([label, color, time, pct]) => ({ label, value: time, pct, color })) }],
+      ['highlights', { kicker: T.month + ', wrapped', title: T.recTitle + '\n' + T.recSub, tiles: recTiles }],
       ['wrap', { kicker: T.month + ', wrapped', lead: T.persLine + ', ' + T.persPre.toLowerCase(), name: T.pers, stat: T.busyDay !== '—' ? 'Busiest day: ' + T.busyDay + ', ' + T.busyTime : 'Every trip counts', grid: [{ v: T.dist, k: 'covered' }, { v: T.hours, k: 'on the move' }, { v: T.steps, k: 'steps' }], end: T.nextLine }]
     ];
     const [kind, data] = cards[Math.min(4, i)];
-    return M.storyImage(kind, data);
-  }
-  // Picture of the screen behind the sheet, taken as the sheet opens; every share button sends this same image.
-  takeShot() {
-    if (!window.Motio) return;
-    // If the picture takes too long (phone busy, page in the background), fall back to a drawn card so sharing never hangs.
-    const M = window.Motio;
-    const slow = new Promise((ok) => setTimeout(() => ok(null), 8000));
-    // Draw after the sheet has finished sliding up, so the image work never lands mid-animation.
-    const afterSheet = new Promise((ok) => setTimeout(ok, 420));
-    this.shotP = Promise.race([afterSheet.then(() => this.storyJob()).catch(() => null), slow])
-      .then((u) => u || M.cardImage(this.shareCardData()))
-      .then((u) => { if (this.state && this.state.share) this.setState({ shot: u }); return u; });
-  }
-  shareCardData() {
-    const T = this.liveVals().T;
-    return { kicker: T.month + ', wrapped', big: T.dist, line: T.hours + ' on the move · ' + T.steps + ' steps · ' + T.pers, bg: '#5B4FE0' };
-  }
-  shareDone(msg) {
-    // Slide the sheet away first, then confirm.
-    this.setState({ shareClosing: true });
-    setTimeout(() => { this.setState({ share: false, shareClosing: false }); if (msg) this.showToast(msg); }, 260);
+    return { kind, data, i, text: T.month + ', wrapped: ' + T.dist + '. ' + T.hours + ' on the move, ' + T.steps + ' steps. Tracked with Motio.' };
   }
   // One calendar month of real trips. Records are the month's best day, run and ride.
   liveVals() {
@@ -371,50 +227,28 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const i = s.i || 0;
-    const bgs = ['#5B4FE0', '#F2766B', '#6E8CF7', '#3DBF5C', '#F6C343'];
-    const bg = bgs[i];
-    const dark = bg === '#5B4FE0';
-    const yellow = bg === '#F6C343';
-    const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
-    const modes = [['Walk', '#3DBF5C', '35h 20m', 38], ['Drive', '#F6C343', '23h 15m', 25], ['Bike', '#6E8CF7', '19h 32m', 21], ['Transit', '#B57BE0', '10h 14m', 11], ['Run', '#F2766B', '4h 39m', 5]];
-    const weeks = [['Oct 1–3', 209], ['4–10', 371], ['11–17', 402], ['18–24', 386], ['25–31', 412]];
+    // Each opening starts the theme rotation somewhere new when the recap style is "Mix".
+    if (this.seed == null) this.seed = Math.floor(Math.random() * 8);
+    const K = window.Motio && window.Motio.storyImage && window.Motio.storyImage.kit;
     const live = window.Motio ? this.liveVals() : null;
-    const M_round = (v) => (typeof v === 'number' ? Math.round(v).toLocaleString('en-US') : v);
-    const glyphs = {
-      story: 'M4 4h16v16H4zM12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8',
-      chat: 'M4 5h16v11H9l-5 4z',
-      post: 'M5 5l14 14M19 5L5 19',
-      sms: 'M4 6h16v10H8l-4 4z'
-    };
+    const job = this.storyJob(live), look = K ? K.slideLook(i, this.seed) : null;
+    const L = K ? K.storyChrome(look) : { fg: 'rgba(255,255,255,1)', bg: 'rgba(31,29,71,1)', chip: 'rgba(255,255,255,0.12)', on: 'rgba(255,255,255,1)', off: 'rgba(255,255,255,0.28)' };
     return {
       sDown: (e) => this.storyDown(e), sMove: (e) => this.storyMove(e), sUp: (e) => this.storyUp(e),
       rootAnim: this.state && this.state.leaving ? 'motioSoftDown 200ms ease-in forwards' : this.entryAnim,
-      emb, LK: { back: lk('back', 'Recaps.dc.html') },
-      T: live ? live.T : { month: 'October', days: 31, distNum: '1,780', unit: 'km', unitLong: 'Kilometres', compare: 'Farther than London to Rome, on your own two feet, wheels and rails.', hoursLong: '93 hours', perDayLine: 'That’s about 3 hours every single day.', busyDay: 'Fri 16', busyTime: '4h 50m on the move', recTitle: 'Three records', recSub: 'fell this month', persLine: 'For the third month running', persPre: 'You’re still', pers: 'The Urban Wanderer', dist: '1,780 km', hours: '93h', steps: '296k', prs: '3 PRs', prsLabel: 'personal records', nextLine: 'November starts today. See you on the 1st of December.' },
-      L: { bg, fg: dark ? '#FFFFFF' : '#1F1D47', shareBg: dark ? '#F6C343' : '#1F1D47', shareFg: dark ? '#1F1D47' : '#FFFFFF' },
-      S1: i === 0, S2: i === 1, S3: i === 2, S4: i === 3, S5: i === 4,
-      bars: [0, 1, 2, 3, 4].map((k) => ({ bg: k <= i ? (yellow ? '#1F1D47' : '#FFFFFF') : yellow ? 'rgba(31,29,71,0.2)' : 'rgba(255,255,255,0.4)' })),
+      emb, LK: { k0: lk('back', 'Recaps.dc.html'), k1: lk('back', 'Recaps.dc.html') },
+      L, R: { head: (live ? live.T.month : 'October') + ', wrapped' },
+      bars: [0, 1, 2, 3, 4].map((k) => ({ bg: k <= i ? L.on : L.off })),
       storyNum: i + 1, storyLabel: 'Story ' + (i + 1) + ' of 5',
       isLast: i === 4, notLast: i !== 4,
       prev: () => this.setState({ i: Math.max(0, i - 1) }),
       next: () => this.setState({ i: Math.min(4, i + 1) }),
-      weeks: (live ? live.weeks : weeks).map(([label, km], k, a) => { const mx = Math.max(1, ...a.map((x) => x[1])); return { label, km: M_round(km), h: Math.max(3, Math.round(km / mx * 100)) + '%', color: km === mx ? '#F2766B' : '#5B4FE0', delay: k * 80 + 'ms' }; }),
-      modes: (live ? live.modes : modes).map(([label, color, time, pct], k, a) => ({ label, color, time, w: Math.round(pct / Math.max(1, a[0][3]) * 100) + '%', delay: k * 80 + 'ms' })),
-      records: (live ? live.records : [
-        ['MOST STEPS IN A DAY', '18,930', 'Sun 11 Oct · 2,528 past your old best', '#3DBF5C'],
-        ['FASTEST RUN PACE', '4:21 /km', 'Tue 20 Oct · 13 s/km faster', '#F2766B'],
-        ['LONGEST RIDE', '18.4 km', 'Thu 29 Oct · 2.5 km farther', '#6E8CF7']
-      ]).map(([kicker, value, when, color], k) => ({ kicker, value, when, color, delay: k * 110 + 'ms' })),
       shareOpen: !!s.share,
-      shareAnim: s.shareClosing ? 'motioDown 260ms ease-in forwards' : 'motioUp 380ms ' + ease,
-      shareScrim: s.shareClosing ? 'motioFadeOut 260ms ease-in forwards' : 'motioFade 240ms ease-out',
-      openShare: () => { this.setState({ share: true, shareClosing: false, shot: null }); this.takeShot(); },
-      hasShot: !!s.shot, noShot: !s.shot, shot: s.shot || '',
-      closeShare: () => this.shareDone(null),
-      targets: [['Story', '#5B4FE0', glyphs.story, 'Shared to your Instagram story'], ['WhatsApp', '#3DBF5C', glyphs.chat, 'Sent on WhatsApp'], ['X', '#1F1D47', glyphs.post, 'Posted to X'], ['Messages', '#6E8CF7', glyphs.sms, 'Sent in Messages']]
-        .map(([label, color, glyph, done]) => ({ label, color, glyph, pick: () => this.shareOut({ Story: 'story', WhatsApp: 'whatsapp', X: 'x', Messages: 'sms' }[label] || 'share', done) })),
-      saveImage: () => this.shareOut('save', 'Saved to Photos'),
-      copyLink: () => this.shareOut('copy', 'Link copied'),
+      openShare: () => this.setState({ share: true }),
+      shareJob: { ...job, theme: look && look.theme },
+      closeShare: (msg) => { this.setState({ share: false }); if (msg) this.showToast(msg); else this.forceUpdate(); },
+      paintCard: (el) => { if (el && K) K.paintStory(el, job.kind, job.data, look); },
+      cardKey: job.i + (look ? look.theme : ''),
       hasToast: !!s.toast, toast: s.toast || ''
     };
   }

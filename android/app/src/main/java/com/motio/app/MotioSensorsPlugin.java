@@ -81,6 +81,13 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         call.resolve();
     }
 
+    // The numbers the widgets show (JSON from widgetData() in motio.js); the native widgets are drawn from them.
+    @PluginMethod
+    public void widgetData(PluginCall call) {
+        MotioWidget.save(getContext(), call.getString("json", "{}"));
+        call.resolve();
+    }
+
     // Opens one app directly with an image from the cache folder: Instagram stories, WhatsApp, X or the SMS app.
     // Resolves ok:false when that app isn't installed, so the page can fall back to the share sheet.
     @PluginMethod

@@ -145,7 +145,7 @@ class Component extends DCLogic {
       LK: { back: lk('back', 'You.dc.html') },
       d0: base + 'ms', d1: base + 90 + 'ms', d2: base + 180 + 'ms', dCount: base + 200 + 'ms',
       streak: G.streak, streakUnit: G.streak === 1 ? 'day' : 'days',
-      streakLine: G.streak ? 'in a row on your ' + fmtMin(goalMin) + ' daily goal' : 'Reach your daily goal to start a streak',
+      streakLine: G.streak ? 'on your ' + fmtMin(goalMin) + ' daily goal' + (G.restThisWeek ? ' · rest day used this week' : ' · one rest day a week allowed') : 'Reach your daily goal to start a streak',
       best: G.best + (G.best === 1 ? ' day' : ' days'),
       heads: G.grid.slice(0, 7).map((c) => new Date(c.day).toLocaleDateString('en-GB', { weekday: 'narrow' })),
       gridAria: 'Last five weeks: ' + G.grid.filter((c) => c.pct >= 1).length + ' days on goal',

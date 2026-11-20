@@ -2,7 +2,8 @@ import { randomBytes, randomInt, scryptSync, timingSafeEqual, createHash } from 
 import { stravaRoutes } from './strava.js';
 import { legalRoutes } from './legal.js';
 import { friendRoutes } from './friends.js';
-import { announceRoutes } from './announce.js';
+import { socialRoutes } from './social.js';
+import { announceRoutes, isAdmin } from './announce.js';
 import { siteRoutes } from './site.js';
 
 const DAY = 86400000;
@@ -27,10 +28,10 @@ export class HttpError extends Error {
 }
 const bad = (code, message, extra) => new HttpError(400, code, message, extra);
 
-const UPSERT_TRIP = `INSERT INTO trips (user_id, id, start, "end", mode, distance_m, steps, max_speed, points, deleted, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+const UPSERT_TRIP = `INSERT INTO trips (user_id, id, start, "end", mode, distance_m, steps, max_speed, points, deleted, updated_at, extra)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(user_id, id) DO UPDATE SET start = excluded.start, "end" = excluded."end", mode = excluded.mode, distance_m = excluded.distance_m,
-        steps = excluded.steps, max_speed = excluded.max_speed, points = excluded.points, deleted = excluded.deleted, updated_at = excluded.updated_at
+        steps = excluded.steps, max_speed = excluded.max_speed, points = excluded.points, deleted = excluded.deleted, updated_at = excluded.updated_at, extra = excluded.extra
       WHERE excluded.updated_at >= trips.updated_at`;
 
 export async function createApp({ db, mailer, now = () => Date.now(), env = process.env, fetchImpl = fetch }) {
@@ -119,10 +120,19 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     if (!MODES.has(t.mode)) throw bad('bad_trip', 'Unknown movement type.');
     const points = Array.isArray(t.points) ? t.points.slice(0, 20000).map((p) => [+p[0], +p[1], +p[2], +(p[3] || 0)]).filter((p) => p.every(Number.isFinite)) : [];
     return { id: t.id, start, end, mode: t.mode, distance_m: Math.max(0, +t.distanceM || 0), steps: Math.max(0, Math.round(+t.steps || 0)),
-      max_speed: Math.max(0, +t.maxSpeed || 0), points: JSON.stringify(points), deleted: t.deleted ? 1 : 0, updated_at: Number(t.updatedAt) || now() };
+      max_speed: Math.max(0, +t.maxSpeed || 0), points: JSON.stringify(points), deleted: t.deleted ? 1 : 0, updated_at: Number(t.updatedAt) || now(), extra: tripExtra(t) };
+  };
+  // Everything else the app keeps on a trip (workout pauses, locked type, stops, features…) round-trips as JSON,
+  // so a sync never strips it. Capped so one trip can't fill the database.
+  const BASE = new Set(['id', 'start', 'end', 'mode', 'distanceM', 'steps', 'maxSpeed', 'points', 'deleted', 'updatedAt']);
+  const tripExtra = (t) => {
+    const x = {};
+    for (const [k, v] of Object.entries(t)) if (!BASE.has(k) && !k.startsWith('_') && v !== undefined) x[k] = v;
+    const s = JSON.stringify(x);
+    return s.length <= 16000 ? s : '{}';
   };
   const tripOut = (r) => ({ id: r.id, start: r.start, end: r.end, mode: r.mode, distanceM: r.distance_m, steps: r.steps, maxSpeed: r.max_speed,
-    points: JSON.parse(r.points), deleted: !!r.deleted, updatedAt: r.updated_at });
+    points: JSON.parse(r.points), deleted: !!r.deleted, updatedAt: r.updated_at, ...JSON.parse(r.extra || '{}') });
 
   const routes = {
     'GET /v1/health': async () => ({ ok: true, mail: mailer.mode, time: now() }),
@@ -259,7 +269,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
       const clean = incoming.map(cleanTrip);
       await db.tx(async (x) => {
         const up = x.prepare(UPSERT_TRIP);
-        for (const t of clean) await up.run(user.id, t.id, t.start, t.end, t.mode, t.distance_m, t.steps, t.max_speed, t.points, t.deleted, t.updated_at);
+        for (const t of clean) await up.run(user.id, t.id, t.start, t.end, t.mode, t.distance_m, t.steps, t.max_speed, t.points, t.deleted, t.updated_at, t.extra);
       });
       const since = Number(body.since) || 0;
       return { trips: (await q.tripsSince.all(user.id, since)).map(tripOut), serverTime: now() };
@@ -276,7 +286,27 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
       return { ok: true };
     },
 
-    'DELETE /v1/trips': async ({ req }) => { const { user } = await authUser(req); await q.wipeTrips.run(user.id); return { ok: true }; },
+    // Crash reports from the app (errors it couldn't handle), kept with feedback as kind 'crash'. Signed-in or not.
+    'POST /v1/crash': async ({ req, body }) => {
+      const user = await authUser(req).then((r) => r.user, () => null);
+      const message = String(body.message || '').slice(0, 300), stack = String(body.stack || '').slice(0, 2000);
+      if (!message) throw bad('empty', 'No error message.');
+      const info = [message, 'v' + String(body.version || '?').slice(0, 12) + ' · ' + String(body.screen || '').slice(0, 40), stack].join('\n');
+      await db.prepare('INSERT INTO feedback (user_id, kind, message, created_at) VALUES (?, ?, ?, ?)').run(user ? user.id : null, 'crash', info, now());
+      return { ok: true };
+    },
+    // The newest crash reports, for the team (needs the server's ADMIN_TOKEN).
+    'GET /v1/admin/crashes': async ({ req }) => {
+      if (!isAdmin(req, env)) throw new HttpError(401, 'unauthorized', 'Wrong admin token.');
+      return { crashes: await db.prepare("SELECT user_id, message, created_at FROM feedback WHERE kind = 'crash' ORDER BY id DESC LIMIT 100").all() };
+    },
+
+    // Deleting every trip needs an explicit confirmation, so no client bug can wipe someone's history again.
+    'DELETE /v1/trips': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      if (url.searchParams.get('confirm') !== 'delete-all') throw bad('confirm_required', 'Deleting all trips needs confirmation.');
+      await q.wipeTrips.run(user.id); return { ok: true };
+    },
 
     'GET /v1/export': async ({ req, url }) => {
       const { user } = await authUser(req);
@@ -309,8 +339,9 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
 
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
+    ...(await socialRoutes({ db, now, authUser, HttpError, bad })),
     ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
-    ...(await siteRoutes({ db, env, now, fetchImpl, HttpError, bad })),
+    ...(await siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, bad })),
     ...legalRoutes(env),
 
     'GET /dev/outbox': async () => {
@@ -320,10 +351,10 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     }
   };
 
-  // Simple per-IP limit on auth calls: 30 a minute.
+  // Simple per-IP limit on auth calls and the website's forms: 30 a minute.
   const hits = new Map();
   const limited = (ip, key) => {
-    if (!key.includes('/auth/')) return false;
+    if (!key.includes('/auth/') && key !== 'POST /v1/contact' && key !== 'POST /v1/waitlist' && key !== 'POST /v1/crash') return false;
     const t = now(), w = hits.get(ip) || [];
     const recent = w.filter((x) => t - x < 60000);
     recent.push(t); hits.set(ip, recent);

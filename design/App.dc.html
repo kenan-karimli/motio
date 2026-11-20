@@ -259,6 +259,21 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
       <dc-import name="Personalities" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.leaderboard.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.leaderboard.kind }}" style="position: absolute; inset: 0; z-index: {{ O.leaderboard.z }}; animation: {{ O.leaderboard.anim }}; box-shadow: {{ O.leaderboard.shadow }}">
+      <dc-import name="Leaderboard" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.sharing.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.sharing.kind }}" style="position: absolute; inset: 0; z-index: {{ O.sharing.z }}; animation: {{ O.sharing.anim }}; box-shadow: {{ O.sharing.shadow }}">
+      <dc-import name="Sharing" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.friendmap.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.friendmap.kind }}" style="position: absolute; inset: 0; z-index: {{ O.friendmap.z }}; animation: {{ O.friendmap.anim }}; box-shadow: {{ O.friendmap.shadow }}">
+      <dc-import name="FriendMap" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.map.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.map.kind }}" style="position: absolute; inset: 0; z-index: {{ O.map.z }}; animation: {{ O.map.anim }}; box-shadow: {{ O.map.shadow }}">
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -413,7 +428,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

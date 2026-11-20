@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Friend’s map</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioFmIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes motioShPulse{0%{box-shadow:0 0 0 0 rgba(242,118,107,0.55)}100%{box-shadow:0 0 0 10px rgba(242,118,107,0)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.motio-mapwrap .leaflet-bottom{bottom:24px}
+.motio-tiles{filter:saturate(0.7) brightness(1.03)}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div class="motio-mapwrap" style="position: relative; z-index: 0; flex-shrink: 0; height: 420px; background: #DDE3EE">
+    <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: absolute; left: 20px; top: 16px; z-index: 500; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <sc-if value="{{ liveNow }}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{ flyLive }}" style="position: absolute; right: 20px; top: 20px; z-index: 500; height: 36px; padding: 0 14px 0 12px; border: 0; border-radius: 18px; background: #FFFFFF; color: #1F1D47; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 5px; background: #F2766B; animation: motioShPulse 1.6s ease-out infinite"></span>Live</button>
+    </sc-if>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin-top: -24px; position: relative; z-index: 2; border-radius: 28px 28px 0 0; background: #FFFFFF; padding: 22px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2">{{ title }}</h1>
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6B6890">Loading…</span></sc-if>
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 14px 16px; border-radius: 18px; background: #FDE9E6; color: #C2412F; font-size: 13px">{{ error }}</div></sc-if>
+    <sc-if value="{{ nothing }}" hint-placeholder-val="{{ false }}"><div style="padding: 16px; border-radius: 20px; background: #F6F5FC; font-size: 13px; line-height: 1.5; color: #4A4770">{{ nothingText }}</div></sc-if>
+
+    <sc-if value="{{ hasLive }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 20px; background: {{ liveBg }}; animation: motioFmIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
+        <span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ liveDot }}; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{ liveTitle }}</span><span style="font-size: 12px; color: #6B6890">{{ liveSub }}</span></span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasTrips }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin: 8px 0 0; font-size: 16px; font-weight: 700">Routes this week</h2>
+      <sc-for list="{{ trips }}" as="t" hint-placeholder-count="3">
+        <button type="button" onClick="{{ t.fly }}" aria-label="{{ t.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left; animation: motioFmIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ t.d }} backwards">
+          <span aria-hidden="true" style="width: 10px; height: 34px; flex-shrink: 0; border-radius: 5px; background: {{ t.c }}"></span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.what }}</span><span style="font-size: 12px; color: #6B6890">{{ t.when }}</span></span>
+        </button>
+      </sc-for>
+      <sc-if value="{{ noTrips }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6B6890">No routes in the last 7 days.</span></sc-if>
+    </sc-if>
+
+    <sc-if value="{{ hasPlaces }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin: 8px 0 0; font-size: 16px; font-weight: 700">Usual places</h2>
+      <span style="font-size: 12px; line-height: 1.5; color: #6B6890">Where their trips ended in the last 30 days.</span>
+      <sc-for list="{{ places }}" as="p" hint-placeholder-count="3">
+        <button type="button" onClick="{{ p.fly }}" aria-label="{{ p.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left; animation: motioFmIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+          <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 17px; background: #5B4FE0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ p.n }}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span style="font-size: 12px; color: #6B6890">{{ p.visits }}</span></span>
+        </button>
+      </sc-for>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.fid = window.__motioFriend || null;
+    this.load();
+    // Live location moves: ask again every 20 seconds while this page is open.
+    this.pollT = setInterval(() => { if (!document.hidden) this.loadLive(); }, 20000);
+  }
+  componentWillUnmount() { clearInterval(this.pollT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  async load() {
+    const M = window.Motio;
+    if (!M || !this.fid) return;
+    this.setState({ loading: true, error: null });
+    try {
+      const sh = await M.friends.sharing();
+      const who = sh.toMe.find((p) => p.id === this.fid) || null;
+      const k = who ? who.kinds : {};
+      const [routes, places, live] = await Promise.all([
+        k.routes ? M.friends.routes(this.fid) : null,
+        k.places ? M.friends.places(this.fid) : null,
+        k.live ? M.friends.live(this.fid) : null
+      ]);
+      this.setState({ who, kinds: k, trips: routes ? routes.trips : [], places: places ? places.places : [], live: live ? live.live : null, loading: false });
+    } catch (e) { this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load their map.' }); }
+  }
+  loadLive() {
+    const M = window.Motio, s = this.state || {};
+    if (!M || !this.fid || !(s.kinds || {}).live) return;
+    M.friends.live(this.fid).then((r) => this.setState({ live: r.live })).catch((e) => { if (e && e.status === 403) this.setState({ kinds: { ...s.kinds, live: false }, live: null }); });
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const now = Date.now();
+    const D = M ? s : {
+      who: { name: 'Leyla Aliyeva' }, kinds: { routes: true, places: true, live: true },
+      live: { lat: 40.4, lng: 49.87, at: now - 90000, mode: 'walk' },
+      trips: [{ id: 'a', start: now - 5 * 3600000, end: now - 4.5 * 3600000, mode: 'walk', distanceM: 2400, points: [[40.4, 49.86], [40.41, 49.87]] }, { id: 'b', start: now - 30 * 3600000, end: now - 29 * 3600000, mode: 'bike', distanceM: 11200, points: [[40.4, 49.86], [40.38, 49.89]] }],
+      places: [{ lat: 40.4, lng: 49.87, visits: 9, name: 'Gym' }, { lat: 40.38, lng: 49.89, visits: 4 }]
+    };
+    const trips = (D.trips || []).slice().reverse(), places = D.places || [], live = D.live || null, kinds = D.kinds || {};
+    // Draw after the page has slid in; redraw whenever the data changes.
+    const sig = trips.length + ':' + places.length + ':' + (live ? live.at : 0);
+    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountFriend(this.mapEl); this.drawn = null; this.forceUpdate(); }, 440);
+    if (this.ctrl && this.drawn !== sig) { this.drawn = sig; this.ctrl.show({ trips, places, live }); }
+    const first = D.who ? D.who.name.split(' ')[0] : 'Your friend';
+    const MODE = { walk: 'Walk', run: 'Run', bike: 'Ride', drive: 'Drive', transit: 'Transit' };
+    const COLOR = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#8C7CF0', transit: '#F6C343' };
+    const mi = M && M.settings().unit === 'mi';
+    const dist = (m) => (mi ? (m / 1609).toFixed(1) + ' mi' : (m / 1000).toFixed(1) + ' km');
+    const ago = (t) => { const m = Math.round((now - t) / 60000); return m < 1 ? 'just now' : m === 1 ? '1 min ago' : m + ' min ago'; };
+    const when = (t) => new Date(t).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    const base = emb ? 380 : 0;
+    const hasAny = kinds.routes || kinds.places || kinds.live;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Sharing.dc.html') },
+      mapRef: (el) => { const firstEl = el && !this.mapEl; this.mapEl = el; if (firstEl && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
+      title: first + '’s map',
+      loading: !!s.loading && !s.kinds, hasError: !!s.error, error: s.error || '',
+      nothing: !!D.kinds && !hasAny,
+      nothingText: first + ' isn’t sharing anything with you right now.',
+      d0: base + 'ms',
+      hasLive: !!kinds.live, liveNow: !!live,
+      liveBg: live ? '#FDE9E6' : '#F6F5FC', liveDot: live ? '#F2766B' : '#C9C5EC',
+      liveTitle: live ? first + ' is out now' + (MODE[live.mode] ? ' · ' + MODE[live.mode] : '') : 'Not moving right now',
+      liveSub: live ? 'Updated ' + ago(live.at) : 'Their position shows here while they’re on a trip',
+      flyLive: () => { if (this.ctrl && live) this.ctrl.fly(live.lat, live.lng); },
+      hasTrips: !!kinds.routes,
+      trips: trips.slice(0, 30).map((t, i) => ({ c: COLOR[t.mode] || '#5B4FE0', what: (MODE[t.mode] || 'Trip') + ' · ' + dist(t.distanceM || 0), when: when(t.start), d: base + 80 + Math.min(i, 10) * 40 + 'ms',
+        aria: (MODE[t.mode] || 'Trip') + ' ' + when(t.start) + ', show on map',
+        fly: () => { const p = t.points[Math.floor(t.points.length / 2)]; if (this.ctrl && p) this.ctrl.fly(p[0], p[1]); } })),
+      noTrips: !!kinds.routes && !trips.length && !s.loading,
+      hasPlaces: !!kinds.places,
+      places: places.map((p, i) => ({ n: i + 1, name: p.name || 'Place ' + (i + 1), visits: p.visits + (p.visits === 1 ? ' visit' : ' visits'), d: base + 120 + i * 40 + 'ms',
+        aria: (p.name || 'Place ' + (i + 1)) + ', show on map', fly: () => this.ctrl && this.ctrl.fly(p.lat, p.lng) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

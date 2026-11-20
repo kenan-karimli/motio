@@ -30,12 +30,59 @@ const ORDER = ['walk', 'drive', 'bike', 'transit', 'run'];
 const blank = () => ({ token: null, user: null, trips: {}, lastSync: 0, dirty: {}, settings: { unit: 'km', goalMin: 180, stepGoal: 10000, recapStyle: 'mix', autoTrack: true }, demo: false, tracking: false });
 let S = blank();
 try { S = { ...S, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { /* first run */ }
-// Data v2: trips recorded by the old tracker were unreliable (never-ending trips, wrong types), so start clean once.
-if (S.v !== 2) { S = { ...S, v: 2, trips: {}, dirty: {}, lastSync: 0, demo: false, anchor: null, live: null, stepsDay: null, wipePending: !!S.token }; }
+// Never erase data on start. (Older builds wiped everything, the server copy too, when a version marker was
+// missing, which a log out and back in caused.) Sample data is for this session only.
+delete S.wipePending; S.v = 3; S.demo = false;
+// Steps are kept per day now (yesterday's count used to vanish at midnight).
+if (S.stepsDay) { S.stepsByDay = { ...(S.stepsByDay || {}), [S.stepsDay.day]: S.stepsDay.steps }; delete S.stepsDay; }
 // Recaps now mix their designs by default; move everyone over once (they can still pick one style in Settings).
 if (!S.settings.recapMixed) { S.settings = { ...S.settings, recapStyle: 'mix', recapMixed: true }; try { localStorage.setItem('motio.recapStyle', 'mix'); } catch { /* storage blocked */ } }
 const listeners = new Set();
-const flush = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* full */ } };
+// Trips, with their GPS points, live in IndexedDB, one record each. localStorage only holds a few MB, and when
+// it filled up every save failed silently and each launch went back to an old copy. Older builds kept trips in
+// localStorage: they are copied over once (S.tripsInDb), and only then dropped from it.
+let idbOff = false, tripsLoaded = false;
+const savedAt = {}; // trip id -> updatedAt last written to IndexedDB
+const tripDb = new Promise((ok, no) => {
+  try {
+    const r = indexedDB.open('motio', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('trips', { keyPath: 'id' });
+    r.onsuccess = () => ok(r.result);
+    r.onerror = () => no(r.error);
+  } catch (e) { no(e); }
+});
+export const ready = tripDb.then((db) => new Promise((ok) => {
+  const req = db.transaction('trips').objectStore('trips').getAll();
+  req.onsuccess = () => {
+    for (const t of req.result) {
+      savedAt[t.id] = t.updatedAt || 0;
+      const mine = S.trips[t.id]; // a trip saved since launch (the live one closing) is newer
+      if (!mine || (mine.updatedAt || 0) < (t.updatedAt || 0)) S.trips[t.id] = t;
+    }
+    ok();
+  };
+  req.onerror = () => { idbOff = true; ok(); };
+})).catch(() => { idbOff = true; }).then(() => { tripsLoaded = true; changed(); });
+function saveTrips() {
+  const put = Object.values(S.trips).filter((t) => savedAt[t.id] !== (t.updatedAt || 0));
+  const del = Object.keys(savedAt).filter((id) => !S.trips[id]);
+  if (!put.length && !del.length) return Promise.resolve(true);
+  return tripDb.then((db) => new Promise((ok, no) => {
+    const tx = db.transaction('trips', 'readwrite'), st = tx.objectStore('trips');
+    put.forEach((t) => st.put(t)); del.forEach((id) => st.delete(id));
+    tx.oncomplete = () => { put.forEach((t) => { savedAt[t.id] = t.updatedAt || 0; }); del.forEach((id) => delete savedAt[id]); S.saveError = null; ok(true); };
+    tx.onerror = tx.onabort = () => no(tx.error);
+  })).catch((e) => { S.saveError = 'storage'; console.error('[motio] saving trips failed', e); return false; });
+}
+const flush = () => {
+  try { localStorage.setItem(KEY, JSON.stringify(S.tripsInDb && !idbOff ? { ...S, trips: {} } : S)); } catch { S.saveError = 'full'; }
+  if (idbOff || !tripsLoaded) return;
+  saveTrips().then((ok) => {
+    if (!ok || S.tripsInDb) return;
+    S.tripsInDb = true; // every trip is in IndexedDB now: localStorage can let go of them
+    try { localStorage.setItem(KEY, JSON.stringify({ ...S, trips: {} })); } catch { /* next flush retries */ }
+  });
+};
 // The save below is debounced, so write right away when the app is closed or backgrounded.
 addEventListener('pagehide', flush);
 document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
@@ -52,8 +99,9 @@ function changed(persist = true) {
   listeners.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
   pushWidget();
 }
-// Home screen widget: push today's numbers a few seconds after things change.
-let widgetT = 0, widgetSig = '';
+// Home screen widgets. Ring, steps, streak and the compact bar are drawn natively from the numbers sent here (so
+// they keep counting steps and roll over at midnight with Motio closed); the richer ones are images drawn here.
+let widgetT = 0, widgetLast = 0, widgetForce = false, widgetSig = '', pngSig = '', pngAt = 0, sentAt = 0, widgetSocial = { at: 0 };
 // Everything the widgets show, from today's and this week's trips.
 function widgetData() {
   const t = today(), cfg = S.settings, now = Date.now();
@@ -70,24 +118,72 @@ function widgetData() {
     persona: p.enough ? p.name : 'Still warming up', personaLine: p.enough && top ? top.pct + '% ' + top.name.toLowerCase() : 'Move 3h to get your type',
     weekDist: fmtDist(wk.m), weekVs: vs == null ? 'First week on Motio' : (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% vs last week', weekUp: vs == null || vs >= 0,
     peak: wk.peak == null ? '' : fmtHour(wk.peak), bars: days(w0, 7).map((d) => Math.round(d.min)), labels: days(w0, 7).map((d) => new Date(d.from).toLocaleDateString('en-GB', { weekday: 'narrow' })),
-    todayI: Math.round((dayStart() - w0) / DAY)
+    todayI: Math.round((dayStart() - w0) / DAY),
+    // Raw numbers for the natively drawn widgets, which carry on from these with Motio closed.
+    stepsN: Math.round(t.steps), stepGoal, moved: t.min >= 1, zero: { time: fmtMin(0), dist: fmtDist(0) }
   };
 }
-// Home screen widgets: redraw a few seconds after things change, only when what they show changed.
+// Friends' week and your running challenge, from the server at most every 15 minutes and only while one of those
+// widgets is on the home screen.
+async function socialForWidgets() {
+  if (Date.now() - widgetSocial.at < 15 * MIN) return widgetSocial;
+  const placed = await Sensors.widgetStatus().catch(() => ({}));
+  if (!placed.friends && !placed.challenge) return widgetSocial;
+  widgetSocial.at = Date.now();
+  const [b, c] = await Promise.all([friends.board().catch(() => null), friends.challenges().catch(() => null)]);
+  if (b && b.people) {
+    const list = b.people.filter((p) => !p.hidden).sort((x, y) => y.activeMin - x.activeMin), rank = list.findIndex((p) => p.me) + 1;
+    widgetSocial.friends = { n: list.length, rank, rows: list.slice(0, 3).map((p, i) => ({ rank: i + 1, me: !!p.me, name: p.me ? 'You' : String(p.name || '').split(' ')[0], min: p.activeMin, time: fmtMin(p.activeMin) })) };
+  }
+  if (c && c.challenges) {
+    const x = c.challenges.find((y) => !y.done && !y.invited && y.members.some((m) => m.me && m.joined));
+    // shortcut: km challenges stay in km for mile users (the server counts km), switch when challenges get units.
+    const fmt = (v) => (x.kind === 'km' ? v + ' km' : x.kind === 'min' ? fmtMin(v) : v + (v === 1 ? ' run' : ' runs'));
+    if (!x) widgetSocial.challenge = null;
+    else {
+      const joined = x.members.filter((m) => m.joined), me = joined.find((m) => m.me), top = joined[0], left = Math.ceil((x.end - Date.now()) / DAY);
+      widgetSocial.challenge = { goal: fmt(x.target), mine: fmt(me.value), pct: x.target ? me.value / x.target : 0, n: joined.length, left: left <= 1 ? 'last day' : left + ' days left',
+        lead: joined.length < 2 ? 'Keep going' : top.me ? 'You’re in the lead' : String(top.name).split(' ')[0] + ' leads with ' + fmt(top.value) };
+    }
+  }
+  return widgetSocial;
+}
+// Throttled, not debounced: live GPS changes things every second, which used to keep pushing the redraw away.
 function pushWidget(force) {
-  if (!native || !S.token) return;
-  clearTimeout(widgetT);
-  widgetT = setTimeout(async () => {
-    pushLockCard(force);
-    const D = widgetData(), sig = JSON.stringify(D);
-    if (sig === widgetSig && !force) return;
-    widgetSig = sig;
+  if (!native) return;
+  if (force) { widgetForce = true; clearTimeout(widgetT); widgetT = 0; }
+  if (widgetT) return; // the pending run picks this change up too
+  widgetT = setTimeout(sendWidgets, force ? 300 : Math.max(1000, widgetLast + 10000 - Date.now()));
+}
+async function sendWidgets() {
+  const force = widgetForce;
+  widgetT = 0; widgetForce = false; widgetLast = Date.now();
+  pushLockCard(force);
+  let ok = true;
+  try {
+    if (!S.token) widgetSocial = { at: 0 }; // never show the last account's friends
+    const so = S.token ? await socialForWidgets() : null;
+    const D = S.token ? { ...widgetData(), friends: so.friends || null, challenge: so.challenge || null } : { signedOut: true };
+    const sig = JSON.stringify(D);
+    // Also every half hour unchanged, so the widgets know the numbers are still current ("updated" stamp).
+    if (sig !== widgetSig || force || Date.now() - sentAt > 30 * MIN) {
+      sentAt = Date.now();
+      await Sensors.widgetData({ json: JSON.stringify({ ...D, at: Date.now(), stepTotal: S.stepTotal == null ? -1 : S.stepTotal }) });
+      widgetSig = sig;
+    }
+    // Images only when what they show changed (steps aren't on them), and at most once a minute.
+    const { steps, stepsN, stepPct, ...shown } = D, ps = JSON.stringify(shown);
+    if (D.signedOut || (ps === pngSig && !force)) return;
+    if (!force && Date.now() - pngAt < MIN) { widgetT = setTimeout(sendWidgets, pngAt + MIN - Date.now()); return; }
+    pngAt = Date.now();
     try { await document.fonts.load('700 40px Poppins'); } catch { /* system font is fine */ }
     for (const kind of WIDGET_KINDS) {
-      const png = drawWidget(kind, D).toDataURL('image/png').split(',')[1];
-      await Sensors.updateWidget({ kind, png }).catch(() => {});
+      try { await Sensors.updateWidget({ kind, png: drawWidget(kind, D).toDataURL('image/png').split(',')[1] }); }
+      catch (e) { ok = false; console.warn('widget ' + kind, e); }
     }
-  }, force ? 300 : 4000);
+    if (ok) pngSig = ps;
+  } catch (e) { ok = false; widgetSig = ''; console.warn('widgets', e); }
+  if (!ok && !widgetT) widgetT = setTimeout(sendWidgets, MIN); // try again rather than waiting for the next change
 }
 // Lock screen: Android gives apps no lock screen widgets, so "Today" lives in a silent, ongoing notification that
 // shows there. Rewritten only when the numbers change.
@@ -120,12 +216,31 @@ export const health = {
   status: () => (native ? Health.getStatus() : Promise.resolve({ available: false })),
   async connect() {
     const r = await Health.connect();
-    if (r.connected) { setSetting('healthSync', true); await healthPush(S.settings.importPast === false ? Date.now() - DAY : Date.now() - 30 * DAY); }
+    if (r.connected) { setSetting('healthSync', true); await healthPush(S.settings.importPast === false ? Date.now() - DAY : Date.now() - 30 * DAY); refreshHealthSteps(true); }
     return r;
   },
-  disconnect() { setSetting('healthSync', false); return Health.openSettings().catch(() => {}); },
+  disconnect() { setSetting('healthSync', false); S.hcSteps = {}; changed(); return Health.openSettings().catch(() => {}); },
   syncedAt: () => S.healthAt || null
 };
+// Reads the last 8 days' step totals from Health Connect (Samsung Health, watches, other apps), when allowed.
+let hcAt = 0;
+async function refreshHealthSteps(force) {
+  if (!native || !S.settings.healthSync || (!force && Date.now() - hcAt < 4 * MIN)) return;
+  hcAt = Date.now();
+  try {
+    const st = await Health.getStatus();
+    if (!st.readSteps) return;
+    const out = {};
+    for (let i = 0, d = dayStart(); i < 8; i++, d = dayStart(d - 2 * HOUR)) {
+      const r = await Health.readSteps({ from: d, to: Math.min(dayStart(d + DAY + 2 * HOUR), Date.now()) });
+      out[new Date(d).toDateString()] = r.steps || 0;
+    }
+    S.hcSteps = out; changed();
+  } catch { /* Health Connect busy or not allowed: keep the last numbers */ }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshHealthSteps(); });
+setInterval(() => { if (!document.hidden) refreshHealthSteps(); }, 5 * MIN);
+setTimeout(() => refreshHealthSteps(true), 3000);
 // Fitness apps on this phone. Most of them read Motio's trips through Health Connect once it's connected.
 export const PARTNERS = [
   ['com.sec.android.app.shealth', 'Samsung Health', '#1D8BE0'], ['com.google.android.apps.fitness', 'Google Fit', '#4285F4'], ['com.fitbit.FitbitMobile', 'Fitbit', '#00B0B9'],
@@ -157,6 +272,14 @@ export const friends = {
   challenges: () => api('GET', '/v1/challenges'),
   challenge: (kind, target, days, friendIds) => api('POST', '/v1/challenges', { kind, target, days, friendIds }),
   leave: (id) => api('POST', '/v1/challenges/leave', { id }),
+  // All users with public profiles, ranked for this week by active time, distance or steps.
+  leaderboard: (metric) => api('GET', '/v1/leaderboard?metric=' + metric + '&from=' + weekStart() + '&day=' + isoDay(weekStart())),
+  // Sharing with friends by permission (routes, places, live location); everything is off until you turn it on.
+  sharing: () => api('GET', '/v1/sharing').then((r) => { liveShare = r.mine.some((p) => p.kinds.live); return r; }),
+  share: (friendId, kind, on, minutes) => api('POST', '/v1/sharing', { friendId, kind, on, minutes }).then((r) => { if (kind === 'live') friends.sharing().catch(() => {}); return r; }),
+  routes: (id, from, to) => api('GET', '/v1/friend/routes?id=' + id + (from ? '&from=' + from : '') + (to ? '&to=' + to : '')),
+  places: (id) => api('GET', '/v1/friend/places?id=' + id),
+  live: (id) => api('GET', '/v1/friend/live?id=' + id),
   async invite(code) {
     const text = `Add me on Motio and let's compare our weeks: ${API}/i/${code} (or enter my code ${code} in Social › Friends)`;
     if (native) { await Share.share({ title: 'Motio invite', text, dialogTitle: 'Invite a friend' }); return 'shared'; }
@@ -201,7 +324,37 @@ async function api(method, path, body) {
   return data;
 }
 
-const signedIn = (d) => { S.token = d.token; S.user = d.user; S.sessionExpired = false; if (d.user.settings) S.settings = { ...S.settings, ...d.user.settings }; changed(); sync(); if (S.settings.autoTrack) setTimeout(startTracking, 800); return d.user; };
+// Crash reports go to Motio's own server (no third party): message, stack, version and open screen only, at most
+// 5 per launch, each kind once. Network errors (ApiError) are expected and not reported.
+const crashSeen = new Set();
+function reportCrash(err) {
+  if (!err || err instanceof ApiError || crashSeen.size >= 5) return;
+  const message = String(err.message || err).slice(0, 300);
+  if (!message || crashSeen.has(message) || /ResizeObserver|Script error/.test(message)) return;
+  crashSeen.add(message);
+  const screen = [...document.querySelectorAll('[data-page=overlay] [data-dc-root], [data-page=overlay]')].length ? 'overlay' : 'tabs';
+  fetch(API + '/v1/crash', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(S.token ? { Authorization: 'Bearer ' + S.token } : {}) },
+    body: JSON.stringify({ message, stack: String(err.stack || '').slice(0, 2000), version: window.__MOTIO_VERSION || '', screen }) }).catch(() => {});
+}
+window.addEventListener('error', (e) => reportCrash(e.error || e.message));
+window.addEventListener('unhandledrejection', (e) => reportCrash(e.reason));
+
+// Trips are per account: a different account signing in starts from its own server copy, and trips that
+// hadn't uploaded when someone logged out wait (stashed) for that same account to come back.
+function forAccount(user) {
+  const prev = S.user && S.user.id;
+  if (prev && prev !== user.id) {
+    stash(prev);
+    S.trips = {}; S.dirty = {}; S.lastSync = 0; live = null; S.live = null; S.anchor = null;
+  }
+  const back = (S.stash || {})[user.id];
+  if (back) { for (const t of back) { S.trips[t.id] = t; S.dirty[t.id] = 1; } delete S.stash[user.id]; }
+}
+function stash(uid) {
+  const left = Object.keys(S.dirty).map((id) => S.trips[id]).filter(Boolean);
+  if (uid && left.length) S.stash = { ...(S.stash || {}), [uid]: left };
+}
+const signedIn = (d) => { forAccount(d.user); S.token = d.token; S.user = d.user; S.sessionExpired = false; if (d.user.settings) S.settings = { ...S.settings, ...d.user.settings }; changed(); sync(); if (S.settings.autoTrack) setTimeout(startTracking, 800); return d.user; };
 
 // Asks Android for a Google account and returns its ID token; a closed sheet throws { code: 'cancelled' }.
 async function signedInWithGoogle() {
@@ -223,12 +376,17 @@ export const auth = {
   },
   forgot: (email) => api('POST', '/v1/auth/forgot', { email }),
   reset: async (email, code, password) => signedIn(await api('POST', '/v1/auth/reset', { email, code, password })),
-  logout: async () => { stopTracking(); await sync(); try { await api('POST', '/v1/auth/logout', {}); } catch { /* still log out locally */ } S = { ...blank(), settings: S.settings }; changed(); pushLockCard(); },
+  logout: async () => {
+    stopTracking(); await sync();
+    try { await api('POST', '/v1/auth/logout', {}); } catch { /* still log out locally */ }
+    stash(S.user && S.user.id); // offline: the unsynced trips upload when this account logs in again
+    S = { ...blank(), settings: S.settings, stash: S.stash, tripsInDb: S.tripsInDb }; changed(); pushLockCard();
+  },
   // Removes the account and every trip on the server, then clears this phone.
   changePassword: (current, next) => api('POST', '/v1/me/password', { current, next }),
   async deleteAccount(password, withGoogle) {
     await api('POST', '/v1/me/delete', withGoogle ? { idToken: await signedInWithGoogle() } : { password });
-    stopTracking(); S = { ...blank(), settings: S.settings }; changed(); pushLockCard();
+    stopTracking(); S = { ...blank(), settings: S.settings, tripsInDb: S.tripsInDb }; changed(); pushLockCard();
   },
   isSignedIn: () => !!S.token,
   sessionExpired: () => !!S.sessionExpired,
@@ -269,24 +427,52 @@ export async function sync() {
   if (!S.token || syncing) return;
   syncing = true;
   try {
-    if (S.wipePending) { await api('DELETE', '/v1/trips'); S.wipePending = false; S.lastSync = 0; }
-    const dirty = Object.keys(S.dirty).map((id) => S.trips[id]).filter(Boolean);
-    const out = await api('POST', '/v1/trips/sync', { trips: dirty.slice(0, 500), since: S.lastSync });
-    for (const t of dirty.slice(0, 500)) delete S.dirty[t.id];
-    for (const t of out.trips) { const mine = S.trips[t.id]; if (!mine || (mine.updatedAt || 0) <= t.updatedAt) S.trips[t.id] = t; }
+    await ready; // never sync (or decide what's missing) before the stored trips have loaded
+    if (S.deleteAll) { await api('DELETE', '/v1/trips?confirm=delete-all'); S.deleteAll = false; S.lastSync = 0; }
+    // Signed in but nothing on this phone (new phone, cleared storage): fetch the whole history again.
+    if (!Object.keys(S.trips).length) S.lastSync = 0;
+    const sent = Object.keys(S.dirty).map((id) => S.trips[id]).filter(Boolean).slice(0, 500);
+    const out = await api('POST', '/v1/trips/sync', { trips: sent, since: S.lastSync });
+    // A trip changed again while this request was out stays dirty for the next sync.
+    for (const t of sent) if ((S.trips[t.id] || {}).updatedAt === t.updatedAt) delete S.dirty[t.id];
+    // Our own upload comes back with the same updatedAt: keep the local copy then. A newer server copy wins,
+    // on top of the local one so nothing the server doesn't know about is lost.
+    for (const t of out.trips) { const mine = S.trips[t.id]; if (!mine || (mine.updatedAt || 0) < t.updatedAt) S.trips[t.id] = mine ? { ...mine, ...t } : t; }
+    // Deleted trips are kept only until the server has them.
+    for (const t of Object.values(S.trips)) if (t.deleted && !S.dirty[t.id]) delete S.trips[t.id];
     S.lastSync = out.serverTime;
-    if (dirty.length && S.settings.stravaAuto) strava.upload().catch(() => {});
+    if (sent.length && S.settings.stravaAuto) strava.upload().catch(() => {});
+    pushSteps();
     S.syncError = null;
     changed();
   } catch (e) { S.syncError = e.code || 'error'; changed(false); } finally { syncing = false; }
 }
 // Auto-refresh: every minute while the app is open, and whenever it comes back to the front, trips sync
 // (picking up changes from other phones) and every open screen reloads its server data ('motio:refresh').
-const refreshAll = () => { if (document.hidden) return; sync(); window.dispatchEvent(new Event('motio:refresh')); };
+const refreshAll = () => { if (document.hidden) return; sync(); if (S.token) friends.sharing().catch(() => {}); window.dispatchEvent(new Event('motio:refresh')); };
+setTimeout(() => { if (S.token) friends.sharing().catch(() => {}); }, 4000);
 setInterval(refreshAll, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAll(); });
 window.addEventListener('online', () => sync());
 
+// Daily step totals (the numbers Today shows) go to the server every 15 minutes, for the all-users steps board.
+let stepsAt = 0;
+const isoDay = (t) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function pushSteps() {
+  if (S.demo || Date.now() - stepsAt < 15 * MIN) return;
+  stepsAt = Date.now();
+  const days = [];
+  for (let i = 0, d = dayStart(Date.now()); i < 8; i++, d = dayStart(d - 2 * HOUR)) days.push({ day: isoDay(d), steps: summarize(d, dayStart(d + DAY + 2 * HOUR)).steps });
+  api('POST', '/v1/me/steps', { days }).catch(() => { stepsAt = 0; });
+}
+// Live location: only while you share it with someone, at most every 30 s, and never from inside private zones
+// (the server drops those too). liveShare is refreshed by friends.sharing().
+let liveShare = false, liveAt = 0;
+function pushLive(p, mode) {
+  if (!liveShare || !S.token || p[2] - liveAt < 30000) return;
+  liveAt = p[2];
+  api('POST', '/v1/live', { lat: p[0], lng: p[1], at: p[2], mode }).then((r) => { if (r && r.sharing === false) liveShare = false; }).catch(() => {});
+}
 export function saveTrip(t) {
   S.trips[t.id] = { ...t, updatedAt: Date.now() }; S.dirty[t.id] = 1; changed();
   if (native && S.settings.healthSync) { clearTimeout(healthT); healthT = setTimeout(() => healthPush(Date.now() - 2 * DAY).catch(() => {}), 5000); }
@@ -296,11 +482,13 @@ export function deleteTrip(id) { const t = S.trips[id]; if (t) saveTrip({ ...t, 
 const KEEP_DAYS = [92, 366, Infinity];
 // Trips under 100 m are noise (workouts saved before the 100 m rule, "1 min run, 0 m"); normal trips already need 150 m.
 function dropEmptyWorkouts() {
+  if (S.emptyDropped) return;
+  S.emptyDropped = true; // a one-time clean-up of old builds' empty workouts, not something to redo each launch
   let n = 0;
   for (const t of Object.values(S.trips)) if (!t.deleted && (t.distanceM || 0) < 100) { S.trips[t.id] = { ...t, deleted: true, points: [], updatedAt: Date.now() }; S.dirty[t.id] = 1; n++; }
   if (n) { changed(); setTimeout(() => sync(), 3000); }
 }
-setTimeout(dropEmptyWorkouts, 0);
+ready.then(dropEmptyWorkouts);
 export function prune() {
   const cut = Date.now() - KEEP_DAYS[S.settings.keep ?? 1] * DAY;
   let n = 0;
@@ -335,8 +523,8 @@ function learn(v, mode) {
 }
 export async function deleteHistory() {
   live = null; S.live = null; S.anchor = null;
-  S.trips = {}; S.dirty = {}; S.lastSync = 0; S.wipePending = true; changed();
-  await sync(); // if offline, the wipe waits in wipePending and runs on the next sync
+  S.trips = {}; S.dirty = {}; S.lastSync = 0; S.deleteAll = true; changed();
+  await sync(); // if offline, the delete waits in deleteAll and runs on the next sync
 }
 export async function exportData(format, from = 0, to = Date.now(), parts = {}) {
   await sync(); // include trips that haven't uploaded yet
@@ -440,6 +628,7 @@ function onLocation(loc) {
   if ((loc.accuracy || 0) > 80) return;
   S.lastFix = p;
   const now = p[2];
+  pushLive(p, live ? live.mode : null);
   if (live && live.workout) { workoutFix(p, loc); return; }
   // Standing still sends no GPS updates at all, so a long gap means the trip ended back then.
   if (live && now - live.lastMove > STILL_END) { S.anchor = live.points[live.points.length - 1]; closeLive(live.lastMove); }
@@ -468,7 +657,7 @@ function onLocation(loc) {
     // Without a recent reading from the activity model, sustained speed decides: three sharp fixes over 25 km/h
     // in a row mean a vehicle, under 8 km/h means on foot. One jumpy fix never does.
     live.fast = sharp && speed > 7 ? (live.fast || 0) + 1 : speed < 2.2 ? 0 : live.fast || 0;
-    if (!(ar && Date.now() - ar.at < 60000) && sharp) { if (live.fast >= 3) consider('vehicle', now); else if (speed < 2.2) consider('walk', now); }
+    if (!(ar && now - ar.at < 60000) && sharp) { if (live.fast >= 3) consider('vehicle', now); else if (speed < 2.2) consider('walk', now); }
     live.points.push(p); live.distanceM += d; live.end = now;
     if (sharp) live.maxSpeed = Math.max(live.maxSpeed, Math.min(speed, 70));
     if (live.points.length > 6000) live.points.splice(1, 1);
@@ -479,7 +668,7 @@ function onLocation(loc) {
     // The resting spot stays put while you walk away from it; it only moves once you've settled somewhere new.
     if (S.anchor && (now - S.anchor[2] > STILL_END || now < S.anchor[2])) S.anchor = p; // stale, or the clock jumped back
     const moved = S.anchor ? hav(S.anchor, p) : 0;
-    const arMoving = ar && Date.now() - ar.at < 60000 && ar.type !== 'still' && ar.conf >= 60;
+    const arMoving = ar && now - ar.at < 60000 && ar.type !== 'still' && ar.conf >= 60;
     // Start when Google says you're moving, or sharp fixes show a real departure; when Google says still, only a big move counts.
     const departed = sharp && (saysStill ? moved > 250 : moved > Math.max(80, 3 * p[3]) || ((loc.speed || 0) > 1.5 && p[3] < 20));
     if (S.anchor && ((arMoving && moved > Math.max(30, p[3])) || departed)) {
@@ -545,11 +734,15 @@ export const workout = () => {
   return { ...liveTrip(), paused: !!w.pausedAt, activeMs: now - live.start - w.pausedMs - (w.pausedAt ? now - w.pausedAt : 0) };
 };
 // Ends a trip that went quiet even if no more GPS updates come, and keeps the live trip saved across restarts.
+// Saved every few seconds (cheap now that trips aren't in localStorage), so a killed app loses almost nothing.
 setInterval(() => {
-  if (live && !live.workout && Date.now() - live.lastMove > STILL_END) closeLive(live.lastMove);
+  if (live && !live.workout && trackingReplayed() && Date.now() - live.lastMove > STILL_END) closeLive(live.lastMove);
   if (live) { S.live = live; flush(); }
-}, 30000);
-if (live && !live.workout && Date.now() - live.lastMove > STILL_END) setTimeout(() => closeLive(live.lastMove), 0);
+}, 5000);
+// With native tracking, what happened while Motio was closed is replayed first (startTracking); only after
+// that can we tell whether the restored trip really ended.
+const trackingReplayed = () => trackingOn || !native || !(S.token && S.settings.autoTrack);
+if (live && !live.workout && trackingReplayed() && Date.now() - live.lastMove > STILL_END) setTimeout(() => closeLive(live.lastMove), 0);
 if (live && live.workout && native) setTimeout(() => startTracking(), 0); // keep recording a workout after the app restarts
 function onSteps(total) {
   if (total == null) return;
@@ -557,8 +750,9 @@ function onSteps(total) {
   // The phone counts steps since it was switched on, also while Motio is closed. The last total is saved,
   // so those steps count too; a smaller number means the phone restarted and counting began again at zero.
   const delta = last == null ? 0 : total >= last ? total - last : total;
-  S.stepsDay = S.stepsDay && S.stepsDay.day === day ? S.stepsDay : { day, steps: 0 };
-  S.stepsDay.steps += delta;
+  const byDay = (S.stepsByDay = S.stepsByDay || {});
+  byDay[day] = (byDay[day] || 0) + delta;
+  for (const k of Object.keys(byDay)) if (Date.now() - new Date(k).getTime() > 62 * DAY) delete byDay[k];
   // Only steps taken just now belong to the trip in progress, not a backlog from hours closed.
   if (live && !(live.workout && live.workout.pausedAt) && S.stepAt && now - S.stepAt < 2 * MIN) live.steps += delta;
   S.stepTotal = total; S.stepAt = now;
@@ -586,7 +780,9 @@ export async function startTracking() {
     const { backlog } = await Sensors.startTracking();
     const items = (backlog || []).filter((x) => x && (x.at || x.time)).sort((x, y) => (x.at || x.time) - (y.at || y.time));
     for (const x of items) { if (x.k === 'a') onActivity(x); else onLocation(x); }
-    trackingOn = true; S.tracking = true; S.trackError = null; changed();
+    trackingOn = true; S.tracking = true; S.trackError = null;
+    if (live && !live.workout && Date.now() - live.lastMove > STILL_END) closeLive(live.lastMove);
+    changed();
     // "Allow all the time" lets tracking restart by itself after a reboot; ask once, Settings offers it again.
     if (!S.askedBackground) { S.askedBackground = true; setTimeout(() => Sensors.requestBackgroundLocation().catch(() => {}), 1500); }
     return { ok: true };
@@ -750,6 +946,20 @@ export const dayStart = (t = Date.now()) => { const d = new Date(t); d.setHours(
 export const weekStart = (t = Date.now()) => dayStart(t) - ((new Date(t).getDay() - (S.settings.weekMonday ? 1 : 0) + 7) % 7) * DAY;
 export const monthStart = (t = Date.now()) => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); };
 
+// Steps for a range: within one day, Health Connect's total (every app and watch, deduplicated, so the same
+// number as Samsung Health) when Motio may read it, otherwise the larger of trip steps and the phone's step
+// counter. Longer ranges add up their days, so weeks and recaps agree with Today.
+function daySteps(from, to, tripSteps) {
+  if (to - from <= DAY) {
+    const key = new Date(from).toDateString(), hc = (S.hcSteps || {})[key];
+    if (hc != null) return hc;
+    return Math.max(tripSteps, (S.stepsByDay || {})[key] || 0);
+  }
+  if (to - from > 400 * DAY) return tripSteps;
+  let sum = 0;
+  for (let d = dayStart(from); d < to; d = dayStart(d + DAY + 2 * HOUR)) sum += summarize(Math.max(d, from), Math.min(dayStart(d + DAY + 2 * HOUR), to)).steps;
+  return sum;
+}
 export function summarize(from, to) {
   return memo(`sum:${from}:${to}`, () => {
     const trips = allTrips().filter((t) => t.end > from && t.start < to);
@@ -767,7 +977,7 @@ export function summarize(from, to) {
         hourly[d.getHours()] += (next - x) / MIN; x = next;
       }
     }
-    if (!S.demo && S.stepsDay && from <= dayStart() && to > dayStart() && to - from <= DAY) steps = Math.max(steps, S.stepsDay.day === new Date().toDateString() ? S.stepsDay.steps : 0);
+    if (!S.demo) steps = daySteps(from, to, steps);
     const peak = hourly.indexOf(Math.max(...hourly));
     const modes = ORDER.map((k) => ({ key: k, ...MODES[k], ...per[k], pct: ms ? Math.round(per[k].ms / ms * 100) : 0 })).filter((x) => x.ms >= 30000).sort((a, b) => b.ms - a.ms); // a few seconds of a mode is noise, not a "0m run"
     return { from, to, trips, ms, min: ms / MIN, m, steps, top, hourly, peak: ms ? peak : null, modes, per, avg: ms ? m / (ms / 1000) : 0 };
@@ -787,8 +997,15 @@ export function goals() {
   return memo('goals', () => {
     const goal = S.settings.goalMin || 180, t0 = dayStart(), wk0 = weekStart();
     const hit = (d) => summarize(d, d + DAY).min >= goal;
-    let streak = 0;
-    for (let d = t0 - (hit(t0) ? 0 : DAY); streak < 400 && hit(d); d -= DAY) streak++;
+    // A rest day: one missed day per week, between two goal days, keeps the streak going (it doesn't add to it).
+    let streak = 0, restThisWeek = false;
+    const rested = new Set();
+    for (let d = t0 - (hit(t0) ? 0 : DAY); streak < 400; d -= DAY) {
+      if (hit(d)) { streak++; continue; }
+      const w = Math.floor((d - wk0) / (7 * DAY));
+      if (!streak || rested.has(w) || !hit(d - DAY)) break;
+      rested.add(w); if (w === 0) restThisWeek = true;
+    }
     // shortcut: best streak looks back one year, enough until people have longer streaks than that.
     let best = streak, run = 0;
     for (let d = t0 - 365 * DAY; d <= t0; d += DAY) { run = hit(d) ? run + 1 : 0; best = Math.max(best, run); }
@@ -800,7 +1017,7 @@ export function goals() {
       return { ...g, have, pct: Math.min(1, have / g.target), done: have >= g.target };
     });
     const t = today();
-    return { goal, stepGoal: S.settings.stepGoal || 10000, streak, best, grid, week, todayMin: t.min, todaySteps: t.steps, daysLeft: Math.max(0, Math.round((wk0 + 7 * DAY - Date.now()) / DAY)) };
+    return { goal, stepGoal: S.settings.stepGoal || 10000, streak, best: Math.max(best, streak), restThisWeek, grid, week, todayMin: t.min, todaySteps: t.steps, daysLeft: Math.max(0, Math.round((wk0 + 7 * DAY - Date.now()) / DAY)) };
   });
 }
 export const addWeekGoal = (mode, metric, target) => setSetting('weekGoals', [...(S.settings.weekGoals || []), { id: Date.now(), mode, metric, target }]);
@@ -1098,14 +1315,14 @@ export function route(from, to) {
   return allTrips().filter((t) => t.end > from && t.start < to && t.points && t.points.length).map((t) => ({ id: t.id, mode: t.mode, color: MODES[t.mode].color, start: t.start, end: t.end, points: outsideZones(t.points), distanceM: t.distanceM, live: !!t.live })).filter((r) => r.points.length > 1);
 }
 
-export const status = () => ({ signedIn: !!S.token, user: S.user, demo: !!S.demo, syncError: S.syncError || null, pending: Object.keys(S.dirty).length, version, tracking: tracking(), api: API });
+export const status = () => ({ signedIn: !!S.token, user: S.user, demo: !!S.demo, syncError: S.syncError || null, pending: Object.keys(S.dirty).length, syncedAt: S.lastSync || 0, trips: Object.values(S.trips).filter((t) => !t.deleted).length, version, tracking: tracking(), api: API });
 export function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 
 // Resume tracking after a restart when the user had it on.
 if (S.token && S.settings.autoTrack) setTimeout(() => startTracking(), 1500);
 if (S.token) setTimeout(scheduleAlert, 4000);
 if (S.token) setTimeout(() => pushLockCard(true), 4500);
-if (S.token) setTimeout(prune, 5000);
+if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
 const Motio = { MODES, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Sharing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioShIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes motioShPulse{0%{box-shadow:0 0 0 0 rgba(242,118,107,0.55)}100%{box-shadow:0 0 0 10px rgba(242,118,107,0)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 6px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(31,29,71,0.08)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Sharing</h1>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 12px">
+    <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Friends can see your routes, your usual places or where you are right now, only if you turn it on for them. Private zones like home are always left out.</span>
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; text-align: center">Loading…</div></sc-if>
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="padding: 16px; border-radius: 20px; background: #FDE9E6; color: #C2412F; font-size: 13px; display: flex; align-items: center; gap: 10px"><span style="flex: 1">{{ error }}</span><button type="button" onClick="{{ reload }}" style="height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 700">Retry</button></div>
+    </sc-if>
+
+    <sc-if value="{{ liveOn }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; animation: motioShIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
+        <span aria-hidden="true" style="width: 12px; height: 12px; flex-shrink: 0; border-radius: 6px; background: #F2766B; animation: motioShPulse 1.6s ease-out infinite"></span>
+        <span style="flex: 1; min-width: 0; font-size: 13px; line-height: 1.45">{{ liveLine }}</span>
+        <button type="button" onClick="{{ stopLive }}" style="flex-shrink: 0; height: 36px; padding: 0 14px; border: 0; border-radius: 18px; background: #F2766B; color: #1F1D47; font-size: 12px; font-weight: 700">Stop</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin: 8px 0 0; font-size: 16px; font-weight: 700">Shared with you</h2>
+      <sc-for list="{{ toMe }}" as="p" hint-placeholder-count="2">
+        <button type="button" onClick="{{ p.open }}" aria-label="{{ p.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 20px; background: #FFFFFF; color: #1F1D47; text-align: left; animation: motioShIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+          <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ p.tint }}; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ p.ini }}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
+            <span style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{ p.chips }}" as="c" hint-placeholder-count="2"><span style="padding: 2px 8px; border-radius: 8px; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 11px; font-weight: 600">{{ c.t }}</span></sc-for></span>
+          </span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </sc-for>
+      <sc-if value="{{ noToMe }}" hint-placeholder-val="{{ false }}"><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; font-size: 13px; line-height: 1.5; color: #6B6890">No one shares with you yet. When a friend does, their map opens from here.</div></sc-if>
+
+      <h2 style="margin: 12px 0 0; font-size: 16px; font-weight: 700">You share with</h2>
+      <sc-for list="{{ mine }}" as="p" hint-placeholder-count="1">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #FFFFFF; animation: motioShIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+          <button type="button" onClick="{{ p.open }}" aria-label="{{ p.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+            <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ p.tint }}; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ p.ini }}</span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
+              <span style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{ p.chips }}" as="c" hint-placeholder-count="2"><span style="padding: 2px 8px; border-radius: 8px; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 11px; font-weight: 600">{{ c.t }}</span></sc-for></span>
+            </span>
+          </button>
+          <button type="button" onClick="{{ p.stop }}" disabled="{{ p.busy }}" aria-label="{{ p.stopAria }}" style="flex-shrink: 0; height: 36px; padding: 0 12px; border: 2px solid #E3E1F3; border-radius: 18px; background: #FFFFFF; color: #C2412F; font-size: 12px; font-weight: 600">Stop all</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ noMine }}" hint-placeholder-val="{{ false }}"><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; font-size: 13px; line-height: 1.5; color: #6B6890">You don’t share anything. Open a friend’s profile to choose what they can see.</div></sc-if>
+    </sc-if>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
+  componentWillUnmount() { window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
+  load() {
+    const M = window.Motio;
+    if (!M) return;
+    this.setState({ loading: !(this.state && this.state.data), error: null });
+    M.friends.sharing().then((data) => this.setState({ data, loading: false })).catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load sharing.' }));
+  }
+  showToast(msg) {
+    clearTimeout(this.toastT);
+    this.setState({ toast: null });
+    setTimeout(() => this.setState({ toast: msg }), 30);
+    this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const sample = { toMe: [{ id: 2, name: 'Leyla Aliyeva', kinds: { routes: true, live: Date.now() + 3600000 } }], mine: [{ id: 3, name: 'Murad', kinds: { places: true } }] };
+    const D = M ? s.data : sample;
+    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const ini = (n) => String(n || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const hm = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const chips = (k) => [
+      k.live ? { t: k.live === true ? 'Live location' : 'Live until ' + hm(k.live), bg: '#FDE9E6', fg: '#C2412F' } : null,
+      k.routes ? { t: 'Routes', bg: '#E6F6EA', fg: '#1E7A36' } : null,
+      k.places ? { t: 'Places', bg: '#ECEAFD', fg: '#4B3FD8' } : null
+    ].filter(Boolean);
+    const base = emb ? 380 : 0;
+    const openFriend = (id, target) => () => { window.__motioFriend = id; if (this.props.onNav) this.props.onNav(target); };
+    const mine = D ? D.mine : [], toMe = D ? D.toMe : [];
+    const live = mine.filter((p) => p.kinds.live);
+    const names = live.map((p) => p.name.split(' ')[0]);
+    const ends = live.map((p) => p.kinds.live).filter((v) => v !== true);
+    const stop = (p, kinds) => {
+      if (!M) return;
+      this.setState({ busy: { ...(s.busy || {}), [p.id]: true } });
+      Promise.all(kinds.map((k) => M.friends.share(p.id, k, false)))
+        .then(() => { this.showToast(kinds.length === 1 && kinds[0] === 'live' ? 'Live location stopped' : 'Stopped sharing with ' + p.name.split(' ')[0]); })
+        .catch((e) => this.showToast((e && e.message) || 'Couldn’t stop. Try again.'))
+        .then(() => { this.setState({ busy: {} }); this.load(); });
+    };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Friends.dc.html') },
+      loading: !!s.loading, hasError: !!s.error && !D, error: s.error || '', reload: () => this.load(),
+      ready: !!D, d0: base + 'ms',
+      liveOn: live.length > 0,
+      liveLine: 'Your live location is visible to ' + (names.length > 2 ? names.slice(0, 2).join(', ') + ' and ' + (names.length - 2) + ' more' : names.join(' and ')) + (ends.length === live.length && ends.length ? ' until ' + hm(Math.max(...ends)) : '') + '.',
+      stopLive: () => { if (!M) return; Promise.all(live.map((p) => M.friends.share(p.id, 'live', false))).then(() => { this.showToast('Live location stopped'); this.load(); }).catch(() => this.showToast('Couldn’t stop. Try again.')); },
+      toMe: toMe.map((p, i) => ({ name: p.name, ini: ini(p.name), tint: TINTS[p.id % TINTS.length], chips: chips(p.kinds), d: base + 80 + i * 50 + 'ms',
+        aria: 'Open ' + p.name + '’s shared map', open: openFriend(p.id, 'friendmap') })),
+      noToMe: !!D && !toMe.length,
+      mine: mine.map((p, i) => ({ name: p.name, ini: ini(p.name), tint: TINTS[p.id % TINTS.length], chips: chips(p.kinds), d: base + 160 + i * 50 + 'ms', busy: !!(s.busy || {})[p.id],
+        aria: 'Choose what ' + p.name + ' can see', open: openFriend(p.id, 'friend'), stopAria: 'Stop sharing everything with ' + p.name,
+        stop: () => stop(p, Object.keys(p.kinds)) })),
+      noMine: !!D && !mine.length,
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

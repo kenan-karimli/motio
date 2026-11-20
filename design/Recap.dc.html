@@ -37,391 +37,22 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; transition: background 300ms ease, color 300ms ease; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+
+  <div role="group" aria-roledescription="story" aria-label="{{ storyLabel }}" style="position: absolute; inset: 0; overflow: hidden">
+    <div key="{{ cardKey }}" ref="{{ paintCard }}" style="position: absolute; left: 0; top: 0; width: 360px; transform-origin: 0 0; animation: motioSwap 360ms ease-out"></div>
+  </div>
 
   <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
-    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 4px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
   </div>
 
   <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
-    <span style="padding: 6px 12px; border-radius: 16px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">{{ R.head }}</span>
-    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+    <span style="padding: 6px 12px; border-radius: 16px; background: {{ L.chip }}; color: {{ L.fg }}; font-size: 12px; font-weight: 600">{{ R.head }}</span>
+    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: {{ L.chip }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ L.fg }}" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column">
-
-    <sc-if value="{{ F.b1 }}" hint-placeholder-val="{{ true }}">
-    <div style="display: flex; flex-direction: column; gap: 10px; flex: 1; animation: motioSwap 360ms ease-out">
-      <h1 style="margin: 8px 0 0; font-size: 52px; font-weight: 700; line-height: 1; letter-spacing: -1.5px">{{ R.Your }},<br>wrapped</h1>
-      <span style="font-size: 15px; font-weight: 500">{{ R.span }} · five stories about how you moved</span>
-      <svg aria-hidden="true" width="350" height="380" viewBox="0 0 150 180" style="align-self: center; margin-top: 4px">
-        <rect x="14" y="20" width="10" height="6" rx="2" fill="#F6C343" transform="rotate(30 19 23)"></rect>
-        <rect x="128" y="40" width="10" height="6" rx="2" fill="#F2766B" transform="rotate(-30 133 43)"></rect>
-        <circle cx="132" cy="96" r="4" fill="#5B4FE0"></circle>
-        <circle cx="16" cy="88" r="4" fill="#FFFFFF"></circle>
-        <ellipse cx="75" cy="174" rx="40" ry="5" fill="#2FA84D"></ellipse>
-        <path d="M68 124 L60 170 M84 124 L92 170" stroke="#1F1D47" stroke-width="16" stroke-linecap="round"></path>
-        <ellipse cx="56" cy="172" rx="12" ry="5" fill="#FFFFFF"></ellipse>
-        <ellipse cx="96" cy="172" rx="12" ry="5" fill="#FFFFFF"></ellipse>
-        <path d="M58 82 L42 52 L38 24 M94 82 L110 52 L114 24" fill="none" stroke="#C47A4E" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M58 82 L48 64 M94 82 L104 64" stroke="#F6C343" stroke-width="15" stroke-linecap="round"></path>
-        <circle cx="38" cy="20" r="7" fill="#C47A4E"></circle>
-        <circle cx="114" cy="20" r="7" fill="#C47A4E"></circle>
-        <path d="M52 78 Q76 66 100 78 L96 128 Q76 134 56 128 Z" fill="#F6C343"></path>
-        <path d="M66 98 l10 -10 10 10 -10 10 z" fill="#F2766B"></path>
-        <circle cx="76" cy="52" r="17" fill="#C47A4E"></circle>
-        <circle cx="76" cy="30" r="9" fill="#2A1B3D"></circle>
-        <path d="M59 50 Q60 34 76 35 Q92 34 93 50 Q87 41 76 42 Q65 41 59 50 Z" fill="#2A1B3D"></path>
-        <path d="M68 56 Q76 64 84 56" fill="#FFFFFF" stroke="#2A1B3D" stroke-width="2" stroke-linejoin="round"></path>
-        <circle cx="69" cy="49" r="2" fill="#2A1B3D"></circle><circle cx="83" cy="49" r="2" fill="#2A1B3D"></circle>
-      </svg>
-      <span style="align-self: center; margin-top: auto; padding: 8px 16px; border-radius: 18px; background: rgba(255,255,255,0.6); font-size: 13px; font-weight: 600">Tap the right side to start</span>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.p1 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; flex: 1; animation: motioSwap 360ms ease-out">
-      <span style="margin-top: 16px; font-size: 26px; font-weight: 700; letter-spacing: 10px; color: #F6C343">{{ R.KIND }}</span>
-      <span style="font-size: 230px; font-weight: 700; line-height: 0.85; letter-spacing: -12px; color: #F6C343">{{ R.no }}</span>
-      <span style="font-size: 22px; font-weight: 600; margin-top: 8px">{{ R.span }}, wrapped</span>
-      <span style="font-size: 14px; color: #C9C5EC; margin-top: 4px">{{ R.Your }} in motion, in five chapters.</span>
-      <div style="display: flex; flex-direction: column; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.18)">
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>02 · Distance</span><span style="color: #C9C5EC">{{ R.dist }}</span></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>03 · Time</span><span style="color: #C9C5EC">{{ R.time }}</span></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span>04 · Records</span><span style="color: #C9C5EC">{{ R.prCount }}</span></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px"><span>05 · You</span><span style="color: #C9C5EC">Revealed last</span></span>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.y1 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 14px; animation: motioSwap 360ms ease-out">
-      <span style="font-size: 30px; font-weight: 700; line-height: 1.15">{{ R.Your }} was<br>quite a trip.</span>
-      <div style="position: relative; border-radius: 26px; background: #FFFFFF; color: #1F1D47; box-shadow: 0 16px 30px rgba(30,40,140,0.3)">
-        <div style="padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 14px">
-          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #6B6890"><span>MOTIO · BOARDING PASS</span><span>{{ R.KIND }} {{ R.no }}</span></div>
-          <div style="display: flex; align-items: center; justify-content: space-between">
-            <div style="display: flex; flex-direction: column"><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ R.fromDow }}</span><span style="font-size: 12px; color: #6B6890">{{ R.fromDate }}</span></div>
-            <svg aria-hidden="true" width="110" height="34" viewBox="0 0 110 34"><path d="M4 26 Q55 -6 106 26" fill="none" stroke="#C9C5EC" stroke-width="2.5" stroke-dasharray="4 6"></path><g transform="translate(42 2)"><path d="M2 14 V10 Q2 7 5 7 L9 7 L13 2 H22 L26 7 H28 Q31 7 31 10 V14 Z" fill="#6E8CF7"></path><circle cx="9" cy="15" r="3.5" fill="#1F1D47"></circle><circle cx="25" cy="15" r="3.5" fill="#1F1D47"></circle></g></svg>
-            <div style="display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ R.toDow }}</span><span style="font-size: 12px; color: #6B6890">{{ R.toDate }}</span></div>
-          </div>
-          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px">
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">PASSENGER</span><span style="font-size: 16px; font-weight: 700">{{ R.name }}</span></div>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">STOPS</span><span style="font-size: 16px; font-weight: 700">5 stories</span></div>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">BOARDING</span><span style="font-size: 16px; font-weight: 700">{{ R.peak }}</span></div>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">SEAT</span><span style="font-size: 16px; font-weight: 700">{{ R.seat }}</span></div>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">CLASS</span><span style="font-size: 16px; font-weight: 700">{{ R.persShort }}</span></div>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">GATE</span><span style="font-size: 16px; font-weight: 700">Home</span></div>
-          </div>
-        </div>
-        <div style="position: relative; height: 0; border-top: 2px dashed #E3E1F3; margin: 0 18px">
-          <span style="position: absolute; left: -32px; top: -15px; width: 28px; height: 28px; border-radius: 14px; background: #6E8CF7"></span>
-          <span style="position: absolute; right: -32px; top: -15px; width: 28px; height: 28px; border-radius: 14px; background: #6E8CF7"></span>
-        </div>
-        <div style="padding: 16px 20px 18px; display: flex; align-items: center; gap: 14px">
-          <div style="display: flex; flex-direction: column; flex: 1"><span style="font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6B6890">NOW BOARDING</span><span style="font-size: 15px; font-weight: 700">Tap right to take off</span></div>
-          <svg aria-hidden="true" width="64" height="40" viewBox="0 0 64 40"><g fill="#1F1D47"><rect x="0" width="3" height="40"></rect><rect x="6" width="2" height="40"></rect><rect x="11" width="5" height="40"></rect><rect x="19" width="2" height="40"></rect><rect x="24" width="3" height="40"></rect><rect x="30" width="5" height="40"></rect><rect x="38" width="2" height="40"></rect><rect x="43" width="4" height="40"></rect><rect x="50" width="2" height="40"></rect><rect x="55" width="5" height="40"></rect><rect x="62" width="2" height="40"></rect></g></svg>
-        </div>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.b2 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 14px; animation: motioSwap 360ms ease-out">
-      <div style="display: flex; flex-direction: column">
-        <span style="font-size: 16px; font-weight: 500">{{ R.This }} you covered</span>
-        <span style="font-size: 84px; font-weight: 700; line-height: 1.05; letter-spacing: -3px">{{ R.distNum }}<span style="font-size: 32px; letter-spacing: 0"> {{ R.unit }}</span></span>
-        <span style="font-size: 15px; line-height: 1.45">{{ R.compareLong }}</span>
-      </div>
-      <div style="position: relative; height: 210px; border-radius: 28px; background: #FFFFFF; overflow: hidden">
-        <svg aria-hidden="true" width="350" height="210" viewBox="0 0 350 210" style="position: absolute; inset: 0">
-          <path d="M-10 170 C 70 170, 90 70, 175 80 S 290 170, 360 60" fill="none" stroke="#ECEAF8" stroke-width="34" stroke-linecap="round"></path>
-          <path d="M-10 170 C 70 170, 90 70, 175 80 S 290 170, 360 60" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="10 10"></path>
-          <g transform="translate(26 136)"><path d="M2 14 L14 3 L26 14 V28 H2 Z" fill="#F6C343"></path><path d="M0 15 L14 2 L28 15" fill="none" stroke="#F2766B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><rect x="10" y="18" width="8" height="10" fill="#4B3FD8"></rect></g>
-          <g transform="translate(150 50)"><path d="M4 22 V15 Q4 11 8 11 L14 11 L20 4 H36 L42 11 H46 Q50 11 50 15 V22 Z" fill="#F2766B"></path><path d="M23 6 H34 L38 11 H19 Z" fill="#BFD0FF"></path><circle cx="14" cy="23" r="5" fill="#1F1D47"></circle><circle cx="40" cy="23" r="5" fill="#1F1D47"></circle></g>
-          <g transform="translate(306 14)"><path d="M14 38 C 5 26, 0 20, 0 13 a14 14 0 0 1 28 0 c0 7 -5 13 -14 25z" fill="#3DBF5C"></path><circle cx="14" cy="13" r="5.5" fill="#FFFFFF"></circle></g>
-        </svg>
-        <span style="position: absolute; left: 16px; top: 16px; padding: 4px 10px; border-radius: 12px; background: #F3F2FA; color: #1F1D47; font-size: 11px; font-weight: 600">Home</span>
-        <span style="position: absolute; right: 16px; bottom: 16px; padding: 4px 10px; border-radius: 12px; background: #F3F2FA; color: #1F1D47; font-size: 11px; font-weight: 600">{{ R.compareShort }}</span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 8px">
-        <div style="display: flex; height: 14px; gap: 3px"><sc-for list="{{ R.byDist }}" as="x" hint-placeholder-count="5"><span style="width: {{ x.pct }}; border-radius: 7px; background: {{ x.color }}"></span></sc-for></div>
-        <div style="display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; font-weight: 500"><sc-for list="{{ R.byDist }}" as="x" hint-placeholder-count="5"><span>{{ x.label }} {{ x.distShort }}</span></sc-for></div>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.p2 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 2px; animation: motioSwap 360ms ease-out">
-      <span style="font-size: 15px; font-weight: 500; color: #C9C5EC">{{ R.span }} · you covered</span>
-      <span style="font-size: 150px; font-weight: 700; line-height: 0.88; letter-spacing: -8px; color: #3DBF5C">{{ R.distNum }}</span>
-      <span style="font-size: 26px; font-weight: 600">{{ R.unitLong }}</span>
-      <div style="position: relative; height: 130px; margin: 8px -20px 0">
-        <svg aria-hidden="true" width="390" height="130" viewBox="0 0 390 130" style="position: absolute; inset: 0">
-          <path d="M-10 108 C 70 108, 90 34, 190 42 S 310 112, 400 30" fill="none" stroke="#2D2A6E" stroke-width="30" stroke-linecap="round"></path>
-          <path d="M-10 108 C 70 108, 90 34, 190 42 S 310 112, 400 30" fill="none" stroke="#3DBF5C" stroke-width="2.5" stroke-dasharray="10 10"></path>
-          <g transform="translate(36 88)"><path d="M2 14 L14 3 L26 14 V28 H2 Z" fill="#F2766B"></path><rect x="10" y="18" width="8" height="10" fill="#1F1D47"></rect></g>
-          <g transform="translate(176 14)"><path d="M4 18 V12 Q4 9 7 9 L12 9 L17 3 H30 L35 9 H38 Q42 9 42 13 V18 Z" fill="#6E8CF7"></path><circle cx="12" cy="19" r="4" fill="#FFFFFF"></circle><circle cx="34" cy="19" r="4" fill="#FFFFFF"></circle></g>
-          <g transform="translate(338 0)"><path d="M12 32 C 4 22, 0 16, 0 11 a12 12 0 0 1 24 0 c0 5 -4 11 -12 21z" fill="#3DBF5C"></path><circle cx="12" cy="11" r="4.5" fill="#1F1D47"></circle></g>
-        </svg>
-        <span style="position: absolute; right: 20px; bottom: 0; font-size: 12px; font-weight: 600; color: #C9C5EC">{{ R.compareMid }}</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.18)">
-        <div style="display: flex; flex-direction: column; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.18)"><span style="font-size: 24px; font-weight: 700">{{ R.perDay }}</span><span style="font-size: 12px; color: #C9C5EC">a day on average</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px 0 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.18); border-left: 1px solid rgba(255,255,255,0.18)"><span style="font-size: 24px; font-weight: 700">{{ R.vsDist }}</span><span style="font-size: 12px; color: #C9C5EC">{{ R.vsLast }}</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px 0"><span style="font-size: 24px; font-weight: 700">{{ R.bestDayDist }}</span><span style="font-size: 12px; color: #C9C5EC">{{ R.bestDayLine }}</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px 0 14px 16px; border-left: 1px solid rgba(255,255,255,0.18)"><span style="font-size: 24px; font-weight: 700">{{ R.top }}</span><span style="font-size: 12px; color: #C9C5EC">top speed</span></div>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.y2 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 360ms ease-out">
-      <span style="font-size: 26px; font-weight: 700; line-height: 1.15">Where your<br>{{ R.dist }} went</span>
-      <div style="position: relative; border-radius: 28px; background: #FFFFFF; padding: 10px; box-shadow: 0 16px 30px rgba(70,20,110,0.3)">
-        <svg role="img" aria-label="Map of your week's routes by type of movement, between home and work" width="330" height="300" viewBox="0 0 330 300" style="display: block">
-          <rect width="330" height="300" rx="20" fill="#EEF0F6"></rect>
-          <path d="M30 180 C 30 150, 130 150, 130 190 S 90 270, 50 260 S 30 210, 30 180 Z" fill="#CDEFD5"></path>
-          <path d="M-10 118 C 80 88, 150 160, 340 104" fill="none" stroke="#C8D6FF" stroke-width="22"></path>
-          <g stroke="#FFFFFF" stroke-width="10"><path d="M70 0 V300 M160 0 V300 M250 0 V300 M0 60 H330 M0 210 H330 M0 270 H330"></path><path d="M0 300 L330 20" stroke-width="7"></path></g>
-          <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 60 H160" stroke="#9B5FD0" stroke-dasharray="1 9" stroke-width="6"></path>
-            <path d="M30 280 L70 210 H160 L250 60 H316" stroke="#E0A92C"></path>
-            <path d="M70 262 V60 H160" stroke="#6E8CF7"></path>
-            <path d="M160 210 V140 L212 128 M250 270 V210" stroke="#2FA84D"></path>
-            <path d="M55 222 C 55 190, 115 190, 115 222 S 55 252, 55 222" stroke="#F2766B"></path>
-          </g>
-          <g transform="translate(58 236)"><path d="M12 32 C 4 22, 0 16, 0 11 a12 12 0 0 1 24 0 c0 5 -4 11 -12 21z" fill="#F2766B"></path><circle cx="12" cy="11" r="4.5" fill="#FFFFFF"></circle></g>
-          <g transform="translate(238 30)"><path d="M12 32 C 4 22, 0 16, 0 11 a12 12 0 0 1 24 0 c0 5 -4 11 -12 21z" fill="#5B4FE0"></path><circle cx="12" cy="11" r="4.5" fill="#FFFFFF"></circle></g>
-        </svg>
-        <span style="position: absolute; left: 92px; top: 252px; padding: 3px 9px; border-radius: 10px; background: #FFFFFF; font-size: 11px; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12)">Home</span>
-        <span style="position: absolute; left: 270px; top: 30px; padding: 3px 9px; border-radius: 10px; background: #FFFFFF; font-size: 11px; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12)">Work</span>
-        <span style="position: absolute; left: 22px; top: 20px; padding: 6px 12px; border-radius: 14px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">{{ R.perDay }} a day, on average</span>
-      </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 500">
-        <sc-for list="{{ R.byDist }}" as="x" hint-placeholder-count="5">
-        <span style="display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 14px; background: #FFFFFF"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ x.dark }}"></span>{{ x.label }} {{ x.dist }}</span></sc-for>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.b3 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 360ms ease-out">
-      <div style="display: flex; flex-direction: column">
-        <span style="font-size: 16px; font-weight: 500">You spent</span>
-        <span style="font-size: 68px; font-weight: 700; line-height: 1.05; letter-spacing: -2px">{{ R.time }}</span>
-        <span style="font-size: 15px">{{ R.timeVsLine }}</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px 8px 6px; border-radius: 28px; background: #FFFFFF; color: #1F1D47">
-        <svg role="img" aria-label="24-hour clock of your week: movement peaks at 8 AM and again at 6 PM" width="170" height="170" viewBox="5 5 180 180">
-          <circle cx="95" cy="95" r="31" fill="#F3F2FA"></circle>
-          <g fill="#5B4FE0">
-            <rect x="-3" y="-40" width="6" height="6" rx="3" fill="#E3E1F3" transform="translate(95 95) rotate(0)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#E3E1F3" transform="translate(95 95) rotate(15)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#E3E1F3" transform="translate(95 95) rotate(30)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#E3E1F3" transform="translate(95 95) rotate(45)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#E3E1F3" transform="translate(95 95) rotate(60)"></rect>
-            <rect x="-3" y="-42.5" width="6" height="8.5" rx="3" transform="translate(95 95) rotate(75)"></rect><rect x="-3" y="-52.5" width="6" height="18.5" rx="3" transform="translate(95 95) rotate(90)"></rect><rect x="-3" y="-75" width="6" height="41" rx="3" transform="translate(95 95) rotate(105)"></rect>
-            <rect x="-3.5" y="-90" width="7" height="56" rx="3.5" fill="#F2766B" transform="translate(95 95) rotate(120)"></rect>
-            <rect x="-3" y="-62.5" width="6" height="28.5" rx="3" transform="translate(95 95) rotate(135)"></rect><rect x="-3" y="-47.5" width="6" height="13.5" rx="3" transform="translate(95 95) rotate(150)"></rect><rect x="-3" y="-50" width="6" height="16" rx="3" transform="translate(95 95) rotate(165)"></rect><rect x="-3" y="-67.5" width="6" height="33.5" rx="3" transform="translate(95 95) rotate(180)"></rect><rect x="-3" y="-65" width="6" height="31" rx="3" transform="translate(95 95) rotate(195)"></rect><rect x="-3" y="-47.5" width="6" height="13.5" rx="3" transform="translate(95 95) rotate(210)"></rect><rect x="-3" y="-50" width="6" height="16" rx="3" transform="translate(95 95) rotate(225)"></rect><rect x="-3" y="-55" width="6" height="21" rx="3" transform="translate(95 95) rotate(240)"></rect><rect x="-3" y="-77.5" width="6" height="43.5" rx="3" transform="translate(95 95) rotate(255)"></rect><rect x="-3" y="-82.5" width="6" height="48.5" rx="3" transform="translate(95 95) rotate(270)"></rect><rect x="-3" y="-60" width="6" height="26" rx="3" transform="translate(95 95) rotate(285)"></rect><rect x="-3" y="-57.5" width="6" height="23.5" rx="3" transform="translate(95 95) rotate(300)"></rect><rect x="-3" y="-55" width="6" height="21" rx="3" transform="translate(95 95) rotate(315)"></rect><rect x="-3" y="-45" width="6" height="11" rx="3" transform="translate(95 95) rotate(330)"></rect><rect x="-3" y="-41" width="6" height="7" rx="3" transform="translate(95 95) rotate(345)"></rect>
-          </g>
-          <g fill="#6B6890" font-family="Poppins, sans-serif" font-size="9" font-weight="600" text-anchor="middle"><text x="95" y="79">0</text><text x="117" y="98">6</text><text x="95" y="117">12</text><text x="72" y="98">18</text></g>
-        </svg>
-        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
-          <span style="font-size: 12px; font-weight: 500; color: #6B6890">Your peak hour</span>
-          <span style="font-size: 36px; font-weight: 700; line-height: 1.1; color: #D94F45">{{ R.peak }}</span>
-          <span style="font-size: 12px; line-height: 1.45; color: #4A4770">{{ R.peakLine }} {{ R.secondLine }}</span>
-        </div>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47">
-        <sc-for list="{{ R.byTime }}" as="x" hint-placeholder-count="5">
-        <div style="display: flex; align-items: center; gap: 10px; font-size: 12px"><span style="width: 52px; font-weight: 600">{{ x.label }}</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #F3F2FA"><span style="display: block; width: {{ x.rel }}; height: 8px; border-radius: 4px; background: {{ x.color }}"></span></span><span style="width: 52px; text-align: right">{{ x.time }}</span></div></sc-for>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.p3 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; animation: motioSwap 360ms ease-out">
-      <span style="margin-top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 3px; color: #C9C5EC">YOUR PEAK HOUR</span>
-      <span style="font-size: 120px; font-weight: 700; line-height: 0.95; letter-spacing: -6px; color: #F2766B">{{ R.peak }}</span>
-      <span style="font-size: 16px; margin-top: 6px">{{ R.peakLine }}</span>
-      <svg role="img" aria-label="24-hour clock of your week: movement peaks at 8 AM and again at 6 PM" width="260" height="260" viewBox="5 5 180 180" style="align-self: center; margin-top: 18px">
-        <circle cx="95" cy="95" r="31" fill="#2D2A6E"></circle>
-        <g fill="#6E8CF7">
-          <rect x="-3" y="-40" width="6" height="6" rx="3" fill="#3A3685" transform="translate(95 95) rotate(0)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#3A3685" transform="translate(95 95) rotate(15)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#3A3685" transform="translate(95 95) rotate(30)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#3A3685" transform="translate(95 95) rotate(45)"></rect><rect x="-3" y="-40" width="6" height="6" rx="3" fill="#3A3685" transform="translate(95 95) rotate(60)"></rect>
-          <rect x="-3" y="-42.5" width="6" height="8.5" rx="3" transform="translate(95 95) rotate(75)"></rect><rect x="-3" y="-52.5" width="6" height="18.5" rx="3" transform="translate(95 95) rotate(90)"></rect><rect x="-3" y="-75" width="6" height="41" rx="3" transform="translate(95 95) rotate(105)"></rect>
-          <rect x="-3.5" y="-90" width="7" height="56" rx="3.5" fill="#F2766B" transform="translate(95 95) rotate(120)"></rect>
-          <rect x="-3" y="-62.5" width="6" height="28.5" rx="3" transform="translate(95 95) rotate(135)"></rect><rect x="-3" y="-47.5" width="6" height="13.5" rx="3" transform="translate(95 95) rotate(150)"></rect><rect x="-3" y="-50" width="6" height="16" rx="3" transform="translate(95 95) rotate(165)"></rect><rect x="-3" y="-67.5" width="6" height="33.5" rx="3" transform="translate(95 95) rotate(180)"></rect><rect x="-3" y="-65" width="6" height="31" rx="3" transform="translate(95 95) rotate(195)"></rect><rect x="-3" y="-47.5" width="6" height="13.5" rx="3" transform="translate(95 95) rotate(210)"></rect><rect x="-3" y="-50" width="6" height="16" rx="3" transform="translate(95 95) rotate(225)"></rect><rect x="-3" y="-55" width="6" height="21" rx="3" transform="translate(95 95) rotate(240)"></rect><rect x="-3" y="-77.5" width="6" height="43.5" rx="3" transform="translate(95 95) rotate(255)"></rect><rect x="-3" y="-82.5" width="6" height="48.5" rx="3" transform="translate(95 95) rotate(270)"></rect><rect x="-3" y="-60" width="6" height="26" rx="3" transform="translate(95 95) rotate(285)"></rect><rect x="-3" y="-57.5" width="6" height="23.5" rx="3" transform="translate(95 95) rotate(300)"></rect><rect x="-3" y="-55" width="6" height="21" rx="3" transform="translate(95 95) rotate(315)"></rect><rect x="-3" y="-45" width="6" height="11" rx="3" transform="translate(95 95) rotate(330)"></rect><rect x="-3" y="-41" width="6" height="7" rx="3" transform="translate(95 95) rotate(345)"></rect>
-        </g>
-        <g fill="#C9C5EC" font-family="Poppins, sans-serif" font-size="9" font-weight="600" text-anchor="middle"><text x="95" y="79">0</text><text x="117" y="98">6</text><text x="95" y="117">12</text><text x="72" y="98">18</text></g>
-      </svg>
-      <div style="display: flex; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span><b>{{ R.time }}</b> <span style="color: #C9C5EC">moved</span></span><span><b>{{ R.second }}</b> <span style="color: #C9C5EC">second wind</span></span></div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.y3 }}" hint-placeholder-val="{{ false }}">
-    <div style="position: relative; display: flex; justify-content: center; padding-top: 6px; animation: motioSwap 360ms ease-out">
-      <div style="position: relative; width: 322px; box-sizing: border-box; padding: 22px 22px 26px; background: #FFFFFF; color: #1F1D47; font-family: 'Space Mono', monospace; font-size: 13px; display: flex; flex-direction: column; gap: 10px; transform: rotate(-1.5deg); box-shadow: 0 16px 30px rgba(120,30,20,0.25)">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
-          <span style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 6px">MOTIO</span>
-          <span style="font-size: 11px; letter-spacing: 1px">TIME RECEIPT · {{ R.SPAN }}</span>
-        </div>
-        <div style="border-top: 2px dashed #C9C5EC"></div>
-        <sc-for list="{{ R.byTime }}" as="x" hint-placeholder-count="5">
-        <div style="display: flex; justify-content: space-between"><span>{{ x.LABEL }}</span><span>{{ x.time }}</span></div></sc-for>
-        <div style="border-top: 2px dashed #C9C5EC"></div>
-        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 700"><span>TOTAL</span><span>{{ R.time }}</span></div>
-        <div style="display: flex; justify-content: space-between"><span>{{ R.VSLAST }}</span><span>{{ R.vsTime }}</span></div>
-        <div style="display: flex; justify-content: space-between"><span>PEAK HOUR</span><span>{{ R.peak }}</span></div>
-        <div style="display: flex; justify-content: space-between"><span>SECOND WIND</span><span>{{ R.second }}</span></div>
-        <div style="border-top: 2px dashed #C9C5EC"></div>
-        <span style="text-align: center; font-size: 11px; letter-spacing: 1px">THANK YOU FOR MOVING</span>
-        <svg aria-hidden="true" width="220" height="40" viewBox="0 0 220 40" style="align-self: center"><g fill="#1F1D47"><rect x="0" width="4" height="40"></rect><rect x="7" width="2" height="40"></rect><rect x="12" width="6" height="40"></rect><rect x="21" width="2" height="40"></rect><rect x="26" width="4" height="40"></rect><rect x="34" width="2" height="40"></rect><rect x="40" width="6" height="40"></rect><rect x="49" width="3" height="40"></rect><rect x="56" width="2" height="40"></rect><rect x="61" width="5" height="40"></rect><rect x="70" width="2" height="40"></rect><rect x="75" width="4" height="40"></rect><rect x="83" width="6" height="40"></rect><rect x="92" width="2" height="40"></rect><rect x="98" width="3" height="40"></rect><rect x="104" width="5" height="40"></rect><rect x="112" width="2" height="40"></rect><rect x="118" width="4" height="40"></rect><rect x="125" width="2" height="40"></rect><rect x="131" width="6" height="40"></rect><rect x="140" width="3" height="40"></rect><rect x="147" width="2" height="40"></rect><rect x="152" width="5" height="40"></rect><rect x="161" width="2" height="40"></rect><rect x="166" width="4" height="40"></rect><rect x="174" width="6" height="40"></rect><rect x="183" width="2" height="40"></rect><rect x="189" width="3" height="40"></rect><rect x="196" width="5" height="40"></rect><rect x="204" width="2" height="40"></rect><rect x="209" width="4" height="40"></rect><rect x="216" width="4" height="40"></rect></g></svg>
-        <svg aria-hidden="true" width="322" height="12" viewBox="0 0 322 12" preserveAspectRatio="none" style="position: absolute; left: 0; bottom: -11px"><path d="M0 0 H322 V0 L314 12 L306 0 L298 12 L290 0 L282 12 L274 0 L266 12 L258 0 L250 12 L242 0 L234 12 L226 0 L218 12 L210 0 L202 12 L194 0 L186 12 L178 0 L170 12 L162 0 L154 12 L146 0 L138 12 L130 0 L122 12 L114 0 L106 12 L98 0 L90 12 L82 0 L74 12 L66 0 L58 12 L50 0 L42 12 L34 0 L26 12 L18 0 L10 12 L0 0 Z" fill="#FFFFFF"></path></svg>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.b4 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 360ms ease-out">
-      <span style="font-size: 34px; font-weight: 700; line-height: 1.15">Highlights<br>you'll brag about</span>
-      <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47">
-        <span style="width: 52px; height: 52px; border-radius: 26px; flex-shrink: 0; background: #F6C343; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"></path></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #6B6890">{{ R.PRTAG }}</span><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ R.prValue }}</span><span style="font-size: 12px; color: #6B6890">{{ R.prSub }}</span></span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47">
-        <span style="width: 52px; height: 52px; border-radius: 26px; flex-shrink: 0; background: #F2766B; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M12 2l3 7 7 .6-5.3 4.7 1.6 7.2L12 17.8 5.7 21.5l1.6-7.2L2 9.6 9 9z" fill="#FFFFFF"></path></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #6B6890">WILDEST DAY</span><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ R.wildDay }}</span><span style="font-size: 12px; color: #6B6890">{{ R.wildSub }}</span></span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47">
-        <span style="width: 52px; height: 52px; border-radius: 26px; flex-shrink: 0; background: #5B4FE0; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="7"></circle><path d="M12 9v4l2 2M9 3h6"></path></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #6B6890">EARLY BIRD</span><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ R.early }}</span><span style="font-size: 12px; color: #6B6890">your earliest start, {{ R.earlyDay }}</span></span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 24px; background: #FFFFFF; color: #1F1D47">
-        <span style="width: 52px; height: 52px; border-radius: 26px; flex-shrink: 0; background: #3DBF5C; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#FFFFFF"><ellipse cx="8" cy="8" rx="3.5" ry="5"></ellipse><ellipse cx="16" cy="15" rx="3.5" ry="5"></ellipse></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #6B6890">BEST STEP DAY</span><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ R.bestSteps }}</span><span style="font-size: 12px; color: #6B6890">steps on {{ R.bestStepsDay }}</span></span>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.p4 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; animation: motioSwap 360ms ease-out">
-      <span style="margin-top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 3px; color: #C9C5EC">{{ R.PRHEAD }}</span>
-      <span style="font-size: 150px; font-weight: 700; line-height: 0.92; letter-spacing: -8px; color: #6E8CF7">{{ R.prNum }}</span>
-      <span style="font-size: 20px; font-weight: 600">{{ R.prUnitLine }}</span>
-      <span style="font-size: 14px; color: #C9C5EC">{{ R.prDetail }}</span>
-      <svg aria-hidden="true" width="350" height="130" viewBox="0 0 350 130" style="margin-top: 16px">
-        <path d="M24 104 C 70 104, 70 60, 120 64 S 170 104, 214 82 S 270 26, 322 30" fill="none" stroke="#2D2A6E" stroke-width="16" stroke-linecap="round"></path>
-        <path d="M24 104 C 70 104, 70 60, 120 64 S 170 104, 214 82 S 270 26, 322 30" fill="none" stroke="#6E8CF7" stroke-width="5" stroke-linecap="round"></path>
-        <circle cx="24" cy="104" r="8" fill="#1F1D47" stroke="#FFFFFF" stroke-width="3"></circle>
-        <circle cx="322" cy="30" r="9" fill="#F6C343"></circle>
-      </svg>
-      <div style="display: flex; flex-direction: column; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.18)">
-        <span style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span style="color: #C9C5EC">Wildest day</span><b>{{ R.wildShort }} · {{ R.wildWays }}</b></span>
-        <span style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span style="color: #C9C5EC">Earliest start</span><b>{{ R.earlyShort }} · {{ R.early }}</b></span>
-        <span style="display: flex; justify-content: space-between; padding: 12px 0; font-size: 14px"><span style="color: #C9C5EC">Best step day</span><b>{{ R.bestStepsShort }} · {{ R.bestSteps }}</b></span>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.y4 }}" hint-placeholder-val="{{ false }}">
-    <div style="position: relative; flex: 1; min-height: 560px; animation: motioSwap 360ms ease-out">
-      <span style="position: absolute; left: 0; top: 0; font-size: 26px; font-weight: 700; line-height: 1.15">Stick these<br>on your week</span>
-      <div style="position: absolute; left: 4px; top: 92px; width: 190px; height: 190px; border-radius: 95px; background: #F2766B; border: 5px solid #FFFFFF; box-shadow: 0 10px 20px rgba(120,80,0,0.25); transform: rotate(-8deg); display: flex; flex-direction: column; align-items: center; justify-content: center"><span style="font-size: 56px; font-weight: 700; line-height: 1">{{ R.prNum }}</span><span style="font-size: 15px; font-weight: 600">{{ R.prUnitShort }}</span></div>
-      <div style="position: absolute; right: 0; top: 96px; padding: 14px 20px; border-radius: 40px; background: #5B4FE0; color: #FFFFFF; border: 5px solid #FFFFFF; box-shadow: 0 10px 20px rgba(120,80,0,0.25); transform: rotate(7deg); display: flex; flex-direction: column"><span style="font-size: 26px; font-weight: 700; line-height: 1.1">{{ R.early }}</span><span style="font-size: 12px">earliest start, {{ R.earlyShort }}</span></div>
-      <div style="position: absolute; right: 18px; top: 214px; width: 150px; height: 150px; transform: rotate(-10deg)">
-        <svg aria-hidden="true" width="150" height="150" viewBox="0 0 150 150" style="position: absolute; inset: 0"><g fill="#3DBF5C" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"><rect x="30" y="30" width="90" height="90" rx="10"></rect><rect x="30" y="30" width="90" height="90" rx="10" transform="rotate(30 75 75)"></rect><rect x="30" y="30" width="90" height="90" rx="10" transform="rotate(60 75 75)"></rect></g><g fill="#3DBF5C"><rect x="34" y="34" width="82" height="82" rx="8"></rect><rect x="34" y="34" width="82" height="82" rx="8" transform="rotate(30 75 75)"></rect><rect x="34" y="34" width="82" height="82" rx="8" transform="rotate(60 75 75)"></rect></g></svg>
-        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center"><span style="font-size: 11px; font-weight: 700; letter-spacing: 1px">WILDEST DAY</span><span style="font-size: 22px; font-weight: 700; line-height: 1.1">{{ R.wildDay }}</span><span style="font-size: 11px; font-weight: 600">{{ R.wildWays }}</span></div>
-      </div>
-      <div style="position: absolute; left: 14px; top: 310px; padding: 14px 18px; border-radius: 20px; background: #FFFFFF; box-shadow: 0 10px 20px rgba(120,80,0,0.25); transform: rotate(4deg); display: flex; align-items: center; gap: 10px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="#1F1D47"><ellipse cx="8" cy="8" rx="3.5" ry="5"></ellipse><ellipse cx="16" cy="15" rx="3.5" ry="5"></ellipse></svg><span style="display: flex; flex-direction: column"><span style="font-size: 22px; font-weight: 700; line-height: 1.1">{{ R.bestSteps }}</span><span style="font-size: 12px">steps, best day</span></span></div>
-      <div style="position: absolute; left: 40px; top: 430px; padding: 12px 18px; border-radius: 16px; background: #6E8CF7; border: 5px solid #FFFFFF; box-shadow: 0 10px 20px rgba(120,80,0,0.25); transform: rotate(-5deg); display: flex; flex-direction: column"><span style="font-size: 11px; font-weight: 700; letter-spacing: 1px">TOP SPEED</span><span style="font-size: 24px; font-weight: 700; line-height: 1.1">{{ R.top }}</span></div>
-      <div style="position: absolute; right: 24px; top: 420px; padding: 12px 16px; border-radius: 12px; background: #1F1D47; color: #FFFFFF; border: 5px solid #FFFFFF; box-shadow: 0 10px 20px rgba(120,80,0,0.25); transform: rotate(9deg); display: flex; flex-direction: column"><span style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #F6C343">LONGEST WALK</span><span style="font-size: 20px; font-weight: 700; line-height: 1.1">{{ R.longWalk }}</span><span style="font-size: 11px">{{ R.longWalkSub }}</span></div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.b5 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; gap: 12px; animation: motioSwap 360ms ease-out">
-      <span style="font-size: 44px; font-weight: 700; line-height: 1.05; letter-spacing: -1px">That's a wrap!</span>
-      <div style="position: relative; height: 170px; border-radius: 28px; background: #F2766B; overflow: hidden">
-        <svg aria-hidden="true" width="350" height="170" viewBox="0 0 350 170" style="position: absolute; inset: 0">
-          <path d="M150 60 Q 220 10 360 50 V 170 H 150 Z" fill="#F58C83"></path>
-          <g transform="translate(168 14) scale(0.52)">
-            <path d="M188 214 L172 256 L160 294" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-            <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
-            <path d="M204 214 L226 250 L242 290" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path>
-            <path d="M216 140 L242 170 L254 150" fill="none" stroke="#5B4FE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
-            <g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round"></path></g>
-            <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-            <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle><circle cx="179" cy="90" r="10" fill="#2A1B3D"></circle>
-            <path d="M206 105 Q212 110 218 104" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
-          </g>
-        </svg>
-        <div style="position: absolute; left: 20px; top: 20px; width: 170px; display: flex; flex-direction: column; gap: 2px; color: #1F1D47"><span style="font-size: 12px; font-weight: 600">This week you were</span><span style="font-size: 24px; font-weight: 600; line-height: 1.15">{{ R.persA }}<br>{{ R.persB }}</span><span style="align-self: flex-start; margin-top: 6px; padding: 4px 10px; border-radius: 12px; background: #FFFFFF; font-size: 11px"><b>{{ R.rareB }}</b> {{ R.rareT }}</span></div>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-        <div style="display: flex; flex-direction: column; padding: 14px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 22px; font-weight: 700">{{ R.dist }}</span><span style="font-size: 12px; color: #6B6890">covered</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 22px; font-weight: 700">{{ R.time }}</span><span style="font-size: 12px; color: #6B6890">on the move</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 22px; font-weight: 700">{{ R.steps }}</span><span style="font-size: 12px; color: #6B6890">steps</span></div>
-        <div style="display: flex; flex-direction: column; padding: 14px; border-radius: 22px; background: #FFFFFF"><span style="font-size: 22px; font-weight: 700">{{ R.prValueShort }}</span><span style="font-size: 12px; color: #6B6890">{{ R.prName }}</span></div>
-      </div>
-      <span style="font-size: 14px; font-weight: 500">{{ R.nextLine }}</span>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.p5 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; animation: motioSwap 360ms ease-out">
-      <span style="margin-top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 3px; color: #C9C5EC">THIS WEEK YOU WERE</span>
-      <span style="font-size: 54px; font-weight: 700; line-height: 1; letter-spacing: -1.5px; color: #B57BE0; margin-top: 6px">{{ R.persA }}<br>{{ R.persB }}</span>
-      <svg aria-hidden="true" width="350" height="250" viewBox="90 50 260 260" style="align-self: center; margin-top: 4px">
-        <path d="M60 330 Q 80 220 180 250 T 330 170 T 380 80" fill="none" stroke="#B57BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14"></path>
-        <path d="M188 214 L172 256 L160 294" fill="none" stroke="#6E8CF7" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-        <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
-        <path d="M180 142 L164 186" stroke="#4B3FD8" stroke-width="17" stroke-linecap="round"></path>
-        <path d="M204 214 L226 250 L242 290" fill="none" stroke="#6E8CF7" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#B57BE0"></path>
-        <path d="M216 140 L242 170 L254 150" fill="none" stroke="#B57BE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
-        <g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round"></path><circle cx="300" cy="112" r="4" fill="#F2766B"></circle></g>
-        <circle cx="254" cy="148" r="8" fill="#8B4A2B"></circle>
-        <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-        <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle><circle cx="179" cy="90" r="10" fill="#2A1B3D"></circle>
-        <path d="M206 105 Q212 110 218 104" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
-      </svg>
-      <div style="display: flex; flex-direction: column; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.18)">
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span style="color: #C9C5EC">Covered</span><b>{{ R.dist }}</b></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18); font-size: 14px"><span style="color: #C9C5EC">On the move</span><b>{{ R.time }}</b></span>
-        <span style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px"><span style="color: #C9C5EC">{{ R.rareLabel }}</span><b>{{ R.rareB }} {{ R.rareT }}</b></span>
-      </div>
-    </div>
-    </sc-if>
-
-    <sc-if value="{{ F.y5 }}" hint-placeholder-val="{{ false }}">
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; animation: motioSwap 360ms ease-out">
-      <span style="align-self: flex-start; font-size: 26px; font-weight: 700; line-height: 1.15">Your card<br>this week</span>
-      <div style="width: 290px; border-radius: 26px; background: #FFFFFF; color: #1F1D47; padding: 10px; box-sizing: border-box; transform: rotate(-3deg); box-shadow: 0 18px 34px rgba(20,10,80,0.4); border: 4px solid #F6C343">
-        <div style="position: relative; height: 210px; border-radius: 18px; background: #F2766B; overflow: hidden">
-          <svg aria-hidden="true" width="262" height="210" viewBox="100 50 230 250" style="position: absolute; inset: 0">
-            <path d="M40 330 Q 80 220 180 250 T 330 170 T 380 80" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14"></path>
-            <path d="M188 214 L172 256 L160 294" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-            <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
-            <path d="M204 214 L226 250 L242 290" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path>
-            <path d="M216 140 L242 170 L254 150" fill="none" stroke="#5B4FE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
-            <g transform="rotate(-12 274 132)"><rect x="244" y="104" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M250 146 Q262 128 274 136 T 300 112" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round"></path></g>
-            <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-            <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle><circle cx="179" cy="90" r="10" fill="#2A1B3D"></circle>
-            <path d="M206 105 Q212 110 218 104" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
-          </svg>
-          <span style="position: absolute; left: 10px; top: 10px; padding: 3px 9px; border-radius: 10px; background: #F6C343; font-size: 10px; font-weight: 700; letter-spacing: 1px">{{ R.RARE }}</span>
-          <span style="position: absolute; right: 10px; top: 10px; font-size: 12px; font-weight: 700; color: #FFFFFF">#{{ R.no }}</span>
-        </div>
-        <div style="padding: 12px 8px 6px; display: flex; flex-direction: column; gap: 8px">
-          <span style="font-size: 22px; font-weight: 700; line-height: 1.1">{{ R.pers }}</span>
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600"><span style="width: 62px">PACE</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 30%; height: 8px; border-radius: 4px; background: #F2766B"></span></span><span>{{ R.cPace }}</span></div>
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600"><span style="width: 62px">RANGE</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 82%; height: 8px; border-radius: 4px; background: #3DBF5C"></span></span><span>{{ R.cRange }}</span></div>
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600"><span style="width: 62px">VARIETY</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 100%; height: 8px; border-radius: 4px; background: #6E8CF7"></span></span><span>{{ R.cVariety }}</span></div>
-          <span style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #EEF0F6; font-size: 11px; color: #6B6890"><span>{{ R.Kind }} {{ R.no }} · {{ R.span }}</span><span>{{ R.dist }}</span></span>
-        </div>
-      </div>
-    </div>
-    </sc-if>
-
+  <div style="position: relative; flex: 1; min-height: 0">
     <button aria-label="Previous story" onClick="{{ prev }}" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 35%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: w-resize"></button>
     <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
       <button aria-label="Next story" onClick="{{ next }}" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: e-resize"></button>
@@ -432,33 +63,11 @@ button:active,a:active{transform:scale(0.96)}
   </div>
 
   <div style="position: relative; display: flex; gap: 8px">
-    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.shareBg }}; color: {{ L.shareFg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ L.shareIcon }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.3" cy="6.7" r="0.6" fill="{{ L.shareIcon }}"></circle></svg>Share to your story</button>
-    <button onClick="{{ openShare }}" aria-label="More ways to share" style="width: 52px; height: 52px; border-radius: 26px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
+    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.fg }}; color: {{ L.bg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ L.bg }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share this story</button>
   </div>
+
   <sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; color: #1F1D47">
-      <button aria-label="Close" onClick="{{ closeShare }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5); cursor: default; animation: {{ shareScrim }}"></button>
-      <section aria-label="Share" style="position: relative; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 10px 20px 30px; display: flex; flex-direction: column; gap: 18px; animation: {{ shareAnim }}">
-        <span aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span>
-        <h2 style="margin: 0; font-size: 18px; font-weight: 600">Share your recap</h2>
-        <div aria-label="Preview of the image you’ll share" style="display: flex; justify-content: center; margin: 4px 0 14px">
-          <sc-if value="{{ hasShot }}" hint-placeholder-val="{{ false }}"><img src="{{ shot }}" alt="" style="height: 220px; aspect-ratio: 9 / 16; border-radius: 16px; box-shadow: 0 8px 24px rgba(31,29,71,0.22); animation: motioShFade 240ms ease-out"></sc-if>
-          <sc-if value="{{ noShot }}" hint-placeholder-val="{{ true }}"><div style="height: 220px; aspect-ratio: 9 / 16; border-radius: 16px; background: #EEF0F6; display: flex; align-items: center; justify-content: center; color: #6B6890; font-size: 12px">Making your image…</div></sc-if>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
-          <sc-for list="{{ targets }}" as="t" hint-placeholder-count="4">
-            <button onClick="{{ t.pick }}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 11px; font-weight: 600">
-              <span style="width: 56px; height: 56px; border-radius: 28px; background: {{ t.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.glyph }}"></path></svg></span>
-              {{ t.label }}
-            </button>
-          </sc-for>
-        </div>
-        <div style="display: flex; flex-direction: column; border-top: 1px solid #EEF0F6">
-          <button onClick="{{ saveImage }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Save image</button>
-          <button onClick="{{ copyLink }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"></path></svg>Copy text</button>
-        </div>
-      </section>
-    </div>
+    <dc-import name="ShareEditor" job="{{ shareJob }}" on-close="{{ closeShare }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
@@ -466,7 +75,7 @@ button:active,a:active{transform:scale(0.96)}
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"recapStyle":{"editor":"enum","options":["mix","bold","poster","playful"],"default":"mix"},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
   dirGet() {
@@ -498,19 +107,9 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: msg }), 30);
     this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
   }
-  // Real sharing on the phone: a story card image through the share sheet, saved to Documents, or copied as text.
-  shareOut(how, fallback) {
-    if (!window.Motio) { this.shareDone(fallback); return; }
-    this.shareDone(null);
-    const c = this.shareCardData(), text = `${c.kicker}: ${c.big}. ${c.line}. Tracked with Motio.`;
-    Promise.resolve(this.shotP || window.Motio.captureScreen())
-      .then((img) => window.Motio.shareImage(img || '', how, text))
-      .then((msg) => { if (msg) this.showToast(msg); })
-      .catch((e) => { if (!/cancel/i.test(String(e && e.message))) this.showToast('Couldn’t share right now'); });
-  }
-  // The share image for the slide you're on: each slide has its own card.
-  storyJob() {
-    const M = window.Motio, R = this.recapData(), okS = R.slidesOk || [true, true, true, true, true];
+  // The card for the slide you're on: the same card the share image is made from.
+  storyJob(R = this.recapData()) {
+    const okS = R.slidesOk || [true, true, true, true, true];
     const ord = [0, 1, 2, 3, 4].filter((k) => okS[k]), i = ord[Math.min((this.state && this.state.i) || 0, ord.length - 1)];
     const cards = [
       ['cover', { kicker: R.Kind + ' ' + R.no, title: R.Your + ',\nwrapped', sub: R.span + ' · ' + R.time + ' on the move', bigLabel: 'covered', big: R.dist, routes: R.routes }],
@@ -520,32 +119,11 @@ class Component extends DCLogic {
       ['wrap', { kicker: R.head, lead: R.This + ' you were', name: R.pers, stat: R.rareB + ' ' + R.rareT, grid: [{ v: R.dist, k: 'covered' }, { v: R.time, k: 'on the move' }, { v: R.steps, k: 'steps' }], end: R.nextLine }]
     ];
     const [kind, data] = cards[Math.min(4, i)];
-    return M.storyImage(kind, data);
-  }
-  // Picture of the screen behind the sheet, taken as the sheet opens; every share button sends this same image.
-  takeShot() {
-    if (!window.Motio) return;
-    // If the picture takes too long (phone busy, page in the background), fall back to a drawn card so sharing never hangs.
-    const M = window.Motio;
-    const slow = new Promise((ok) => setTimeout(() => ok(null), 8000));
-    // Draw after the sheet has finished sliding up, so the image work never lands mid-animation.
-    const afterSheet = new Promise((ok) => setTimeout(ok, 420));
-    this.shotP = Promise.race([afterSheet.then(() => this.storyJob()).catch(() => null), slow])
-      .then((u) => u || M.cardImage(this.shareCardData()))
-      .then((u) => { if (this.state && this.state.share) this.setState({ shot: u }); return u; });
-  }
-  shareCardData() {
-    const R = this.recapData();
-    return { kicker: R.head, big: R.dist, line: R.time + ' on the move · ' + R.steps + ' steps · ' + R.pers, bg: '#3DBF5C', fg: '#1F1D47' };
-  }
-  shareDone(msg) {
-    // Slide the sheet away first, then confirm.
-    this.setState({ shareClosing: true });
-    setTimeout(() => { this.setState({ share: false, shareClosing: false }); if (msg) this.showToast(msg); }, 260);
+    return { kind, data, i, text: R.head + ': ' + R.dist + '. ' + R.time + ' on the move, ' + R.steps + ' steps. Tracked with Motio.' };
   }
   componentDidMount() {
     // The layout is picked in Today › menu › Recap style; follow it live when it changes there.
-    this.onStorage = (e) => { if (e.key === 'motio.recapStyle') this.forceUpdate(); };
+    this.onStorage = (e) => { if (e.key === 'motio.recapStyle' || e.key === 'motio.shareLook') this.forceUpdate(); };
     window.addEventListener('storage', this.onStorage);
   }
   componentWillUnmount() {
@@ -730,7 +308,6 @@ class Component extends DCLogic {
       // inside the App prototype the full slides play over the real page behind.
       this.entryAnim = this.props.embedded ? 'motioStoryIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftUp 320ms cubic-bezier(0.22, 1, 0.36, 1)';
     }
-    const glyphs = { story: 'M4 4h16v16H4zM12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8', chat: 'M4 5h16v11H9l-5 4z', post: 'M5 5l14 14M19 5L5 19', sms: 'M4 6h16v10H8l-4 4z' };
     const emb = !!this.props.embedded;
     // Inside the App prototype, links ask the shell to animate the change instead of jumping artboards.
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -740,61 +317,28 @@ class Component extends DCLogic {
       if (this.props.onNav) this.props.onNav(target);
     } });
     const s = this.state || {};
-    const family = (x) => (x === 'bold' || x === 'poster' || x === 'playful' ? x : null);
-    let stored = null;
-    try { stored = window.localStorage.getItem('motio.recapStyle'); } catch (e) { /* storage blocked: fall back to the tweak */ }
-    const chosen = stored === 'mix' ? 'mix' : family(stored) || family(this.props.recapStyle) || 'mix';
     // Only slides with something to show: a quiet week has no empty "0 km" pages.
     const R0 = this.recapData(), ok = R0.slidesOk || [true, true, true, true, true];
     const order = [0, 1, 2, 3, 4].filter((k) => ok[k]);
-    const pos = Math.min(s.i || 0, order.length - 1), i = order[pos];
-    // Mix: each opening deals every story its own design and shifts the colours, so no two recaps look alike.
-    if (!this.mix) {
-      this.mix = [];
-      for (let k = 0; k < 5; k++) { let f; do { f = ['bold', 'poster', 'playful'][Math.floor(Math.random() * 3)]; } while (f === this.mix[k - 1]); this.mix.push(f); }
-      this.shift = Math.floor(Math.random() * 5);
-    }
-    const style = chosen === 'mix' ? this.mix[i] : chosen;
-    const ci = (i + (chosen === 'mix' ? this.shift : 0)) % 5;
-
-    // Each story gets its own colour; Poster stays navy and changes its accent instead.
-    const boldBg = ['#3DBF5C', '#5B4FE0', '#F2766B', '#6E8CF7', '#F6C343'];
-    const playfulBg = ['#6E8CF7', '#B57BE0', '#F2766B', '#F6C343', '#5B4FE0'];
-    const posterAccent = ['#F6C343', '#3DBF5C', '#F2766B', '#6E8CF7', '#B57BE0'];
-    const bg = style === 'poster' ? '#1F1D47' : (style === 'bold' ? boldBg : playfulBg)[ci];
-    const dark = bg === '#1F1D47' || bg === '#5B4FE0';
-    const yellow = bg === '#F6C343';
-    const L = {
-      bg,
-      fg: dark ? '#FFFFFF' : '#1F1D47',
-      shareBg: dark ? '#F6C343' : '#1F1D47',
-      shareFg: dark ? '#1F1D47' : '#FFFFFF',
-      shareIcon: dark ? '#1F1D47' : '#F6C343'
-    };
-    const on = style === 'poster' ? posterAccent[ci] : yellow ? '#1F1D47' : '#FFFFFF';
-    const off = dark ? 'rgba(255,255,255,0.25)' : yellow ? 'rgba(31,29,71,0.2)' : 'rgba(255,255,255,0.45)';
-
-    const letter = { bold: 'b', poster: 'p', playful: 'y' }[style];
-    const F = {};
-    ['b', 'p', 'y'].forEach((l) => { for (let k = 1; k <= 5; k++) F[l + k] = l === letter && k === i + 1; });
-
+    const pos = Math.min(s.i || 0, order.length - 1);
+    // Each opening starts the theme rotation somewhere new when the recap style is "Mix".
+    if (this.seed == null) this.seed = Math.floor(Math.random() * 8);
+    const K = window.Motio && window.Motio.storyImage && window.Motio.storyImage.kit;
+    const job = this.storyJob(R0), look = K ? K.slideLook(job.i, this.seed) : null;
+    const L = K ? K.storyChrome(look) : { fg: 'rgba(255,255,255,1)', bg: 'rgba(31,29,71,1)', chip: 'rgba(255,255,255,0.12)', on: 'rgba(255,255,255,1)', off: 'rgba(255,255,255,0.28)' };
     return {
       sDown: (e) => this.storyDown(e), sMove: (e) => this.storyMove(e), sUp: (e) => this.storyUp(e),
       rootAnim: this.state && this.state.leaving ? 'motioSoftDown 200ms ease-in forwards' : this.entryAnim,
       shareOpen: !!s.share,
-      shareAnim: s.shareClosing ? 'motioShDown 260ms ease-in forwards' : 'motioShUp 380ms cubic-bezier(0.22, 1, 0.36, 1)',
-      shareScrim: s.shareClosing ? 'motioShFadeOut 260ms ease-in forwards' : 'motioShFade 240ms ease-out',
-      openShare: () => { this.setState({ share: true, shareClosing: false, shot: null }); this.takeShot(); },
-      hasShot: !!s.shot, noShot: !s.shot, shot: s.shot || '',
-      closeShare: () => this.shareDone(null),
-      targets: [['Story', '#5B4FE0', glyphs.story, 'Shared to your Instagram story'], ['WhatsApp', '#3DBF5C', glyphs.chat, 'Sent on WhatsApp'], ['X', '#1F1D47', glyphs.post, 'Posted to X'], ['Messages', '#6E8CF7', glyphs.sms, 'Sent in Messages']]
-        .map(([label, color, glyph, done]) => ({ label, color, glyph, pick: () => this.shareOut({ Story: 'story', WhatsApp: 'whatsapp', X: 'x', Messages: 'sms' }[label] || 'share', done) })),
-      saveImage: () => this.shareOut('save', 'Saved to Photos'),
-      copyLink: () => this.shareOut('copy', 'Link copied'),
+      openShare: () => this.setState({ share: true }),
+      shareJob: { ...job, theme: look && look.theme },
+      closeShare: (msg) => { this.setState({ share: false }); if (msg) this.showToast(msg); else this.forceUpdate(); },
+      paintCard: (el) => { if (el && K) K.paintStory(el, job.kind, job.data, look); },
+      cardKey: job.i + (look ? look.theme : ''),
       hasToast: !!s.toast, toast: s.toast || '',
       emb, standalone: !emb, LK: { k0: lk('back', 'Recaps.dc.html'), k1: lk('back', 'Recaps.dc.html') },
-      L, F, R: this.recapData(),
-      bars: order.map((k, n) => ({ bg: n <= pos ? on : off })),
+      L, R: R0,
+      bars: order.map((k, n) => ({ bg: n <= pos ? L.on : L.off })),
       storyNum: pos + 1, storyCount: order.length,
       storyLabel: 'Story ' + (pos + 1) + ' of ' + order.length,
       // The last tap ends the weekly recap and returns to the Recaps hub; the monthly recap is its own story.

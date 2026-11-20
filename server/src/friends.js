@@ -50,7 +50,7 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
     setInvite: db.prepare('UPDATE users SET invite = ? WHERE id = ? AND invite IS NULL'),
     getInvite: db.prepare('SELECT invite FROM users WHERE id = ?'),
     byInvite: db.prepare('SELECT id, name FROM users WHERE invite = ? AND verified = 1'),
-    list: db.prepare('SELECT u.id, u.name, u.avatar, u.settings FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ? ORDER BY f.created_at'),
+    list: db.prepare('SELECT u.id, u.name, u.avatar, u.settings, u.created_at FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ? ORDER BY f.created_at'),
     incoming: db.prepare('SELECT u.id, u.name, u.avatar, r.created_at AS at FROM friend_requests r JOIN users u ON u.id = r.from_id WHERE r.to_id = ? ORDER BY r.created_at DESC'),
     outgoing: db.prepare('SELECT u.id, u.name, u.avatar, r.created_at AS at FROM friend_requests r JOIN users u ON u.id = r.to_id WHERE r.from_id = ? ORDER BY r.created_at DESC'),
     request: db.prepare('INSERT INTO friend_requests (from_id, to_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
@@ -168,7 +168,7 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
       const { user } = await authUser(req);
       const t = now(), asked = Number(url.searchParams.get('from'));
       const from = Number.isFinite(asked) && asked > t - 8 * WEEK && asked <= t ? asked : t - WEEK;
-      const people = [{ id: user.id, name: user.name, avatar: user.avatar, me: true }, ...(await q.list.all(user.id))];
+      const people = [{ id: user.id, name: user.name, avatar: user.avatar, created_at: user.created_at, me: true }, ...(await q.list.all(user.id))];
       const sums = new Map((await q.totals.all(from, from + WEEK, people.map((p) => p.id))).map((r) => [r.user_id, r]));
       const prev = new Map((await q.totals.all(from - WEEK, from, people.map((p) => p.id))).map((r) => [r.user_id, r]));
       const days = new Map(people.map((p) => [p.id, [0, 0, 0, 0, 0, 0, 0]]));
@@ -177,7 +177,7 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
         const s = sums.get(p.id) || {}, l = prev.get(p.id) || {};
         // Someone who hid their activity shows up by name only.
         if (!p.me && JSON.parse(p.settings || '{}').hideActivity) return { id: p.id, name: p.name, me: false, hidden: true, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '', activeMin: 0, km: 0, trips: 0, lastMin: 0, days: [0, 0, 0, 0, 0, 0, 0], activeDays: 0 };
-        return { id: p.id, name: p.name, me: !!p.me, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '',
+        return { id: p.id, name: p.name, me: !!p.me, joined: Number(p.created_at) || null, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '',
           activeMin: Math.round((s.active_ms || 0) / 60000), km: Math.round((s.m || 0) / 100) / 10, trips: s.trips || 0, lastMin: Math.round((l.active_ms || 0) / 60000),
           days: days.get(p.id), activeDays: days.get(p.id).filter((m) => m > 0).length };
       });

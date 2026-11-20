@@ -95,6 +95,45 @@ window.MotioMap = {
       destroy() { dead = true; map.remove(); }
     };
   },
+  // A friend's shared map: their routes, their usual places and where they are right now (whatever they share).
+  // show(data) redraws with new data; the view frames everything the first time only, so polling doesn't jump.
+  mountFriend(el) {
+    const map = L.map(el, { zoomControl: false, attributionControl: true, preferCanvas: true }).setView([40.4093, 49.8671], 12);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
+    const layer = L.layerGroup().addTo(map);
+    const COLOR = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#8C7CF0', transit: '#F6C343' };
+    let dead = false, framed = false;
+    [300, 700].forEach((ms) => setTimeout(() => { if (!dead) map.invalidateSize(); }, ms));
+    return {
+      show({ trips = [], places = [], live = null } = {}) {
+        if (dead) return;
+        layer.clearLayers();
+        const all = [];
+        for (const t of trips) {
+          const ll = t.points.map((p) => [p[0], p[1]]);
+          L.polyline(ll, { color: '#1F1D47', weight: 8, opacity: 0.14, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+          L.polyline(ll, { color: COLOR[t.mode] || '#5B4FE0', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+          all.push(...ll);
+        }
+        for (const p of places) {
+          L.circle([p.lat, p.lng], { radius: 120, color: '#5B4FE0', weight: 1, fillOpacity: 0.12 }).addTo(layer);
+          L.circleMarker([p.lat, p.lng], { radius: 7, color: '#FFFFFF', weight: 3, fillColor: '#5B4FE0', fillOpacity: 1 }).addTo(layer)
+            .bindTooltip(p.name || p.visits + (p.visits === 1 ? ' visit' : ' visits'), { direction: 'top', offset: [0, -6] });
+          all.push([p.lat, p.lng]);
+        }
+        if (live) {
+          L.circle([live.lat, live.lng], { radius: 60, color: '#F2766B', weight: 0, fillOpacity: 0.25 }).addTo(layer);
+          L.circleMarker([live.lat, live.lng], { radius: 10, color: '#FFFFFF', weight: 4, fillColor: '#F2766B', fillOpacity: 1 }).addTo(layer);
+        }
+        if (live && !framed) map.setView([live.lat, live.lng], 15, { animate: false });
+        else if (all.length && !framed) map.fitBounds(L.latLngBounds(all).pad(0.2), { animate: false, maxZoom: 15 });
+        if (live || all.length) framed = true;
+      },
+      reframe() { framed = false; },
+      fly(lat, lng) { if (!dead) map.flyTo([lat, lng], 16, { duration: 0.8 }); },
+      destroy() { dead = true; map.remove(); }
+    };
+  },
   // One trip, coloured by speed (blue slow → yellow → red fast), with start and finish dots.
   mountTrip(el, points) {
     const map = L.map(el, { zoomControl: false, attributionControl: true, preferCanvas: true });

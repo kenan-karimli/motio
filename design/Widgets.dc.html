@@ -128,6 +128,35 @@ button:active,a:active{transform:scale(0.96)}
           </div>
           <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">This week · large</span><button onClick="{{ W.week.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.week.bg }}; color: {{ W.week.fg }}; font-size: 12px; font-weight: 700">{{ W.week.label }}</button></div>
         </div>
+
+        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 360ms backwards">
+          <div role="img" aria-label="Today bar widget: steps, distance and time in one row" style="height: 64px; box-sizing: border-box; padding: 0 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; box-shadow: 0 10px 20px rgba(20,14,70,0.25); display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; white-space: nowrap">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #3DBF5C"></span>{{ V.steps }} steps</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #B57BE0"></span>{{ V.dist }}</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F6C343"></span>{{ V.time }}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Today bar · slim</span><button onClick="{{ W.compact.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.compact.bg }}; color: {{ W.compact.fg }}; font-size: 12px; font-weight: 700">{{ W.compact.label }}</button></div>
+        </div>
+
+        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 420ms backwards">
+          <div role="img" aria-label="Friends widget: you and your top friends' active time this week" style="height: 160px; box-sizing: border-box; padding: 16px 18px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 10px 20px rgba(40,20,120,0.12); display: flex; flex-direction: column; justify-content: space-between">
+            <span style="font-size: 12px; font-weight: 600; color: #6B6890">This week with friends</span>
+            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #5B4FE0; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><span style="width: 70px; font-size: 13px; font-weight: 500">Friend</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 100%; height: 8px; border-radius: 4px; background: #5B4FE0; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">5h 40m</span></div>
+            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #F2766B; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><span style="width: 70px; font-size: 13px; font-weight: 700">You</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 78%; height: 8px; border-radius: 4px; background: #F2766B; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">4h 26m</span></div>
+            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #C9C5EC; color: #1F1D47; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><span style="width: 70px; font-size: 13px; font-weight: 500">Friend</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 52%; height: 8px; border-radius: 4px; background: #C9C5EC; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">2h 58m</span></div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Friends · medium</span><button onClick="{{ W.friends.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.friends.bg }}; color: {{ W.friends.fg }}; font-size: 12px; font-weight: 700">{{ W.friends.label }}</button></div>
+        </div>
+
+        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 480ms backwards">
+          <div role="img" aria-label="Challenge widget: your progress in a running challenge" style="height: 160px; box-sizing: border-box; padding: 16px 18px; border-radius: 26px; background: #F6C343; box-shadow: 0 10px 20px rgba(140,100,10,0.2); display: flex; flex-direction: column; justify-content: space-between">
+            <span style="font-size: 11px; font-weight: 600; opacity: 0.7">CHALLENGE · 2 DAYS LEFT</span>
+            <span style="font-size: 28px; font-weight: 700; line-height: 1">11.6 km of 20 km</span>
+            <span style="display: block; height: 10px; border-radius: 5px; background: rgba(31,29,71,0.15)"><span style="display: block; width: 58%; height: 10px; border-radius: 5px; background: #1F1D47; transform-origin: left; animation: motioFillX 1s cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span>
+            <span style="font-size: 12px; font-weight: 600">You’re in the lead</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Challenge · medium</span><button onClick="{{ W.challenge.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.challenge.bg }}; color: {{ W.challenge.fg }}; font-size: 12px; font-weight: 700">{{ W.challenge.label }}</button></div>
+        </div>
       </div>
     </sc-if>
 
@@ -253,7 +282,8 @@ class Component extends DCLogic {
       showHome: () => this.setState({ tab: 'home' }), showLock: () => this.setState({ tab: 'lock' }),
       W: {
         ring: btn('h_ring', 'Today ring', 'home screen'), steps: btn('h_steps', 'Steps', 'home screen'), road: btn('h_road', 'Day road', 'home screen'),
-        streak: btn('h_streak', 'Streak', 'home screen'), persona: btn('h_persona', 'Personality', 'home screen'), week: btn('h_week', 'This week', 'home screen')
+        streak: btn('h_streak', 'Streak', 'home screen'), persona: btn('h_persona', 'Personality', 'home screen'), week: btn('h_week', 'This week', 'home screen'),
+        compact: btn('h_compact', 'Today bar', 'home screen'), friends: btn('h_friends', 'Friends', 'home screen'), challenge: btn('h_challenge', 'Challenge', 'home screen')
       },
       V,
       weekBars: week.map(([label, km], i, a) => { const mx = Math.max(0.001, ...a.map((x) => x[1])); return { label, h: Math.max(4, Math.round(km / mx * 100)) + '%', color: km === mx && km > 0 ? '#F2766B' : '#5B4FE0', delay: i * 60 + 'ms' }; }),

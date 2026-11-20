@@ -138,6 +138,24 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/motio_widget_week" />
         </receiver>
+        <receiver android:name=".MotioWidget$Friends" android:exported="true" android:label="Motio · Friends this week">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/motio_widget_friends" />
+        </receiver>
+        <receiver android:name=".MotioWidget$Challenge" android:exported="true" android:label="Motio · Challenge">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/motio_widget_challenge" />
+        </receiver>
+        <receiver android:name=".MotioWidget$Compact" android:exported="true" android:label="Motio · Today bar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/motio_widget_compact" />
+        </receiver>
     </application>
 
     <!-- Permissions -->

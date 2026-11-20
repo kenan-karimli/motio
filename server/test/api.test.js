@@ -403,3 +403,81 @@ test('website: release line, counted downloads, images, waitlist, admin stats', 
   assert.deepEqual(wl.people.map((p) => [p.name, p.email]), [['Ann', 'ann@example.com']]);
   app.close();
 });
+
+test('trips keep their extra fields through sync; deleting all needs confirmation', async () => {
+  await call('POST', '/v1/auth/register', { name: 'Wes', email: 'wes@example.com', password: 'Str0ng!pass' });
+  const t = (await call('POST', '/v1/auth/verify', { email: 'wes@example.com', code: lastCode() })).body.token;
+  const trip = { id: 'w1', start: clock - 3600000, end: clock - 1800000, mode: 'run', distanceM: 5000, steps: 0, maxSpeed: 4, points: [], updatedAt: clock,
+    locked: true, workout: { pausedMs: 120000 }, stops: 2, f: { avg: 2.8 }, _local: 'not sent' };
+  let r = await call('POST', '/v1/trips/sync', { trips: [trip], since: 0 }, t);
+  const back = r.body.trips.find((x) => x.id === 'w1');
+  assert.equal(back.locked, true); assert.deepEqual(back.workout, { pausedMs: 120000 }); assert.equal(back.stops, 2); assert.deepEqual(back.f, { avg: 2.8 });
+  assert.equal(back._local, undefined, 'underscore fields stay on the phone');
+  assert.equal((await call('DELETE', '/v1/trips', null, t)).status, 400, 'no confirm, no wipe');
+  assert.equal((await call('POST', '/v1/trips/sync', { trips: [], since: 0 }, t)).body.trips.length, 1, 'trips still there');
+  assert.equal((await call('DELETE', '/v1/trips?confirm=delete-all', null, t)).status, 200);
+  assert.equal((await call('POST', '/v1/trips/sync', { trips: [], since: 0 }, t)).body.trips.length, 0);
+});
+
+test('leaderboard (public only) and sharing with friends by permission', async () => {
+  clock += 120000; // a fresh minute for the sign-up rate limit, which earlier tests used up
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Lia', 'lia.board@example.com'), b = await join('Max', 'max.board@example.com'), c = await join('Pri', 'pri.board@example.com');
+  const code = (await call('GET', '/v1/friends', null, b)).body.code;
+  await call('POST', '/v1/friends/add', { code }, a);
+  const liaId = (await call('GET', '/v1/friends', null, b)).body.incoming[0].id;
+  await call('POST', '/v1/friends/respond', { id: liaId, accept: true }, b);
+  const maxId = (await call('GET', '/v1/friends', null, a)).body.people.find((p) => !p.me).id;
+  const from = clock - 3 * 86400000;
+  const t = (id, start, mode, m, pts) => ({ id, start, end: start + 1800000, mode, distanceM: m, steps: 0, maxSpeed: 2, points: pts || [], updatedAt: clock });
+  // Lia's home is a private zone; one trip starts inside it.
+  await call('PATCH', '/v1/me', { settings: { zones: [{ lat: 40.40, lng: 49.80, r: 200 }] } }, a);
+  await call('POST', '/v1/trips/sync', { trips: [t('l1', clock - 7200000, 'walk', 3000, [[40.40, 49.80, 1, 5], [40.41, 49.81, 2, 5], [40.42, 49.82, 3, 5]])] }, a);
+  await call('POST', '/v1/trips/sync', { trips: [t('m1', clock - 7200000, 'run', 8000)] }, b);
+  await call('POST', '/v1/trips/sync', { trips: [t('p1', clock - 7200000, 'bike', 20000)] }, c);
+  await call('PATCH', '/v1/me', { settings: { privateProfile: true } }, c);
+  await call('POST', '/v1/me/steps', { days: [{ day: new Date(clock).toISOString().slice(0, 10), steps: 9000 }, { day: 'nope', steps: 5 }] }, a);
+
+  let r = await call('GET', `/v1/leaderboard?metric=distance&from=${from}`, null, a);
+  const mine3 = r.body.people.filter((p) => ['Lia', 'Max', 'Pri'].includes(p.name));
+  assert.deepEqual(mine3.map((p) => [p.name, p.value]), [['Max', 8], ['Lia', 3]], 'private Pri left out');
+  assert.ok(r.body.me.rank > r.body.people.find((p) => p.name === 'Max').rank);
+  r = await call('GET', `/v1/leaderboard?metric=steps&from=${from}`, null, b);
+  assert.equal(r.body.people.find((p) => p.name === 'Lia').value, 9000);
+  assert.equal((await call('GET', `/v1/leaderboard?from=${from}`, null, c)).body.hiddenMe, true);
+
+  // Nothing is shared until Lia allows it.
+  assert.equal((await call('GET', `/v1/friend/routes?id=${liaId}`, null, b)).status, 403);
+  assert.equal((await call('POST', '/v1/sharing', { friendId: (await call('GET', '/v1/friends', null, c)).body.people.find((p) => p.me).id, kind: 'routes', on: true }, a)).status, 400, 'only friends');
+  await call('POST', '/v1/sharing', { friendId: maxId, kind: 'routes', on: true }, a);
+  r = await call('GET', `/v1/friend/routes?id=${liaId}`, null, b);
+  assert.deepEqual(r.body.trips[0].points, [[40.41, 49.81], [40.42, 49.82]], 'home point removed');
+  assert.equal((await call('GET', `/v1/friend/routes?id=${maxId}`, null, a)).status, 403, 'one way only');
+
+  // Live: positions are ignored unless shared; shared ones show while fresh; revoking ends it.
+  assert.equal((await call('POST', '/v1/live', { lat: 40.5, lng: 49.9 }, a)).body.sharing, false);
+  await call('POST', '/v1/sharing', { friendId: maxId, kind: 'live', on: true, minutes: 60 }, a);
+  await call('POST', '/v1/live', { lat: 40.5, lng: 49.9, at: clock, mode: 'walk' }, a);
+  r = await call('GET', `/v1/friend/live?id=${liaId}`, null, b);
+  assert.deepEqual([r.body.live.lat, r.body.live.mode], [40.5, 'walk']);
+  r = await call('GET', '/v1/sharing', null, b);
+  assert.deepEqual(Object.keys(r.body.toMe[0].kinds).sort(), ['live', 'routes']);
+  await call('POST', '/v1/sharing', { friendId: maxId, kind: 'live', on: false }, a);
+  assert.equal((await call('GET', `/v1/friend/live?id=${liaId}`, null, b)).status, 403);
+  // Places: needs its own permission.
+  assert.equal((await call('GET', `/v1/friend/places?id=${liaId}`, null, b)).status, 403);
+  await call('POST', '/v1/sharing', { friendId: maxId, kind: 'places', on: true }, a);
+  r = await call('GET', `/v1/friend/places?id=${liaId}`, null, b);
+  assert.equal(r.body.places[0].lat, 40.42);
+});
+
+test('crash reports are stored and only the admin can read them', async () => {
+  clock += 120000;
+  const r = await call('POST', '/v1/crash', { message: 'TypeError: x is undefined', stack: 'at render', version: '4.0', screen: 'tabs' });
+  assert.equal(r.status, 200);
+  assert.equal((await call('POST', '/v1/crash', {})).status, 400);
+  assert.equal((await call('GET', '/v1/admin/crashes')).status, 401);
+});

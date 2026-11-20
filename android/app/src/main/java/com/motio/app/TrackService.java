@@ -38,6 +38,7 @@ public class TrackService extends Service {
     private static final String PREFS = "motio.track", BUFFER = "motio-buffer.jsonl";
     private static final int MAX_LINES = 20000; // about a day of fixes every 5 s
     private LocationCallback callback;
+    private android.hardware.SensorEventListener steps; // keeps the steps widgets counting with Motio closed
 
     static boolean wanted(Context c) { return c.getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("on", false); }
 
@@ -71,8 +72,13 @@ public class TrackService extends Service {
     static synchronized void deliver(Context c, JSONObject item) {
         if (sink != null) { sink.on(item); return; }
         File f = new File(c.getFilesDir(), BUFFER);
-        // A very long time closed: keep the newest part rather than growing without end.
-        if (f.length() > MAX_LINES * 160L) f.delete();
+        // A very long time closed: keep the newest half instead of growing without end (it used to delete it all).
+        if (f.length() > MAX_LINES * 160L) {
+            try {
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(f.toPath());
+                java.nio.file.Files.write(f.toPath(), lines.subList(lines.size() / 2, lines.size()));
+            } catch (Exception e) { f.delete(); /* unreadable: start over */ }
+        }
         try (FileWriter w = new FileWriter(f, true)) { w.write(item.toString()); w.write('\n'); } catch (Exception e) { /* storage full: drop this one */ }
     }
 
@@ -131,12 +137,14 @@ public class TrackService extends Service {
             : new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).setMinUpdateIntervalMillis(2000).setMinUpdateDistanceMeters(10).build();
         try { LocationServices.getFusedLocationProviderClient(this).requestLocationUpdates(req, callback, Looper.getMainLooper()); }
         catch (SecurityException e) { stopSelf(); return START_NOT_STICKY; }
+        if (steps == null) steps = MotioWidget.watchSteps(this);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         if (callback != null) LocationServices.getFusedLocationProviderClient(this).removeLocationUpdates(callback);
+        MotioWidget.unwatchSteps(this, steps);
         super.onDestroy();
     }
 

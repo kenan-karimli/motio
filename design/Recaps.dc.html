@@ -443,7 +443,15 @@ class Component extends DCLogic {
   liveVals(L) {
     const M = window.Motio;
     const now = Date.now(), today = M.dayStart(), unit = M.settings().unit === 'mi' ? 'mi' : 'km';
-    const to = (t, f, period) => { const l = L(t, f); return { href: l.href, go: (e) => { window.__motioRecap = period; l.go(e); } }; };
+    // A recap is "new" until it has been opened (per period: this week, this month, today).
+    let seen = {};
+    try { seen = JSON.parse(window.localStorage.getItem('motio.seenRecaps') || '{}'); } catch (e) { /* storage blocked */ }
+    const seenKey = (p) => p.kind + ':' + p.from;
+    const to = (t, f, period) => { const l = L(t, f); return { href: l.href, go: (e) => {
+      window.__motioRecap = period;
+      try { window.localStorage.setItem('motio.seenRecaps', JSON.stringify({ ...seen, [seenKey(period)]: 1 })); } catch (err) { /* storage blocked */ }
+      l.go(e);
+    } }; };
     const short = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
     const span = (a, b) => { const same = new Date(a).getMonth() === new Date(b).getMonth(); return short(a, same ? { day: 'numeric' } : { day: 'numeric', month: 'short' }) + '–' + short(b, { day: 'numeric', month: 'short' }); };
     const distNum = (m) => M.fmtNum(unit === 'mi' ? m / 1609.34 : m / 1000);
@@ -454,7 +462,7 @@ class Component extends DCLogic {
       [monthName.toUpperCase(), 'Month in motion', distNum(mon.m), (unit === 'mi' ? 'miles' : 'kilometres') + ' in ' + monthName, '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', mon.ms > 0, { kind: 'month', from: M.monthStart(now) }],
       ['TODAY', short(now, { weekday: 'long' }), M.fmtMin(td.min), 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false, { kind: 'day', from: today }]
     ].filter((c, k) => [wk.min >= 1, mon.min >= 1, td.min >= 1][k]) // no recap for a period you didn't move in
-      .map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...to(t, f, period) }));
+      .map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew: isNew && !seen[seenKey(period)], delay: i * 80 + 'ms', ...to(t, f, period) }));
     const days = Array.from({ length: 7 }, (_, k) => {
       const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), moved = x.min >= 1, fresh = k >= 5 && moved;
       const off = { href: '#', go: (e) => { if (e && e.preventDefault) e.preventDefault(); } };
