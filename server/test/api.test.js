@@ -343,3 +343,29 @@ test('profile highlights: modes, all-time totals, streak, mutual friends, head t
   assert.equal(p.mutual.count, 1); assert.equal(p.mutual.people[0].name, 'Kim');
   assert.deepEqual(p.duel, { won: 0, lost: 0 });
 });
+
+test('announce: admin token only, counts first, emails each verified user once', async () => {
+  const db = await openDb(':memory:'), mail = createMailer({});
+  const app = createServer(await createApp({ db, mailer: mail, now: () => clock, env: { ADMIN_TOKEN: 'x'.repeat(32) } }));
+  await new Promise((r) => app.listen(0, r));
+  const url = `http://127.0.0.1:${app.address().port}`;
+  const post = async (path, body, token) => { const r = await fetch(url + path, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: JSON.stringify(body) }); return { status: r.status, body: await r.json() }; };
+  for (const [n, e] of [['Ann Lee', 'ann@example.com'], ['Bo', 'bo@example.com']]) {
+    await post('/v1/auth/register', { name: n, email: e, password: 'Str0ng!pass' });
+    await post('/v1/auth/verify', { email: e, code: /(\d{6})/.exec(mail.outbox[0].text)[1] });
+  }
+  await post('/v1/auth/register', { name: 'Unverified', email: 'un@example.com', password: 'Str0ng!pass' });
+  const msg = { key: 'v3.6', subject: 'Motio 3.6', text: 'Hi {name}, update here.' };
+  assert.equal((await post('/v1/admin/announce', msg, 'y'.repeat(32))).status, 401);
+  assert.equal((await post('/v1/admin/announce', msg)).status, 401);
+  assert.equal((await post('/v1/admin/announce', msg, 'x'.repeat(32))).body.wouldSend, 2, 'counts verified users only, sends nothing');
+  const before = mail.outbox.length;
+  let r = await post('/v1/admin/announce', { ...msg, send: true }, 'x'.repeat(32));
+  assert.deepEqual(r.body, { sent: 2, failed: 0, remaining: 0 });
+  assert.equal(mail.outbox.length, before + 2);
+  assert.ok(mail.outbox.some((m) => m.to === 'ann@example.com' && m.text === 'Hi Ann, update here.'));
+  r = await post('/v1/admin/announce', { ...msg, send: true }, 'x'.repeat(32));
+  assert.equal(r.body.sent, 0, 'nobody gets it twice');
+  app.close();
+  assert.equal((await call('POST', '/v1/admin/announce', msg)).status, 404, 'no route without ADMIN_TOKEN');
+});

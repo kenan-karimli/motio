@@ -2,6 +2,7 @@ import { randomBytes, randomInt, scryptSync, timingSafeEqual, createHash } from 
 import { stravaRoutes } from './strava.js';
 import { legalRoutes } from './legal.js';
 import { friendRoutes } from './friends.js';
+import { announceRoutes } from './announce.js';
 
 const DAY = 86400000;
 const SESSION_TTL = 30 * DAY;
@@ -307,6 +308,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
 
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
+    ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
     ...legalRoutes(env),
 
     'GET /dev/outbox': async () => {
