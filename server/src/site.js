@@ -41,7 +41,9 @@ export async function siteRoutes({ db, env, now, fetchImpl, HttpError, bad }) {
       // The newest entry's notes ("- " lines become <li>s in the feed's escaped HTML).
       const entry = (/<entry>([\s\S]*?)<\/entry>/.exec(feed) || [])[1] || '';
       const html = ((/<content[^>]*>([\s\S]*?)<\/content>/.exec(entry) || [])[1] || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-      const notes = [...html.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => x[1].replace(/<[^>]+>/g, '').trim()).filter(Boolean).slice(0, 6);
+      const decode = (t) => t.replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCharCode(parseInt(n, 16))).replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+      // Inside each item, text entities (&#39; and the like) are decoded once; the page escapes it again safely.
+      const notes = [...html.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => decode(x[1].replace(/<[^>]+>/g, '')).trim()).filter(Boolean).slice(0, 6);
       if (m && size > 0) rel = { version: m[2], mb: (size / 1048576).toFixed(1), date: m[1], notes };
     } catch { /* keep the last known release */ }
     return rel;

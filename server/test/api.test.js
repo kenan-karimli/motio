@@ -382,7 +382,8 @@ test('website: release line, counted downloads, images, waitlist, admin stats', 
   assert.match(home.headers.get('content-type'), /text\/html/);
   const html = await home.text();
   assert.match(html, /data-version="3.9" data-mb="6.0" data-date="2026-11-21"/);
-  assert.match(html, /<li>New What&amp;#39;s new screen<\/li>/, 'notes are escaped into the page');
+  assert.match(html, /<li>New What's new screen<\/li>/, 'entities decoded once');
+  assert.match(html, /<li>Faster &lt;b&gt;tabs<\/li>/, 'tags in notes stay text');
   const dl = await fetch(url + '/download', { headers: ua, redirect: 'manual' });
   assert.equal(dl.status, 302); assert.match(dl.headers.get('location'), /latest\/download\/motio\.apk$/);
   await fetch(url + '/download', { headers: { 'User-Agent': 'WhatsApp/2.23' }, redirect: 'manual' }); // link preview: not counted
