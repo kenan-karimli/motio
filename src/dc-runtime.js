@@ -94,37 +94,45 @@ if (DARK) {
   document.documentElement.style.background = '#0e0d1a';
 }
 
-function build(node, scope) {
-  if (node.nodeType === 3) return node.data.includes('{{') ? interpolate(node.data, scope) : node.data;
-  if (node.nodeType !== 1) return null;
-  const tag = node.localName;
-  const kids = () => Array.from(node.childNodes).map((c) => build(c, scope));
+// Templates are read from the DOM once and kept as plain objects, so a redraw doesn't walk DOM nodes,
+// attribute lists and '{{' checks again for every element on every render.
+function compile(n) {
+  if (n.nodeType === 3) return { text: n.data, dyn: n.data.includes('{{') };
+  if (n.nodeType !== 1) return null;
+  const attrs = Array.from(n.attributes, (a) => ({ name: a.name, value: a.value, dyn: a.value.includes('{{') }));
+  return { tag: n.localName, attrs, at: Object.fromEntries(attrs.map((a) => [a.name, a.value])), kids: Array.from(n.childNodes, compile).filter(Boolean) };
+}
 
-  if (tag === 'sc-if') return resolve(node.getAttribute('value') || 'false', scope) ? kids() : null;
+function build(node, scope) {
+  if (node.text !== undefined) return node.dyn ? interpolate(node.text, scope) : node.text;
+  const tag = node.tag;
+  const kids = () => node.kids.map((c) => build(c, scope));
+
+  if (tag === 'sc-if') return resolve(node.at.value || 'false', scope) ? kids() : null;
 
   if (tag === 'sc-for') {
-    const list = resolve(node.getAttribute('list') || '', scope) || [];
-    const as = node.getAttribute('as') || 'item';
+    const list = resolve(node.at.list || '', scope) || [];
+    const as = node.at.as || 'item';
     return list.map((item, i) => {
       const inner = { ...scope, [as]: item, $index: i };
-      return Array.from(node.childNodes).map((c) => build(c, inner));
+      return node.kids.map((c) => build(c, inner));
     });
   }
 
   if (tag === 'dc-import') {
     const props = {};
-    for (const a of node.attributes) {
+    for (const a of node.attrs) {
       if (a.name.startsWith('hint-') || a.name === 'name') continue;
       const key = a.name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
       props[key] = resolve(a.value, scope);
     }
-    return h(componentFor(node.getAttribute('name')), props);
+    return h(componentFor(node.at.name), props);
   }
 
   const props = {};
-  for (const a of node.attributes) {
+  for (const a of node.attrs) {
     let name = a.name;
-    const value = a.value.includes('{{') ? resolve(a.value, scope) : a.value;
+    const value = a.dyn ? resolve(a.value, scope) : a.value;
     if (name in EVENTS) {
       name = EVENTS[name];
       // Designed handlers fire while typing, which is "input" in the DOM.
@@ -162,19 +170,19 @@ function load(name) {
   const doc = new DOMParser().parseFromString(SOURCES[name], 'text/html');
   const dc = doc.querySelector('x-dc');
   const helmet = dc.querySelector('helmet');
-  if (helmet) {
-    helmet.querySelectorAll('style').forEach((s) => injectStyles(DARK ? s.textContent.replace(/(background(?:-color)?:\s*)(#[0-9a-fA-F]{3,6})\b/g, (m, p, c) => p + (DARK_BG[c.toLowerCase()] || c)) : s.textContent));
-    helmet.remove();
-  }
+  // A screen's styles go in when it is first shown (see componentFor), not when it is prepared early.
+  const styles = helmet ? Array.from(helmet.querySelectorAll('style'), (s) => (DARK ? s.textContent.replace(/(background(?:-color)?:\s*)(#[0-9a-fA-F]{3,6})\b/g, (m, p, c) => p + (DARK_BG[c.toLowerCase()] || c)) : s.textContent)) : [];
+  if (helmet) helmet.remove();
   const code = doc.querySelector('script[data-dc-script]').textContent;
   const Logic = new Function('DCLogic', code + '\nreturn Component;')(DCLogic);
-  return (registry[name] = { Logic, nodes: Array.from(dc.childNodes) });
+  return (registry[name] = { Logic, styles, nodes: Array.from(dc.childNodes, compile).filter(Boolean) });
 }
 
 const comps = {};
 function componentFor(name) {
   if (comps[name]) return comps[name];
-  const { Logic, nodes } = load(name);
+  const { Logic, nodes, styles } = load(name);
+  styles.forEach(injectStyles);
   comps[name] = class extends PComponent {
     constructor(props) {
       super(props);
@@ -204,7 +212,8 @@ function componentFor(name) {
       // changes data every second) waits and redraws once when it comes into view, so it costs no frames.
       const hidden = () => !!(this.rootEl && this.rootEl.closest('[data-page=tab][aria-hidden="true"]'));
       if (window.Motio) this.unsub = window.Motio.subscribe(() => { if (hidden()) this.stale = true; else this.forceUpdate(); });
-      this.onTab = () => { if (this.stale && !hidden()) { this.stale = false; this.forceUpdate(); } };
+      // The catch-up waits for the tab's slide (380 ms) to finish, so it never costs a frame mid-motion.
+      this.onTab = () => { if (this.stale && !hidden()) { this.stale = false; clearTimeout(this.tabT); this.tabT = setTimeout(() => this.forceUpdate(), 400); } };
       window.addEventListener('motio:tab', this.onTab);
       // Auto-refresh: a screen that loads server data does it again (the methods screens already use), then redraws.
       this.onRefresh = () => {
@@ -218,6 +227,7 @@ function componentFor(name) {
     componentWillUnmount() {
       window.removeEventListener('motio:refresh', this.onRefresh);
       window.removeEventListener('motio:tab', this.onTab);
+      clearTimeout(this.tabT);
       if (this.unsub) this.unsub();
       if (this.logic.componentWillUnmount) this.logic.componentWillUnmount();
     }
@@ -243,4 +253,10 @@ function componentFor(name) {
 
 export function mount(name, el, props = {}) {
   render(h(componentFor(name), props), el);
+  // Prepare every screen (parse + compile its template and code) in idle moments after launch, so the
+  // first time a page opens it doesn't spend a frame doing that before its slide starts.
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 50));
+  const names = Object.keys(SOURCES);
+  const next = () => { const n = names.shift(); if (!n) return; try { load(n); } catch (e) { /* shown when that screen opens */ } idle(next); };
+  setTimeout(() => idle(next), 2500);
 }

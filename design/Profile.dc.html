@@ -203,8 +203,11 @@ class Component extends DCLogic {
     const scrolled = !!s.scrolled;
     const mi = M && M.settings().unit === 'mi';
     // Offline (no server profile yet): the phone's own numbers, without streak and longest outing.
-    const wk = M ? M.summarize(M.weekStart(), Date.now()) : null, all = M ? M.summarize(0, Date.now()) : null;
+    // Rounded to the minute so summaries come from the cache instead of being recounted on every redraw.
+    const nowMin = Math.ceil(Date.now() / 60000) * 60000;
+    const wk = M ? M.summarize(M.weekStart(), nowMin) : null;
     const act = ['walk', 'run', 'bike'];
+    const all = M && !(s.mine && s.mine.highlights) ? M.summarize(0, nowMin) : null;
     const H = M ? (s.mine && s.mine.highlights) || { modes: Object.fromEntries(act.map((k) => [k, Math.round(wk.per[k].ms / 60000)])),
       allKm: Math.round(act.reduce((a, k) => a + all.per[k].m, 0) / 100) / 10, allTrips: act.reduce((a, k) => a + all.per[k].trips, 0), longestKm: 0, streak: 0 }
       : { modes: { walk: 230, run: 95, bike: 140 }, allKm: 641, allTrips: 188, longestKm: 18.6, streak: 6 };
