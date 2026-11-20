@@ -3,6 +3,7 @@ import { stravaRoutes } from './strava.js';
 import { legalRoutes } from './legal.js';
 import { friendRoutes } from './friends.js';
 import { announceRoutes } from './announce.js';
+import { siteRoutes } from './site.js';
 
 const DAY = 86400000;
 const SESSION_TTL = 30 * DAY;
@@ -309,6 +310,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
     ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
+    ...siteRoutes(),
     ...legalRoutes(env),
 
     'GET /dev/outbox': async () => {
@@ -348,6 +350,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
         try { body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {}; } catch { throw bad('bad_json', 'Invalid JSON.'); }
       }
       const out = await route({ req, body, url });
+      if (out && out.redirect) { res.writeHead(302, { Location: out.redirect }); res.end(); return; }
       if (out && out.raw !== undefined) {
         const h = { 'Content-Type': out.type + '; charset=utf-8' };
         if (out.name) h['Content-Disposition'] = `attachment; filename="${out.name}"`;
