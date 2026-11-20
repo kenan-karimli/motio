@@ -294,7 +294,8 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
 <style>body{margin:0;font-family:system-ui,sans-serif;background:#1F1D47;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}main{padding:32px 24px;max-width:360px}h1{font-size:28px;margin:0 0 8px}p{color:#C9C5EC;line-height:1.5}.code{font-size:34px;font-weight:700;letter-spacing:6px;background:#2D2A6E;border-radius:16px;padding:14px;margin:20px 0}a{display:block;margin:10px 0;padding:14px;border-radius:26px;background:#F6C343;color:#1F1D47;font-weight:700;text-decoration:none}</style>
 <main><h1>Join me on Motio</h1><p>Compare weeks and start challenges together.</p><div class="code">${code}</div>
 <a href="intent://add/${code}#Intent;scheme=motio;package=com.motio.app;end">Open in Motio</a>
-<p>No app yet? Install Motio, then enter this code in Social › Friends.</p></main></html>` };
+<p>No app yet? Get Motio for Android, then open this link again (or enter the code in Social › Friends).</p>
+<a href="https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk" style="background:#FFFFFF">Download Motio for Android</a></main></html>` };
     },
     'GET /.well-known/assetlinks.json': async () => ({ type: 'application/json', raw: JSON.stringify([{ relation: ['delegate_permission/common.handle_all_urls'],
       target: { namespace: 'android_app', package_name: 'com.motio.app', sha256_cert_fingerprints: ['3D:74:F5:0F:36:88:10:38:DE:13:6C:FD:B0:D4:A6:36:23:13:66:34:7E:03:4B:83:24:7A:99:3B:85:17:18:A7'] } }]) }),

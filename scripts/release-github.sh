@@ -7,6 +7,8 @@ code=$(grep -oP 'versionCode \K\d+' android/app/build.gradle)
 name=$(grep -oP 'versionName "\K[^"]+' android/app/build.gradle)
 src="dist/motio-$name.apk"
 [ -f "$src" ] || { echo "Missing $src: build the release APK first" >&2; exit 1; }
-# The app compares the number in this file name with its own versionCode.
+# The app compares the number in this file name with its own versionCode. motio.apk is the same file under a
+# fixed name, so https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk always serves the newest.
 cp "$src" "dist/motio-$code.apk"
-gh release create "v$name" "dist/motio-$code.apk" --repo kenan-karimli/motio --title "Motio $name" --notes "Motio $name (build $code)" --latest
+cp "$src" "dist/motio.apk"
+gh release create "v$name" "dist/motio-$code.apk" "dist/motio.apk" --repo kenan-karimli/motio --title "Motio $name" --notes "Motio $name (build $code)" --latest

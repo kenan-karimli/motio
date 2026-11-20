@@ -278,7 +278,7 @@ test('friend requests need accepting; invite link page; public and private profi
   r = await call('POST', '/v1/friends/add', { id: finnId }, c);
   assert.equal(r.body.requested.name, 'Finn');
   const page = await fetch(base + '/i/' + codeA.toLowerCase());
-  assert.equal(page.status, 200); assert.match(await page.text(), new RegExp(codeA));
+  assert.equal(page.status, 200); const html = await page.text(); assert.match(html, new RegExp(codeA)); assert.match(html, /releases\/latest\/download\/motio\.apk/);
   assert.equal((await (await fetch(base + '/.well-known/assetlinks.json')).json())[0].target.package_name, 'com.motio.app');
 });
 
