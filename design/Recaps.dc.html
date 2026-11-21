@@ -14,6 +14,7 @@ body{margin:0}
 html,body{background:#1F1D47}
 a{color:inherit}a:hover{opacity:.9}
 button{font:inherit;cursor:pointer}
+@keyframes motioHubIn{from{opacity:0;transform:translateY(14px) scale(0.97)}to{opacity:1;transform:none}}
 @keyframes motioPillFrom0{from{transform:translateX(calc(0 * (100% + 4px)))}}
 @keyframes motioPillFrom1{from{transform:translateX(calc(1 * (100% + 4px)))}}
 @keyframes motioPillFrom2{from{transform:translateX(calc(2 * (100% + 4px)))}}
@@ -54,8 +55,7 @@ button:active,a:active{transform:scale(0.96)}
 
   <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: center; justify-content: space-between">
     <h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Social</h1>
-    <span style="display: flex; gap: 8px"><a href="{{ LK.challenges.href }}" onClick="{{ LK.challenges.go }}" aria-label="Challenges and badges" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg></a><a href="{{ LK.feed.href }}" onClick="{{ LK.feed.go }}" aria-label="Feed: trips your friends posted" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.14); color: #FFFFFF; display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; text-decoration: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"></path></svg>Feed</a>
-    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a></span>
+    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a>
   </div>
   <div role="tablist" aria-label="Social" style="position: relative; margin: 4px 20px 0; display: flex; padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.08)">
     <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 18px; background: #F6C343; transform: translateX({{ segX }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
@@ -83,6 +83,14 @@ button:active,a:active{transform:scale(0.96)}
       </div>
     </sc-if>
 
+    <div role="navigation" aria-label="Social pages" style="margin: 0 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ hubTiles }}" as="h" hint-placeholder-count="4">
+        <a href="{{ h.href }}" onClick="{{ h.go }}" style="position: relative; overflow: hidden; min-height: 92px; padding: 14px; border-radius: 22px; background: {{ h.bg }}; color: {{ h.fg }}; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; animation: motioHubIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ h.d }} backwards">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ h.icon }}"></path></svg>
+          <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ h.title }}</span><span style="font-size: 11.5px; opacity: 0.75">{{ h.sub }}</span></span>
+        </a>
+      </sc-for>
+    </div>
     <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="margin: 0 20px; height: 230px; border-radius: 28px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
 
     <sc-if value="{{ hasPodium }}" hint-placeholder-val="{{ true }}">
@@ -101,14 +109,6 @@ button:active,a:active{transform:scale(0.96)}
           </sc-for>
         </div>
         <span style="font-size: 13px; color: #C9C5EC; text-align: center">{{ standLine }}</span>
-        <sc-for list="{{ rest }}" as="r" hint-placeholder-count="1">
-          <a href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: {{ r.bg }}; color: #FFFFFF; text-decoration: none">
-            <span style="width: 18px; font-size: 13px; font-weight: 700; color: #C9C5EC">{{ r.rank }}</span>
-            <span style="width: 32px; height: 32px; border-radius: 16px; overflow: hidden; flex-shrink: 0; background: {{ r.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700"><sc-if value="{{ r.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ r.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ r.noPhoto }}" hint-placeholder-val="{{ true }}">{{ r.ini }}</sc-if></span>
-            <span style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span>
-            <span style="font-size: 14px; font-weight: 700">{{ r.time }}</span>
-          </a>
-        </sc-for>
         <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
           <button type="button" onClick="{{ cheerAll }}" style="height: 44px; border: 0; border-radius: 22px; background: {{ cheerAllBg }}; color: {{ cheerAllFg }}; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 220ms ease"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="{{ cheerAllFill }}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>{{ cheerAllLabel }}</button>
           <a href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="height: 44px; border-radius: 22px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Challenge</a>
@@ -150,23 +150,6 @@ button:active,a:active{transform:scale(0.96)}
       </div>
     </sc-if>
 
-    <sc-if value="{{ hasMoments }}" hint-placeholder-val="{{ false }}">
-      <div role="region" aria-label="Activity" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Activity</h2>
-        <div style="border-radius: 24px; background: rgba(255,255,255,0.06); overflow: hidden">
-          <sc-for list="{{ moments }}" as="m" hint-placeholder-count="2">
-            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: {{ m.line }}">
-              <a href="{{ m.href }}" onClick="{{ m.go }}" aria-label="{{ m.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
-                <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: {{ m.tint }}; color: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span>
-                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 1.35"><b>{{ m.who }}</b> {{ m.what }}</span><span style="font-size: 11px; color: #C9C5EC">{{ m.when }}</span></span>
-              </a>
-              <sc-if value="{{ m.canCheer }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ m.cheer }}" aria-pressed="{{ m.on }}" aria-label="{{ m.aria }}" style="width: 40px; height: 40px; flex-shrink: 0; border: 0; border-radius: 20px; background: {{ m.btnBg }}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: {{ m.pop }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button></sc-if>
-              <sc-if value="{{ m.noCheer }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-right: 6px"><path d="M9 5l7 7-7 7"></path></svg></sc-if>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-    </sc-if>
   </div>
   </sc-if>
 
@@ -227,10 +210,10 @@ button:active,a:active{transform:scale(0.96)}
     </div>
     </sc-if>
 
-    <section style="margin: 0 20px; padding: 18px; border-radius: 26px; background: #2D2A6E; display: flex; align-items: center; gap: 14px">
+    <a href="{{ yearLink.href }}" onClick="{{ yearLink.go }}" style="text-decoration: none; color: #FFFFFF; margin: 0 20px; padding: 18px; border-radius: 26px; background: #2D2A6E; display: flex; align-items: center; gap: 14px">
       <span style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ yearDays }}d</span>
-      <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ yearLabel }}, wrapped</span><span style="font-size: 12px; color: #C9C5EC">Your whole year in motion unlocks on Dec 1</span></span>
-    </section>
+      <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ yearLabel }}, wrapped</span><span style="font-size: 12px; color: #C9C5EC">Your year in motion so far: routes, totals, personality</span></span>
+    </a>
   </div>
   </sc-if>
 
@@ -355,7 +338,7 @@ class Component extends DCLogic {
     ].map((q, i) => ({ ...q, ini: ini(q.who), tint: TINTS[((q.id || i) % 4) + 1], d: 60 + i * 70 + 'ms', busy: !!busyIds[q.key], href: q.link.href, go: q.link.go,
       aria: 'Open ' + q.title, noAria: 'Decline: ' + q.title, yesAria: q.yesLabel + ': ' + q.title }));
     const CBG = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B'];
-    const chals = running.map((x, i) => {
+    const chals = running.slice(0, 2).map((x, i) => {
       const l = L('challenge', 'Challenge.dc.html'), lead = x.members[0], dl = Math.max(0, Math.ceil((x.end - now) / DAY));
       const faceOf = (m) => { const p = people.find((q) => q.id === m.id); return p ? face(p) : ''; };
       return { tag: { km: 'DISTANCE', min: 'ACTIVE TIME', runs: 'RUNS' }[x.kind], title: KNAME(x), bg: CBG[i % 4],
@@ -484,7 +467,7 @@ class Component extends DCLogic {
       past.push({ range: span(a, a + 6 * M.DAY), km: M.fmtDist(x.m), note: notes[x.modes[0].key], bg: colors[(k - 1) % 4], bars: ds.map((d) => Math.max(4, Math.round(d.min / mx * 100)) + '%'), delay: 200 + past.length * 60 + 'ms', ...to('recap', 'Recap.dc.html', { kind: 'week', from: a }) });
     }
     const dec1 = new Date(new Date(now).getFullYear(), 11, 1).getTime();
-    return { covers, days, past, hasPast: past.length > 0, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
+    return { covers, days, past, hasPast: past.length > 0, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearLink: (() => { const l = L('recap', 'Recap.dc.html'); return { href: l.href, go: (e) => { window.__motioRecap = { kind: 'year', from: new Date(new Date(now).getFullYear(), 0, 1).getTime() }; l.go(e); } }; })(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
   }
   renderVals() {
     if (this.entryAnim === undefined) {
@@ -526,8 +509,13 @@ class Component extends DCLogic {
         const past = [['Oct 18–24', '386 km', 'busy Tuesday', '#B57BE0', [50, 70, 100, 60, 55, 80, 40]], ['Oct 11–17', '402 km', 'steps record', '#6E8CF7', [60, 50, 70, 80, 100, 65, 55]], ['Oct 4–10', '371 km', 'most on foot', '#F2766B', [40, 60, 55, 100, 70, 50, 60]], ['Sep 27–Oct 3', '344 km', 'rainy week', '#F6C343', [70, 40, 50, 60, 100, 45, 30]]]
           .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
         if (window.Motio) return this.liveVals(L);
-        return { covers, days, past, hasPast: true, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29 };
-      })(), ...this.socialVals((t, f) => lk(t, f)), ...this.segVals(), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
+        return { covers, days, past, hasPast: true, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29, yearLink: { href: 'Recap.dc.html', go: () => {} } };
+      })(), ...this.socialVals((t, f) => lk(t, f)), ...this.segVals(),
+      hubTiles: [['feed', 'Feed.dc.html', 'Feed', 'Trips friends posted', '#F6C343', '#1F1D47', 'M4 5h16M4 12h16M4 19h10'],
+        ['challenges', 'Challenges.dc.html', 'Challenges', 'Badges to earn', '#6E8CF7', '#FFFFFF', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3'],
+        ['leaderboard', 'Leaderboard.dc.html', 'Everyone', 'Weekly leaderboard', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M5 20V12M10 20V6M15 20v-9M20 20V9'],
+        ['clubs', 'Clubs.dc.html', 'Clubs', 'Run with your crew', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 5.2a3.5 3.5 0 0 1 0 6.6M18 15c2 .6 3.2 2.2 3.8 5']]
+        .map(([t, f, title, sub, bg, fg, icon], i) => ({ ...lk(t, f), title, sub, bg, fg, icon, d: i * 60 + 'ms' })), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
   }
 }
 </script>

@@ -286,6 +286,12 @@ export const friends = {
   // Monthly challenges anyone can join, and the badges you've earned (months in the phone's own time zone).
   monthly: () => api('GET', '/v1/monthly?tz=' + -new Date().getTimezoneOffset()),
   joinMonthly: (key, on = true) => mut(api('POST', '/v1/monthly/join', { key, on })),
+  // Clubs: groups with a join code, a weekly board and members' posts.
+  clubs: () => api('GET', '/v1/clubs'),
+  club: (id) => api('GET', '/v1/club?id=' + id + '&from=' + weekStart()),
+  newClub: (name) => mut(api('POST', '/v1/clubs', { name })),
+  joinClub: (code) => mut(api('POST', '/v1/clubs/join', { code })),
+  leaveClub: (id) => mut(api('POST', '/v1/clubs/leave', { id })),
   // The feed: trips people chose to post, for their friends.
   feed: () => api('GET', '/v1/feed'),
   async post(tripId, caption) { await sync(); return mut(api('POST', '/v1/posts', { tripId, caption })); },
@@ -603,7 +609,17 @@ export function retypeTrip(id, mode) {
   const t = S.trips[id];
   if (!t) return;
   saveTrip({ ...t, mode, locked: true });
-  learn(t.f || vector(features(t)), mode);
+  const f = t.f || vector(features(t));
+  learn(f, mode);
+  if (mode === 'transit') busLine(id);
+  // It learns right away: recent trips that look like this one (and you haven't fixed yourself) change too.
+  let n = 0;
+  for (const x of Object.values(S.trips)) {
+    if (x.id === id || x.deleted || x.locked || x.mode === mode || !x.f || Date.now() - x.start > 30 * DAY) continue;
+    if (Math.hypot(...x.f.map((v, i) => v - f[i])) < 0.22) { S.trips[x.id] = { ...x, mode, updatedAt: Date.now() }; S.dirty[x.id] = 1; n++; }
+  }
+  if (n) changed();
+  return n;
 }
 // Trip editing: a note (synced), a photo (kept on this phone only: keys starting with _ never leave it),
 // joining a trip with the next one (a stop at the lights split it) and splitting one at its longest stop.
@@ -755,11 +771,61 @@ function closeLive(endAt) {
   const t = live; live = null; S.live = null;
   t.end = Math.min(endAt, t.end);
   if (t.workout ? t.end - t.start - t.workout.pausedMs < 60000 || t.distanceM < 100 : t.distanceM < 150 || (t.distanceM < 400 && t.end - t.start < 90000) || (!t.locked && wandered(t))) { changed(); return; } // GPS jitter or fidgeting, not a trip
+  t.stepsOn = S.settings.countSteps !== false && S.stepTotal != null;
   const f = features(t);
   const done = { id: t.id, start: t.start, end: t.end, mode: t.locked ? t.mode : classifyTrip(f, S.settings.learned || []), locked: !!t.locked,
     distanceM: Math.round(t.distanceM), steps: t.steps, maxSpeed: t.maxSpeed, points: t.points, f: vector(f), ...(t.workout ? { workout: true, pausedMs: t.workout.pausedMs } : {}) };
   saveTrip(done);
+  if (done.mode === 'transit') busLine(done.id);
+  routeAttempt(done);
   if (S.settings.webhook) sendWebhook(done).catch(() => {});
+}
+// Which bus: first a route you labelled yourself (most of this trip within 60 m of it), else the Baku lines
+// in OpenStreetMap (server). Your own label always wins and teaches the next trips on that route.
+function overlap(a, b) {
+  const sa = a.filter((_, i) => i % Math.max(1, Math.floor(a.length / 60)) === 0), sb = b.filter((_, i) => i % Math.max(1, Math.floor(b.length / 200)) === 0);
+  return sa.filter((p) => sb.some((q) => hav(p, q) < 60)).length / Math.max(1, sa.length);
+}
+async function busLine(id) {
+  const t = S.trips[id];
+  if (!t || !t.points || t.points.length < 4 || t.lineBy === 'you') return;
+  const known = Object.values(S.trips).find((x) => x.id !== id && x.lineBy === 'you' && x.line && x.points && x.points.length > 3 && overlap(t.points, x.points) >= 0.7);
+  if (known) { saveTrip({ ...S.trips[id], line: known.line, lineBy: 'learned' }); return; }
+  if (!S.token) return;
+  const r = await api('POST', '/v1/bus/match', { points: t.points.map((p) => [p[0], p[1]]) }).catch(() => null);
+  if (r && r.line && S.trips[id]) saveTrip({ ...S.trips[id], line: r.line, lineBy: 'map' });
+}
+// Saved routes: a trip you name ("Home to office"); later trips that run the same way (both ways 75% within
+// 60 m, same kind of moving) count as attempts, and a faster one is a personal best on that route.
+const family = (m) => (m === 'walk' || m === 'run' ? 'foot' : m === 'bike' ? 'bike' : 'vehicle');
+export const routes = () => S.settings.routes || [];
+export function saveRoute(tripId, name) {
+  const t = S.trips[tripId];
+  if (!t || !t.points || t.points.length < 4) return null;
+  const step = Math.max(1, Math.ceil(t.points.length / 80));
+  const r = { id: 'r' + Date.now().toString(36), name: String(name || 'My route').trim().slice(0, 40), family: family(t.mode), mode: t.mode, km: Math.round(t.distanceM / 100) / 10,
+    points: t.points.filter((p, i) => i % step === 0 || i === t.points.length - 1).map((p) => [p[0], p[1]]), best: { ms: t.end - t.start, tripId: t.id, at: t.start }, attempts: 1, last: t.start };
+  setSetting('routes', [...routes(), r]);
+  return r;
+}
+export const deleteRoute = (id) => setSetting('routes', routes().filter((r) => r.id !== id));
+export const routeOf = (t) => (t && t.points && t.points.length > 3 ? routes().find((r) => r.family === family(t.mode) && overlap(t.points, r.points) >= 0.75 && overlap(r.points, t.points) >= 0.75) || null : null);
+function routeAttempt(t) {
+  const r = routeOf(t);
+  if (!r || r.best.tripId === t.id) return;
+  const ms = t.end - t.start, pb = ms < r.best.ms;
+  setSetting('routes', routes().map((x) => (x.id === r.id ? { ...x, attempts: x.attempts + 1, last: t.start, ...(pb ? { best: { ms, tripId: t.id, at: t.start } } : {}) } : x)));
+  if (!pb) return;
+  const fmt = (v) => Math.floor(v / 60000) + ':' + String(Math.round((v % 60000) / 1000)).padStart(2, '0');
+  const item = { id: 'routepb-' + t.id, kind: 'record', at: Date.now(), title: 'New best on ' + r.name, body: fmt(ms) + ', ' + Math.round((r.best.ms - ms) / 1000) + ' s faster than before.' };
+  S.localInbox = [item, ...(S.localInbox || [])].slice(0, 20); changed();
+  if (native) LocalNotifications.checkPermissions().then((p) => p.display === 'granted' && LocalNotifications.schedule({ notifications: [{ id: 2100, title: item.title, body: item.body, extra: { open: 'inbox' } }] })).catch(() => {});
+}
+export function setTripLine(id, line) {
+  const t = S.trips[id];
+  if (!t) return;
+  const v = String(line || '').trim().slice(0, 8);
+  saveTrip({ ...t, line: v || undefined, lineBy: v ? 'you' : undefined });
 }
 
 function onLocation(loc) {
@@ -1023,9 +1089,12 @@ export async function shareImage(dataUrl, how = 'share', text = 'Tracked with Mo
     // Story, WhatsApp, X and Messages open that app directly; if it isn't installed, use the share sheet.
     const APPS = { story: 'Instagram', whatsapp: 'WhatsApp', x: 'X', sms: 'Messages' };
     let note = null;
+    // Instagram takes links only as a Link sticker: copy the card's link first, then say how to add it.
+    const link = (/https?:\/\/\S+/.exec(text || '') || [])[0];
+    if (how === 'story' && link) { try { await navigator.clipboard.writeText(link); } catch { /* clipboard blocked: the link is still in the text */ } }
     if (APPS[how]) {
       const r = await Sensors.shareTo({ target: how, path: name, text }).catch(() => ({ ok: false }));
-      if (r.ok) return null;
+      if (r.ok) return how === 'story' && link ? 'Link copied. In Instagram tap the sticker icon, choose Link and paste it' : null;
       note = APPS[how] + ' isn’t installed, so pick another app';
     }
     await Share.share({ title: 'My Motio', text, files: [uri], dialogTitle: how === 'save' ? 'Save your image' : 'Share your image' });
@@ -1086,7 +1155,10 @@ function sampleTrips() {
 }
 export function setDemo(on) { S.demo = !!on; changed(); }
 export const isDemo = () => !!S.demo;
-const allTrips = () => memo('all', () => Object.values(S.demo ? sampleTrips() : S.trips).filter((t) => !t.deleted).concat(live && !S.demo ? [{ ...live, live: true }] : []).sort((a, b) => a.start - b.start));
+// A trip in progress shows only once it would be kept (closeLive's own test): GPS drift while you sit
+// never flashes up as a short walk that then disappears.
+const realLive = (t) => !!t.workout || (t.distanceM >= 150 && t.end - t.start >= 90000 && !wandered(t));
+const allTrips = () => memo('all', () => Object.values(S.demo ? sampleTrips() : S.trips).filter((t) => !t.deleted).concat(live && !S.demo && realLive(live) ? [{ ...live, live: true }] : []).sort((a, b) => a.start - b.start));
 
 // ---------------------------------------------------------------- stats
 export const fmtMin = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm'; };
@@ -1511,14 +1583,24 @@ export function personality(anchor = Date.now()) {
     const foot = share('walk') + share('run');
     const night = s.hourly.slice(20).concat(s.hourly.slice(0, 4)).reduce((a, b) => a + b, 0) / Math.max(1, s.hourly.reduce((a, b) => a + b, 0));
     const ways = s.modes.length;
+    const total = Math.max(1, s.hourly.reduce((a, b) => a + b, 0));
+    const early = s.hourly.slice(4, 9).reduce((a, b) => a + b, 0) / total;
+    const weekend = s.trips.filter((t) => [0, 6].includes(new Date(t.start).getDay())).reduce((a, t) => a + (t.end - t.start), 0) / s.ms;
+    const activeDays = days(dayStart(anchor) - 29 * DAY, 30).filter((d) => d.min >= 10).length;
     let key = 'wanderer';
     if (night > 0.3) key = 'nightowl';
+    else if (early > 0.4) key = 'earlybird';
     else if (share('drive') > 0.5) key = 'roadtripper';
+    else if (share('transit') > 0.4) key = 'metrohopper';
+    else if (share('bike') > 0.35) key = 'cyclist';
     else if (share('run') > 0.18) key = 'speedster';
+    else if (weekend > 0.55) key = 'weekender';
     else if (foot > 0.33 && ways >= 3) key = 'wanderer';
+    else if (activeDays >= 25) key = 'steady';
     else if (s.hourly[7] + s.hourly[8] + s.hourly[17] + s.hourly[18] > 0.5 * s.hourly.reduce((a, b) => a + b, 0)) key = 'commuter';
     else key = 'explorer';
-    const names = { wanderer: 'The Urban Wanderer', speedster: 'The Speedster', commuter: 'The Commuter', roadtripper: 'The Road Tripper', explorer: 'The Explorer', nightowl: 'The Night Owl' };
+    const names = { wanderer: 'The Urban Wanderer', speedster: 'The Speedster', commuter: 'The Commuter', roadtripper: 'The Road Tripper', explorer: 'The Explorer', nightowl: 'The Night Owl',
+      earlybird: 'The Early Bird', cyclist: 'The Cyclist', metrohopper: 'The Metro Hopper', weekender: 'The Weekend Warrior', steady: 'The Steady One' };
     return { key, name: names[key], enough: true, foot, ways, night, s };
   });
 }
@@ -1538,7 +1620,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

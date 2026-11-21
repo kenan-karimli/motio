@@ -36,7 +36,7 @@ export function features(t) {
   const share = (k) => (moving ? (ar[k] || 0) / moving : 0);
   return {
     med: pct(speeds, 0.5), p85: pct(speeds, 0.85), cadence: (t.steps || 0) / mins, stopsPerKm: stops / km, km,
-    vehicle: share('vehicle'), bike: share('bike'), foot: share('walk') + share('run'), run: share('run'), arSeen: moving >= 45000,
+    vehicle: share('vehicle'), bike: share('bike'), foot: share('walk') + share('run'), run: share('run'), arSeen: moving >= 45000, stepsOn: !!t.stepsOn,
     still: arTotal ? (ar.still || 0) / arTotal : 0
   };
 }
@@ -53,6 +53,8 @@ export function rules(f) {
     if (f.run >= 0.4 || (f.foot >= 0.45 && f.cadence > 140 && f.med > 2.2)) return 'run';
     if (f.foot >= 0.45) return 'walk';
   }
+  // The step counter was on and saw almost nothing: not on foot, whatever the speed. Slow means traffic.
+  if (f.stepsOn && f.cadence < 12 && f.km > 0.3 && f.foot < 0.45) return f.med >= 2.4 && f.med < 6.5 && f.stopsPerKm < 1 && f.vehicle < 0.3 ? 'bike' : vehicleKind(f);
   // No clear answer from the model: fall back to speed and steps.
   if (f.cadence > 140 && f.med > 2.2 && f.med < 6.5) return 'run';
   if (f.cadence > 45 && f.med < 2.6) return 'walk';
@@ -69,9 +71,9 @@ function vehicleKind(f) {
 const VEC = (f) => [f.med / 10, f.p85 / 15, Math.min(f.cadence, 200) / 100, Math.min(f.stopsPerKm, 6) / 3, f.vehicle, f.bike, f.foot, f.run];
 export const vector = (f) => VEC(f).map((x) => Math.round(x * 100) / 100);
 export function classifyTrip(f, learned = []) {
-  if (learned.length >= 3) {
+  if (learned.length >= 2) {
     const v = VEC(f);
-    const near = learned.map((e) => ({ m: e.m, d: Math.hypot(...e.v.map((x, i) => x - v[i])) })).sort((a, b) => a.d - b.d).slice(0, 5).filter((n) => n.d < 0.35);
+    const near = learned.map((e) => ({ m: e.m, d: Math.hypot(...e.v.map((x, i) => x - v[i])) })).sort((a, b) => a.d - b.d).slice(0, 5).filter((n) => n.d < 0.4);
     const votes = {};
     for (const n of near) votes[n.m] = (votes[n.m] || 0) + 1 / (0.05 + n.d);
     const best = Object.entries(votes).sort((a, b) => b[1] - a[1])[0];

@@ -1,6 +1,7 @@
 import './motio.js';
 import './map.js';
 import './recap-scene.js';
+import './mascot.js';
 import { mount } from './dc-runtime.js';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';

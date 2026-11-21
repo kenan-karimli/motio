@@ -54,3 +54,13 @@ test('a walk with GPS jumps and steps is a walk even if Google once said vehicle
   const t = trip([...rep(1.4, 30), 12, 11, ...rep(1.4, 30)], { steps: 1500, ar: { walk: 200000, vehicle: 120000 } });
   assert.equal(rules(features(t)), 'walk');
 });
+
+test('a bus crawling through traffic with no steps is not a walk', () => {
+  const crawl = [];
+  for (let i = 0; i < 10; i++) crawl.push(...rep(2, 8), ...rep(0.2, 4)); // ~1.5 km at walking speed, stopping often
+  const t = trip(crawl);
+  t.stepsOn = true;
+  assert.equal(rules(features(t)), 'transit');
+  delete t.stepsOn;
+  assert.equal(rules(features(t)), 'walk', 'without a step counter it can still only guess walk');
+});

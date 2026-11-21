@@ -50,6 +50,10 @@ button:active,a:active{transform:scale(0.96)}
 
     <section style="display: flex; flex-direction: column; gap: 12px">
       <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
+      <div style="display: flex; gap: 8px; margin: 4px 0 8px">
+        <button type="button" onClick="{{ rcSpeed.next }}" style="flex: 1; min-height: 52px; border: 0; border-radius: 16px; background: #F6F5FC; color: #1F1D47; text-align: left; padding: 8px 12px; display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B6890">Slide speed</span><span style="font-size: 14px; font-weight: 600">{{ rcSpeed.label }}</span></button>
+        <button type="button" onClick="{{ rcMap.toggle }}" style="flex: 1; min-height: 52px; border: 0; border-radius: 16px; background: #F6F5FC; color: #1F1D47; text-align: left; padding: 8px 12px; display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B6890">Map background</span><span style="font-size: 14px; font-weight: 600">{{ rcMap.label }}</span></button>
+      </div>
       <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Recap style</span><span style="font-size: 12px; color: #6B6890">Your recaps and share images use it. You can still change each image before you share it.</span></span>
       <div role="radiogroup" aria-label="Recap style" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 2px">
         <sc-for list="{{ styles }}" as="o" hint-placeholder-count="9">
@@ -266,6 +270,9 @@ class Component extends DCLogic {
         return { title, sub, aria: title + '. ' + sub, bg: ok ? '#DDF5E3' : '#FDECEA', icon: ok ? CHECK : CLOUD,
           now: () => { if (M && st.signedIn) M.sync().then(() => this.forceUpdate()); } };
       })(),
+      ...(() => { const get = (k, d) => { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, put2 = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* blocked */ } this.forceUpdate(); };
+        const sp = get('motio.recapSpeed', 'normal'), ORDER = ['relaxed', 'normal', 'fast'], NAMES = { relaxed: 'Relaxed', normal: 'Normal', fast: 'Fast' }, mp = get('motio.recapMap', 'on');
+        return { rcSpeed: { label: NAMES[sp] || 'Normal', next: () => put2('motio.recapSpeed', ORDER[(ORDER.indexOf(sp) + 1) % 3]) }, rcMap: { label: mp === 'off' ? 'Off' : 'On', toggle: () => put2('motio.recapMap', mp === 'off' ? 'on' : 'off') } }; })(),
       emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
       styles: [['mix', 'Mix', 'A new style each story'], ...Object.keys(TH).map((k) => [k, TH[k].name, TH[k].hint])]
         .map(([k, label, hint]) => ({
@@ -317,7 +324,7 @@ class Component extends DCLogic {
       setMi: () => put('unit', 'mi'),
       // The Motio website, opened in the in-app browser.
       openSite: () => M && M.openPage('/'),
-      versionLabel: 'Version 4.2' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 4.3' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

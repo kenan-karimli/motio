@@ -57,6 +57,19 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
       done_at BIGINT,
       PRIMARY KEY (user_id, key)
     );
+    CREATE TABLE IF NOT EXISTS clubs (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      owner INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at BIGINT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS club_members (
+      club_id INTEGER NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      joined_at BIGINT NOT NULL,
+      PRIMARY KEY (club_id, user_id)
+    );
     CREATE TABLE IF NOT EXISTS live_fix (
       user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       lat DOUBLE PRECISION NOT NULL, lng DOUBLE PRECISION NOT NULL, at BIGINT NOT NULL, mode TEXT
@@ -99,7 +112,19 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
     myMonthly: db.prepare('SELECT key, joined_at, done_at FROM monthly_joins WHERE user_id = ?'),
     doneMonthly: db.prepare('UPDATE monthly_joins SET done_at = ? WHERE user_id = ? AND key = ? AND done_at IS NULL'),
     joinedCount: db.prepare('SELECT key, COUNT(*)::int AS n FROM monthly_joins WHERE key LIKE ? GROUP BY key'),
+    monthTrips: db.prepare('SELECT start, "end", mode, distance_m FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ?'),
+    monthSteps: db.prepare('SELECT COALESCE(SUM(steps), 0)::float8 AS n FROM daily_steps WHERE user_id = ? AND day >= ? AND day < ?'),
     monthSum: db.prepare('SELECT mode, SUM(distance_m)::float8 AS m, SUM("end" - start)::float8 AS ms FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ? GROUP BY mode'),
+    newClub: db.prepare('INSERT INTO clubs (name, code, owner, created_at) VALUES (?, ?, ?, ?) RETURNING id'),
+    clubByCode: db.prepare('SELECT * FROM clubs WHERE code = ?'),
+    clubById: db.prepare('SELECT * FROM clubs WHERE id = ?'),
+    joinClub: db.prepare('INSERT INTO club_members (club_id, user_id, joined_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
+    leaveClub: db.prepare('DELETE FROM club_members WHERE club_id = ? AND user_id = ?'),
+    isMember: db.prepare('SELECT 1 AS ok FROM club_members WHERE club_id = ? AND user_id = ?'),
+    myClubs: db.prepare('SELECT c.id, c.name, c.code, (SELECT COUNT(*)::int FROM club_members m2 WHERE m2.club_id = c.id) AS members FROM clubs c JOIN club_members m ON m.club_id = c.id WHERE m.user_id = ? ORDER BY m.joined_at'),
+    clubPeople: db.prepare('SELECT u.id, u.name, u.avatar FROM club_members m JOIN users u ON u.id = m.user_id WHERE m.club_id = ?'),
+    clubWeek: db.prepare(`SELECT t.user_id, SUM(t."end" - t.start)::float8 AS ms, SUM(t.distance_m)::float8 AS m FROM trips t JOIN club_members m ON m.user_id = t.user_id AND m.club_id = ? WHERE t.deleted = 0 AND t.mode IN ${ACTIVE} AND t.start >= ? AND t.start < ? GROUP BY t.user_id`),
+    clubPosts: db.prepare('SELECT p.*, u.name, u.avatar FROM posts p JOIN users u ON u.id = p.user_id JOIN club_members m ON m.user_id = p.user_id AND m.club_id = ? ORDER BY p.created_at DESC LIMIT 20'),
     putCard: db.prepare('INSERT INTO share_cards (code, user_id, payload, created_at) VALUES (?, ?, ?, ?)'),
     getCard: db.prepare('SELECT c.code, c.payload, c.created_at, u.id AS uid, u.name, u.avatar FROM share_cards c JOIN users u ON u.id = c.user_id WHERE c.code = ?'),
     // The notification inbox: everything that happened to you lately, newest first.
@@ -167,11 +192,23 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
   }
 
   // Monthly challenges: the same three every month, open to everyone; finishing one earns that month's badge.
+  // A pool of challenges; each month shows six: the two classics and four that rotate. `of` gets the month's
+  // per-mode totals (s), the trips with their local day and hour (T), and the month's steps.
+  const ACT = new Set(['walk', 'run', 'bike']);
   const MONTHLY = [
     { id: 'walk100', title: 'Walk 100 km', unit: 'km', target: 100, of: (s) => (s.walk.m + s.run.m) / 1000 },
+    { id: 'active30', title: '30 hours on the move', unit: 'h', target: 30, of: (s) => (s.walk.ms + s.run.ms + s.bike.ms) / 3600000 },
     { id: 'ride200', title: 'Ride 200 km', unit: 'km', target: 200, of: (s) => s.bike.m / 1000 },
-    { id: 'active30', title: '30 hours on the move', unit: 'h', target: 30, of: (s) => (s.walk.ms + s.run.ms + s.bike.ms) / 3600000 }
+    { id: 'run50', title: 'Run 50 km', unit: 'km', target: 50, of: (s) => s.run.m / 1000 },
+    { id: 'steps300', title: '300,000 steps', unit: 'k steps', target: 300, of: (s, T, steps) => steps / 1000 },
+    { id: 'carfree10', title: '10 car-free days', unit: 'days', target: 10, of: (s, T) => { const d = new Map(); for (const t of T) { const x = d.get(t.day) || { act: 0, car: false }; if (ACT.has(t.mode)) x.act += t.ms; if (t.mode === 'drive') x.car = true; d.set(t.day, x); } return [...d.values()].filter((x) => !x.car && x.act >= 10 * 60000).length; } },
+    { id: 'days20', title: 'Move on 20 days', unit: 'days', target: 20, of: (s, T) => { const d = new Map(); for (const t of T) if (ACT.has(t.mode)) d.set(t.day, (d.get(t.day) || 0) + t.ms); return [...d.values()].filter((ms) => ms >= 15 * 60000).length; } },
+    { id: 'early8', title: '8 early starts', unit: 'mornings', target: 8, of: (s, T) => new Set(T.filter((t) => ACT.has(t.mode) && t.hour < 8 && t.ms >= 10 * 60000).map((t) => t.day)).size },
+    { id: 'weekend25', title: 'Weekend walker: 25 km', unit: 'km', target: 25, of: (s, T) => T.filter((t) => (t.mode === 'walk' || t.mode === 'run') && t.weekend).reduce((a, t) => a + t.m, 0) / 1000 },
+    { id: 'bus15', title: 'Take the bus 15 times', unit: 'trips', target: 15, of: (s, T) => T.filter((t) => t.mode === 'transit').length }
   ];
+  const ROTATE = MONTHLY.slice(2);
+  const thisMonth = (key) => { const n = +key.slice(0, 4) * 12 + +key.slice(5, 7); return [MONTHLY[0], MONTHLY[1], ...[0, 1, 2, 3].map((i) => ROTATE[(n + i * 2) % ROTATE.length])].filter((c, i, a) => a.indexOf(c) === i); };
   const monthOf = (t, tz) => { const d = new Date(t + tz * 60000); return { key: d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'), from: Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) - tz * 60000, to: Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1) - tz * 60000 }; };
   async function progress(userId, from, to) {
     const s = { walk: { m: 0, ms: 0 }, run: { m: 0, ms: 0 }, bike: { m: 0, ms: 0 }, drive: { m: 0, ms: 0 }, transit: { m: 0, ms: 0 } };
@@ -180,6 +217,36 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
   }
 
   return {
+    // Clubs: a name and a join code; members see a weekly board and the trips members posted.
+    'GET /v1/clubs': async ({ req }) => { const { user } = await authUser(req); return { clubs: await q.myClubs.all(user.id) }; },
+    'POST /v1/clubs': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const name = String(body.name || '').trim().slice(0, 40);
+      if (name.length < 2) throw bad('name_short', 'Give the club a name.');
+      let code = '';
+      for (let i = 0; i < 5 && !code; i++) { const c = codeOf().slice(0, 6).toUpperCase(); if (!(await q.clubByCode.get(c))) code = c; }
+      const r = await q.newClub.get(name, code, user.id, now());
+      await q.joinClub.run(r.id, user.id, now());
+      return { id: r.id, name, code };
+    },
+    'POST /v1/clubs/join': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const c = await q.clubByCode.get(String(body.code || '').trim().toUpperCase());
+      if (!c) throw bad('no_club', 'No club with that code.');
+      await q.joinClub.run(c.id, user.id, now());
+      return { id: c.id, name: c.name };
+    },
+    'POST /v1/clubs/leave': async ({ req, body }) => { const { user } = await authUser(req); await q.leaveClub.run(Number(body.id), user.id); return { ok: true }; },
+    'GET /v1/club': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      const id = Number(url.searchParams.get('id')), c = await q.clubById.get(id);
+      if (!c || !(await q.isMember.get(id, user.id))) throw new HttpError(404, 'not_found', 'You’re not in this club.');
+      const from = weekFrom(url), wk = new Map((await q.clubWeek.all(id, from, from + WEEK)).map((r) => [r.user_id, r]));
+      const people = (await q.clubPeople.all(id)).map((p) => ({ id: p.id, name: p.name, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '', me: p.id === user.id,
+        activeMin: Math.round(((wk.get(p.id) || {}).ms || 0) / 60000), km: Math.round(((wk.get(p.id) || {}).m || 0) / 100) / 10 })).sort((a, b) => b.activeMin - a.activeMin);
+      return { id, name: c.name, code: c.code, owner: c.owner === user.id, people, posts: await Promise.all((await q.clubPosts.all(id)).map((p) => postOut(p, user.id))) };
+    },
+
     // This month's challenges with your progress, and every badge you've earned. tz: the phone's UTC offset in minutes.
     'GET /v1/monthly': async ({ req, url }) => {
       const { user } = await authUser(req);
@@ -187,9 +254,12 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
       const mine = new Map((await q.myMonthly.all(user.id)).map((r) => [r.key, r]));
       const counts = new Map((await q.joinedCount.all(M.key + ':%')).map((r) => [r.key, r.n]));
       const s = await progress(user.id, M.from, M.to);
+      const T = (await q.monthTrips.all(user.id, M.from, M.to)).map((t) => { const d = new Date(Number(t.start) + tz * 60000);
+        return { mode: t.mode, ms: Number(t.end) - Number(t.start), m: t.distance_m || 0, day: d.toISOString().slice(0, 10), hour: d.getUTCHours(), weekend: [0, 6].includes(d.getUTCDay()) }; });
+      const steps = (await q.monthSteps.get(user.id, M.key + '-01', M.key + '-32')).n || 0;
       const list = [];
-      for (const c of MONTHLY) {
-        const key = M.key + ':' + c.id, j = mine.get(key), have = Math.round(c.of(s) * 10) / 10;
+      for (const c of thisMonth(M.key)) {
+        const key = M.key + ':' + c.id, j = mine.get(key), have = Math.round(c.of(s, T, steps) * 10) / 10;
         if (j && !j.done_at && have >= c.target) { await q.doneMonthly.run(now(), user.id, key); j.done_at = now(); }
         list.push({ key, id: c.id, title: c.title, unit: c.unit, target: c.target, have, joined: !!j, done: !!(j && j.done_at), people: (counts.get(key) || 0), ends: M.to });
       }
@@ -199,7 +269,7 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
     'POST /v1/monthly/join': async ({ req, body }) => {
       const { user } = await authUser(req);
       const key = String(body.key || '');
-      if (!/^\d{4}-\d\d:(walk100|ride200|active30)$/.test(key)) throw bad('bad_key', 'Unknown challenge.');
+      if (!/^\d{4}-\d\d:[a-z0-9]+$/.test(key) || !MONTHLY.some((c) => key.endsWith(':' + c.id))) throw bad('bad_key', 'Unknown challenge.');
       if (body.on === false) await q.leaveMonthly.run(user.id, key); else await q.joinMonthly.run(user.id, key, now());
       return { ok: true };
     },

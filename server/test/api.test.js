@@ -595,3 +595,21 @@ test('monthly challenges: join, progress from trips, a badge when done', async (
   assert.equal(r.badges[0].id, 'walk100');
   assert.equal(r.challenges.find((c) => c.id === 'active30').done, false, 'not joined: no badge');
 });
+
+test('clubs: create with a code, join, weekly board and posts for members only', async () => {
+  clock += 120000;
+  const join = async (name, email) => { await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' }); return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token; };
+  const a = await join('Cara Club', 'cara.club@example.com'), b = await join('Dan Club', 'dan.club@example.com'), c = await join('Eve Out', 'eve.out@example.com');
+  const club = (await call('POST', '/v1/clubs', { name: 'Boulevard Runners' }, a)).body;
+  assert.match(club.code, /^[A-Z0-9]{6}$/);
+  assert.equal((await call('POST', '/v1/clubs/join', { code: 'NOPE00' }, b)).status, 400);
+  await call('POST', '/v1/clubs/join', { code: club.code.toLowerCase() }, b);
+  await call('POST', '/v1/trips/sync', { trips: [{ id: 'cb1', start: clock - 3600000, end: clock - 1800000, mode: 'run', distanceM: 5000, steps: 0, maxSpeed: 4, points: [[40.4, 49.8, 1, 5], [40.41, 49.81, 2, 5]], updatedAt: clock }] }, b);
+  await call('POST', '/v1/posts', { tripId: 'cb1', caption: 'Club run' }, b);
+  const d = (await call('GET', `/v1/club?id=${club.id}&from=${clock - 86400000}`, null, a)).body;
+  assert.equal(d.people[0].name, 'Dan Club');
+  assert.equal(d.people[0].activeMin, 30);
+  assert.equal(d.posts[0].caption, 'Club run');
+  assert.equal((await call('GET', `/v1/club?id=${club.id}`, null, c)).status, 404);
+  assert.equal((await call('GET', '/v1/clubs', null, b)).body.clubs[0].members, 2);
+});

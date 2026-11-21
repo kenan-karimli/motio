@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Motio · Clubs</title><script src="./support.js"></script></head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#16142F}
+button,a,input{font:inherit}
+button,a{cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioClIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes motioClBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: radial-gradient(110% 50% at 50% 0%, #2A2560 0%, #16142F 65%), #16142F; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 8px; display: flex; align-items: center; gap: 12px">
+    <button type="button" onClick="{{ back }}" aria-label="Back" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ title }}</h1>
+    <sc-if value="{{ inClub }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ invite }}" style="height: 40px; padding: 0 14px; border: 0; border-radius: 20px; background: #F6C343; color: #1F1D47; font-size: 13px; font-weight: 700">Code {{ code }}</button></sc-if>
+  </div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 14px 16px; border-radius: 18px; background: rgba(242,118,107,0.16); color: #FFD3CE; font-size: 13px">{{ error }}</div></sc-if>
+    <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}">
+      <sc-for list="{{ clubs }}" as="c" hint-placeholder-count="2">
+        <button type="button" onClick="{{ c.open }}" style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 0; border-radius: 22px; background: rgba(255,255,255,0.07); color: #FFFFFF; text-align: left; animation: motioClIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.d }} backwards">
+          <span style="width: 46px; height: 46px; flex-shrink: 0; border-radius: 16px; background: {{ c.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">{{ c.ini }}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ c.name }}</span><span style="font-size: 12px; color: #C9C5EC">{{ c.sub }}</span></span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </sc-for>
+      <sc-if value="{{ none }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #C9C5EC">Clubs are groups beyond your friends: a running club, your office, your class. Start one or join with a code.</span></sc-if>
+      <div style="margin-top: 8px; padding: 16px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; color: #6B6890">Start a club</span>
+        <div style="display: flex; gap: 8px"><input value="{{ draftName }}" onInput="{{ onName }}" aria-label="Club name" maxlength="40" placeholder="Boulevard Runners" style="flex: 1; min-width: 0; height: 46px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 14px"><button type="button" onClick="{{ create }}" style="height: 46px; padding: 0 16px; border: 0; border-radius: 14px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">Start</button></div>
+        <span style="font-size: 13px; color: #6B6890">Have a code?</span>
+        <div style="display: flex; gap: 8px"><input value="{{ draftCode }}" onInput="{{ onCode }}" aria-label="Club code" maxlength="6" autocapitalize="characters" placeholder="ABC123" style="flex: 1; min-width: 0; height: 46px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 16px; font-weight: 600; letter-spacing: 2px"><button type="button" onClick="{{ join }}" style="height: 46px; padding: 0 16px; border: 0; border-radius: 14px; background: #F6C343; color: #1F1D47; font-size: 14px; font-weight: 700">Join</button></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ inClub }}" hint-placeholder-val="{{ false }}">
+      <span style="font-size: 15px; font-weight: 600">This week</span>
+      <sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 18px; background: {{ p.bg }}; animation: motioClIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+          <span style="display: flex; align-items: center; gap: 10px"><span style="width: 20px; font-weight: 700; color: {{ p.rankC }}">{{ p.rank }}</span><span style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span style="font-size: 12px; color: #C9C5EC">{{ p.km }}</span><span style="font-size: 15px; font-weight: 700">{{ p.time }}</span></span>
+          <span style="height: 5px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden"><span style="display: block; height: 100%; width: {{ p.w }}; background: {{ p.bar }}; border-radius: 3px; transform-origin: left; animation: motioClBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"></span></span>
+        </div>
+      </sc-for>
+      <span style="margin-top: 8px; font-size: 15px; font-weight: 600">Posted in the club</span>
+      <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #C9C5EC">When members post a trip to their feed, it shows here too.</span></sc-if>
+      <sc-for list="{{ posts }}" as="q" hint-placeholder-count="2">
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px"><span style="font-size: 14px; font-weight: 600">{{ q.head }}</span><span style="font-size: 12.5px; color: #C9C5EC">{{ q.sub }}</span></div>
+      </sc-for>
+      <button type="button" onClick="{{ leave }}" style="margin-top: 12px; align-self: center; height: 40px; padding: 0 16px; border: 0; border-radius: 20px; background: transparent; color: #FFB3AB; font-size: 13px; font-weight: 600">{{ leaveLabel }}</button>
+    </sc-if>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
+  componentWillUnmount() { window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
+  load() {
+    const M = window.Motio, s = this.state || {};
+    if (!M) return;
+    M.friends.clubs().then((r) => this.setState({ clubs: r.clubs, error: null })).catch((e) => this.setState({ error: e.message }));
+    if (s.open) M.friends.club(s.open).then((club) => this.setState({ club })).catch((e) => this.setState({ open: null, club: null, error: e.message }));
+  }
+  showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
+  openClub(id) { this.setState({ open: id, club: null }); window.Motio.friends.club(id).then((club) => this.setState({ club })).catch((e) => this.showToast(e.message)); }
+  renderVals() {
+    const emb = !!this.props.embedded, s = this.state || {}, M = window.Motio;
+    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min');
+    const C = s.club, clubs = M ? s.clubs || [] : [{ id: 1, name: 'Boulevard Runners', code: 'K7M2QX', members: 12 }];
+    const max = C ? Math.max(1, ...C.people.map((p) => p.activeMin)) : 1;
+    const NOUN = { walk: 'walked', run: 'ran', bike: 'rode', drive: 'drove', transit: 'took the bus' };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      back: () => (s.open ? this.setState({ open: null, club: null }) : this.props.onNav && this.props.onNav('back')),
+      title: C ? C.name : 'Clubs', inClub: !!C, listView: !s.open, code: C ? C.code : '',
+      invite: () => { if (!C) return; const text = 'Join my Motio club “' + C.name + '” with the code ' + C.code; (navigator.share ? navigator.share({ text }) : navigator.clipboard.writeText(text).then(() => this.showToast('Invite copied'))).catch(() => {}); },
+      hasError: !!s.error, error: s.error || '',
+      clubs: clubs.map((c, i) => ({ name: c.name, sub: c.members + (c.members === 1 ? ' member' : ' members') + ' · code ' + c.code, ini: c.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), tint: TINTS[c.id % TINTS.length], d: i * 60 + 'ms', open: () => this.openClub(c.id) })),
+      none: !!M && !!s.clubs && !clubs.length,
+      draftName: s.name || '', onName: (e) => this.setState({ name: e.target.value }),
+      draftCode: s.code || '', onCode: (e) => this.setState({ code: e.target.value.toUpperCase() }),
+      create: () => { if (!M || (s.name || '').trim().length < 2) return; M.friends.newClub(s.name).then((c) => { this.setState({ name: '' }); this.showToast('Club started. Code ' + c.code); this.openClub(c.id); }).catch((e) => this.showToast(e.message)); },
+      join: () => { if (!M || !(s.code || '').trim()) return; M.friends.joinClub(s.code).then((c) => { this.setState({ code: '' }); this.showToast('Joined ' + c.name); this.openClub(c.id); }).catch((e) => this.showToast(e.message)); },
+      people: C ? C.people.map((p, i) => ({ rank: i + 1, rankC: i === 0 ? '#F6C343' : '#C9C5EC', name: p.me ? 'You' : p.name, km: p.km + ' km', time: fmtMin(p.activeMin), w: Math.max(2, p.activeMin / max * 100) + '%', bar: p.me ? '#F6C343' : TINTS[p.id % TINTS.length], bg: p.me ? 'rgba(246,195,67,0.12)' : 'rgba(255,255,255,0.06)', d: i * 50 + 'ms' })) : [],
+      noPosts: !!C && !C.posts.length,
+      posts: C ? C.posts.map((q) => ({ head: (q.mine ? 'You' : q.user.name.split(' ')[0]) + ' ' + (NOUN[q.trip.mode] || 'moved') + ' ' + (q.trip.distanceM / 1000).toFixed(1) + ' km', sub: (q.caption ? q.caption + ' · ' : '') + q.cheers + ' cheers · ' + q.comments.length + ' comments' })) : [],
+      leaveLabel: s.confirmLeave ? 'Tap again to leave' : 'Leave club',
+      leave: () => { if (!s.confirmLeave) { this.setState({ confirmLeave: true }); return; } M.friends.leaveClub(C.id).then(() => { this.setState({ open: null, club: null, confirmLeave: false }); this.load(); }); },
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { stravaRoutes } from './strava.js';
 import { legalRoutes } from './legal.js';
 import { friendRoutes } from './friends.js';
 import { socialRoutes } from './social.js';
+import { busRoutes } from './bus.js';
 import { announceRoutes, isAdmin } from './announce.js';
 import { siteRoutes } from './site.js';
 
@@ -341,6 +342,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
     ...(await socialRoutes({ db, now, authUser, HttpError, bad, latest: () => site.latest() })),
+    ...(await busRoutes({ authUser, bad, fetchImpl, now })),
     ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
     ...site,
     ...legalRoutes(env),

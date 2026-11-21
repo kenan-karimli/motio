@@ -232,7 +232,7 @@ class Component extends DCLogic {
   // Share card for your type, in its own colour.
   storyJob() {
     const M = window.Motio, L = this.liveVals(), P = L.P, key = M.personality().key;
-    const colors = { wanderer: '#F2766B', speedster: '#6E8CF7', commuter: '#F6C343', roadtripper: '#5B4FE0', explorer: '#3DBF5C', nightowl: '#2D2A6E' };
+    const colors = { wanderer: '#F2766B', speedster: '#6E8CF7', commuter: '#F6C343', roadtripper: '#5B4FE0', explorer: '#3DBF5C', nightowl: '#2D2A6E', earlybird: '#F8A55C', cyclist: '#6E8CF7', metrohopper: '#B57BE0', weekender: '#F2766B', steady: '#3DBF5C' };
     return M.storyImage('persona', { name: (P.a + ' ' + P.b).trim(), month: 'Based on my last 30 days', tagline: P.tagline, desc: P.desc, stat: P.statB + ' ' + P.statT,
       traits: L.traits.map((t) => ({ left: t.left, name: t.name, right: t.right, w: t.w })), color: colors[key] || '#C9C5EC', dark: key === 'roadtripper' || key === 'nightowl' });
   }
@@ -277,7 +277,12 @@ class Component extends DCLogic {
       commuter: ['Clockwork mornings', 'Same time, same route, every weekday. Your busiest hours line up around work.'],
       roadtripper: ['Wheels and long hauls', 'You cover serious ground. Driving is your main way to move.'],
       explorer: ['Always somewhere new', 'You mix it up: no single way of moving owns your days.'],
-      nightowl: ['Moves after dark', 'The city is yours after 8 PM. Your busiest hours come long after most people are home.']
+      nightowl: ['Moves after dark', 'The city is yours after 8 PM. Your busiest hours come long after most people are home.'],
+      earlybird: ['Out before the city wakes', 'Most of your moving happens before 9 AM, while the streets are still quiet.'],
+      cyclist: ['Two wheels, every day', 'A third or more of your moving is on a bike. You know every shortcut.'],
+      metrohopper: ['Bus, metro, repeat', 'Buses and trains carry most of your days. You know the lines by heart.'],
+      weekender: ['Saves it for Saturday', 'Quiet weekdays, big weekends. Most of your moving happens on Saturday and Sunday.'],
+      steady: ['Every single day', 'You move almost every day of the month. Not the most, but never none.']
     };
     const words = pers.name.split(' ');
     const half = words[0] === 'The' ? 2 : Math.ceil(words.length / 2);
@@ -304,7 +309,7 @@ class Component extends DCLogic {
     const traits = [['Stroller', 'Pace', 'Speedster', clamp(s.avg * 3.6 * 2.2), '#F2766B'], ['Homebody', 'Range', 'Explorer', clamp((far ? far.distanceM : 0) / 400), '#3DBF5C'],
       ['One way', 'Variety', 'All of them', clamp(s.modes.length * 20), '#6E8CF7'], ['Clockwork', 'Routine', 'Spontaneous', clamp(100 - (s.trips.length ? top2 / s.trips.length * 100 : 50)), '#F6C343']]
       .map(([left, name, right, v, color], i) => ({ left, name, right, color, w: v + '%', delay: i * 90 + 'ms' }));
-    const colors = { wanderer: '#F2766B', speedster: '#6E8CF7', commuter: '#F6C343', roadtripper: '#5B4FE0', explorer: '#3DBF5C', nightowl: '#2D2A6E' };
+    const colors = { wanderer: '#F2766B', speedster: '#6E8CF7', commuter: '#F6C343', roadtripper: '#5B4FE0', explorer: '#3DBF5C', nightowl: '#2D2A6E', earlybird: '#F8A55C', cyclist: '#6E8CF7', metrohopper: '#B57BE0', weekender: '#F2766B', steady: '#3DBF5C' };
     const history = [];
     // The month-by-month history is the heavy part; work it out after the page has slid in so opening stays smooth.
     if (!this.histReady) { if (!this.histT) this.histT = setTimeout(() => { this.histReady = true; this.forceUpdate(); }, 450); return { P, traits, history }; }

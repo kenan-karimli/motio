@@ -79,6 +79,25 @@ button,a{font:inherit;cursor:pointer}
         </sc-for>
       </div>
     </section>
+    <sc-if value="{{ bus.show }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 20px; background: #F6F5FC">
+        <span aria-hidden="true" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #B57BE0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ bus.badge }}</span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ bus.title }}</span><span style="font-size: 12px; color: #6B6890">{{ bus.sub }}</span></span>
+        <input value="{{ bus.value }}" onInput="{{ bus.onInput }}" aria-label="Bus number" inputmode="text" maxlength="8" placeholder="No." style="width: 70px; height: 40px; box-sizing: border-box; padding: 0 10px; border-radius: 12px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 15px; font-weight: 600; text-align: center">
+      </section>
+    </sc-if>
+    <sc-if value="{{ rt.show }}" hint-placeholder-val="{{ true }}">
+      <section style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: {{ rt.bg }}">
+        <sc-if value="{{ rt.onRoute }}" hint-placeholder-val="{{ false }}">
+          <span style="display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 14px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19a2 2 0 1 0 0-.01M18 5a2 2 0 1 0 0-.01M6 17V9a4 4 0 0 1 8 0v6a4 4 0 0 0 4 4"></path></svg></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{ rt.title }}</span><span style="font-size: 12px; color: #4A4770">{{ rt.sub }}</span></span></span>
+        </sc-if>
+        <sc-if value="{{ rt.canSave }}" hint-placeholder-val="{{ true }}">
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Save this route</span><span style="font-size: 12px; color: #6B6890">Next time you go this way, Motio times you against your best.</span></span>
+          <div style="display: flex; gap: 8px"><input value="{{ rt.name }}" onInput="{{ rt.onName }}" aria-label="Route name" maxlength="40" placeholder="Home to office" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px"><button type="button" onClick="{{ rt.save }}" style="height: 44px; padding: 0 16px; border: 0; border-radius: 14px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">Save</button></div>
+        </sc-if>
+      </section>
+    </sc-if>
     <section style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: #F6F5FC">
       <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Post to your feed</span><span style="font-size: 12px; color: #6B6890">Your friends see the route and numbers, and can cheer and comment. Private zones stay hidden.</span></span>
       <sc-if value="{{ fp.canPost }}" hint-placeholder-val="{{ true }}">
@@ -145,7 +164,7 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: msg }), 30);
     this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
   }
-  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.noteT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.noteT); clearTimeout(this.busT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -203,7 +222,7 @@ class Component extends DCLogic {
       splits: sp.map((sec, i) => ({ n: (mi ? 'mi ' : 'km ') + (i + 1), t: onFoot ? pace(sec) : spd(unitM / sec), w: Math.round(30 + 70 * (slowest === fastest ? 1 : (slowest - sec) / (slowest - fastest))) + '%',
         color: sec === fastest ? '#F2766B' : MODES[t.mode][2], delay: (emb ? 450 : 0) + i * 70 + 'ms' })).slice(0, 30),
       kinds: Object.keys(MODES).map((k) => ({ label: MODES[k][0], color: MODES[k][2], on: t.mode === k, bg: t.mode === k ? '#F3F2FA' : '#FFFFFF', border: t.mode === k ? '#1F1D47' : '#E3E1F3',
-        pick: () => { if (M && t.mode !== k) { M.retypeTrip(t.id, k); this.showToast('Changed to ' + MODES[k][1] + '. Motio learns from it'); } } })),
+        pick: () => { if (M && t.mode !== k) { const n = M.retypeTrip(t.id, k) || 0; this.showToast('Changed to ' + MODES[k][1] + (n ? '. Also fixed ' + n + (n === 1 ? ' similar trip' : ' similar trips') : '. Motio learns from it')); } } })),
       share: () => {
         if (!M) { this.showToast('Trip shared'); return; }
         const routes = M.route(t.start - 1, t.end + 1).filter((r) => r.id === t.id);
@@ -227,6 +246,20 @@ class Component extends DCLogic {
           splitTitle: stop ? 'Split at the ' + hm(stop.at) + ' stop (' + Math.round(stop.ms / 60000) + ' min)' : 'Split at the 12:40 stop (8 min)',
           split: () => { if (!real) return; M.splitAtStop(t.id); this.showToast('Split into two trips'); this.forceUpdate(); }
         };
+      })(),
+      bus: {
+        show: t.mode === 'transit', badge: t.line || '?', value: s.busDraft ?? (t.line || ''),
+        title: t.line ? 'Bus ' + t.line : 'Which bus was it?',
+        sub: t.lineBy === 'map' ? 'Found from the Baku bus map' : t.lineBy === 'learned' ? 'You took this route before' : t.lineBy === 'you' ? 'Motio will spot this route next time' : 'Type the number and Motio remembers the route',
+        onInput: (e) => { const v = e.target.value; this.setState({ busDraft: v }); clearTimeout(this.busT); this.busT = setTimeout(() => { if (M && S0(t)) { M.setTripLine(t.id, v); if (v.trim()) this.showToast('Saved: bus ' + v.trim()); } }, 900); }
+      },
+      rt: (() => {
+        const real = !!(M && S0(t)), r = real ? M.routeOf(t) : null, fmt = (v) => Math.floor(v / 60000) + ':' + String(Math.round((v % 60000) / 1000)).padStart(2, '0');
+        const isBest = r && r.best.tripId === t.id;
+        return { show: !M || (real && t.points && t.points.length > 3), onRoute: !!r, canSave: !M || (real && !r), bg: isBest ? '#FFF4D6' : '#F6F5FC',
+          title: r ? (isBest ? 'Your best on ' + r.name : 'On ' + r.name) : '', sub: r ? (isBest ? fmt(r.best.ms) + ', fastest of ' + r.attempts : 'This trip ' + fmt(t.end - t.start) + ' · best ' + fmt(r.best.ms) + ' · ' + r.attempts + ' runs') : '',
+          name: s.routeName || '', onName: (e) => this.setState({ routeName: e.target.value }),
+          save: () => { if (!real) return; const n = (s.routeName || '').trim() || 'My route'; M.saveRoute(t.id, n); this.setState({ routeName: '' }); this.showToast('Saved “' + n + '”. Motio will time you on it'); } };
       })(),
       fp: {
         canPost: !s.posted && !!(M && S0(t) && M.auth.isSignedIn()) || !M, posted: !!s.posted, busy: !!s.posting, caption: s.caption || '',

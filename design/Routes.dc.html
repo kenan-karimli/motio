@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Your routes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#F6F5FC}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioRtIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes motioRtDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.motio-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 8px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(31,29,71,0.08)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Your routes</h1>
+  </div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 16px 40px; display: flex; flex-direction: column; gap: 12px">
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top: 30px; padding: 24px 20px; border-radius: 26px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+        <span ref="{{ trailRef }}" style="display: block; width: 120px; height: 110px"></span>
+        <span style="font-size: 17px; font-weight: 700">No saved routes yet</span>
+        <span style="max-width: 270px; font-size: 13px; line-height: 1.5; color: #6B6890">Open a trip you take often and tap “Save this route”. Every time you go that way again, Motio times you against your best.</span>
+      </div>
+    </sc-if>
+    <sc-for list="{{ list }}" as="r" hint-placeholder-count="2">
+      <article style="padding: 14px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 10px; animation: motioRtIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.d }} backwards">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 5px; background: {{ r.color }}"></span>
+          <span style="flex: 1; min-width: 0; font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span>
+          <button type="button" onClick="{{ r.del }}" style="height: 30px; padding: 0 10px; border: 0; border-radius: 15px; background: #F3F2FA; color: #6B6890; font-size: 11.5px; font-weight: 600">{{ r.delLabel }}</button>
+        </div>
+        <div aria-hidden="true" style="height: 110px; border-radius: 16px; background: #EEF0F6; overflow: hidden"><svg width="100%" height="110" viewBox="0 0 330 110"><path d="{{ r.path }}" fill="none" stroke="{{ r.color }}" stroke-opacity="0.25" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ r.path }}" fill="none" stroke="{{ r.color }}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" style="animation: motioRtDraw 1.4s cubic-bezier(0.45, 0, 0.25, 1) {{ r.dDraw }} backwards"></path></svg></div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <span style="display: flex; flex-direction: column; padding: 10px; border-radius: 14px; background: #FFF4D6"><span style="font-size: 17px; font-weight: 700">{{ r.best }}</span><span style="font-size: 11px; color: #6B6890">best time</span></span>
+          <span style="display: flex; flex-direction: column; padding: 10px; border-radius: 14px; background: #F6F5FC"><span style="font-size: 17px; font-weight: 700">{{ r.attempts }}</span><span style="font-size: 11px; color: #6B6890">times</span></span>
+          <span style="display: flex; flex-direction: column; padding: 10px; border-radius: 14px; background: #F6F5FC"><span style="font-size: 17px; font-weight: 700">{{ r.km }}</span><span style="font-size: 11px; color: #6B6890">{{ r.last }}</span></span>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {}, M = window.Motio, now = Date.now();
+    const sample = [{ id: 'a', name: 'Home to office', mode: 'bike', km: 6.4, attempts: 14, last: now - 86400000, best: { ms: 1112000 }, points: [[40.4, 49.83], [40.402, 49.84], [40.398, 49.85], [40.405, 49.86], [40.41, 49.87]] }];
+    const list = M ? M.routes() : sample;
+    const COLOR = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#F6C343', transit: '#B57BE0' };
+    const fmt = (v) => Math.floor(v / 60000) + ':' + String(Math.round((v % 60000) / 1000)).padStart(2, '0');
+    const shape = (pts) => {
+      if (!pts || pts.length < 2) return '';
+      const k = Math.cos(pts[0][0] * Math.PI / 180), xs = pts.map((p) => p[1] * k), ys = pts.map((p) => -p[0]);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), pad = 14;
+      const sc = Math.min((330 - pad * 2) / Math.max(1e-9, x1 - x0), (110 - pad * 2) / Math.max(1e-9, y1 - y0)), ox = (330 - (x1 - x0) * sc) / 2, oy = (110 - (y1 - y0) * sc) / 2;
+      return pts.map((p, i) => (i ? 'L' : 'M') + ((p[1] * k - x0) * sc + ox).toFixed(1) + ' ' + ((-p[0] - y0) * sc + oy).toFixed(1)).join(' ');
+    };
+    const ago = (t) => { const d = Math.round((now - t) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
+    const base = emb ? 380 : 0;
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Records.dc.html') },
+      empty: !list.length, trailRef: window.MotioMascot ? window.MotioMascot.trail('rise', 120) : null,
+      list: list.map((r, i) => ({ name: r.name, color: COLOR[r.mode] || '#5B4FE0', path: shape(r.points), best: fmt(r.best.ms), attempts: String(r.attempts), km: r.km + ' km', last: 'last ' + ago(r.last),
+        d: base + i * 70 + 'ms', dDraw: base + 150 + i * 70 + 'ms', delLabel: s.confirm === r.id ? 'Delete?' : 'Delete',
+        del: () => { if (s.confirm !== r.id) { this.setState({ confirm: r.id }); return; } if (M) M.deleteRoute(r.id); this.setState({ confirm: null }); } }))
+    };
+  }
+}
+</script>
+</body>
+</html>

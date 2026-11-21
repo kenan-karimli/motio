@@ -129,7 +129,10 @@ export function mountRecap(root) {
       const rm = reduced(), S = SLIDES[k](R);
       // The map is made once per recap and then only steered.
       const key = (R.routes || []).map((r) => r.id).join(',');
-      if (window.MotioMap && window.MotioMap.mountRecap && key !== mapKey) { if (map) map.destroy(); map = window.MotioMap.mountRecap(mapEl, R.routes || []); mapKey = key; drawn = false; }
+      // Settings › Recaps › Map background (on by default).
+      let mapOn = true; try { mapOn = localStorage.getItem('motio.recapMap') !== 'off'; } catch { /* storage blocked */ }
+      mapEl.style.display = mapOn ? '' : 'none';
+      if (mapOn && window.MotioMap && window.MotioMap.mountRecap && key !== mapKey) { if (map) map.destroy(); map = window.MotioMap.mountRecap(mapEl, R.routes || []); mapKey = key; drawn = false; }
       shade.style.background = S.shade;
       if (map) {
         if (S.cam === 'focus') map.focus(R.longestId, S.box); else { map.all(); later(() => map.overview(!rm), 60); }
@@ -138,15 +141,16 @@ export function mountRecap(root) {
       // The old slide recedes (a little blur and depth); the new one builds up in order.
       if (cur) {
         const old = cur;
-        old.animate([{ opacity: 1, transform: 'none', filter: 'blur(0)' }, { opacity: 0, transform: `translateY(${-10 * dir}px) scale(0.985)`, filter: 'blur(8px)' }], { duration: rm ? 1 : 340, easing: EASE, fill: 'forwards' }).onfinish = () => old.remove();
+        old.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateY(${-10 * dir}px) scale(0.985)` }], { duration: rm ? 1 : 340, easing: EASE, fill: 'forwards' }).onfinish = () => old.remove();
       }
       const el = document.createElement('div'); el.className = 'rs-layer'; el.innerHTML = S.html; stage.appendChild(el); cur = el;
       const d0 = rm ? 0 : 180, A = (n, kf, ms, delay, easing = EASE) => n.animate(kf, { duration: rm ? 1 : ms, delay: rm ? 0 : delay, easing, fill: 'backwards' });
       el.querySelectorAll('[data-word]').forEach((w, i) => A(w, [{ transform: 'translateY(108%)' }, { transform: 'none' }], 900, d0 + i * 80));
-      el.querySelectorAll('[data-in]').forEach((n) => A(n, [{ opacity: 0, transform: 'translateY(18px)', filter: 'blur(4px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], 760, d0 + 120 + +n.dataset.in * 100));
+      el.querySelectorAll('[data-in]').forEach((n) => A(n, [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], 760, d0 + 120 + +n.dataset.in * 100));
       el.querySelectorAll('[data-grow]').forEach((n, i) => A(n, [{ transform: 'scaleX(0)' }, { transform: 'none' }], 1100, d0 + 700 + i * 110));
       el.querySelectorAll('[data-slide]').forEach((n) => A(n, [{ opacity: 0, transform: 'translateX(28px)' }, { opacity: 1, transform: 'none' }], 760, d0 + 260 + +n.dataset.slide * 120));
-      el.querySelectorAll('[data-cell]').forEach((n) => A(n, [{ opacity: 0, transform: 'scale(0.3)' }, { opacity: 1, transform: 'none' }], 520, d0 + 500 + +n.dataset.cell * 28));
+      // One animation per heatmap row, not per cell: the same sweep at a fraction of the work.
+      el.querySelectorAll('.rs-heat').forEach((g) => A(g, [{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0 0 0)' }], 1100, d0 + 450, 'cubic-bezier(0.65, 0, 0.35, 1)'));
       el.querySelectorAll('[data-count]').forEach((n) => later(() => countUp(n, 1400), d0 + 200));
     },
     destroy() { timers.splice(0).forEach(clearTimeout); if (map) map.destroy(); root.innerHTML = ''; }

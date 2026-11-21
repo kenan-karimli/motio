@@ -122,6 +122,7 @@ button:active,a:active{transform:scale(0.96)}
     <span aria-hidden="true" style="display: flex; gap: 5px; margin-top: 8px">
       <sc-for list="{{ heroDots }}" as="d" hint-placeholder-count="3"><span style="height: 5px; width: {{ d.w }}; border-radius: 3px; background: {{ d.bg }}; transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), background-color 260ms ease"></span></sc-for>
     </span>
+<sc-if value="{{ showRing }}" hint-placeholder-val="{{ true }}">
     <button type="button" onClick="{{ spinWatch }}" aria-label="{{ ringAria }}" style="position: absolute; right: 0; top: 4px; width: 104px; height: 104px; border: 0; padding: 0; background: transparent; cursor: pointer">
       <svg aria-hidden="true" width="104" height="104" viewBox="0 0 104 104" style="display: block; pointer-events: none; transform: rotate(-90deg)">
         <circle cx="52" cy="52" r="44" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="9"></circle>
@@ -132,6 +133,8 @@ button:active,a:active{transform:scale(0.96)}
         <span style="font-size: 10px; font-weight: 500; opacity: 0.75; margin-top: 3px">of daily goal</span>
       </span>
     </button>
+    </sc-if>
+    <sc-if value="{{ showMo }}" hint-placeholder-val="{{ false }}"><span ref="{{ moRef }}" style="position: absolute; right: -2px; top: 0; width: 110px; height: 104px"></span></sc-if>
   </div>
 
   <sc-if value="{{ health.show }}" hint-placeholder-val="{{ false }}">
@@ -605,6 +608,9 @@ class Component extends DCLogic {
     const leftMin = Math.max(0, goalMin - totalMs / 60000);
     const hero = {
       heroV0: heroN % 3 === 0, heroV1: heroN % 3 === 1, heroV2: heroN % 3 === 2,
+      // Before the first move the fox waits where the goal ring goes; during a confirmed trip a Trail draws itself.
+      ...(() => { const M = window.Motio, MM = window.MotioMascot, moving = !!(M && M.today().trips.some((t) => t.live)), on = !!MM && (totalMs === 0 || moving);
+        return { showMo: on, showRing: !on, moRef: on ? (moving ? MM.trail('rise', 110) : MM.fox('idle', 110)) : null }; })(),
       heroTime: fmtMin(totalMs / 60000), heroPeakLead: peakH == null ? 'No moves yet today' : 'Peak at ', heroPeak: peakH == null ? '' : (peakH % 12 || 12) + (peakH < 12 ? ' AM' : ' PM'),
       heroDist: dist(totalM), heroTopLead: topModeByDist && totalM > 0 ? 'Mostly ' : 'Nothing travelled yet', heroTop: topModeByDist && totalM > 0 ? 'by ' + { walk: 'foot', run: 'running', bike: 'bike', drive: 'car', transit: 'transit' }[topModeByDist] : '',
       heroSteps: stepsAll.toLocaleString('en-US'), heroGoalPct: Math.min(100, Math.round(stepsAll / stepGoal * 100)) + '%',

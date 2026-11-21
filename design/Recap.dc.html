@@ -172,8 +172,9 @@ class Component extends DCLogic {
     window.__motioRecap = null;
     const kind = P.kind, now = Date.now();
     const from = P.from;
-    const to = kind === 'day' ? from + M.DAY : kind === 'week' ? from + 7 * M.DAY : new Date(new Date(from).getFullYear(), new Date(from).getMonth() + 1, 1).getTime();
-    const prevFrom = kind === 'month' ? new Date(new Date(from).getFullYear(), new Date(from).getMonth() - 1, 1).getTime() : from - (to - from);
+    const Y = new Date(from).getFullYear();
+    const to = kind === 'day' ? from + M.DAY : kind === 'week' ? from + 7 * M.DAY : kind === 'year' ? new Date(Y + 1, 0, 1).getTime() : new Date(Y, new Date(from).getMonth() + 1, 1).getTime();
+    const prevFrom = kind === 'year' ? new Date(Y - 1, 0, 1).getTime() : kind === 'month' ? new Date(new Date(from).getFullYear(), new Date(from).getMonth() - 1, 1).getTime() : from - (to - from);
     // An unfinished period is compared with the same stretch of the one before it.
     const r = M.summarize(from, to), prev = M.summarize(prevFrom, Math.min(from, prevFrom + (Math.min(to, now) - from)));
     const mi = M.settings().unit === 'mi', unit = mi ? 'mi' : 'km';
@@ -184,15 +185,15 @@ class Component extends DCLogic {
     const fmtD = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
     const dow = (t) => fmtD(t, { weekday: 'long' }), dowS = (t) => fmtD(t, { weekday: 'short' });
     const sameMonth = new Date(from).getMonth() === new Date(end).getMonth();
-    const span = kind === 'day' ? fmtD(from, { day: 'numeric', month: 'short' }) : kind === 'month' ? fmtD(from, { month: 'long', year: 'numeric' })
+    const span = kind === 'year' ? String(Y) : kind === 'day' ? fmtD(from, { day: 'numeric', month: 'short' }) : kind === 'month' ? fmtD(from, { month: 'long', year: 'numeric' })
       : fmtD(from, sameMonth ? { day: 'numeric' } : { day: 'numeric', month: 'short' }) + '–' + fmtD(end, { day: 'numeric', month: 'short' });
-    const KIND = { day: 'DAY', week: 'WEEK', month: 'MONTH' }[kind];
+    const KIND = { day: 'DAY', week: 'WEEK', month: 'MONTH', year: 'YEAR' }[kind];
     const isNow = from <= now && now < to;
     const This = kind === 'day' ? (isNow ? 'Today' : 'That day') : (isNow ? 'This ' : 'That ') + kind;
     const isoWeek = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7)); const w1 = new Date(d.getFullYear(), 0, 4); return 1 + Math.round(((d - w1) / M.DAY - 3 + ((w1.getDay() + 6) % 7)) / 7); };
     const no = kind === 'week' ? isoWeek(from) : kind === 'day' ? new Date(from).getDate() : new Date(from).getMonth() + 1;
     const pct = (a, b) => (b ? (a >= b ? '+' : '−') + Math.abs(Math.round((a / b - 1) * 100)) + '%' : 'new');
-    const prevName = { day: 'the day before', week: 'last week', month: 'last month' }[kind];
+    const prevName = { day: 'the day before', week: 'last week', month: 'last month', year: 'last year' }[kind];
     // Days inside the period, for "wildest day", "best steps" and so on.
     const days = M.days(from, Math.round((to - from) / M.DAY)).filter((d) => d.from <= now);
     const wild = days.reduce((a, d) => (d.modes.length > (a ? a.modes.length : 0) ? d : a), null);
@@ -227,16 +228,17 @@ class Component extends DCLogic {
     const seat = { walk: 'On foot', run: 'On foot', bike: 'In the saddle', drive: 'Behind the wheel', transit: 'On the train' };
     const user = M.auth.user() || {};
     const waysWord = (n) => (n >= 5 ? 'all 5 ways' : n + (n === 1 ? ' way' : ' ways'));
-    const nextLine = kind === 'week' ? 'See you next Sunday for week ' + (no + 1) + '.' : kind === 'day' ? 'See you tomorrow.' : 'See you next month.';
+    const nextLine = kind === 'year' ? 'Here’s to ' + (Y + 1) + '.' : kind === 'week' ? 'See you next Sunday for week ' + (no + 1) + '.' : kind === 'day' ? 'See you tomorrow.' : 'See you next month.';
     const byDist = r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, dist: d1(x.m) + ' ' + unit, distShort: d1(x.m) + ' ' + unit, pct: Math.max(2, Math.round(x.m / Math.max(1, r.m) * 100)) + '%', color: x.color, dark: x.color }));
     const tmax = Math.max(1, ...r.modes.map((x) => x.ms));
     const byTime = r.modes.map((x) => ({ label: x.label, LABEL: x.name.toUpperCase(), time: M.fmtMin(x.ms / M.MIN), rel: Math.round(x.ms / tmax * 100) + '%', color: x.color }));
     return {
       // For the animated recap: the longest trip (the map flies to it) and minutes per hour of each day (heatmap).
-      longestId: longest ? longest.id : null, heat: days.slice(-7).map((d) => ({ label: dowS(d.from), hours: d.hourly.map((v) => Math.round(v)) })),
+      longestId: longest ? longest.id : null, // Your typical week: minutes per hour for each weekday, Monday first, over the whole period.
+      heat: [1, 2, 3, 4, 5, 6, 0].map((wd) => ({ label: fmtD(new Date(2024, 0, wd || 7), { weekday: 'short' }), hours: days.filter((d) => new Date(d.from).getDay() === wd).reduce((a, d) => a.map((v, h) => v + d.hourly[h]), new Array(24).fill(0)).map((v) => Math.round(v)) })),
       slidesOk: [true, r.m > 50, r.min >= 1, !!longest && r.trips.length > 0, true],
       hourly: r.hourly.map((v) => Math.round(v)), routes: M.route(from, to), byDistNum: r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, value: d1(x.m) + ' ' + unit, pct: Math.round(x.m / Math.max(1, r.m) * 100), color: x.color })),
-      head: (kind === 'day' ? 'Day' : kind === 'week' ? 'Week' : 'Month') + ', wrapped · ' + span,
+      head: (kind === 'year' ? 'Year' : kind === 'day' ? 'Day' : kind === 'week' ? 'Week' : 'Month') + ', wrapped · ' + span,
       Your: 'Your ' + kind, This, KIND, Kind: KIND[0] + KIND.slice(1).toLowerCase(), no, span, SPAN: span.toUpperCase(),
       dist: M.fmtDist(r.m), distNum: d1(r.m), unit, unitLong: mi ? 'miles' : 'kilometres', time: M.fmtMin(r.min), prCount: isPR ? '1 new PR' : 'Best bits',
       fromDow: dowS(from).toUpperCase(), fromDate: fmtD(from, { month: 'short', day: 'numeric' }), toDow: dowS(end).toUpperCase(), toDate: fmtD(end, { month: 'short', day: 'numeric' }),
@@ -350,7 +352,8 @@ class Component extends DCLogic {
     const K = window.Motio && window.Motio.storyImage && window.Motio.storyImage.kit;
     const job = this.storyJob(R0), look = K ? K.slideLook(job.i, this.seed) : null;
     // The animated scene plays the slide once per change, after this render; the timer moves the story on.
-    this.DUR = this.DUR || 7000;
+    // Settings › Recaps › Slide speed.
+    if (!this.DUR) { let sp = 'normal'; try { sp = localStorage.getItem('motio.recapSpeed') || 'normal'; } catch (e) { /* blocked */ } this.DUR = { relaxed: 9500, normal: 7000, fast: 4500 }[sp] || 7000; }
     if (this.scene && this.shownPos !== order[pos]) {
       const dir = this.shownPos == null || order[pos] > this.shownPos ? 1 : -1;
       this.shownPos = order[pos];
