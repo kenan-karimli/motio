@@ -2,6 +2,16 @@ import './motio.js';
 import './map.js';
 import './recap-scene.js';
 import './mascot.js';
+
+// Everywhere in the app, cards and rows below the fold glide in as you scroll to them (the first screenful
+// already has its own entrance). Opacity and transform only, so it stays smooth on phones.
+{
+  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { e.target.classList.add('motio-in'); io.unobserve(e.target); } }, { rootMargin: '0px 0px -6% 0px' });
+  const seen = new WeakSet();
+  let t = 0;
+  const scan = () => { for (const el of document.querySelectorAll('.motio-scroll > :not([style*="display: grid"]), .motio-scroll > [style*="display: grid"] > *')) { if (seen.has(el)) continue; seen.add(el); if (el.getBoundingClientRect().top > window.innerHeight) { el.classList.add('motio-rv'); io.observe(el); } } };
+  new MutationObserver(() => { clearTimeout(t); t = setTimeout(scan, 120); }).observe(document.body, { childList: true, subtree: true });
+}
 import { mount } from './dc-runtime.js';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';

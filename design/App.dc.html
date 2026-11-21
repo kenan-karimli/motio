@@ -29,6 +29,8 @@ button:active,a:active{transform:scale(0.96)}
 /* Full-screen backdrops (tap outside a sheet to close) never shrink on press: that flashed the screen edges. */
 button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inset:0"]:active{transform:none !important}
 body[data-sheet] .motio-upd{display:none}
+/* Nothing animates where nobody can see it: tabs out of view, and the tabs under an open page. */
+[data-page="tab"][aria-hidden="true"] *,body:has([data-page="overlay"]) [data-page="tab"] *{animation-play-state:paused!important}
 /* Tabs tapped into view build up in steps, like opened pages (Today has its own entrance). */
 [data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>*{animation:motioAutoIn 560ms cubic-bezier(0.22,1,0.36,1) backwards}
 [data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>:nth-child(2){animation-delay:50ms}[data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>:nth-child(3){animation-delay:100ms}[data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>:nth-child(4){animation-delay:150ms}[data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>:nth-child(5){animation-delay:200ms}[data-page="tab"][data-enter="true"] .motio-scroll:not(.motio-today)>:nth-child(n+6){animation-delay:240ms}

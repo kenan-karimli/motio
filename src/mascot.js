@@ -5,12 +5,14 @@ const CSS = `
 .mfx,.mtr{display:inline-block;line-height:0}
 .mfx svg,.mtr svg{overflow:visible}
 .mfx *{transform-box:fill-box}
-.mfx .tail{transform-origin:0% 100%;animation:mfxTail 1.8s ease-in-out infinite}
-.mfx .ear{transform-origin:50% 100%;animation:mfxEar 4s ease-in-out infinite}
+.mfx .tail{transform-origin:0% 100%;animation:mfxTail 2.2s ease-in-out infinite}
+.mfx .ear{transform-origin:50% 100%;animation:mfxFlick 5s ease-in-out infinite}
+.mfx .ear.b{animation-delay:2.1s}
+.mfx.cheer .ear{animation:mfxEar .55s ease-in-out infinite}
 .mfx .ear.b{animation-delay:.35s}
 .mfx .eye{transform-origin:50% 50%;animation:mfxBlink 4.5s infinite}
 .mfx{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.mfx .whole{transform-origin:50% 100%;animation:mfxBreathe 3.2s ease-in-out infinite,mfxLook 9s ease-in-out infinite}
+.mfx .whole{transform-origin:50% 100%;animation:mfxIdle 9s ease-in-out infinite}
 .mfx .say{position:absolute;right:92%;top:18%;white-space:nowrap;padding:7px 12px;border-radius:14px;background:#1F1D47;color:#fff;font:600 12px Poppins,system-ui,sans-serif;line-height:1.2;box-shadow:0 8px 20px rgba(31,29,71,.25);animation:mfxSay 2.6s cubic-bezier(.22,1,.36,1) forwards;pointer-events:none;z-index:5}
 .mfx .say::after{content:'';position:absolute;left:100%;top:50%;margin-top:-5px;border:5px solid transparent;border-left-color:#1F1D47}
 .mfx.cheer .whole{animation:mfxLeap 1.1s cubic-bezier(.34,1.4,.64,1) infinite}
@@ -23,13 +25,14 @@ const CSS = `
 .mfx.sleep .z{display:inline;animation:mfxZ 2.6s ease-in-out infinite}
 .mfx .in{animation:mfxIn .7s cubic-bezier(.34,1.4,.64,1) backwards}
 @keyframes mfxTail{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(10deg)}}
-@keyframes mfxEar{0%,85%,100%{transform:rotate(0)}90%{transform:rotate(-12deg)}}
+@keyframes mfxEar{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg)}}
 @keyframes mfxBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
-@keyframes mfxBreathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.02,.98)}}
+/* One loop for resting: a slow breath and, now and then, a look around. */
+@keyframes mfxIdle{0%,26%,52%,100%{transform:none}13%,39%{transform:scale(1.02,.98)}60%{transform:rotate(-6deg)}66%{transform:rotate(5deg)}72%{transform:none}84%{transform:translateY(0) scale(1.05,.94)}89%{transform:translateY(-10%) scale(.97,1.04)}94%{transform:translateY(0) scale(1.03,.97)}}
+@keyframes mfxFlick{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-14deg)}90%{transform:rotate(6deg)}}
 @keyframes mfxLeap{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-20%) rotate(-6deg)}}
 @keyframes mfxShadow{0%,100%{transform:scale(1);opacity:.2}40%{transform:scale(.6);opacity:.08}}
 @keyframes mfxZ{0%{transform:translate(0,0);opacity:0}30%{opacity:1}100%{transform:translate(10px,-20px);opacity:0}}
-@keyframes mfxLook{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-5deg)}84%{transform:rotate(4deg)}90%{transform:rotate(0)}}
 @keyframes mfxSay{0%{opacity:0;transform:translateX(8px) scale(.9)}12%,82%{opacity:1;transform:none}100%{opacity:0;transform:translateX(-4px)}}
 @keyframes mfxIn{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
 .mtr .ribbon{stroke-dasharray:1;stroke-dashoffset:1;animation:mtrDraw 3.2s cubic-bezier(.65,0,.35,1) infinite}

@@ -44,6 +44,9 @@ input,textarea{-webkit-user-select:text;user-select:text}
 @media (prefers-reduced-motion:reduce){#intro .mark path,#intro .word{animation-duration:1ms;animation-delay:0ms}}
 @keyframes trailDraw{to{stroke-dashoffset:0}}@keyframes trailHead{to{offset-distance:100%}}@keyframes trailFade{to{opacity:0}}
 @media (prefers-reduced-motion: reduce){#intro *{animation:none!important;stroke-dashoffset:0!important}}
+.motio-rv{opacity:0;transform:translateY(22px) scale(.98)}
+.motio-rv.motio-in{opacity:1;transform:none;transition:opacity 620ms cubic-bezier(.22,1,.36,1),transform 620ms cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion: reduce){.motio-rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
