@@ -54,7 +54,7 @@ button,a{font:inherit;cursor:pointer}
     </sc-for>
 
     <span style="margin-top: 10px; font-size: 15px; font-weight: 600">Your badges</span>
-    <sc-if value="{{ noBadges }}" hint-placeholder-val="{{ false }}"><span ref="{{ moRef }}" style="display: block; width: 100px; height: 94px"></span></sc-if><sc-if value="{{ noBadges }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #C9C5EC">Finish a monthly challenge and its badge lands here. Each month brings new ones.</span></sc-if>
+    <sc-if value="{{ noBadges }}" hint-placeholder-val="{{ false }}"><span ref="{{ moRef }}" style="display: block; width: 100px; height: 117px"></span></sc-if><sc-if value="{{ noBadges }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #C9C5EC">Finish a monthly challenge and its badge lands here. Each month brings new ones.</span></sc-if>
     <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
       <sc-for list="{{ badges }}" as="b" hint-placeholder-count="3">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 22px; background: rgba(255,255,255,0.06); animation: motioBadgeIn 700ms cubic-bezier(0.34, 1.4, 0.64, 1) {{ b.d }} backwards">

@@ -324,7 +324,7 @@ class Component extends DCLogic {
       setMi: () => put('unit', 'mi'),
       // The Motio website, opened in the in-app browser.
       openSite: () => M && M.openPage('/'),
-      versionLabel: 'Version 4.4.4' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 4.4.5' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

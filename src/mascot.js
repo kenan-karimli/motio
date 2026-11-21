@@ -66,7 +66,7 @@ const PATHS = {
   loop: 'M8 96 C 40 96, 30 30, 60 30 C 86 30, 86 66, 62 66 C 40 66, 44 24, 72 18 C 92 14, 104 30, 112 20',
   rise: 'M8 100 C 30 96, 40 70, 60 66 S 92 40, 112 12'
 };
-const fox = (mood = 'idle', size = 110) => `<span class="mfx ${mood}" role="img" aria-label="Motio's fox"><svg class="in" width="${size}" height="${Math.round(size * 130 / 140)}" viewBox="0 0 140 130">${FOX}</svg></span>`;
+const fox = (mood = 'idle', size = 110) => `<span class="mfx ${mood}" role="img" aria-label="Motio's fox"><svg class="in" width="${size}" height="${Math.round(size * 164 / 140)}" viewBox="0 -34 140 164">${FOX}</svg></span>`;
 const trail = (shape = 'wave', size = 120, { once = false, color = null } = {}) => {
   const d = PATHS[shape] || PATHS.wave;
   return `<span class="mtr${once ? ' once' : ''}" aria-hidden="true"><svg width="${size}" height="${Math.round(size * 110 / 120)}" viewBox="0 0 120 110">
