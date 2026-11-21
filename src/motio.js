@@ -283,6 +283,16 @@ export const friends = {
   share: (friendId, kind, on, minutes) => mut(api('POST', '/v1/sharing', { friendId, kind, on, minutes })).then((r) => { if (kind === 'live') friends.sharing().catch(() => {}); return r; }),
   routes: (id, from, to) => api('GET', '/v1/friend/routes?id=' + id + (from ? '&from=' + from : '') + (to ? '&to=' + to : '')),
   places: (id) => api('GET', '/v1/friend/places?id=' + id),
+  // Monthly challenges anyone can join, and the badges you've earned (months in the phone's own time zone).
+  monthly: () => api('GET', '/v1/monthly?tz=' + -new Date().getTimezoneOffset()),
+  joinMonthly: (key, on = true) => mut(api('POST', '/v1/monthly/join', { key, on })),
+  // The feed: trips people chose to post, for their friends.
+  feed: () => api('GET', '/v1/feed'),
+  async post(tripId, caption) { await sync(); return mut(api('POST', '/v1/posts', { tripId, caption })); },
+  cheerPost: (id, on) => mut(api('POST', '/v1/posts/cheer', { id, on })),
+  comment: (id, text) => mut(api('POST', '/v1/posts/comment', { id, text })),
+  uncomment: (commentId) => mut(api('POST', '/v1/posts/uncomment', { commentId })),
+  deletePost: (id) => mut(api('POST', '/v1/posts/delete', { id })),
   live: (id) => api('GET', '/v1/friend/live?id=' + id),
   async invite(code) {
     const text = `Add me on Motio and let's compare our weeks: ${API}/i/${code} (or enter my code ${code} in Social › Friends)`;
@@ -987,6 +997,15 @@ export async function captureScreen() {
 }
 
 // Sends an image (data URL) one way: an app directly, the share sheet, Documents, or as text to the clipboard.
+// A short link for a shared card (motio-api.onrender.com/s/CODE): a page with the card for anyone, and it
+// opens this person in Motio for people who have it. Null when offline or signed out; sharing goes on without it.
+export async function shareLink(kind, d = {}) {
+  if (!S.token) return null;
+  const card = { kind, title: d.title || '', lead: d.lead || d.bigLabel || '', big: d.big || (d.num ? d.num + (d.unit ? ' ' + d.unit : '') : ''), line: d.line || d.sub || d.goal || '',
+    period: d.kicker || '', stats: (d.stats || d.grid || []).map((s) => ({ v: s.v, k: s.k })), routes: (d.routes || []).map((r) => ({ color: r.color, points: (r.points || []).map((p) => [p[0], p[1]]) })) };
+  try { const r = await Promise.race([api('POST', '/v1/shares', card), new Promise((ok) => setTimeout(() => ok(null), 4000))]); return r ? API + r.url : null; } catch { return null; }
+}
+export const sharedCard = (code) => api('GET', '/v1/shares?code=' + encodeURIComponent(code));
 export async function shareImage(dataUrl, how = 'share', text = 'Tracked with Motio.') {
   if (how === 'copy') {
     try { await navigator.clipboard.writeText(text); } catch {
@@ -1519,7 +1538,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

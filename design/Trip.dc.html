@@ -79,6 +79,14 @@ button,a{font:inherit;cursor:pointer}
         </sc-for>
       </div>
     </section>
+    <section style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: #F6F5FC">
+      <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Post to your feed</span><span style="font-size: 12px; color: #6B6890">Your friends see the route and numbers, and can cheer and comment. Private zones stay hidden.</span></span>
+      <sc-if value="{{ fp.canPost }}" hint-placeholder-val="{{ true }}">
+        <input value="{{ fp.caption }}" onInput="{{ fp.onCaption }}" aria-label="Caption" maxlength="280" placeholder="Say something about it (optional)" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px">
+        <button type="button" onClick="{{ fp.post }}" disabled="{{ fp.busy }}" style="height: 46px; border: 0; border-radius: 23px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">{{ fp.label }}</button>
+      </sc-if>
+      <sc-if value="{{ fp.posted }}" hint-placeholder-val="{{ false }}"><a href="{{ LK.feed.href }}" onClick="{{ LK.feed.go }}" style="height: 46px; border-radius: 23px; background: #DDF5E3; color: #1E7A36; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Posted. See it in the feed</a></sc-if>
+    </section>
     <section style="display: flex; flex-direction: column; gap: 10px">
       <h2 style="margin: 0; font-size: 15px; font-weight: 600">Note and photo</h2>
       <sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}">
@@ -179,7 +187,7 @@ class Component extends DCLogic {
           if (done) setTimeout(() => this.setState({ replaying: false }), 700);
         });
       },
-      LK: { back: lk('back', 'Main.dc.html') },
+      LK: { feed: lk('feed', 'Feed.dc.html'), back: lk('back', 'Main.dc.html') },
       mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
       noMap: !M || !(t.points && t.points.length > 1),
       color: MODES[t.mode][2], modeName: MODES[t.mode][1],
@@ -220,6 +228,11 @@ class Component extends DCLogic {
           split: () => { if (!real) return; M.splitAtStop(t.id); this.showToast('Split into two trips'); this.forceUpdate(); }
         };
       })(),
+      fp: {
+        canPost: !s.posted && !!(M && S0(t) && M.auth.isSignedIn()) || !M, posted: !!s.posted, busy: !!s.posting, caption: s.caption || '',
+        label: s.posting ? 'Posting…' : 'Post to feed', onCaption: (e) => this.setState({ caption: e.target.value }),
+        post: () => { if (!M || s.posting) return; this.setState({ posting: true }); M.friends.post(t.id, s.caption || '').then(() => { this.setState({ posting: false, posted: true }); this.showToast('Posted to your feed'); }).catch((e) => { this.setState({ posting: false }); this.showToast((e && e.message) || 'Couldn’t post. Try again.'); }); }
+      },
       confirmOpen: !!s.confirm, askDelete: () => this.setState({ confirm: true }), cancelDelete: () => this.setState({ confirm: false }),
       confirmDelete: () => { this.setState({ confirm: false }); if (M) M.deleteTrip(t.id); if (this.props.onNav) this.props.onNav('back'); },
       hasToast: !!s.toast, toast: s.toast || ''

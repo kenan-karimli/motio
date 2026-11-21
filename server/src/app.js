@@ -369,7 +369,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
     const url = new URL(req.url, 'http://localhost');
     // Invite links carry the code in the path: /i/ABC123.
-    const key = url.pathname.startsWith('/i/') ? 'GET /i' : url.pathname.startsWith('/site/') ? 'GET /site' : `${req.method} ${url.pathname}`;
+    const key = url.pathname.startsWith('/i/') ? 'GET /i' : url.pathname.startsWith('/s/') && req.method === 'GET' ? 'GET /s' : url.pathname.startsWith('/site/') ? 'GET /site' : `${req.method} ${url.pathname}`;
     const send = (status, obj) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
     try {
       const route = routes[key];
@@ -387,7 +387,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
         const h = { 'Content-Type': out.type + (Buffer.isBuffer(out.raw) ? '' : '; charset=utf-8') };
         if (out.cache) h['Cache-Control'] = out.cache;
         if (out.name) h['Content-Disposition'] = `attachment; filename="${out.name}"`;
-        res.writeHead(200, h); res.end(out.raw); return;
+        res.writeHead(out.status || 200, h); res.end(out.raw); return;
       }
       send(200, out);
     } catch (e) {

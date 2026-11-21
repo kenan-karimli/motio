@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Challenges</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#1F1D47}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioChIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes motioChBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes motioBadgeIn{0%{opacity:0;transform:scale(0.4) rotate(-18deg)}65%{opacity:1;transform:scale(1.08) rotate(4deg)}100%{transform:none}}
+@keyframes motioBadgeShine{0%{transform:translateX(-120px) rotate(25deg)}100%{transform:translateX(140px) rotate(25deg)}}
+@keyframes motioBadgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.motio-scroll::-webkit-scrollbar{display:none}
+@media (prefers-reduced-motion: reduce){*{animation-duration:1ms!important;animation-iteration-count:1!important}}
+</style>
+</helmet>
+<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: radial-gradient(110% 50% at 50% 0%, #2A2560 0%, #16142F 65%), #16142F; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex-shrink: 0; padding: 16px 20px 8px; display: flex; align-items: center; gap: 12px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Challenges</h1>
+    <a href="{{ LK.race.href }}" onClick="{{ LK.race.go }}" style="height: 40px; padding: 0 14px; border-radius: 20px; background: #F6C343; color: #1F1D47; font-size: 13px; font-weight: 700; display: flex; align-items: center; text-decoration: none">Race friends</a>
+  </div>
+
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 12px">
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 14px 16px; border-radius: 18px; background: rgba(242,118,107,0.16); color: #FFD3CE; font-size: 13px">{{ error }}</div></sc-if>
+    <span style="font-size: 15px; font-weight: 600">{{ monthTitle }}</span>
+    <sc-for list="{{ challenges }}" as="c" hint-placeholder-count="3">
+      <div style="display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 24px; background: rgba(255,255,255,0.07); animation: motioChIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.d }} backwards">
+        <svg aria-hidden="true" width="62" height="72" viewBox="0 0 96 110" style="flex-shrink: 0; overflow: visible; animation: motioBadgeFloat 3.6s ease-in-out infinite">
+          <defs><linearGradient id="{{ c.gid }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{ c.c1 }}"></stop><stop offset="1" stop-color="{{ c.c2 }}"></stop></linearGradient></defs>
+          <path d="M34 82 L26 106 L38 98 L44 108 L48 84 Z M62 82 L70 106 L58 98 L52 108 L48 84 Z" fill="{{ c.ribbon }}"></path>
+          <path d="{{ c.shape }}" fill="url(#{{ c.gid }})"></path>
+          <path d="{{ c.shape }}" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2" transform="translate(48 46) scale(0.82) translate(-48 -46)"></path>
+          <g transform="translate(30 28) scale(1.5)" fill="none" stroke="{{ c.glyphC }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ c.glyph }}"></path></g>
+        </svg>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 15px; font-weight: 700">{{ c.title }}</span>
+          <span style="height: 8px; border-radius: 4px; background: rgba(255,255,255,0.12); overflow: hidden"><span style="display: block; height: 100%; width: {{ c.w }}; border-radius: 4px; background: {{ c.c1 }}; transform-origin: left; animation: motioChBar 1s cubic-bezier(0.22, 1, 0.36, 1) {{ c.dBar }} backwards"></span></span>
+          <span style="font-size: 11.5px; color: #C9C5EC">{{ c.line }}</span>
+        </span>
+        <button type="button" onClick="{{ c.toggle }}" disabled="{{ c.done }}" style="height: 36px; padding: 0 14px; flex-shrink: 0; border: 0; border-radius: 18px; background: {{ c.btnBg }}; color: {{ c.btnFg }}; font-size: 12.5px; font-weight: 700">{{ c.btn }}</button>
+      </div>
+    </sc-for>
+
+    <span style="margin-top: 10px; font-size: 15px; font-weight: 600">Your badges</span>
+    <sc-if value="{{ noBadges }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #C9C5EC">Finish a monthly challenge and its badge lands here. Each month brings new ones.</span></sc-if>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ badges }}" as="b" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 22px; background: rgba(255,255,255,0.06); animation: motioBadgeIn 700ms cubic-bezier(0.34, 1.4, 0.64, 1) {{ b.d }} backwards">
+          <svg aria-hidden="true" width="78" height="90" viewBox="0 0 96 110" style="overflow: visible">
+            <defs><linearGradient id="{{ b.gid }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{ b.c1 }}"></stop><stop offset="1" stop-color="{{ b.c2 }}"></stop></linearGradient><clipPath id="{{ b.cid }}"><path d="{{ b.shape }}"></path></clipPath></defs>
+            <path d="M34 82 L26 106 L38 98 L44 108 L48 84 Z M62 82 L70 106 L58 98 L52 108 L48 84 Z" fill="{{ b.ribbon }}"></path>
+            <path d="{{ b.shape }}" fill="url(#{{ b.gid }})"></path>
+            <path d="{{ b.shape }}" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2" transform="translate(48 46) scale(0.82) translate(-48 -46)"></path>
+            <g transform="translate(30 28) scale(1.5)" fill="none" stroke="{{ b.glyphC }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ b.glyph }}"></path></g>
+            <g clip-path="url(#{{ b.cid }})"><rect x="0" y="-20" width="22" height="150" fill="#FFFFFF" opacity="{{ b.shine }}" style="animation: motioBadgeShine 2.6s ease-in-out {{ b.dShine }} infinite"></rect></g>
+          </svg>
+          <span style="font-size: 12px; font-weight: 600; text-align: center; line-height: 1.25">{{ b.title }}</span>
+          <span style="font-size: 10.5px; color: #C9C5EC">{{ b.sub }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
+  componentWillUnmount() { window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
+  load() {
+    const M = window.Motio;
+    if (!M) return;
+    M.friends.monthly().then((data) => {
+      // A badge that wasn't there before was just earned: say so.
+      const had = new Set(((this.state && this.state.data) || { badges: [] }).badges.map((b) => b.key));
+      const fresh = this.state && this.state.data ? data.badges.filter((b) => !had.has(b.key)) : [];
+      this.setState({ data, error: null });
+      if (fresh.length) this.showToast('Badge earned!');
+    }).catch((e) => this.setState({ error: (e && e.message) || 'Couldn’t load challenges.' }));
+  }
+  showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {}, M = window.Motio, now = Date.now();
+    const sample = { month: '2026-11', challenges: [
+      { key: '2026-11:walk100', id: 'walk100', title: 'Walk 100 km', unit: 'km', target: 100, have: 62.4, joined: true, done: false, people: 1240, ends: now + 9 * 864e5 },
+      { key: '2026-11:ride200', id: 'ride200', title: 'Ride 200 km', unit: 'km', target: 200, have: 16, joined: false, done: false, people: 410, ends: now + 9 * 864e5 },
+      { key: '2026-11:active30', id: 'active30', title: '30 hours on the move', unit: 'h', target: 30, have: 30.5, joined: true, done: true, people: 880, ends: now + 9 * 864e5 }],
+      badges: [{ key: '2026-11:active30', id: 'active30', month: '2026-11' }, { key: '2026-10:walk100', id: 'walk100', month: '2026-10' }] };
+    const D = M ? s.data : sample;
+    // Each challenge has its own medal: a shape, two colours, a ribbon and an icon.
+    const LOOK = {
+      walk100: { shape: 'M48 4 L84 25 L84 67 L48 88 L12 67 L12 25 Z', c1: '#3DBF5C', c2: '#1E7A36', ribbon: '#2FA84D', glyph: 'M13 4a1.5 1.5 0 1 0 0-.01M10 21l2-6 3 2v4M9 11l3-3 4 3 3 1M8 14l2-3' },
+      ride200: { shape: 'M48 4 a42 42 0 1 0 0.01 0 Z', c1: '#6E8CF7', c2: '#4B3FD8', ribbon: '#5B4FE0', glyph: 'M5 17a3 3 0 1 0 0-.01M19 17a3 3 0 1 0 0-.01M5 17l4-7h6l4 7M9 10l-1-3H6M15 10l-2 7' },
+      active30: { shape: 'M48 4 L84 16 L84 48 C84 70 66 84 48 90 C30 84 12 70 12 48 L12 16 Z', c1: '#F6C343', c2: '#F2766B', ribbon: '#E0A92C', glyph: 'M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z' }
+    };
+    const LOCKED = { c1: '#3A3668', c2: '#2D2A6E', ribbon: '#2D2A6E' };
+    const monthName = (k) => new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    const daysLeft = (t) => Math.max(0, Math.ceil((t - now) / 864e5));
+    const base = emb ? 380 : 0;
+    const list = D ? D.challenges : [];
+    const earned = D ? D.badges : [];
+    const thisMonth = new Set(earned.filter((b) => D && b.month === D.month).map((b) => b.id));
+    // Badges: this month's three (locked until earned), then the ones from earlier months.
+    const shelf = [...list.map((c) => ({ id: c.id, month: D.month, got: thisMonth.has(c.id) })), ...earned.filter((b) => b.month !== D.month).map((b) => ({ id: b.id, month: b.month, got: true }))];
+    const TITLE = { walk100: 'Walker', ride200: 'Rider', active30: 'Mover' };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Recaps.dc.html'), race: lk('challenge', 'Challenge.dc.html') },
+      hasError: !!s.error && !D, error: s.error || '',
+      monthTitle: D ? monthName(D.month) + ' challenges' : 'This month',
+      challenges: list.map((c, i) => {
+        const L = LOOK[c.id], pct = Math.min(1, c.have / c.target);
+        return {
+          title: c.title, gid: 'chg' + i, shape: L.shape, glyph: L.glyph, glyphC: '#FFFFFF',
+          c1: c.done ? L.c1 : c.joined ? L.c1 : '#8C7CF0', c2: c.done || c.joined ? L.c2 : '#5B4FE0', ribbon: c.done || c.joined ? L.ribbon : '#4B3FD8',
+          w: Math.max(2, pct * 100).toFixed(1) + '%', d: base + i * 90 + 'ms', dBar: base + 300 + i * 90 + 'ms',
+          line: (c.done ? 'Done! ' : '') + (Math.round(c.have * 10) / 10) + ' of ' + c.target + ' ' + c.unit + ' · ' + daysLeft(c.ends) + ' days left · ' + c.people.toLocaleString('en-US') + (c.people === 1 ? ' joined' : ' joined'),
+          done: !!c.done, btn: c.done ? 'Earned' : c.joined ? 'Joined' : 'Join',
+          btnBg: c.done ? '#DDF5E3' : c.joined ? 'rgba(255,255,255,0.12)' : '#F6C343', btnFg: c.done ? '#1E7A36' : c.joined ? '#FFFFFF' : '#1F1D47',
+          toggle: () => { if (!M || c.done) return; M.friends.joinMonthly(c.key, !c.joined).then(() => { this.showToast(c.joined ? 'Left ' + c.title : 'Joined ' + c.title); this.load(); }).catch((e) => this.showToast((e && e.message) || 'Try again.')); }
+        };
+      }),
+      noBadges: !!D && !earned.length,
+      badges: shelf.map((b, i) => {
+        const L = LOOK[b.id], C = b.got ? L : LOCKED;
+        return { gid: 'bdg' + i, cid: 'bdc' + i, shape: L.shape, glyph: L.glyph, glyphC: b.got ? '#FFFFFF' : '#8C7CF0', c1: C.c1, c2: C.c2, ribbon: C.ribbon,
+          shine: b.got ? 0.35 : 0, dShine: 1200 + i * 400 + 'ms', d: base + 350 + i * 80 + 'ms',
+          title: TITLE[b.id], sub: b.got ? new Date(+b.month.slice(0, 4), +b.month.slice(5, 7) - 1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : 'Locked' };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

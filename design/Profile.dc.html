@@ -164,6 +164,8 @@ class Component extends DCLogic {
   componentDidMount() {
     const M = window.Motio;
     this.load();
+    this.onRefresh = () => this.load();
+    window.addEventListener('motio:refresh', this.onRefresh);
     if (M) M.auth.googleReady().then((id) => this.setState({ gReady: !!id }));
   }
   load() {
@@ -175,7 +177,7 @@ class Component extends DCLogic {
     if (me && me.id) M.friends.profile(me.id).then((r) => this.setState({ mine: r.profile })).catch(() => {});
   }
   showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
-  componentWillUnmount() { clearTimeout(this.toastT); }
+  componentWillUnmount() { clearTimeout(this.toastT); window.removeEventListener('motio:refresh', this.onRefresh); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {

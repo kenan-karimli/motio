@@ -71,12 +71,14 @@ button,a{font:inherit;cursor:pointer}
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   componentDidMount() {
+    this.onFriend = () => this.forceUpdate();
+    window.addEventListener('motio:friend', this.onFriend);
     this.fid = window.__motioFriend || null;
     this.load();
     // Live location moves: ask again every 20 seconds while this page is open.
     this.pollT = setInterval(() => { if (!document.hidden) this.loadLive(); }, 20000);
   }
-  componentWillUnmount() { clearInterval(this.pollT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  componentWillUnmount() { window.removeEventListener('motio:friend', this.onFriend); clearInterval(this.pollT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
   async load() {
     const M = window.Motio;
     if (!M || !this.fid) return;
@@ -99,6 +101,10 @@ class Component extends DCLogic {
     M.friends.live(this.fid).then((r) => this.setState({ live: r.live })).catch((e) => { if (e && e.status === 403) this.setState({ kinds: { ...s.kinds, live: false }, live: null }); });
   }
   renderVals() {
+    if (window.__motioFriend && this.fid && window.__motioFriend !== this.fid && !this.switching) {
+      this.switching = true;
+      setTimeout(() => { this.fid = window.__motioFriend; this.switching = false; this.drawn = null; this.setState({ who: null, kinds: null, trips: [], places: [], live: null }); this.load(); }, 0);
+    }
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
       if (!emb) return;

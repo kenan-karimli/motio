@@ -692,6 +692,7 @@ class Component extends DCLogic {
       if (t == null) t = window.__motioTab;
       this.navFrom = t != null && !isNaN(+t) && +t >= 0 && +t <= 3 ? +t : 0;
     }
+    setTimeout(() => document.body.toggleAttribute('data-sheet', !!(this.state && (this.state.menuOpen || this.state.logoutOpen || this.state.shareOpen || this.state.trip))), 0);
     return {
       ...interactive,
       shareOpen: !!s.share,

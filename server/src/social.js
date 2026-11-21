@@ -22,6 +22,41 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
       created_at BIGINT NOT NULL,
       PRIMARY KEY (owner, viewer, kind)
     );
+    CREATE TABLE IF NOT EXISTS share_cards (
+      code TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      payload TEXT NOT NULL,
+      created_at BIGINT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS posts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      trip_id TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      caption TEXT NOT NULL DEFAULT '',
+      created_at BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS posts_user ON posts(user_id, created_at);
+    CREATE TABLE IF NOT EXISTS post_cheers (
+      post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      at BIGINT NOT NULL,
+      PRIMARY KEY (post_id, user_id)
+    );
+    CREATE TABLE IF NOT EXISTS post_comments (
+      id SERIAL PRIMARY KEY,
+      post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text TEXT NOT NULL,
+      at BIGINT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS monthly_joins (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      key TEXT NOT NULL,
+      joined_at BIGINT NOT NULL,
+      done_at BIGINT,
+      PRIMARY KEY (user_id, key)
+    );
     CREATE TABLE IF NOT EXISTS live_fix (
       user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       lat DOUBLE PRECISION NOT NULL, lng DOUBLE PRECISION NOT NULL, at BIGINT NOT NULL, mode TEXT
@@ -46,6 +81,27 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
     trips: db.prepare('SELECT id, start, "end", mode, distance_m, points FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ? ORDER BY start'),
     ends: db.prepare('SELECT points FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ?'),
     settingsOf: db.prepare('SELECT settings FROM users WHERE id = ?'),
+    tripOf: db.prepare('SELECT id, start, "end", mode, distance_m, steps, max_speed, points FROM trips WHERE user_id = ? AND id = ? AND deleted = 0'),
+    putPost: db.prepare('INSERT INTO posts (user_id, trip_id, payload, caption, created_at) VALUES (?, ?, ?, ?, ?) RETURNING id'),
+    postById: db.prepare('SELECT * FROM posts WHERE id = ?'),
+    delPost: db.prepare('DELETE FROM posts WHERE id = ? AND user_id = ?'),
+    feed: db.prepare('SELECT p.*, u.name, u.avatar FROM posts p JOIN users u ON u.id = p.user_id WHERE p.user_id = ? OR p.user_id IN (SELECT friend_id FROM friends WHERE user_id = ?) ORDER BY p.created_at DESC LIMIT 50'),
+    cheersOf: db.prepare('SELECT c.user_id, u.name FROM post_cheers c JOIN users u ON u.id = c.user_id WHERE c.post_id = ? ORDER BY c.at'),
+    cheer: db.prepare('INSERT INTO post_cheers (post_id, user_id, at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
+    uncheer: db.prepare('DELETE FROM post_cheers WHERE post_id = ? AND user_id = ?'),
+    commentsOf: db.prepare('SELECT c.id, c.text, c.at, c.user_id, u.name FROM post_comments c JOIN users u ON u.id = c.user_id WHERE c.post_id = ? ORDER BY c.at'),
+    putComment: db.prepare('INSERT INTO post_comments (post_id, user_id, text, at) VALUES (?, ?, ?, ?)'),
+    delComment: db.prepare('DELETE FROM post_comments WHERE id = ? AND (user_id = ? OR post_id IN (SELECT id FROM posts WHERE user_id = ?))'),
+    inPostCheers: db.prepare('SELECT c.post_id, c.at, u.id AS uid, u.name FROM post_cheers c JOIN posts p ON p.id = c.post_id JOIN users u ON u.id = c.user_id WHERE p.user_id = ? AND c.user_id <> ? AND c.at > ?'),
+    inComments: db.prepare('SELECT c.id, c.post_id, c.text, c.at, u.id AS uid, u.name FROM post_comments c JOIN posts p ON p.id = c.post_id JOIN users u ON u.id = c.user_id WHERE p.user_id = ? AND c.user_id <> ? AND c.at > ?'),
+    joinMonthly: db.prepare('INSERT INTO monthly_joins (user_id, key, joined_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
+    leaveMonthly: db.prepare('DELETE FROM monthly_joins WHERE user_id = ? AND key = ? AND done_at IS NULL'),
+    myMonthly: db.prepare('SELECT key, joined_at, done_at FROM monthly_joins WHERE user_id = ?'),
+    doneMonthly: db.prepare('UPDATE monthly_joins SET done_at = ? WHERE user_id = ? AND key = ? AND done_at IS NULL'),
+    joinedCount: db.prepare('SELECT key, COUNT(*)::int AS n FROM monthly_joins WHERE key LIKE ? GROUP BY key'),
+    monthSum: db.prepare('SELECT mode, SUM(distance_m)::float8 AS m, SUM("end" - start)::float8 AS ms FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ? GROUP BY mode'),
+    putCard: db.prepare('INSERT INTO share_cards (code, user_id, payload, created_at) VALUES (?, ?, ?, ?)'),
+    getCard: db.prepare('SELECT c.code, c.payload, c.created_at, u.id AS uid, u.name, u.avatar FROM share_cards c JOIN users u ON u.id = c.user_id WHERE c.code = ?'),
     // The notification inbox: everything that happened to you lately, newest first.
     inCheers: db.prepare('SELECT c.id, c.at, u.id AS uid, u.name FROM cheers c JOIN users u ON u.id = c.from_id WHERE c.to_id = ? AND c.at > ? ORDER BY c.at DESC LIMIT 30'),
     inRequests: db.prepare('SELECT r.created_at AS at, u.id AS uid, u.name FROM friend_requests r JOIN users u ON u.id = r.from_id WHERE r.to_id = ? AND r.created_at > ?'),
@@ -71,7 +127,171 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
     return { user, id, zones: cfgOf((await q.settingsOf.get(id) || {}).settings).zones || [] };
   }
 
+  // Shared images get a short link (/s/CODE): a page anyone can open, and the app opens it when installed.
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const str = (v, n) => String(v ?? '').slice(0, n);
+  const codeOf = () => Array.from({ length: 8 }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)]).join('');
+  function cleanCard(b) {
+    const routes = (Array.isArray(b.routes) ? b.routes : []).slice(0, 8).map((r) => ({ color: /^#[0-9a-f]{6}$/i.test(r.color) ? r.color : '#F6C343',
+      points: (Array.isArray(r.points) ? r.points : []).filter((p, i, a) => i % Math.max(1, Math.ceil(a.length / 120)) === 0).slice(0, 120).map((p) => [+(+p[0]).toFixed(5), +(+p[1]).toFixed(5)]).filter((p) => Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180) }))
+      .filter((r) => r.points.length > 1);
+    return { kind: str(b.kind, 20), title: str(b.title, 60), lead: str(b.lead, 60), big: str(b.big, 24), line: str(b.line, 140), period: str(b.period, 40),
+      stats: (Array.isArray(b.stats) ? b.stats : []).slice(0, 4).map((s) => ({ v: str(s.v, 20), k: str(s.k, 24) })), routes };
+  }
+  // The routes as one SVG, the same way the app draws them.
+  function routeSVG(routes, w, h) {
+    const pts = routes.flatMap((r) => r.points);
+    if (pts.length < 2) return '';
+    const lat0 = pts.reduce((a, p) => a + p[0], 0) / pts.length, k = Math.cos((lat0 * Math.PI) / 180);
+    const xs = pts.map((p) => p[1] * k), ys = pts.map((p) => -p[0]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), pad = 16;
+    const s = Math.min((w - pad * 2) / Math.max(1e-9, maxX - minX), (h - pad * 2) / Math.max(1e-9, maxY - minY));
+    const ox = (w - (maxX - minX) * s) / 2, oy = (h - (maxY - minY) * s) / 2;
+    const d = (r) => r.points.map((p, i) => (i ? 'L' : 'M') + ((p[1] * k - minX) * s + ox).toFixed(1) + ' ' + ((-p[0] - minY) * s + oy).toFixed(1)).join(' ');
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%">${routes.map((r) => `<path d="${d(r)}" fill="none" stroke="${r.color}" stroke-opacity=".3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><path d="${d(r)}" fill="none" stroke="${r.color}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</svg>`;
+  }
+
+  // The feed: trips people chose to post, seen by their friends, with cheers and comments.
+  const canSee = async (viewer, owner) => viewer === owner || !!(await q.isFriend.get(viewer, owner));
+  async function postOut(p, me) {
+    const cheers = await q.cheersOf.all(p.id), comments = await q.commentsOf.all(p.id);
+    return { id: p.id, user: { id: p.user_id, name: p.name, avatar: p.avatar && p.avatar.length < 200000 ? p.avatar : '' }, mine: p.user_id === me, at: Number(p.created_at), caption: p.caption,
+      trip: JSON.parse(p.payload), cheers: cheers.length, cheered: cheers.some((c) => c.user_id === me), cheerNames: cheers.slice(-3).map((c) => String(c.name).split(' ')[0]),
+      comments: comments.map((c) => ({ id: c.id, text: c.text, at: Number(c.at), user: { id: c.user_id, name: c.name }, mine: c.user_id === me })) };
+  }
+  async function postFor(req, body) {
+    const { user } = await authUser(req);
+    const p = await q.postById.get(Number(body.id));
+    if (!p || !(await canSee(user.id, p.user_id))) throw new HttpError(404, 'not_found', 'This post is gone.');
+    return { user, p };
+  }
+
+  // Monthly challenges: the same three every month, open to everyone; finishing one earns that month's badge.
+  const MONTHLY = [
+    { id: 'walk100', title: 'Walk 100 km', unit: 'km', target: 100, of: (s) => (s.walk.m + s.run.m) / 1000 },
+    { id: 'ride200', title: 'Ride 200 km', unit: 'km', target: 200, of: (s) => s.bike.m / 1000 },
+    { id: 'active30', title: '30 hours on the move', unit: 'h', target: 30, of: (s) => (s.walk.ms + s.run.ms + s.bike.ms) / 3600000 }
+  ];
+  const monthOf = (t, tz) => { const d = new Date(t + tz * 60000); return { key: d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'), from: Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) - tz * 60000, to: Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1) - tz * 60000 }; };
+  async function progress(userId, from, to) {
+    const s = { walk: { m: 0, ms: 0 }, run: { m: 0, ms: 0 }, bike: { m: 0, ms: 0 }, drive: { m: 0, ms: 0 }, transit: { m: 0, ms: 0 } };
+    for (const r of await q.monthSum.all(userId, from, to)) if (s[r.mode]) s[r.mode] = { m: r.m || 0, ms: r.ms || 0 };
+    return s;
+  }
+
   return {
+    // This month's challenges with your progress, and every badge you've earned. tz: the phone's UTC offset in minutes.
+    'GET /v1/monthly': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      const tz = Math.max(-840, Math.min(840, Number(url.searchParams.get('tz')) || 0)), M = monthOf(now(), tz);
+      const mine = new Map((await q.myMonthly.all(user.id)).map((r) => [r.key, r]));
+      const counts = new Map((await q.joinedCount.all(M.key + ':%')).map((r) => [r.key, r.n]));
+      const s = await progress(user.id, M.from, M.to);
+      const list = [];
+      for (const c of MONTHLY) {
+        const key = M.key + ':' + c.id, j = mine.get(key), have = Math.round(c.of(s) * 10) / 10;
+        if (j && !j.done_at && have >= c.target) { await q.doneMonthly.run(now(), user.id, key); j.done_at = now(); }
+        list.push({ key, id: c.id, title: c.title, unit: c.unit, target: c.target, have, joined: !!j, done: !!(j && j.done_at), people: (counts.get(key) || 0), ends: M.to });
+      }
+      const badges = [...mine.values()].filter((r) => r.done_at).map((r) => ({ key: r.key, id: r.key.split(':')[1], month: r.key.split(':')[0], at: Number(r.done_at) })).sort((a, b) => b.at - a.at);
+      return { month: M.key, challenges: list, badges };
+    },
+    'POST /v1/monthly/join': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const key = String(body.key || '');
+      if (!/^\d{4}-\d\d:(walk100|ride200|active30)$/.test(key)) throw bad('bad_key', 'Unknown challenge.');
+      if (body.on === false) await q.leaveMonthly.run(user.id, key); else await q.joinMonthly.run(user.id, key, now());
+      return { ok: true };
+    },
+
+    // Post one of your trips (from the server copy, so the numbers can't be made up), with private zones cut out.
+    'POST /v1/posts': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const t = await q.tripOf.get(user.id, String(body.tripId || ''));
+      if (!t) throw bad('no_trip', 'That trip hasn’t synced yet. Try again in a moment.');
+      const zones = cfgOf((await q.settingsOf.get(user.id) || {}).settings).zones || [];
+      const pts = JSON.parse(t.points).filter(outside(zones));
+      const step = Math.max(1, Math.ceil(pts.length / 300));
+      const trip = { mode: t.mode, start: Number(t.start), end: Number(t.end), distanceM: t.distance_m, steps: t.steps, maxSpeed: t.max_speed, points: pts.filter((p, i) => i % step === 0).map((p) => [p[0], p[1]]) };
+      const r = await q.putPost.get(user.id, t.id, JSON.stringify(trip), String(body.caption || '').trim().slice(0, 280), now());
+      return { ok: true, id: r.id };
+    },
+    'GET /v1/feed': async ({ req }) => {
+      const { user } = await authUser(req);
+      return { posts: await Promise.all((await q.feed.all(user.id, user.id)).map((p) => postOut(p, user.id))) };
+    },
+    'POST /v1/posts/cheer': async ({ req, body }) => {
+      const { user, p } = await postFor(req, body);
+      if (body.on === false) await q.uncheer.run(p.id, user.id); else await q.cheer.run(p.id, user.id, now());
+      return { ok: true };
+    },
+    'POST /v1/posts/comment': async ({ req, body }) => {
+      const { user, p } = await postFor(req, body);
+      const text = String(body.text || '').trim().slice(0, 500);
+      if (!text) throw bad('empty', 'Write something first.');
+      await q.putComment.run(p.id, user.id, text, now());
+      return { ok: true };
+    },
+    'POST /v1/posts/uncomment': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      await q.delComment.run(Number(body.commentId), user.id, user.id);
+      return { ok: true };
+    },
+    'POST /v1/posts/delete': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      await q.delPost.run(Number(body.id), user.id);
+      return { ok: true };
+    },
+
+    'POST /v1/shares': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const card = cleanCard(body || {}), payload = JSON.stringify(card);
+      if (payload.length > 60000) throw bad('too_big', 'That card is too big to share as a link.');
+      const code = codeOf();
+      await q.putCard.run(code, user.id, payload, now());
+      return { code, url: '/s/' + code };
+    },
+    // What the app needs when someone opens a link: who shared it.
+    'GET /v1/shares': async ({ url }) => {
+      const c = await q.getCard.get(String(url.searchParams.get('code') || '').toLowerCase());
+      if (!c) throw new HttpError(404, 'not_found', 'This link has expired.');
+      return { code: c.code, user: { id: c.uid, name: c.name }, card: JSON.parse(c.payload) };
+    },
+    'GET /s': async ({ url }) => {
+      const code = url.pathname.slice(3).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+      const c = await q.getCard.get(code);
+      if (!c) return { status: 404, type: 'text/html', raw: '<!doctype html><meta name="viewport" content="width=device-width"><body style="font-family:system-ui;background:#1F1D47;color:#fff;display:grid;place-items:center;min-height:90vh;text-align:center"><div><h1>This link has expired</h1><p><a style="color:#F6C343" href="/">Get Motio</a></p></div>' };
+      const d = JSON.parse(c.payload), first = String(c.name || 'A friend').split(' ')[0];
+      const title = first + ' on Motio' + (d.period ? ': ' + d.period : ''), desc = [d.big && (d.lead ? d.lead + ' ' : '') + d.big, ...d.stats.map((s) => s.v + ' ' + s.k)].filter(Boolean).join(' · ');
+      const ini = String(c.name || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+      return { type: 'text/html', raw: `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:site_name" content="Motio"><meta name="theme-color" content="#0C0B1C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Poppins,system-ui,sans-serif;color:#fff;background:radial-gradient(80% 50% at 50% 30%,rgba(91,79,224,.35),transparent 70%),linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/26px 26px,#0C0B1C;display:flex;justify-content:center}
+main{width:100%;max-width:420px;padding:28px 22px 36px;display:flex;flex-direction:column;gap:18px;animation:in .7s cubic-bezier(.22,1,.36,1)}@keyframes in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;justify-content:space-between}.logo{display:flex;align-items:center;gap:7px;font-weight:600;font-size:15px}
+.who{display:flex;align-items:center;gap:12px}.av{width:46px;height:46px;border-radius:23px;background:#F6C343;color:#1F1D47;display:grid;place-items:center;font-weight:700;overflow:hidden}.av img{width:100%;height:100%;object-fit:cover}
+.who b{display:block;font-size:16px}.who span{font-size:13px;color:rgba(255,255,255,.65)}
+.map{height:260px;border-radius:24px;background:rgba(255,255,255,.05);padding:6px}
+.k{font-size:13px;color:rgba(255,255,255,.65)}.big{font-size:72px;font-weight:700;letter-spacing:-3px;line-height:.95}
+.line{font-size:14px;line-height:1.5;color:rgba(255,255,255,.75)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}.stats div{padding:12px;border-radius:16px;background:rgba(255,255,255,.08)}.stats b{display:block;font-size:18px}.stats span{font-size:12px;color:rgba(255,255,255,.6)}
+a.btn{display:flex;align-items:center;justify-content:center;height:54px;border-radius:27px;font-weight:600;text-decoration:none;font-size:15px}.p{background:#F6C343;color:#1F1D47}.s{background:rgba(255,255,255,.1);color:#fff}
+small{font-size:12px;line-height:1.5;color:rgba(255,255,255,.5);text-align:center}
+</style></head><body><main>
+<div class="top"><span class="logo"><svg width="20" height="20" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4.5" stroke-linecap="round"/></svg>motio</span><span class="k">${esc(d.period)}</span></div>
+<div class="who"><span class="av">${c.avatar && c.avatar.length < 200000 ? `<img src="${esc(c.avatar)}" alt="">` : esc(ini)}</span><div><b>${esc(c.name || 'A Motio user')}</b><span>shared ${esc(d.title ? d.title.replace(/\n/g, ' ').toLowerCase() : 'their moves')}</span></div></div>
+${d.routes.length ? `<div class="map">${routeSVG(d.routes, 400, 248)}</div>` : ''}
+${d.big ? `<div><div class="k">${esc(d.lead || 'Covered')}</div><div class="big">${esc(d.big)}</div></div>` : ''}
+${d.line ? `<div class="line">${esc(d.line)}</div>` : ''}
+${d.stats.length ? `<div class="stats">${d.stats.map((s) => `<div><b>${esc(s.v)}</b><span>${esc(s.k)}</span></div>`).join('')}</div>` : ''}
+<a class="btn p" href="intent://s/${esc(c.code)}#Intent;scheme=motio;package=com.motio.app;S.browser_fallback_url=${encodeURIComponent('https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk')};end">Open in Motio</a>
+<a class="btn s" href="/">What is Motio?</a>
+<small>Motio tracks how you move, automatically: walks, runs, rides and every trip in between.</small>
+</main></body></html>` };
+    },
+
     // Notifications: cheers, friend requests, new friends, challenges, friends sharing with you, a new app version.
     // Each item has its text ready, so the phone's background service can show it as is.
     'GET /v1/inbox': async ({ req }) => {
@@ -87,6 +307,8 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
         ...(await q.inShares.all(user.id, since)).filter((r) => r.kind !== 'live' || r.until == null || Number(r.until) > now())
           .map((r) => ({ id: 'share-' + r.uid + '-' + r.kind + '-' + r.at, kind: 'shared', at: Number(r.at), who: r.uid, title: first(r.name) + ' shared ' + (SH[r.kind] || r.kind) + ' with you', body: 'Open their map to see it.' }))
       ];
+      for (const r of await q.inPostCheers.all(user.id, user.id, since)) items.push({ id: 'pcheer-' + r.post_id + '-' + r.uid, kind: 'cheer', at: Number(r.at), who: r.uid, post: r.post_id, title: first(r.name) + ' cheered your trip', body: 'On your post in the feed.' });
+      for (const r of await q.inComments.all(user.id, user.id, since)) items.push({ id: 'comment-' + r.id, kind: 'comment', at: Number(r.at), who: r.uid, post: r.post_id, title: first(r.name) + ' commented on your trip', body: String(r.text).slice(0, 90) });
       const rel = await latest();
       if (rel && rel.version) items.push({ id: 'update-' + rel.version, kind: 'update', at: Date.parse(rel.date) || now(), version: rel.version, title: 'Motio ' + rel.version + ' is out', body: (rel.notes && rel.notes[0]) || 'Update to get the newest features.' });
       return { items: items.sort((a, b) => b.at - a.at).slice(0, 50), serverTime: now() };

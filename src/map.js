@@ -95,6 +95,45 @@ window.MotioMap = {
       destroy() { dead = true; map.remove(); }
     };
   },
+  // The recap's backdrop: a dark, still map of the period's routes. Slides steer it: show everything, fly to one
+  // trip, or fade it back. Routes are SVG so they can draw themselves in.
+  mountRecap(el, routes) {
+    const map = L.map(el, { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, zoomSnap: 0.1, fadeAnimation: true });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, className: 'motio-tiles-night' }).addTo(map);
+    const all = [], lines = [];
+    for (const r of routes) {
+      const ll = r.points.map((p) => [p[0], p[1]]);
+      if (ll.length < 2) continue;
+      all.push(...ll);
+      L.polyline(ll, { color: r.color, weight: 10, opacity: 0.18, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(map);
+      lines.push({ r, line: L.polyline(ll, { color: r.color, weight: 3.5, opacity: 1, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(map) });
+    }
+    const pad = { paddingTopLeft: [40, 200], paddingBottomRight: [40, 260] };
+    let dead = false;
+    const overview = (animate) => { if (dead) return; if (all.length) map.flyToBounds(L.latLngBounds(all), { ...pad, duration: animate ? 1.6 : 0, animate: !!animate, maxZoom: 15 }); else map.setView([40.4093, 49.8671], 12, { animate: false }); };
+    overview(false);
+    [200, 600].forEach((ms) => setTimeout(() => { if (!dead) { map.invalidateSize(); overview(false); } }, ms));
+    return {
+      overview,
+      focus(id, box) {
+        const hit = lines.find((x) => x.r.id === id);
+        if (!dead && hit) map.flyToBounds(hit.line.getBounds(), { paddingTopLeft: [40, box ? box[0] : 220], paddingBottomRight: [40, box ? box[1] : 300], duration: 1.6, maxZoom: 16 });
+        for (const x of lines) x.line.setStyle({ opacity: !hit || x === hit ? 1 : 0.25 });
+      },
+      all() { for (const x of lines) x.line.setStyle({ opacity: 1 }); },
+      // Every route draws itself, one after another.
+      draw(ms = 1800) {
+        lines.forEach(({ line }, i) => {
+          const p = line.getElement && line.getElement();
+          if (!p || !p.getTotalLength) return;
+          const n = p.getTotalLength();
+          p.style.strokeDasharray = n; p.animate([{ strokeDashoffset: n }, { strokeDashoffset: 0 }], { duration: ms, delay: i * 90, easing: 'cubic-bezier(0.45, 0, 0.25, 1)', fill: 'backwards' });
+          setTimeout(() => { p.style.strokeDasharray = ''; }, ms + i * 90 + 50);
+        });
+      },
+      destroy() { dead = true; map.remove(); }
+    };
+  },
   // A friend's shared map: their routes, their usual places and where they are right now (whatever they share).
   // show(data) redraws with new data; the view frames everything the first time only, so polling doesn't jump.
   mountFriend(el) {

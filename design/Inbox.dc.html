@@ -78,6 +78,7 @@ class Component extends DCLogic {
       friend: ['#3DBF5C', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 11l2 2 4-4'],
       challenge: ['#6E8CF7', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3'],
       shared: ['#B57BE0', 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14'],
+      comment: ['#6E8CF7', 'M4 5h16v11H9l-5 4z'],
       update: ['#C9BDFF', 'M12 4v11M7 10l5 5 5-5M5 20h14'],
       record: ['#F6C343', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3']
     };
@@ -88,6 +89,7 @@ class Component extends DCLogic {
       else if (i.kind === 'shared') nav('friendmap');
       else if (i.kind === 'update') nav('update');
       else if (i.kind === 'record') nav('records');
+      else if (i.kind === 'comment' || i.post) nav('feed');
       else if (i.kind === 'challenge') nav('recaps');
       else if (i.who) nav('friend');
     };

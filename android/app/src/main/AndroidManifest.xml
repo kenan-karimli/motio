@@ -65,12 +65,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="motio-api.onrender.com" android:pathPrefix="/i/" />
+                <data android:scheme="https" android:host="motio-api.onrender.com" android:pathPrefix="/s/" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="motio" android:host="add" />
+                <data android:scheme="motio" android:host="s" />
             </intent-filter>
         </activity>
         <activity-alias

@@ -28,6 +28,7 @@ button:active,a:active{transform:scale(0.96)}
 [data-page="overlay"] .motio-scroll>:nth-child(1){animation-delay:360ms}[data-page="overlay"] .motio-scroll>:nth-child(2){animation-delay:410ms}[data-page="overlay"] .motio-scroll>:nth-child(3){animation-delay:460ms}[data-page="overlay"] .motio-scroll>:nth-child(4){animation-delay:510ms}[data-page="overlay"] .motio-scroll>:nth-child(5){animation-delay:560ms}[data-page="overlay"] .motio-scroll>:nth-child(6){animation-delay:600ms}
 /* Full-screen backdrops (tap outside a sheet to close) never shrink on press: that flashed the screen edges. */
 button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inset:0"]:active{transform:none !important}
+body[data-sheet] .motio-upd{display:none}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
@@ -284,13 +285,23 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
       <dc-import name="Records" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.feed.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.feed.kind }}" style="position: absolute; inset: 0; z-index: {{ O.feed.z }}; animation: {{ O.feed.anim }}; box-shadow: {{ O.feed.shadow }}">
+      <dc-import name="Feed" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.challenges.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.challenges.kind }}" style="position: absolute; inset: 0; z-index: {{ O.challenges.z }}; animation: {{ O.challenges.anim }}; box-shadow: {{ O.challenges.shadow }}">
+      <dc-import name="Challenges" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.map.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.map.kind }}" style="position: absolute; inset: 0; z-index: {{ O.map.z }}; animation: {{ O.map.anim }}; box-shadow: {{ O.map.shadow }}">
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
   <sc-if value="{{ upd.show }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; left: 20px; right: 20px; bottom: 100px; z-index: 9; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; box-shadow: 0 12px 28px rgba(20,14,70,0.3); overflow: hidden; animation: motioUpdIn 420ms cubic-bezier(0.22, 1, 0.36, 1)">
+    <div class="motio-upd" style="position: absolute; left: 20px; right: 20px; bottom: 100px; z-index: 9; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; box-shadow: 0 12px 28px rgba(20,14,70,0.3); overflow: hidden; animation: motioUpdIn 420ms cubic-bezier(0.22, 1, 0.36, 1)">
       <button type="button" onClick="{{ upd.open }}" aria-label="{{ upd.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
         <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 12px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span>
         <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ upd.title }}</span><span style="font-size: 11px; color: #C9C5EC">{{ upd.sub }}</span></span>
@@ -425,6 +436,8 @@ class Component extends DCLogic {
         }, 380);
         return;
       }
+      // A person's page may already be open lower down: tell it who to show now.
+      if (target === 'friend' || target === 'friendmap') setTimeout(() => window.dispatchEvent(new Event('motio:friend')), 0);
       // Already open further down (e.g. Register → Log in): drop back to it.
       if (stack.includes(target)) return this.setState({ stack: stack.slice(0, stack.indexOf(target) + 1), closing: false });
       this.setState({ stack: [...stack, target], closing: false });
@@ -438,7 +451,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records', 'feed', 'challenges'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;
@@ -480,10 +493,11 @@ class Component extends DCLogic {
       baseShift: settled && !stories.includes(top) && top !== 'welcome' ? 'translateX(-72px)' : settled && stories.includes(top) ? 'scale(0.96)' : 'none',
       navOp: coversNav ? 0 : 1,
       navY: coversNav ? '24px' : '0px',
-      // Update card: only on the main tabs (never over a page); tapping it opens the Update page.
+      // Update card: tapping it opens the Update page.
       upd: (() => {
         const u = s.upd;
-        if (!u || s.updLater || stack.length || u.state === 'installing') return { show: false };
+        // Only on Today, never over a page or a sheet inside another tab.
+        if (!u || s.updLater || stack.length || tab !== 0 || u.state === 'installing') return { show: false };
         const st = u.state, busy = st === 'downloading';
         return { show: true, busy, w: Math.max(3, u.pct || 0) + '%',
           title: 'Motio ' + u.name + ' is ready',

@@ -1,5 +1,6 @@
 import './motio.js';
 import './map.js';
+import './recap-scene.js';
 import { mount } from './dc-runtime.js';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -123,8 +124,20 @@ const takeInvite = (url) => {
   // Friends may already be open (it won't mount again), so tell it there's a new code.
   window.dispatchEvent(new Event('motio:invite'));
 };
-CapApp.addListener('appUrlOpen', (e) => takeInvite(e.url));
-CapApp.getLaunchUrl().then((r) => r && takeInvite(r.url)).catch(() => {});
+// Shared card links (https://…/s/CODE or motio://s/CODE): open the person who shared it (or You, if it's yours).
+const takeShare = (url) => {
+  const m = /(?:\/s\/|\/\/s\/)([a-z0-9]{6,12})/.exec(url || '');
+  if (!m || !window.Motio) return;
+  window.Motio.sharedCard(m[1]).then((r) => {
+    const me = window.Motio.auth.user();
+    if (me && r.user.id === me.id) { if (window.__motioGo) window.__motioGo('you'); return; }
+    window.__motioFriend = r.user.id;
+    if (window.__motioGo) window.__motioGo('friend');
+  }).catch(() => {});
+};
+const takeLink = (url) => { takeInvite(url); takeShare(url); };
+CapApp.addListener('appUrlOpen', (e) => takeLink(e.url));
+CapApp.getLaunchUrl().then((r) => r && takeLink(r.url)).catch(() => {});
 CapApp.addListener('backButton', () => {
   if (!(window.__motioBack && window.__motioBack())) CapApp.minimizeApp();
 }).catch(() => {});

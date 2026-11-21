@@ -17,6 +17,9 @@ const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y
 const alpha = (hex, a) => `rgba(${rgb(hex).join(',')},${a})`;
 
 export const THEMES = {
+  glow: { name: 'Glow', hint: 'Your routes at night', bg: '#0C0B1C', fg: '#FFFFFF', accent: '#F6C343', multi: true },
+  poster: { name: 'Poster', hint: 'Loud and purple', bg: '#4B3FD8', fg: '#FFFFFF', accent: '#F6C343', multi: true },
+  ticket: { name: 'Ticket', hint: 'A travel ticket', bg: '#F6C343', fg: '#1F1D47', accent: '#1F1D47', multi: true },
   editorial: { name: 'Editorial', hint: 'A magazine cover', bg: '#E8E9EC', fg: '#121419', accent: '#2B44D6' },
   mono: { name: 'Mono', hint: 'Black and white', bg: '#000000', fg: '#FFFFFF', accent: '#FFFFFF' },
   gradient: { name: 'Gradient', hint: 'Dusk light', bg: '#1A1240', fg: '#FFFFFF', accent: '#FF8A5B', multi: true },
@@ -94,6 +97,9 @@ function palette(id, o) {
 }
 const veil = 'linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.08) 32%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.82) 100%)';
 const BACK = {
+  glow: (P) => `radial-gradient(80% 55% at 50% 36%, rgba(91,79,224,0.34) 0%, rgba(91,79,224,0) 70%), linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px) 0 0/26px 26px, linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0/26px 26px, ${P.bg}`,
+  poster: (P) => `radial-gradient(90% 50% at 100% 0%, #8C7CF0 0%, rgba(140,124,240,0) 60%), radial-gradient(80% 45% at 0% 100%, #F2766B 0%, rgba(242,118,107,0) 62%), ${P.bg}`,
+  ticket: (P) => `linear-gradient(160deg, ${P.bg} 0%, #F2766B 100%)`,
   editorial: (P) => P.bg,
   mono: (P) => P.bg,
   gradient: (P) => `radial-gradient(110% 60% at 90% 0%, ${alpha(P.accent, 0.95)} 0%, ${alpha(P.accent, 0)} 62%), radial-gradient(90% 55% at 0% 100%, rgba(66,72,255,0.75) 0%, rgba(66,72,255,0) 68%), linear-gradient(170deg, #2A1255 0%, #170F3B 55%, #0C0A26 100%)`,
@@ -175,7 +181,51 @@ const figure = (M, P, o = {}) => (M.routes.length
 const ifs = (v, html) => (v ? html : '');
 
 // ---------------------------------------------------------------- the eight layouts
+// "Open in Motio": the link people add as a sticker in their story points to motio-api.onrender.com.
+const openPill = (bg, fg, dot, dotFg) => `<span style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px 0 5px;border-radius:16px;background:${bg};color:${fg};font:600 11.5px ${SANS}"><span style="width:22px;height:22px;border-radius:11px;background:${dot};display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="${dotFg}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Open in Motio</span>`;
+// The three 4.2 styles keep Instagram's own bars (top and bottom ~74 card px) clear of anything that matters.
+const SAFE = (F) => (F.chrome ? '88px 24px 88px' : '8px 24px 14px');
 const LAYOUT = {
+  glow: (M, P, F) => `<div style="${box(F, SAFE(F))}">
+    <div style="display:flex;justify-content:space-between;align-items:center">${F.chrome ? logo(P, 14) : '<span></span>'}<span style="font:500 11px ${SANS};color:${P.mute}">${esc(M.eyebrow)}</span></div>
+    ${figure(M, P, { lw: 4, glow: true, dot: '#FFFFFF', m: '16px -8px' })}
+    ${ifs(M.title && !M.routes.length, `<div style="font:700 30px/1.05 ${SANS};letter-spacing:-0.03em;margin-bottom:12px">${br(M.title)}</div>`)}
+    ${ifs(M.lead || M.who, `<div style="font:500 12.5px ${SANS};color:${P.mute}">${esc(M.lead || (M.who + ' moved'))}</div>`)}
+    ${heroHTML(M.hero, P, { w: 300, max: 96, unit: 0.3 }).replace(/(<span style="font-size:\d+px;font-weight:600;letter-spacing:0)/, '$1;color:' + P.accent)}
+    ${ifs(M.line, `<div style="font:400 12px/1.5 ${SANS};color:${P.mute};margin-top:8px">${esc(M.line)}</div>`)}
+    ${ifs(M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 3), P, { vs: 17, vw: 700, gap: '0', cell: (i) => (i ? `padding-left:12px;border-left:1px solid ${P.line}` : '') })}</div>`)}
+    ${ifs(F.chrome, `<div style="margin-top:16px">${openPill('rgba(255,255,255,0.12)', '#FFFFFF', P.accent, '#1F1D47')}</div>`)}
+  </div>`,
+
+  poster: (M, P, F) => `<div style="${box(F, SAFE(F))}">
+    <div style="display:flex;justify-content:space-between;align-items:center">${F.chrome ? logo(P, 14) : '<span></span>'}${ifs(M.eyebrow, `<span style="padding:5px 11px;border-radius:12px;background:rgba(255,255,255,0.16);font:600 11px ${SANS}">${esc(M.eyebrow)}</span>`)}</div>
+    ${ifs(M.title || M.lead, `<div style="font:700 ${M.title ? 40 : 22}px/1 ${SANS};letter-spacing:-0.04em;margin-top:22px">${br(M.title || M.lead)}</div>`)}
+    <div style="position:relative;flex:1 1 0;min-height:60px">${M.routes.length ? `<div style="position:absolute;right:-14px;top:6px;width:170px;height:130px">${routeArt(M.routes, 170, 130, { width: 3.5, glow: false, color: null, fluid: true })}</div>` : ''}</div>
+    ${heroHTML(M.hero, P, { w: 320, max: 168, track: -0.06, color: P.accent, lh: 0.82 })}
+    ${ifs(M.line, `<div style="font:600 13px/1.45 ${SANS};margin-top:10px">${esc(M.line)}</div>`)}
+    ${ifs(M.chart, `<div style="margin-top:16px">${chartHTML(M.chart, P, { h: 60, round: 4 })}</div>`)}
+    ${ifs(!M.chart && M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 3), P, { vs: 18 })}</div>`)}
+    ${ifs(F.chrome, `<div style="margin-top:16px">${openPill('#FFFFFF', '#1F1D47', '#1F1D47', '#F6C343')}</div>`)}
+  </div>`,
+
+  ticket: (M, P, F) => {
+    const st = [...(M.hero && M.hero.v ? [{ k: M.lead || 'Covered', v: M.hero.v + (M.hero.u ? ' ' + M.hero.u : '') }] : []), ...M.stats].slice(0, 4);
+    return `<div style="${box(F, F.chrome ? '88px 22px 88px' : '8px 22px 14px')}">
+    <div style="flex:1;display:flex;flex-direction:column;border-radius:22px;background:#FFFDF7;color:#1F1D47;overflow:hidden;box-shadow:0 18px 40px rgba(120,40,20,0.25)">
+      <div style="padding:16px 18px 14px;background:#1F1D47;color:#FFFFFF;display:flex;justify-content:space-between;align-items:flex-end;gap:10px">
+        <div style="min-width:0"><div style="font:500 10px ${SANS};color:#C9C5EC">Motio · ${esc(M.eyebrow || 'ticket')}</div><div style="font:700 19px/1.15 ${SANS};letter-spacing:-0.02em;margin-top:2px">${br(M.title || M.lead || 'My moves')}</div></div>
+        ${ifs(M.who, `<div style="text-align:right;flex-shrink:0"><div style="font:500 10px ${SANS};color:#C9C5EC">Passenger</div><div style="font:700 14px ${SANS}">${esc(M.who)}</div></div>`)}
+      </div>
+      <div style="position:relative;flex:1 1 0;min-height:110px;margin:14px 14px 0;border-radius:14px;background:#F3F2FA;overflow:hidden">${M.routes.length ? `<div style="position:absolute;inset:12px">${routeArt(M.routes, 280, 200, { width: 3.5, glow: false, color: null, fluid: true })}</div>` : ''}</div>
+      <div style="position:relative;height:0;margin:16px 0;border-top:2px dashed #E3E1F3"><span style="position:absolute;left:-12px;top:-13px;width:24px;height:24px;border-radius:12px;background:#F4A15A"></span><span style="position:absolute;right:-12px;top:-13px;width:24px;height:24px;border-radius:12px;background:#F4A15A"></span></div>
+      <div style="padding:0 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">${st.map((x) => `<div style="min-width:0"><div style="font:500 10.5px ${SANS};color:#6B6890">${esc(cap(x.k))}</div><div style="font:700 ${fit(x.v, 130, 18, 0.58)}px/1.2 ${SANS};white-space:nowrap">${esc(x.v)}</div></div>`).join('')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px 16px">
+        <div style="display:flex;gap:2px;height:28px">${Array.from({ length: 22 }, (_, i) => `<span style="width:${i % 3 ? 2 : 4}px;background:#1F1D47"></span>`).join('')}</div>
+        ${F.chrome ? openPill('#1F1D47', '#FFFFFF', '#F6C343', '#1F1D47') : ''}
+      </div>
+    </div>
+  </div>`;
+  },
   // Editorial: a masthead, a serif headline and numeral, stats set as a table.
   editorial: (M, P, F) => `<div style="${box(F, F.chrome ? '20px 24px 20px' : '6px 24px 12px')}">
     ${F.chrome ? `<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid ${P.fg};padding-bottom:9px">

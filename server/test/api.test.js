@@ -520,3 +520,78 @@ test('inbox: cheers, friend requests, new friends and sharing, with ready text',
   assert.equal(inbox[1].who, omarId);
   assert.equal((await call('GET', '/v1/inbox')).status, 401);
 });
+
+test('shared cards: a short link with a public page, and the app can look up who shared it', async () => {
+  clock += 120000;
+  await call('POST', '/v1/auth/register', { name: 'Sara Link', email: 'sara.link@example.com', password: 'Str0ng!pass' });
+  const tok = (await call('POST', '/v1/auth/verify', { email: 'sara.link@example.com', code: lastCode() })).body.token;
+  const r = await call('POST', '/v1/shares', { kind: 'cover', title: 'Your month,\nwrapped', lead: 'Covered', big: '63 km', period: 'November 2026', stats: [{ v: '6h 33m', k: 'on the move' }],
+    routes: [{ color: '#F6C343', points: [[40.4, 49.8], [40.41, 49.82], [40.42, 49.83]] }, { color: 'red; x', points: [[1, 2]] }] }, tok);
+  assert.equal(r.status, 200);
+  assert.match(r.body.url, /^\/s\/[a-z0-9]{8}$/);
+  const page = await fetch(base + r.body.url);
+  assert.equal(page.status, 200);
+  const html = await page.text();
+  assert.match(html, /Sara Link/);
+  assert.match(html, /63 km/);
+  assert.match(html, /intent:\/\/s\//);
+  assert.ok(!html.includes('red; x'), 'bad colours are dropped');
+  const who = await call('GET', '/v1/shares?code=' + r.body.code);
+  assert.equal(who.body.user.name, 'Sara Link');
+  assert.equal((await fetch(base + '/s/nothing00')).status, 404);
+  assert.equal((await call('POST', '/v1/shares', {})).status, 401);
+});
+
+test('feed: post a chosen trip for friends, cheer and comment, private zones cut out, notifications', async () => {
+  clock += 120000;
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Ana Feed', 'ana.feed@example.com'), b = await join('Ben Feed', 'ben.feed@example.com'), c = await join('Cy Feed', 'cy.feed@example.com');
+  await call('POST', '/v1/friends/add', { code: (await call('GET', '/v1/friends', null, b)).body.code }, a);
+  await call('POST', '/v1/friends/respond', { id: (await call('GET', '/v1/friends', null, b)).body.incoming[0].id, accept: true }, b);
+  await call('PATCH', '/v1/me', { settings: { zones: [{ lat: 40.40, lng: 49.80, r: 200 }] } }, a);
+  const pts = [[40.40, 49.80, 1, 5], [40.41, 49.81, 2, 5], [40.42, 49.82, 3, 5]];
+  await call('POST', '/v1/trips/sync', { trips: [{ id: 'f1', start: clock - 3600000, end: clock - 1800000, mode: 'run', distanceM: 5000, steps: 6000, maxSpeed: 4, points: pts, updatedAt: clock }] }, a);
+  assert.equal((await call('POST', '/v1/posts', { tripId: 'nope' }, a)).status, 400);
+  const r = await call('POST', '/v1/posts', { tripId: 'f1', caption: 'Morning 5K' }, a);
+  assert.equal(r.status, 200);
+  let feed = (await call('GET', '/v1/feed', null, b)).body.posts;
+  assert.equal(feed.length, 1);
+  assert.equal(feed[0].caption, 'Morning 5K');
+  assert.deepEqual(feed[0].trip.points, [[40.41, 49.81], [40.42, 49.82]], 'the start inside the private zone is cut');
+  assert.equal((await call('GET', '/v1/feed', null, c)).body.posts.length, 0, 'not friends: nothing');
+  assert.equal((await call('POST', '/v1/posts/cheer', { id: r.body.id }, c)).status, 404);
+  clock += 1000; await call('POST', '/v1/posts/cheer', { id: r.body.id }, b);
+  clock += 1000; await call('POST', '/v1/posts/comment', { id: r.body.id, text: 'Nice pace!' }, b);
+  feed = (await call('GET', '/v1/feed', null, a)).body.posts;
+  assert.equal(feed[0].cheers, 1);
+  assert.equal(feed[0].comments[0].text, 'Nice pace!');
+  const kinds = (await call('GET', '/v1/inbox', null, a)).body.items.map((i) => i.kind);
+  assert.ok(kinds.includes('comment') && kinds.includes('cheer'));
+  await call('POST', '/v1/posts/delete', { id: r.body.id }, b);
+  assert.equal((await call('GET', '/v1/feed', null, a)).body.posts.length, 1, 'only the owner can delete');
+  await call('POST', '/v1/posts/delete', { id: r.body.id }, a);
+  assert.equal((await call('GET', '/v1/feed', null, b)).body.posts.length, 0);
+});
+
+test('monthly challenges: join, progress from trips, a badge when done', async () => {
+  clock += 120000;
+  await call('POST', '/v1/auth/register', { name: 'Mo Month', email: 'mo.month@example.com', password: 'Str0ng!pass' });
+  const tok = (await call('POST', '/v1/auth/verify', { email: 'mo.month@example.com', code: lastCode() })).body.token;
+  let r = (await call('GET', '/v1/monthly?tz=0', null, tok)).body;
+  const walk = r.challenges.find((c) => c.id === 'walk100');
+  assert.equal(walk.joined, false);
+  assert.equal((await call('POST', '/v1/monthly/join', { key: 'bad' }, tok)).status, 400);
+  await call('POST', '/v1/monthly/join', { key: walk.key }, tok);
+  const start = Date.UTC(new Date(clock).getUTCFullYear(), new Date(clock).getUTCMonth(), 1) + 3600000;
+  await call('POST', '/v1/trips/sync', { trips: [{ id: 'm1', start, end: start + 3600000 * 20, mode: 'walk', distanceM: 101000, steps: 0, maxSpeed: 1.5, points: [], updatedAt: clock }] }, tok);
+  r = (await call('GET', '/v1/monthly?tz=0', null, tok)).body;
+  const w = r.challenges.find((c) => c.id === 'walk100');
+  assert.equal(w.have, 101);
+  assert.equal(w.done, true);
+  assert.equal(w.people, 1);
+  assert.equal(r.badges[0].id, 'walk100');
+  assert.equal(r.challenges.find((c) => c.id === 'active30').done, false, 'not joined: no badge');
+});

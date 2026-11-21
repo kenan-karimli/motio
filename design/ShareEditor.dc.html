@@ -139,8 +139,9 @@ class Component extends DCLogic {
     K.saveLook(look);
     if (how === 'copy') { M.shareImage('', 'copy', job.text).then((m) => this.close(m)); return; }
     this.setState({ busy: true });
-    M.storyImage(job.kind, job.data, look)
-      .then((img) => M.shareImage(img, how, job.text))
+    // The share text carries a short link to this card ("Open in Motio").
+    Promise.all([M.storyImage(job.kind, job.data, look), M.shareLink ? M.shareLink(job.kind, job.data) : null])
+      .then(([img, link]) => M.shareImage(img, how, link ? (job.text || 'Tracked with Motio.') + '\n' + link : job.text))
       .then((m) => { this.setState({ busy: false }); this.close(m); })
       .catch((e) => { this.setState({ busy: false }); if (!/cancel/i.test(String(e && e.message))) this.setState({ note: 'Couldn’t share right now. Try again.' }); });
   }

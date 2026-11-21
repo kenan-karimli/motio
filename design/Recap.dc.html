@@ -15,6 +15,7 @@ html,body{background:#1F1D47}
 a{color:inherit}a:hover{opacity:.85}
 button{font:inherit;cursor:pointer}
 @keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioFill{from{width:0}to{width:100%}}
 @keyframes motioSwap{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
 button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
 button:active,a:active{transform:scale(0.96)}
@@ -40,11 +41,11 @@ button:active,a:active{transform:scale(0.96)}
 <div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
 
   <div role="group" aria-roledescription="story" aria-label="{{ storyLabel }}" style="position: absolute; inset: 0; overflow: hidden">
-    <div key="{{ cardKey }}" ref="{{ paintCard }}" style="position: absolute; left: 0; top: 0; width: 360px; transform-origin: 0 0; animation: motioSwap 360ms ease-out"></div>
+    <div ref="{{ sceneRef }}" style="position: absolute; inset: 0"></div>
   </div>
 
   <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
-    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.28); overflow: hidden"><span style="display: block; height: 100%; width: {{ b.w }}; border-radius: 2px; background: #FFFFFF; animation: {{ b.anim }}; animation-play-state: {{ b.play }}"></span></span></sc-for>
   </div>
 
   <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
@@ -128,7 +129,24 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     window.removeEventListener('storage', this.onStorage);
+    clearTimeout(this.adv); clearTimeout(this.showT);
+    if (this.scene) this.scene.destroy();
   }
+  // Stories move on by themselves (like Instagram); holding a finger on the screen pauses them.
+  autoNext(pos, last) {
+    clearTimeout(this.adv);
+    this.left = this.DUR; this.advAt = Date.now(); this.advPos = pos;
+    if (!last) this.adv = setTimeout(() => this.go(pos + 1), this.left);
+  }
+  pause() { if (this.paused) return; clearTimeout(this.adv); this.left = Math.max(400, this.left - (Date.now() - this.advAt)); this.paused = true; this.setState({ paused: true }); }
+  resume() {
+    if (!this.paused) return;
+    this.paused = false; this.advAt = Date.now();
+    const v = this.renderVals();
+    if (!v.isLast && !(this.state && this.state.share)) this.adv = setTimeout(() => this.go(this.advPos + 1), this.left);
+    this.setState({ paused: false });
+  }
+  go(i) { this.setState({ i }); }
   // Every number in the story, for one day, week or month. Without window.Motio (the design canvas) it's the sample week.
   recapData() {
     const SAMPLE_MODES = [['Drive', 'DRIVING', '214 km', '214', 52, '#F6C343', '#E0A92C', '6h 30m', 91], ['Bike', 'CYCLING', '82 km', '82', 20, '#6E8CF7', '#6E8CF7', '4h 20m', 61], ['Transit', 'TRANSIT', '65 km', '65', 16, '#B57BE0', '#9B5FD0', '2h 36m', 36], ['Walk', 'WALKING', '36 km', '36', 9, '#3DBF5C', '#2FA84D', '7h 09m', 100], ['Run', 'RUNNING', '15 km', '15', 3, '#F2766B', '#F2766B', '1h 05m', 15]];
@@ -214,6 +232,8 @@ class Component extends DCLogic {
     const tmax = Math.max(1, ...r.modes.map((x) => x.ms));
     const byTime = r.modes.map((x) => ({ label: x.label, LABEL: x.name.toUpperCase(), time: M.fmtMin(x.ms / M.MIN), rel: Math.round(x.ms / tmax * 100) + '%', color: x.color }));
     return {
+      // For the animated recap: the longest trip (the map flies to it) and minutes per hour of each day (heatmap).
+      longestId: longest ? longest.id : null, heat: days.slice(-7).map((d) => ({ label: dowS(d.from), hours: d.hourly.map((v) => Math.round(v)) })),
       slidesOk: [true, r.m > 50, r.min >= 1, !!longest && r.trips.length > 0, true],
       hourly: r.hourly.map((v) => Math.round(v)), routes: M.route(from, to), byDistNum: r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, value: d1(x.m) + ' ' + unit, pct: Math.round(x.m / Math.max(1, r.m) * 100), color: x.color })),
       head: (kind === 'day' ? 'Day' : kind === 'week' ? 'Week' : 'Month') + ', wrapped · ' + span,
@@ -250,6 +270,7 @@ class Component extends DCLogic {
   // or on a flick; a short drag springs back. Taps still go to the left/right halves as before.
   storyDown(e) {
     if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (!(e.target.closest && e.target.closest('section[aria-label], [role=dialog], a[aria-label="Close recap"]'))) this.holdT = setTimeout(() => this.pause(), 180);
     if (e.target.closest && e.target.closest('section[aria-label], [role=dialog]')) return;
     this.sd = { x: e.clientX, y: e.clientY, el: e.currentTarget, id: e.pointerId, dy: 0, t: e.timeStamp, on: false };
   }
@@ -276,6 +297,9 @@ class Component extends DCLogic {
     d.el.style.transform = 'translateY(' + d.dy + 'px)';
   }
   storyUp(e) {
+    clearTimeout(this.holdT);
+    // A hold paused the story: letting go carries on, and isn't a tap.
+    if (this.paused) { this.resume(); this.swipedAt = Date.now(); }
     const d = this.sd;
     this.sd = null;
     if (d && d.side) {
@@ -325,20 +349,27 @@ class Component extends DCLogic {
     if (this.seed == null) this.seed = Math.floor(Math.random() * 8);
     const K = window.Motio && window.Motio.storyImage && window.Motio.storyImage.kit;
     const job = this.storyJob(R0), look = K ? K.slideLook(job.i, this.seed) : null;
-    const L = K ? K.storyChrome(look) : { fg: 'rgba(255,255,255,1)', bg: 'rgba(31,29,71,1)', chip: 'rgba(255,255,255,0.12)', on: 'rgba(255,255,255,1)', off: 'rgba(255,255,255,0.28)' };
+    // The animated scene plays the slide once per change, after this render; the timer moves the story on.
+    this.DUR = this.DUR || 7000;
+    if (this.scene && this.shownPos !== order[pos]) {
+      const dir = this.shownPos == null || order[pos] > this.shownPos ? 1 : -1;
+      this.shownPos = order[pos];
+      clearTimeout(this.showT);
+      this.showT = setTimeout(() => { this.scene.show(order[pos], R0, dir); this.autoNext(pos, pos === order.length - 1); }, 0);
+    } else if (!this.scene) setTimeout(() => this.scene && this.shownPos == null && this.forceUpdate(), 0);
+    const L = { fg: '#FFFFFF', bg: '#1F1D47', chip: 'rgba(255,255,255,0.16)', on: '#FFFFFF', off: 'rgba(255,255,255,0.28)' };
     return {
       sDown: (e) => this.storyDown(e), sMove: (e) => this.storyMove(e), sUp: (e) => this.storyUp(e),
       rootAnim: this.state && this.state.leaving ? 'motioSoftDown 200ms ease-in forwards' : this.entryAnim,
       shareOpen: !!s.share,
-      openShare: () => this.setState({ share: true }),
+      openShare: () => { clearTimeout(this.adv); this.left = Math.max(400, this.left - (Date.now() - this.advAt)); this.setState({ share: true }); },
       shareJob: { ...job, theme: look && look.theme },
-      closeShare: (msg) => { this.setState({ share: false }); if (msg) this.showToast(msg); else this.forceUpdate(); },
-      paintCard: (el) => { if (el && K) K.paintStory(el, job.kind, job.data, look); },
-      cardKey: job.i + (look ? look.theme : ''),
+      closeShare: (msg) => { this.setState({ share: false }); this.advAt = Date.now(); if (pos !== order.length - 1) this.adv = setTimeout(() => this.go(pos + 1), this.left); if (msg) this.showToast(msg); },
+      sceneRef: (el) => { if (el && !this.scene && window.MotioRecap) { this.scene = window.MotioRecap.mount(el); this.shownPos = null; } },
       hasToast: !!s.toast, toast: s.toast || '',
       emb, standalone: !emb, LK: { k0: lk('back', 'Recaps.dc.html'), k1: lk('back', 'Recaps.dc.html') },
       L, R: R0,
-      bars: order.map((k, n) => ({ bg: n <= pos ? L.on : L.off })),
+      bars: order.map((k, n) => ({ w: n < pos ? '100%' : '0%', anim: n === pos ? (n === order.length - 1 ? 'motioFill 900ms ease-out forwards' : 'motioFill ' + this.DUR + 'ms linear forwards') : 'none', play: s.paused || s.share ? 'paused' : 'running' })),
       storyNum: pos + 1, storyCount: order.length,
       storyLabel: 'Story ' + (pos + 1) + ' of ' + order.length,
       // The last tap ends the weekly recap and returns to the Recaps hub; the monthly recap is its own story.

@@ -170,6 +170,8 @@ button,a{font:inherit;cursor:pointer}
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   componentDidMount() {
+    this.onFriend = () => this.forceUpdate();
+    window.addEventListener('motio:friend', this.onFriend);
     const M = window.Motio;
     if (!M) return;
     if (this.fid == null) this.fid = window.__motioFriend || null;
@@ -188,7 +190,7 @@ class Component extends DCLogic {
       .catch((e) => this.setState({ loading: false, perr: (e && e.message) || 'Couldn’t load this profile.' }));
   }
   showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
-  componentWillUnmount() { clearTimeout(this.toastT); window.removeEventListener('motio:refresh', this.onRefresh); }
+  componentWillUnmount() { window.removeEventListener('motio:friend', this.onFriend); clearTimeout(this.toastT); window.removeEventListener('motio:refresh', this.onRefresh); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -199,6 +201,11 @@ class Component extends DCLogic {
     const s = this.state || {};
     const M = window.Motio;
     if (this.fid === undefined) this.fid = window.__motioFriend || null;
+    // The page may already be open lower in the stack when another person is tapped: switch to them.
+    if (window.__motioFriend && this.fid && window.__motioFriend !== this.fid && !this.switching) {
+      this.switching = true;
+      setTimeout(() => { this.fid = window.__motioFriend; this.switching = false; this.setState({ profile: null, share: null, loading: true, confirmRemove: false, cheered: false }); this.loadProfile(); this.loadSharing(); }, 0);
+    }
     const DAY = 86400000, now = Date.now();
     const sample = {
       board: { people: [{ id: 1, name: 'You', me: true, activeMin: 412, km: 74, trips: 21, activeDays: 6, days: [50, 62, 95, 40, 70, 20, 75] }] },
