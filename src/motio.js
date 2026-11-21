@@ -1071,6 +1071,12 @@ export async function shareLink(kind, d = {}) {
     period: d.kicker || '', stats: (d.stats || d.grid || []).map((s) => ({ v: s.v, k: s.k })), routes: (d.routes || []).map((r) => ({ color: r.color, points: (r.points || []).map((p) => [p[0], p[1]]) })) };
   try { const r = await Promise.race([api('POST', '/v1/shares', card), new Promise((ok) => setTimeout(() => ok(null), 4000))]); return r ? API + r.url : null; } catch { return null; }
 }
+// Shares plain text (a link stays tappable in every app); falls back to copying.
+export async function shareText(text) {
+  if (native) return Share.share({ text });
+  if (navigator.share) return navigator.share({ text });
+  await navigator.clipboard.writeText(text);
+}
 export const sharedCard = (code) => api('GET', '/v1/shares?code=' + encodeURIComponent(code));
 export async function shareImage(dataUrl, how = 'share', text = 'Tracked with Motio.') {
   if (how === 'copy') {
@@ -1620,7 +1626,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

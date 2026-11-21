@@ -42,12 +42,14 @@ input,textarea{-webkit-user-select:text;user-select:text}
 @keyframes introDraw{to{stroke-dashoffset:0}}
 @keyframes introWord{to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#intro .mark path,#intro .word{animation-duration:1ms;animation-delay:0ms}}
+@keyframes trailDraw{to{stroke-dashoffset:0}}@keyframes trailHead{to{offset-distance:100%}}@keyframes trailFade{to{opacity:0}}
+@media (prefers-reduced-motion: reduce){#intro *{animation:none!important;stroke-dashoffset:0!important}}
 </style>
 </head>
 <body>
 <div id="bar-top"></div><div id="bar-bot"></div>
 <div id="intro" aria-hidden="true"><div style="display:flex;align-items:center;gap:12px">
-  <svg class="mark" width="46" height="46" viewBox="0 0 30 30"><path d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4" stroke-linecap="round"/></svg>
+  <svg class="mark" width="46" height="46" viewBox="0 0 30 30" style="overflow:visible"><path pathLength="1" d="M3 22c5 0 5-14 12-14s5 14 12 14" fill="none" stroke="#F6C343" stroke-width="4" stroke-linecap="round" style="stroke-dasharray:1;stroke-dashoffset:1;animation:trailDraw 900ms cubic-bezier(.65,0,.35,1) 120ms forwards"/><circle r="3.2" fill="#FFFFFF" style="offset-path:path('M3 22c5 0 5-14 12-14s5 14 12 14');offset-distance:0%;animation:trailHead 900ms cubic-bezier(.65,0,.35,1) 120ms forwards,trailFade 300ms ease 1050ms forwards;filter:drop-shadow(0 0 4px #F6C343)"/></svg>
   <span class="word" style="color:#FFFFFF;font:600 34px/1 'Poppins',system-ui,sans-serif;letter-spacing:-0.5px">motio</span>
 </div></div>
 <div id="frame"><div id="viewport"><div id="app"></div></div></div>

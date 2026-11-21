@@ -182,7 +182,8 @@ const ifs = (v, html) => (v ? html : '');
 
 // ---------------------------------------------------------------- the eight layouts
 // "Open in Motio": the link people add as a sticker in their story points to motio-api.onrender.com.
-const openPill = (bg, fg, dot, dotFg) => `<span style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px 0 5px;border-radius:16px;background:${bg};color:${fg};font:600 11.5px ${SANS}"><span style="width:22px;height:22px;border-radius:11px;background:${dot};display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="${dotFg}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Open in Motio</span>`;
+// The card's short link, printed (an image can't be tapped): people type it, or tap it where the text is shared.
+const openPill = (bg, fg, dot, dotFg, link = 'preview') => `<span style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px 0 5px;border-radius:16px;background:${bg};color:${fg};font:600 11.5px ${SANS}"><span style="width:22px;height:22px;border-radius:11px;background:${dot};display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="${dotFg}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>${link && link !== 'preview' ? esc(link.replace(/^https?:\/\//, '')) : 'Open in Motio'}</span></span>`;
 // The three 4.2 styles keep Instagram's own bars (top and bottom ~74 card px) clear of anything that matters.
 const SAFE = (F) => (F.chrome ? '88px 24px 88px' : '8px 24px 14px');
 const LAYOUT = {
@@ -194,7 +195,7 @@ const LAYOUT = {
     ${heroHTML(M.hero, P, { w: 300, max: 96, unit: 0.3 }).replace(/(<span style="font-size:\d+px;font-weight:600;letter-spacing:0)/, '$1;color:' + P.accent)}
     ${ifs(M.line, `<div style="font:400 12px/1.5 ${SANS};color:${P.mute};margin-top:8px">${esc(M.line)}</div>`)}
     ${ifs(M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 3), P, { vs: 17, vw: 700, gap: '0', cell: (i) => (i ? `padding-left:12px;border-left:1px solid ${P.line}` : '') })}</div>`)}
-    ${ifs(F.chrome, `<div style="margin-top:16px">${openPill('rgba(255,255,255,0.12)', '#FFFFFF', P.accent, '#1F1D47')}</div>`)}
+    ${ifs(F.chrome && M.link, `<div style="margin-top:16px">${openPill('rgba(255,255,255,0.12)', '#FFFFFF', P.accent, '#1F1D47', M.link)}</div>`)}
   </div>`,
 
   poster: (M, P, F) => `<div style="${box(F, SAFE(F))}">
@@ -205,7 +206,7 @@ const LAYOUT = {
     ${ifs(M.line, `<div style="font:600 13px/1.45 ${SANS};margin-top:10px">${esc(M.line)}</div>`)}
     ${ifs(M.chart, `<div style="margin-top:16px">${chartHTML(M.chart, P, { h: 60, round: 4 })}</div>`)}
     ${ifs(!M.chart && M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 3), P, { vs: 18 })}</div>`)}
-    ${ifs(F.chrome, `<div style="margin-top:16px">${openPill('#FFFFFF', '#1F1D47', '#1F1D47', '#F6C343')}</div>`)}
+    ${ifs(F.chrome && M.link, `<div style="margin-top:16px">${openPill('#FFFFFF', '#1F1D47', '#1F1D47', '#F6C343', M.link)}</div>`)}
   </div>`,
 
   ticket: (M, P, F) => {
@@ -221,7 +222,7 @@ const LAYOUT = {
       <div style="padding:0 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">${st.map((x) => `<div style="min-width:0"><div style="font:500 10.5px ${SANS};color:#6B6890">${esc(cap(x.k))}</div><div style="font:700 ${fit(x.v, 130, 18, 0.58)}px/1.2 ${SANS};white-space:nowrap">${esc(x.v)}</div></div>`).join('')}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px 16px">
         <div style="display:flex;gap:2px;height:28px">${Array.from({ length: 22 }, (_, i) => `<span style="width:${i % 3 ? 2 : 4}px;background:#1F1D47"></span>`).join('')}</div>
-        ${F.chrome ? openPill('#1F1D47', '#FFFFFF', '#F6C343', '#1F1D47') : ''}
+        ${F.chrome && M.link ? openPill('#1F1D47', '#FFFFFF', '#F6C343', '#1F1D47', M.link) : ''}
       </div>
     </div>
   </div>`;
@@ -394,7 +395,8 @@ export function storyHTML(kind, data, o = {}) {
   if (hide.has('chart')) M.chart = null;
   if (o.showMap === false) M.routes = [];
   M.who = o.showName === false ? '' : o.name ?? who();
-  if (o.inApp) M.eyebrow = ''; // the recap's own chip already says which period this is
+  if (o.inApp || hide.has('date')) M.eyebrow = ''; // the recap's own chip already says which period this is
+  M.link = hide.has('link') ? '' : o.link === undefined ? 'preview' : o.link || '';
   const H = o.h || 640;
   const F = { W: 360, H, top: o.inApp ? 74 : 0, bottom: o.inApp ? 78 : 0, chrome: !o.inApp };
   return `<div style="width:360px;height:${H}px;position:relative;overflow:hidden;box-sizing:border-box;background:${backdrop(P)};color:${P.fg};font-family:${SANS};text-align:left;-webkit-font-smoothing:antialiased">${LAYOUT[id](M, P, F)}</div>`;

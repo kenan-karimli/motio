@@ -42,6 +42,17 @@ body[data-sheet] .motio-upd{display:none}
       <div ref="{{ pagerRef }}" onpointerdown="{{ onDown }}" onpointermove="{{ onMove }}" onpointerup="{{ onUp }}" onpointercancel="{{ onUp }}" style="position: absolute; inset: 0; touch-action: pan-y; overflow: hidden">
         <div data-page="tab" data-enter="{{ L0.enter }}" aria-hidden="{{ L0.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L0.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L0.pe }}">
           <dc-import name="Main" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+  <sc-if value="{{ upd.show }}" hint-placeholder-val="{{ false }}">
+    <div class="motio-upd" style="position: absolute; left: 20px; right: 20px; bottom: 100px; z-index: 9; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; box-shadow: 0 12px 28px rgba(20,14,70,0.3); overflow: hidden; animation: motioUpdIn 420ms cubic-bezier(0.22, 1, 0.36, 1)">
+      <button type="button" onClick="{{ upd.open }}" aria-label="{{ upd.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+        <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 12px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ upd.title }}</span><span style="font-size: 11px; color: #C9C5EC">{{ upd.sub }}</span></span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+      </button>
+      <button type="button" onClick="{{ upd.later }}" aria-label="Hide until next time" style="width: 30px; height: 30px; flex-shrink: 0; border: 0; border-radius: 15px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <sc-if value="{{ upd.busy }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; left: 0; bottom: 0; height: 3px; width: {{ upd.w }}; background: #F6C343; transition: width 300ms ease"></span></sc-if>
+    </div>
+  </sc-if>
         </div>
         <div data-page="tab" data-enter="{{ L1.enter }}" aria-hidden="{{ L1.hidden }}" style="position: absolute; inset: 0; transform: translateX(calc({{ L1.off }} * 100% + var(--dx, 0px))); transition: transform var(--dur, 380ms) cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; pointer-events: {{ L1.pe }}">
           <dc-import name="Breakdown" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -312,17 +323,6 @@ body[data-sheet] .motio-upd{display:none}
   <sc-if value="{{ O.map.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.map.kind }}" style="position: absolute; inset: 0; z-index: {{ O.map.z }}; animation: {{ O.map.anim }}; box-shadow: {{ O.map.shadow }}">
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
-    </div>
-  </sc-if>
-  <sc-if value="{{ upd.show }}" hint-placeholder-val="{{ false }}">
-    <div class="motio-upd" style="position: absolute; left: 20px; right: 20px; bottom: 100px; z-index: 9; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; box-shadow: 0 12px 28px rgba(20,14,70,0.3); overflow: hidden; animation: motioUpdIn 420ms cubic-bezier(0.22, 1, 0.36, 1)">
-      <button type="button" onClick="{{ upd.open }}" aria-label="{{ upd.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
-        <span aria-hidden="true" style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 12px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span>
-        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ upd.title }}</span><span style="font-size: 11px; color: #C9C5EC">{{ upd.sub }}</span></span>
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9C5EC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
-      </button>
-      <button type="button" onClick="{{ upd.later }}" aria-label="Hide until next time" style="width: 30px; height: 30px; flex-shrink: 0; border: 0; border-radius: 15px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-      <sc-if value="{{ upd.busy }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; left: 0; bottom: 0; height: 3px; width: {{ upd.w }}; background: #F6C343; transition: width 300ms ease"></span></sc-if>
     </div>
   </sc-if>
 </div>

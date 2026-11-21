@@ -22,21 +22,24 @@ button:focus-visible,label:focus-within{outline:2px solid #5B4FE0;outline-offset
 </style>
 </helmet>
 <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
-  <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.55); cursor: default; animation: {{ scrimAnim }}"></button>
-  <section aria-label="Share image" style="position: relative; max-height: 96%; border-radius: 28px 28px 0 0; background: #FFFFFF; display: flex; flex-direction: column; animation: {{ sheetAnim }}">
-    <span aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC; margin-top: 10px"></span>
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 0 20px">
-      <h2 style="margin: 0; font-size: 17px; font-weight: 600">Share image</h2>
+
+  <section aria-label="Share image" style="position: relative; height: 100%; background: #F6F5FC; display: flex; flex-direction: column; animation: {{ sheetAnim }}">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 0 20px">
+      <h2 style="margin: 0; font-size: 24px; font-weight: 700">Share</h2>
       <button onClick="{{ close }}" aria-label="Close" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
     </div>
 
     <div style="display: flex; justify-content: center; padding: 4px 0 14px">
-      <div aria-label="{{ previewLabel }}" role="img" style="position: relative; width: 158px; height: 280px; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 28px rgba(31,29,71,0.28)">
-        <div ref="{{ paintPreview }}" style="position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform: scale(0.4389); transform-origin: 0 0; pointer-events: none"></div>
+      <div aria-label="{{ previewLabel }}" role="img" style="position: relative; width: 207px; height: 368px; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 28px rgba(31,29,71,0.28)">
+        <div ref="{{ paintPreview }}" style="position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform: scale(0.575); transform-origin: 0 0; pointer-events: none; animation: motioCardIn 300ms ease"></div>
       </div>
     </div>
 
     <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 0 6px; display: flex; flex-direction: column; gap: 16px">
+      <div role="tablist" aria-label="Customise" style="margin: 0 20px; display: flex; padding: 4px; border-radius: 18px; background: #FFFFFF">
+        <sc-for list="{{ tabs }}" as="g" hint-placeholder-count="4"><button type="button" role="tab" aria-selected="{{ g.on }}" onClick="{{ g.pick }}" style="flex: 1; height: 36px; border: 0; border-radius: 14px; background: {{ g.bg }}; color: {{ g.fg }}; font-size: 13px; font-weight: 600; transition: background-color 200ms ease, color 200ms ease">{{ g.label }}</button></sc-for>
+      </div>
+      <sc-if value="{{ tabStyle }}" hint-placeholder-val="{{ true }}">
       <div role="radiogroup" aria-label="Style" style="display: flex; flex-direction: column; gap: 8px">
         <span style="padding: 0 20px; font-size: 13px; font-weight: 600">Style</span>
         <div style="display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 4px 20px 4px">
@@ -51,6 +54,8 @@ button:focus-visible,label:focus-within{outline:2px solid #5B4FE0;outline-offset
         </div>
       </div>
 
+      </sc-if>
+      <sc-if value="{{ tabColour }}" hint-placeholder-val="{{ false }}">
       <div role="radiogroup" aria-label="Colour" style="display: flex; flex-direction: column; gap: 8px">
         <span style="padding: 0 20px; font-size: 13px; font-weight: 600">Colour</span>
         <div style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 4px 20px">
@@ -60,6 +65,8 @@ button:focus-visible,label:focus-within{outline:2px solid #5B4FE0;outline-offset
         </div>
       </div>
 
+      </sc-if>
+      <sc-if value="{{ tabShow }}" hint-placeholder-val="{{ false }}">
       <div aria-label="What the image shows" role="group" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
         <span style="font-size: 13px; font-weight: 600">Show</span>
         <div style="display: flex; flex-wrap: wrap; gap: 8px">
@@ -71,6 +78,8 @@ button:focus-visible,label:focus-within{outline:2px solid #5B4FE0;outline-offset
         </div>
       </div>
 
+      </sc-if>
+      <sc-if value="{{ tabPhoto }}" hint-placeholder-val="{{ false }}">
       <div style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
         <span style="font-size: 13px; font-weight: 600">Photo</span>
         <div style="display: flex; gap: 8px">
@@ -84,9 +93,11 @@ button:focus-visible,label:focus-within{outline:2px solid #5B4FE0;outline-offset
         </div>
         <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #C2412F">{{ note }}</span></sc-if>
       </div>
+      </sc-if>
     </div>
 
-    <div style="padding: 12px 16px 24px; border-top: 1px solid #EEF0F6; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px">
+    <button type="button" onClick="{{ shareLink }}" disabled="{{ busy }}" style="margin: 0 20px 10px; height: 48px; border: 0; border-radius: 24px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6C343" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>Share link (opens in Motio)</button>
+    <div style="padding: 12px 16px 24px; background: #FFFFFF; border-radius: 24px 24px 0 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px">
       <sc-for list="{{ targets }}" as="t" hint-placeholder-count="6">
         <button onClick="{{ t.pick }}" disabled="{{ busy }}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 10.5px; font-weight: 600">
           <span style="width: 48px; height: 48px; border-radius: 24px; background: {{ t.color }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="{{ t.ink }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.glyph }}"></path></svg></span>
@@ -140,8 +151,10 @@ class Component extends DCLogic {
     if (how === 'copy') { M.shareImage('', 'copy', job.text).then((m) => this.close(m)); return; }
     this.setState({ busy: true });
     // The share text carries a short link to this card ("Open in Motio").
-    Promise.all([M.storyImage(job.kind, job.data, look), M.shareLink ? M.shareLink(job.kind, job.data) : null])
-      .then(([img, link]) => M.shareImage(img, how, link ? (job.text || 'Tracked with Motio.') + '\n' + link : job.text))
+    // The short link first: it's printed on the image (an image can't be tapped) and goes in the text.
+    Promise.resolve(M.shareLink ? M.shareLink(job.kind, job.data) : null)
+      .then((link) => (how === 'link' ? (link ? M.shareText((job.text || 'My moves on Motio') + '\n' + link).then(() => null) : Promise.reject(new Error('Can’t make a link while offline')))
+        : M.storyImage(job.kind, job.data, { ...look, link }).then((img) => M.shareImage(img, how, link ? (job.text || 'Tracked with Motio.') + '\n' + link : job.text))))
       .then((m) => { this.setState({ busy: false }); this.close(m); })
       .catch((e) => { this.setState({ busy: false }); if (!/cancel/i.test(String(e && e.message))) this.setState({ note: 'Couldn’t share right now. Try again.' }); });
   }
@@ -156,9 +169,15 @@ class Component extends DCLogic {
     const hasRoute = !!(job.data && job.data.routes && job.data.routes.some((r) => r.points && r.points.length > 1));
     if (hasRoute) parts.push({ label: 'Map', on: look.showMap, flip: () => this.set({ showMap: !look.showMap }) });
     parts.push({ label: 'Name', on: look.showName, flip: () => this.set({ showName: !look.showName }) });
+    parts.push({ label: 'Date', on: !look.hide.includes('date'), flip: () => this.set({ hide: look.hide.includes('date') ? look.hide.filter((k) => k !== 'date') : [...look.hide, 'date'] }) });
+    parts.push({ label: 'Link', on: !look.hide.includes('link'), flip: () => this.set({ hide: look.hide.includes('link') ? look.hide.filter((k) => k !== 'link') : [...look.hide, 'link'] }) });
+    const tab = s.tab || 'style';
     const glyphs = { story: 'M4 4h16v16H4zM12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8', chat: 'M4 5h16v11H9l-5 4z', post: 'M5 5l14 14M19 5L5 19', sms: 'M4 6h16v10H8l-4 4z', save: 'M12 4v11M7 10l5 5 5-5M5 20h14', copy: 'M9 9h11v11H9zM5 15V4h11' };
     return {
       close: () => this.close(null),
+      tabs: [['style', 'Style'], ['colour', 'Colour'], ['show', 'Show'], ['photo', 'Photo']].map(([k, label]) => ({ label, on: tab === k ? 'true' : 'false', bg: tab === k ? '#1F1D47' : 'transparent', fg: tab === k ? '#FFFFFF' : '#6B6890', pick: () => this.setState({ tab: k }) })),
+      tabStyle: tab === 'style', tabColour: tab === 'colour', tabShow: tab === 'show', tabPhoto: tab === 'photo',
+      shareLink: () => this.share('link'),
       sheetAnim: s.closing ? 'motioShDown 260ms ease-in forwards' : 'motioShUp 380ms cubic-bezier(0.22, 1, 0.36, 1)',
       scrimAnim: s.closing ? 'motioShFadeOut 260ms ease-in forwards' : 'motioShFade 240ms ease-out',
       previewLabel: 'Preview: ' + THEMES[look.theme].name + ' style',

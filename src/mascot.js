@@ -9,7 +9,10 @@ const CSS = `
 .mfx .ear{transform-origin:50% 100%;animation:mfxEar 4s ease-in-out infinite}
 .mfx .ear.b{animation-delay:.35s}
 .mfx .eye{transform-origin:50% 50%;animation:mfxBlink 4.5s infinite}
-.mfx .whole{transform-origin:50% 100%;animation:mfxBreathe 3.2s ease-in-out infinite}
+.mfx{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mfx .whole{transform-origin:50% 100%;animation:mfxBreathe 3.2s ease-in-out infinite,mfxLook 9s ease-in-out infinite}
+.mfx .say{position:absolute;right:92%;top:18%;white-space:nowrap;padding:7px 12px;border-radius:14px;background:#1F1D47;color:#fff;font:600 12px Poppins,system-ui,sans-serif;line-height:1.2;box-shadow:0 8px 20px rgba(31,29,71,.25);animation:mfxSay 2.6s cubic-bezier(.22,1,.36,1) forwards;pointer-events:none;z-index:5}
+.mfx .say::after{content:'';position:absolute;left:100%;top:50%;margin-top:-5px;border:5px solid transparent;border-left-color:#1F1D47}
 .mfx.cheer .whole{animation:mfxLeap 1.1s cubic-bezier(.34,1.4,.64,1) infinite}
 .mfx.cheer .tail{animation-duration:.5s}
 .mfx.cheer .shadow{transform-origin:50% 50%;animation:mfxShadow 1.1s cubic-bezier(.34,1.4,.64,1) infinite}
@@ -26,6 +29,8 @@ const CSS = `
 @keyframes mfxLeap{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-20%) rotate(-6deg)}}
 @keyframes mfxShadow{0%,100%{transform:scale(1);opacity:.2}40%{transform:scale(.6);opacity:.08}}
 @keyframes mfxZ{0%{transform:translate(0,0);opacity:0}30%{opacity:1}100%{transform:translate(10px,-20px);opacity:0}}
+@keyframes mfxLook{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-5deg)}84%{transform:rotate(4deg)}90%{transform:rotate(0)}}
+@keyframes mfxSay{0%{opacity:0;transform:translateX(8px) scale(.9)}12%,82%{opacity:1;transform:none}100%{opacity:0;transform:translateX(-4px)}}
 @keyframes mfxIn{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
 .mtr .ribbon{stroke-dasharray:1;stroke-dashoffset:1;animation:mtrDraw 3.2s cubic-bezier(.65,0,.35,1) infinite}
 .mtr .head{offset-rotate:0deg;animation:mtrMove 3.2s cubic-bezier(.65,0,.35,1) infinite}
@@ -67,9 +72,30 @@ const trail = (shape = 'wave', size = 120, { once = false, color = null } = {}) 
     <g class="head" style="offset-path: path('${d}')"><circle class="glow" r="12" fill="#F6C343" opacity=".3"/><circle r="7" fill="#F6C343"/></g></svg></span>`;
 };
 if (!document.getElementById('mfx-css')) { const st = document.createElement('style'); st.id = 'mfx-css'; st.textContent = CSS; document.head.appendChild(st); }
-const painter = (key, html) => (el) => { if (el && el.__m !== key) { el.innerHTML = html(); el.__m = key; } };
+const painter = (key, html, tap) => (el) => { if (el && el.__m !== key) { el.innerHTML = html(); el.__m = key; if (tap) el.onclick = () => tap(el); } };
+// A tap: the fox jumps and says one thing worth knowing about your day.
+function line() {
+  const M = window.Motio;
+  if (!M) return 'Let’s move!';
+  const t = M.today(), g = M.goals(), left = Math.round(g.goal - t.min), opts = [];
+  if (t.min < 1) opts.push('Ready when you are!', 'A short walk counts too');
+  else if (left > 0) opts.push(left + ' min to your goal');
+  else opts.push('Goal done today!');
+  if (t.steps) opts.push(M.fmtNum(t.steps) + ' steps today');
+  if (g.active > 1) opts.push(g.active + ' days in a row!');
+  return opts[Math.floor(Math.random() * opts.length)];
+}
+function tapFox(el) {
+  const f = el.querySelector('.mfx');
+  if (!f || f.__busy) return;
+  f.__busy = true;
+  const was = f.className;
+  f.className = 'mfx cheer';
+  const b = document.createElement('span'); b.className = 'say'; b.textContent = line(); f.appendChild(b);
+  setTimeout(() => { f.className = was; b.remove(); f.__busy = false; }, 2600);
+}
 window.MotioMascot = {
   foxHTML: fox, trailHTML: trail,
-  fox: (mood = 'idle', size = 110) => painter('fox' + mood + size, () => fox(mood, size)),
+  fox: (mood = 'idle', size = 110) => painter('fox' + mood + size, () => fox(mood, size), tapFox),
   trail: (shape = 'wave', size = 120, o = {}) => painter('tr' + shape + size + !!o.once + (o.color || ''), () => trail(shape, size, o))
 };
