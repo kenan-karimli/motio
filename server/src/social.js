@@ -6,7 +6,7 @@ const ACTIVE = "('walk', 'run', 'bike')";
 const KINDS = new Set(['routes', 'places', 'live']);
 const LIVE_FRESH = 10 * 60000; // a live position older than this is not shown
 
-export async function socialRoutes({ db, now, authUser, HttpError, bad }) {
+export async function socialRoutes({ db, now, authUser, HttpError, bad, latest = async () => null }) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS daily_steps (
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -45,7 +45,13 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad }) {
     dropFix: db.prepare('DELETE FROM live_fix WHERE user_id = ?'),
     trips: db.prepare('SELECT id, start, "end", mode, distance_m, points FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ? AND start < ? ORDER BY start'),
     ends: db.prepare('SELECT points FROM trips WHERE user_id = ? AND deleted = 0 AND start >= ?'),
-    settingsOf: db.prepare('SELECT settings FROM users WHERE id = ?')
+    settingsOf: db.prepare('SELECT settings FROM users WHERE id = ?'),
+    // The notification inbox: everything that happened to you lately, newest first.
+    inCheers: db.prepare('SELECT c.id, c.at, u.id AS uid, u.name FROM cheers c JOIN users u ON u.id = c.from_id WHERE c.to_id = ? AND c.at > ? ORDER BY c.at DESC LIMIT 30'),
+    inRequests: db.prepare('SELECT r.created_at AS at, u.id AS uid, u.name FROM friend_requests r JOIN users u ON u.id = r.from_id WHERE r.to_id = ? AND r.created_at > ?'),
+    inFriends: db.prepare('SELECT f.created_at AS at, u.id AS uid, u.name FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ? AND f.created_at > ?'),
+    inChallenges: db.prepare('SELECT c.id, c.kind, c.target, c."end", c.created_at AS at, u.id AS uid, u.name FROM challenge_members m JOIN challenges c ON c.id = m.challenge_id JOIN users u ON u.id = c.creator WHERE m.user_id = ? AND c.creator <> ? AND c.created_at > ?'),
+    inShares: db.prepare('SELECT s.kind, s.until, s.created_at AS at, u.id AS uid, u.name FROM shares s JOIN users u ON u.id = s.owner WHERE s.viewer = ? AND s.created_at > ?')
   };
   const cfgOf = (s) => { try { return JSON.parse(s || '{}'); } catch { return {}; } };
   const dayKey = (t) => new Date(t).toISOString().slice(0, 10);
@@ -66,6 +72,26 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad }) {
   }
 
   return {
+    // Notifications: cheers, friend requests, new friends, challenges, friends sharing with you, a new app version.
+    // Each item has its text ready, so the phone's background service can show it as is.
+    'GET /v1/inbox': async ({ req }) => {
+      const { user } = await authUser(req);
+      const since = now() - 14 * DAY, first = (n) => String(n || 'A friend').split(' ')[0];
+      const CH = { distance: 'distance', active: 'active time', runs: 'runs' };
+      const SH = { routes: 'their routes', places: 'their usual places', live: 'their live location' };
+      const items = [
+        ...(await q.inCheers.all(user.id, since)).map((r) => ({ id: 'cheer-' + r.id, kind: 'cheer', at: Number(r.at), who: r.uid, title: first(r.name) + ' cheered you on', body: 'Keep moving!' })),
+        ...(await q.inRequests.all(user.id, since)).map((r) => ({ id: 'request-' + r.uid + '-' + r.at, kind: 'request', at: Number(r.at), who: r.uid, title: r.name + ' wants to be friends', body: 'Accept to compare your weeks.' })),
+        ...(await q.inFriends.all(user.id, since)).map((r) => ({ id: 'friend-' + r.uid, kind: 'friend', at: Number(r.at), who: r.uid, title: 'You and ' + first(r.name) + ' are now friends', body: 'Your weeks now line up side by side.' })),
+        ...(await q.inChallenges.all(user.id, user.id, since)).map((r) => ({ id: 'challenge-' + r.id, kind: 'challenge', at: Number(r.at), who: r.uid, target: r.id, title: first(r.name) + ' challenged you', body: 'A ' + (CH[r.kind] || r.kind) + ' race until ' + new Date(Number(r.end)).toLocaleDateString('en-GB', { weekday: 'long' }) + '.' })),
+        ...(await q.inShares.all(user.id, since)).filter((r) => r.kind !== 'live' || r.until == null || Number(r.until) > now())
+          .map((r) => ({ id: 'share-' + r.uid + '-' + r.kind + '-' + r.at, kind: 'shared', at: Number(r.at), who: r.uid, title: first(r.name) + ' shared ' + (SH[r.kind] || r.kind) + ' with you', body: 'Open their map to see it.' }))
+      ];
+      const rel = await latest();
+      if (rel && rel.version) items.push({ id: 'update-' + rel.version, kind: 'update', at: Date.parse(rel.date) || now(), version: rel.version, title: 'Motio ' + rel.version + ' is out', body: (rel.notes && rel.notes[0]) || 'Update to get the newest features.' });
+      return { items: items.sort((a, b) => b.at - a.at).slice(0, 50), serverTime: now() };
+    },
+
     // The app reports its daily step totals (the numbers it shows), so leaderboards match the app.
     'POST /v1/me/steps': async ({ req, body }) => {
       const { user } = await authUser(req);
@@ -73,7 +99,7 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad }) {
       for (const d of days) {
         if (!/^\d{4}-\d\d-\d\d$/.test(String(d.day))) continue;
         const steps = Math.round(Number(d.steps));
-        if (Number.isFinite(steps) && steps >= 0 && steps < 200000) await q.putSteps.run(user.id, d.day, steps);
+        if (Number.isFinite(steps) && steps >= 0 && steps <= 100000) await q.putSteps.run(user.id, d.day, steps);
       }
       return { ok: true };
     },

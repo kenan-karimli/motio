@@ -274,6 +274,16 @@ button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inse
       <dc-import name="FriendMap" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.inbox.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.inbox.kind }}" style="position: absolute; inset: 0; z-index: {{ O.inbox.z }}; animation: {{ O.inbox.anim }}; box-shadow: {{ O.inbox.shadow }}">
+      <dc-import name="Inbox" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.records.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.records.kind }}" style="position: absolute; inset: 0; z-index: {{ O.records.z }}; animation: {{ O.records.anim }}; box-shadow: {{ O.records.shadow }}">
+      <dc-import name="Records" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.map.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.map.kind }}" style="position: absolute; inset: 0; z-index: {{ O.map.z }}; animation: {{ O.map.anim }}; box-shadow: {{ O.map.shadow }}">
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -428,7 +438,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;
@@ -457,7 +467,7 @@ class Component extends DCLogic {
     };
 
     const settled = top && !closing;
-    const coversNav = settled && top !== 'personality';
+    const coversNav = settled;
     return {
       go: this.goStable, O,
       baseReady: this.startedAuthed || !!s.ready || !!s.stack,

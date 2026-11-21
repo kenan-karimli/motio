@@ -141,9 +141,13 @@ public class MotioWidget extends AppWidgetProvider {
     static void onSteps(Context c, long total) {
         SharedPreferences p = prefs(c);
         long now = System.currentTimeMillis(), day = dayStart(now, 0), last = p.getLong("sTotal", -1);
-        long delta = last < 0 ? 0 : total >= last ? total - last : total;
+        long raw = last < 0 ? 0 : total >= last ? total - last : total;
+        // At most ~4 steps a second since the last reading: a bigger jump is a counter reset, not walking.
+        long since = Math.max(0, now - p.getLong("sAt", now)) / 1000;
+        long delta = Math.max(0, Math.min(raw, Math.min(since * 4, 60000)));
         boolean newDay = p.getLong("sDay", 0) != day;
-        long steps = (newDay ? 0 : p.getLong("sSteps", 0)) + delta;
+        long kept = p.getLong("sSteps", 0);
+        long steps = (newDay || kept > 100000 ? 0 : kept) + delta;
         p.edit().putLong("sDay", day).putLong("sSteps", steps).putLong("sTotal", total).putLong("sAt", now).apply();
         if (newDay || now - stepsDrawnAt > 5 * 60000) { stepsDrawnAt = now; refresh(c, "steps"); refresh(c, "compact"); }
     }

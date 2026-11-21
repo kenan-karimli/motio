@@ -497,3 +497,26 @@ test('crash reports are stored and only the admin can read them', async () => {
   assert.equal((await call('POST', '/v1/crash', {})).status, 400);
   assert.equal((await call('GET', '/v1/admin/crashes')).status, 401);
 });
+
+test('inbox: cheers, friend requests, new friends and sharing, with ready text', async () => {
+  clock += 120000;
+  const join = async (name, email) => {
+    await call('POST', '/v1/auth/register', { name, email, password: 'Str0ng!pass' });
+    return (await call('POST', '/v1/auth/verify', { email, code: lastCode() })).body.token;
+  };
+  const a = await join('Nora Inbox', 'nora.inbox@example.com'), b = await join('Omar Inbox', 'omar.inbox@example.com');
+  await call('POST', '/v1/friends/add', { code: (await call('GET', '/v1/friends', null, b)).body.code }, a);
+  let inbox = (await call('GET', '/v1/inbox', null, b)).body.items.filter((x) => x.kind !== 'update');
+  assert.equal(inbox[0].kind, 'request');
+  assert.equal(inbox[0].title, 'Nora Inbox wants to be friends');
+  const noraId = inbox[0].who;
+  await call('POST', '/v1/friends/respond', { id: noraId, accept: true }, b);
+  const omarId = (await call('GET', '/v1/friends', null, a)).body.people.find((p) => !p.me).id;
+  clock += 1000; await call('POST', '/v1/friends/cheer', { id: noraId }, b);
+  clock += 1000; await call('POST', '/v1/sharing', { friendId: noraId, kind: 'routes', on: true }, b);
+  inbox = (await call('GET', '/v1/inbox', null, a)).body.items.filter((x) => x.kind !== 'update');
+  assert.deepEqual(inbox.map((i) => i.kind), ['shared', 'cheer', 'friend']);
+  assert.equal(inbox[0].title, 'Omar shared their routes with you');
+  assert.equal(inbox[1].who, omarId);
+  assert.equal((await call('GET', '/v1/inbox')).status, 401);
+});

@@ -38,6 +38,7 @@ public class TrackService extends Service {
     private static final String PREFS = "motio.track", BUFFER = "motio-buffer.jsonl";
     private static final int MAX_LINES = 20000; // about a day of fixes every 5 s
     private LocationCallback callback;
+    private android.os.Handler inbox; // checks for notifications every 5 minutes while the service runs
     private android.hardware.SensorEventListener steps; // keeps the steps widgets counting with Motio closed
 
     static boolean wanted(Context c) { return c.getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("on", false); }
@@ -138,6 +139,7 @@ public class TrackService extends Service {
         try { LocationServices.getFusedLocationProviderClient(this).requestLocationUpdates(req, callback, Looper.getMainLooper()); }
         catch (SecurityException e) { stopSelf(); return START_NOT_STICKY; }
         if (steps == null) steps = MotioWidget.watchSteps(this);
+        if (inbox == null) { inbox = new android.os.Handler(Looper.getMainLooper()); inbox.post(new Runnable() { @Override public void run() { Inbox.check(TrackService.this); inbox.postDelayed(this, 5 * 60000); } }); }
         return START_STICKY;
     }
 
@@ -145,6 +147,7 @@ public class TrackService extends Service {
     public void onDestroy() {
         if (callback != null) LocationServices.getFusedLocationProviderClient(this).removeLocationUpdates(callback);
         MotioWidget.unwatchSteps(this, steps);
+        if (inbox != null) inbox.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 

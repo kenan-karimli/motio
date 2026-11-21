@@ -177,6 +177,8 @@ class Component extends DCLogic {
     M.friends.board().then((b) => this.setState({ board: b })).catch(() => {});
     this.loadProfile();
     this.loadSharing();
+    this.onRefresh = () => { M.friends.board().then((b) => this.setState({ board: b })).catch(() => {}); this.loadProfile(); this.loadSharing(); };
+    window.addEventListener('motio:refresh', this.onRefresh);
   }
   loadSharing() { const M = window.Motio; if (M) M.friends.sharing().then((share) => this.setState({ share })).catch(() => {}); }
   loadProfile() {
@@ -186,7 +188,7 @@ class Component extends DCLogic {
       .catch((e) => this.setState({ loading: false, perr: (e && e.message) || 'Couldn’t load this profile.' }));
   }
   showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
-  componentWillUnmount() { clearTimeout(this.toastT); }
+  componentWillUnmount() { clearTimeout(this.toastT); window.removeEventListener('motio:refresh', this.onRefresh); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {

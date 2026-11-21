@@ -280,7 +280,7 @@ const LAYOUT = {
       <div style="${box(F, F.chrome ? '26px 40px 20px 40px' : '8px 40px 14px 40px')}">
         ${ifs(F.chrome, `<div style="display:flex;justify-content:space-between;align-items:center">${logo(P, 13)}<span style="font:500 10px ${SANS};color:${P.mute}">${esc(M.eyebrow)}</span></div>`)}
         ${ifs(M.title && (framed || M.hero), `<div style="font:600 26px/1.08 ${SANS};letter-spacing:-0.025em;margin-top:18px">${br(M.title)}</div>`)}
-        <div style="flex:1 1 0;min-height:110px;position:relative;margin:16px 0 14px;border-radius:3px;background:#1F1C17;overflow:hidden;box-shadow:inset 0 0 0 1px ${alpha(P.fg, 0.08)}">${inner}</div>
+        <div style="flex:1 1 0;min-height:110px;position:relative;margin:16px 0 14px;border-radius:3px;overflow:hidden;${framed ? `background:#1F1C17;box-shadow:inset 0 0 0 1px ${alpha(P.fg, 0.08)}` : ''}">${inner}</div>
         <div style="display:flex;justify-content:space-between;font:500 10px ${SANS};color:${P.mark};margin-bottom:8px"><span>${esc(M.lead)}</span><span>${F.chrome ? '' : esc(M.eyebrow)}</span></div>
         ${ifs(framed, heroHTML(M.hero, P, { w: 280, max: 64, weight: 600, track: -0.04 }))}
         ${ifs(M.line, `<div style="font:400 12px/1.5 ${SANS};color:${P.mute};margin-top:8px">${esc(M.line)}</div>`)}

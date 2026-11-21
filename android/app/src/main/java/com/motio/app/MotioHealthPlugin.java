@@ -93,6 +93,7 @@ public class MotioHealthPlugin extends Plugin {
             try {
                 Device phone = new Device(Device.TYPE_PHONE, android.os.Build.MANUFACTURER, android.os.Build.MODEL);
                 List<Record> out = new ArrayList<>();
+                List<String> noSteps = new ArrayList<>(); // trips whose steps were corrected to none: drop the old record
                 for (int i = 0; trips != null && i < trips.length(); i++) {
                     JSONObject t = trips.getJSONObject(i);
                     Instant a = Instant.ofEpochMilli(t.getLong("start")), b = Instant.ofEpochMilli(Math.max(t.getLong("end"), t.getLong("start") + 1000));
@@ -107,8 +108,10 @@ public class MotioHealthPlugin extends Plugin {
                     out.add(new ExerciseSessionRecord(a, za, b, zb, Metadata.activelyRecorded(phone, id + "-session", ver), type, t.optString("title", null)));
                     if (t.optDouble("distanceM", 0) > 0) out.add(new DistanceRecord(a, za, b, zb, Length.meters(t.getDouble("distanceM")), Metadata.activelyRecorded(phone, id + "-distance", ver)));
                     if (t.optLong("steps", 0) > 0) out.add(new StepsRecord(a, za, b, zb, t.getLong("steps"), Metadata.activelyRecorded(phone, id + "-steps", ver)));
+                    else noSteps.add(id + "-steps");
                 }
                 if (!out.isEmpty()) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().insertRecords(out, cont));
+                if (!noSteps.isEmpty()) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().deleteRecords(kotlin.jvm.JvmClassMappingKt.getKotlinClass(StepsRecord.class), Collections.emptyList(), noSteps, cont));
                 JSObject r = new JSObject(); r.put("written", out.size()); call.resolve(r);
             } catch (Exception e) { call.reject(e.getMessage()); }
         }).start();

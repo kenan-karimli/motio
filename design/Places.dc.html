@@ -113,7 +113,7 @@ class Component extends DCLogic {
         const zone = M && near(p), editing = s.edit === p.id;
         return {
           name: p.name, color: COLOR[p.kind], icon: ICON[p.kind], delay: (emb ? 420 : 0) + i * 50 + 'ms',
-          meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + Math.round(p.hours) + ' h here · last ' + ago(p.last),
+          meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + (p.hours >= 1 ? Math.round(p.hours) + ' h' : Math.max(1, Math.round(p.hours * 60)) + ' min') + ' here · last ' + ago(p.last),
           aria: p.name + ', show on map', editing, draft: s.draft ?? p.name,
           focus: () => this.ctrl && this.ctrl.fly(p.lat, p.lng),
           rename: () => this.setState({ edit: editing ? null : p.id, draft: p.name }),

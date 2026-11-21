@@ -15,6 +15,7 @@ html,body{background:#F6F5FC}
 button,a{font:inherit;cursor:pointer}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes motioLeaf{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 @keyframes motioBodyIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes motioBodyBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes motioBodyFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -54,6 +55,14 @@ button,a{font:inherit;cursor:pointer}
           </div>
         </sc-for>
       </div>
+    </section>
+
+    <section style="position: relative; overflow: hidden; padding: 18px; border-radius: 24px; background: #DDF5E3; color: #1F1D47; display: flex; flex-direction: column; gap: 10px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
+      <svg aria-hidden="true" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#3DBF5C" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: -18px; bottom: -22px; opacity: 0.35; transform-origin: 50% 100%; animation: motioLeaf 4s ease-in-out infinite"><path d="M5 21c0-9 5-15 15-16-1 10-7 15-15 16zM5 21c3-5 6-8 10-11"></path></svg>
+      <span style="font-size: 13px; font-weight: 600; color: #1E7A36">CO₂ saved this week</span>
+      <span style="font-size: 34px; font-weight: 700; line-height: 1">{{ co2.week }}</span>
+      <span style="position: relative; max-width: 250px; font-size: 13px; line-height: 1.45; color: #2F5A3B">{{ co2.line }}</span>
+      <span style="position: relative; font-size: 12px; color: #2F5A3B; opacity: 0.8">{{ co2.month }}</span>
     </section>
 
     <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioBodyIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
@@ -122,6 +131,13 @@ class Component extends DCLogic {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'You.dc.html') },
       d0: base + 'ms', d1: base + 90 + 'ms', d2: base + 170 + 'ms', d3: base + 240 + 'ms', dCount: base + 200 + 'ms',
+      co2: (() => {
+        const w0 = M ? M.weekStart() : t0 - 3 * DAY, m0 = M ? M.monthStart() : t0 - 20 * DAY;
+        const w = M ? M.co2(w0, Date.now()) : { kg: 3.4, carFreeKm: 19.8 }, m = M ? M.co2(m0, Date.now()) : { kg: 11.2, carFreeKm: 66 };
+        const kg = (x) => (x < 1 ? Math.round(x * 1000) + ' g' : x.toFixed(1) + ' kg');
+        return { week: kg(w.kg), month: 'This month: ' + kg(m.kg),
+          line: w.carFreeKm >= 0.1 ? 'You went ' + w.carFreeKm.toFixed(1) + ' km on foot, by bike or transit instead of by car.' : 'Walk, ride or take transit instead of driving and it adds up here.' };
+      })(),
       kcal: Math.round(B.today), activeMin: fmtMin(B.todayMin),
       weekKcal: Math.round(B.weekKcal).toLocaleString('en-US') + ' kcal',
       weekVs: vs == null ? 'this week' : 'this week · ' + (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '%',

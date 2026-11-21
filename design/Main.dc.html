@@ -14,6 +14,7 @@ body{margin:0}
 html,body{background:#4B3FD8}
 a{color:inherit}a:hover{opacity:.85}
 button{font:inherit;cursor:pointer}
+@keyframes motioBellPop{0%{transform:scale(0)}100%{transform:scale(1)}}
 @keyframes motioFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes motioFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes motioDrawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
@@ -88,6 +89,7 @@ button:active,a:active{transform:scale(0.96)}
       <span style="font-size: 22px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ firstName }}</span>
     </div>
     <a href="{{ LK.live.href }}" onClick="{{ LK.live.go }}" aria-label="{{ woAria }}" style="margin-left: auto; margin-right: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 7px; height: 44px; min-width: 44px; box-sizing: border-box; padding: {{ woPad }}; border-radius: 22px; background: {{ woBg }}; color: {{ woFg }}; font-size: 13px; font-weight: 700; text-decoration: none; font-variant-numeric: tabular-nums; transition: background-color 300ms ease"><sc-if value="{{ woOn }}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; margin-left: 4px; border-radius: 4px; background: #F2766B; animation: motioLiveDot 1.4s ease-out infinite"></span></sc-if><sc-if value="{{ woOff }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="#1F1D47"><path d="M7 4v16l13-8z"></path></svg></sc-if><sc-if value="{{ woTick }}" hint-placeholder-val="{{ false }}"><span class="motio-clock" style="--d: {{ woDelay }}"></span></sc-if>{{ woLabel }}</a>
+    <a href="{{ LK.inbox.href }}" onClick="{{ LK.inbox.go }}" aria-label="{{ bellAria }}" style="position: relative; margin-right: 10px; flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg><sc-if value="{{ hasBell }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; top: -2px; right: -2px; min-width: 18px; height: 18px; box-sizing: border-box; padding: 0 5px; border-radius: 9px; border: 2px solid #5B4FE0; background: #F2766B; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: motioBellPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)">{{ bellN }}</span></sc-if></a>
     <button onClick="{{ openShare }}" aria-label="Share today’s stats" style="margin-right: 10px; width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
     <button aria-label="Open menu and settings" aria-expanded="{{ menuOpen }}" onClick="{{ openMenu }}" style="width: 48px; height: 48px; border-radius: 24px; border: 0; padding: 0; background: #C9BDFF; overflow: hidden"><sc-if value="{{ hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ avatar }}" alt="" style="width: 48px; height: 48px; object-fit: cover; display: block"></sc-if><sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1F1D47; color: #FFFFFF; font-size: 17px; font-weight: 600; letter-spacing: 0.5px">{{ initials }}</span></sc-if></button>
   </div>
@@ -99,14 +101,14 @@ button:active,a:active{transform:scale(0.96)}
         <span class="motio-hero" style="display: flex; flex-direction: column">
           <span style="font-size: 15px; color: rgba(255,255,255,0.88)">On the move today</span>
           <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px; white-space: nowrap">{{ heroTime }}</span>
-          <span style="font-size: 14px; color: rgba(255,255,255,0.88)">Peak at <b style="color: #F6C343">{{ heroPeak }}</b></span>
+          <span style="font-size: 14px; color: rgba(255,255,255,0.88)">{{ heroPeakLead }}<b style="color: #F6C343">{{ heroPeak }}</b></span>
         </span>
       </sc-if>
       <sc-if value="{{ heroV1 }}" hint-placeholder-val="{{ false }}">
         <span class="motio-hero" style="display: flex; flex-direction: column">
           <span style="font-size: 15px; color: rgba(255,255,255,0.88)">Travelled today</span>
           <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px; white-space: nowrap">{{ heroDist }}</span>
-          <span style="font-size: 14px; color: rgba(255,255,255,0.88)">Mostly <b style="color: #F6C343">{{ heroTop }}</b></span>
+          <span style="font-size: 14px; color: rgba(255,255,255,0.88)">{{ heroTopLead }}<b style="color: #F6C343">{{ heroTop }}</b></span>
         </span>
       </sc-if>
       <sc-if value="{{ heroV2 }}" hint-placeholder-val="{{ false }}">
@@ -603,8 +605,8 @@ class Component extends DCLogic {
     const leftMin = Math.max(0, goalMin - totalMs / 60000);
     const hero = {
       heroV0: heroN % 3 === 0, heroV1: heroN % 3 === 1, heroV2: heroN % 3 === 2,
-      heroTime: fmtMin(totalMs / 60000), heroPeak: peakH == null ? '—' : (peakH % 12 || 12) + (peakH < 12 ? ' AM' : ' PM'),
-      heroDist: dist(totalM), heroTop: topModeByDist && totalM > 0 ? 'by ' + { walk: 'foot', run: 'running', bike: 'bike', drive: 'car', transit: 'transit' }[topModeByDist] : 'nothing yet',
+      heroTime: fmtMin(totalMs / 60000), heroPeakLead: peakH == null ? 'No moves yet today' : 'Peak at ', heroPeak: peakH == null ? '' : (peakH % 12 || 12) + (peakH < 12 ? ' AM' : ' PM'),
+      heroDist: dist(totalM), heroTopLead: topModeByDist && totalM > 0 ? 'Mostly ' : 'Nothing travelled yet', heroTop: topModeByDist && totalM > 0 ? 'by ' + { walk: 'foot', run: 'running', bike: 'bike', drive: 'car', transit: 'transit' }[topModeByDist] : '',
       heroSteps: stepsAll.toLocaleString('en-US'), heroGoalPct: Math.min(100, Math.round(stepsAll / stepGoal * 100)) + '%',
       heroDots: [0, 1, 2].map((i) => ({ w: heroN % 3 === i ? '18px' : '5px', bg: heroN % 3 === i ? '#F6C343' : 'rgba(255,255,255,0.45)' })),
       cycleHero: () => this.setState({ hero: heroN + 1 }),
@@ -715,7 +717,8 @@ class Component extends DCLogic {
         return { show: issues.length > 0, title: 'Trips may be missed', body: 'Motio needs ' + issues.join(', ') + ' to track with the screen off.',
           later: () => { try { localStorage.setItem('motio.healthLater', String(Date.now() + 3 * 86400000)); } catch (e) { /* blocked */ } this.forceUpdate(); } };
       })(),
-      emb, standalone: !emb, LK: { settings: lk('settings', 'Settings.dc.html'), k0: lk('you', 'You.dc.html'), map: lk('map', 'MapView.dc.html'), timeline: lk('timeline', 'Timeline.dc.html'), live: lk('live', 'Live.dc.html'), trip: lk('trip', 'Trip.dc.html'), apps: lk('connected', 'ConnectedApps.dc.html'), help: lk('help', 'Help.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
+      ...(() => { const M = window.Motio, n = M && M.inbox ? M.inbox.unread() : 0; return { hasBell: n > 0, bellN: n > 9 ? '9+' : String(n), bellAria: n ? 'Notifications, ' + n + ' new' : 'Notifications' }; })(),
+      emb, standalone: !emb, LK: { inbox: lk('inbox', 'Inbox.dc.html'), settings: lk('settings', 'Settings.dc.html'), k0: lk('you', 'You.dc.html'), map: lk('map', 'MapView.dc.html'), timeline: lk('timeline', 'Timeline.dc.html'), live: lk('live', 'Live.dc.html'), trip: lk('trip', 'Trip.dc.html'), apps: lk('connected', 'ConnectedApps.dc.html'), help: lk('help', 'Help.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
       navFrom: this.navFrom,
       menuOpen: !!s.menuOpen,
       openMenu: () => this.setState({ menuOpen: true, menuClosing: false }),

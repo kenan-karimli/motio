@@ -134,6 +134,7 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
   const tripOut = (r) => ({ id: r.id, start: r.start, end: r.end, mode: r.mode, distanceM: r.distance_m, steps: r.steps, maxSpeed: r.max_speed,
     points: JSON.parse(r.points), deleted: !!r.deleted, updatedAt: r.updated_at, ...JSON.parse(r.extra || '{}') });
 
+  const site = await siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, bad });
   const routes = {
     'GET /v1/health': async () => ({ ok: true, mail: mailer.mode, time: now() }),
 
@@ -339,9 +340,9 @@ export async function createApp({ db, mailer, now = () => Date.now(), env = proc
 
     ...(await stravaRoutes({ db, now, env, fetchImpl, authUser, HttpError, bad, tripOut })),
     ...(await friendRoutes({ db, now, authUser, HttpError, bad })),
-    ...(await socialRoutes({ db, now, authUser, HttpError, bad })),
+    ...(await socialRoutes({ db, now, authUser, HttpError, bad, latest: () => site.latest() })),
     ...(await announceRoutes({ db, env, mailer, HttpError, bad })),
-    ...(await siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, bad })),
+    ...site,
     ...legalRoutes(env),
 
     'GET /dev/outbox': async () => {

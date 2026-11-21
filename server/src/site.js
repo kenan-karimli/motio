@@ -64,7 +64,7 @@ export async function siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, b
     return rel;
   }
 
-  return {
+  const routes = {
     'GET /': async ({ req }) => {
       count(req, 'view');
       const r = await release();
@@ -113,4 +113,7 @@ export async function siteRoutes({ db, env, now, fetchImpl, mailer, HttpError, b
       return { days, waitlist: Object.fromEntries((await q.waiting.all()).map((r) => [r.platform, r.n])) };
     }
   };
+  // The newest release, for the notification inbox (not a route, so it isn't spread into the router).
+  Object.defineProperty(routes, 'latest', { value: release, enumerable: false });
+  return routes;
 }

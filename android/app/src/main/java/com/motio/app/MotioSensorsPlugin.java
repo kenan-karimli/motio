@@ -69,6 +69,18 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
     @PluginMethod
     public void getSteps(PluginCall call) { resolveStatus(call); }
 
+    // The server address and session for background notifications (Inbox); an empty token turns them off.
+    // `since`: the app has already shown everything up to this time.
+    @PluginMethod
+    public void setInbox(PluginCall call) {
+        android.content.SharedPreferences.Editor e = Inbox.prefs(getContext()).edit();
+        e.putString("api", call.getString("api", "")).putString("token", call.getString("token", ""));
+        long since = (long) call.getDouble("since", 0d).doubleValue();
+        if (since > Inbox.prefs(getContext()).getLong("since", 0)) e.putLong("since", since);
+        e.apply();
+        call.resolve();
+    }
+
     // Saves a widget image the app drew (base64 PNG) and redraws any placed widgets of that kind.
     @PluginMethod
     public void updateWidget(PluginCall call) {

@@ -283,6 +283,9 @@ class Component extends DCLogic {
     this.loadSocial();
     this.onTab = (e) => { if (e.detail === 3) this.loadSocial(); };
     window.addEventListener('motio:tab', this.onTab);
+    // New cheers, requests or a change made on another screen: reload right away.
+    this.onRefresh = () => this.loadSocial();
+    window.addEventListener('motio:refresh', this.onRefresh);
     // Remember this tab so the next screen can slide its pill in from here.
     const v = String(3);
     try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
@@ -290,7 +293,7 @@ class Component extends DCLogic {
     try { window.top.__motioTab = 3; } catch (e) { /* cross-origin */ }
     window.__motioTab = 3;
   }
-  componentWillUnmount() { window.removeEventListener('motio:tab', this.onTab); }
+  componentWillUnmount() { window.removeEventListener('motio:tab', this.onTab); window.removeEventListener('motio:refresh', this.onRefresh); }
   // Social parts, from the server's answer (or sample data on the design canvas).
   socialVals(L) {
     const M = window.Motio, s = this.state || {};

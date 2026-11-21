@@ -246,7 +246,7 @@ class Component extends DCLogic {
       persona: P.enough ? P.name : 'Still finding your style', joined: 'On Motio since ' + new Date(u.createdAt || Date.now()).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
       stats: [
         { v: M ? M.fmtDist(month.m).replace(/ (km|mi)$/, '') : '182', k: (mi ? 'mi' : 'km') + ' this month', ...lk('moves', 'Breakdown.dc.html') },
-        { v: String(G.streak), k: 'day streak', ...lk('goals', 'Goals.dc.html') },
+        { v: String(G.streak), k: 'day goal streak', ...lk('goals', 'Goals.dc.html') },
         { v: B ? String(friends.length) : '…', k: friends.length === 1 ? 'friend' : 'friends', ...lk('friends', 'Friends.dc.html') },
         { v: String(A.length), k: A.length === 1 ? 'badge' : 'badges', ...lk('achievements', 'Achievements.dc.html') }
       ],

@@ -79,6 +79,38 @@ button,a{font:inherit;cursor:pointer}
         </sc-for>
       </div>
     </section>
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 15px; font-weight: 600">Note and photo</h2>
+      <sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}">
+        <div style="position: relative; border-radius: 20px; overflow: hidden; animation: motioFadeUp 360ms ease-out backwards">
+          <img src="{{ ed.photo }}" alt="Your photo from this trip" style="display: block; width: 100%; max-height: 300px; object-fit: cover">
+          <button type="button" onClick="{{ ed.removePhoto }}" aria-label="Remove photo" style="position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border: 0; border-radius: 17px; background: rgba(31,29,71,0.7); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+      </sc-if>
+      <textarea value="{{ ed.note }}" onChange="{{ ed.saveNote }}" aria-label="Note for this trip" maxlength="500" rows="2" placeholder="What happened on this trip?" style="box-sizing: border-box; width: 100%; min-height: 64px; padding: 12px 14px; border-radius: 16px; border: 2px solid #EEF0F6; background: #F6F5FC; color: #1F1D47; font: inherit; font-size: 14px; line-height: 1.45; resize: none"></textarea>
+      <label style="align-self: flex-start; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 13px; font-weight: 600; cursor: pointer">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path></svg>{{ ed.photoLabel }}
+        <input type="file" accept="image/*" onChange="{{ ed.pickPhoto }}" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+      </label>
+      <span style="font-size: 11px; color: #8A87A8">The photo stays on this phone. The note is backed up with your trip.</span>
+    </section>
+    <sc-if value="{{ ed.canFix }}" hint-placeholder-val="{{ true }}">
+      <section style="display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 15px; font-weight: 600">Fix this trip</h2>
+        <sc-if value="{{ ed.canJoin }}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{ ed.join }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left">
+            <span aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 12px; background: #DDF5E3; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h6M14 12h6M10 8l4 4-4 4"></path></svg></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Join with the next trip</span><span style="font-size: 12px; color: #6B6890">{{ ed.joinSub }}</span></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ ed.canSplit }}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{ ed.split }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left">
+            <span aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 12px; background: #FDE9E6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 9l-3 3 3 3M19 9l3 3-3 3"></path></svg></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ ed.splitTitle }}</span><span style="font-size: 12px; color: #6B6890">Makes two trips from this one</span></span>
+          </button>
+        </sc-if>
+      </section>
+    </sc-if>
     <button type="button" onClick="{{ askDelete }}" style="min-height: 48px; border-radius: 24px; border: 2px solid #F5C6C0; background: transparent; color: #C2412F; font-size: 14px; font-weight: 600">Delete this trip</button>
   </div>
 
@@ -105,7 +137,7 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: msg }), 30);
     this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
   }
-  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.noteT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -132,6 +164,7 @@ class Component extends DCLogic {
     const sp = M && t.points && t.points.length > 1 ? M.splits(t) : [372, 355, 341, 362, 330];
     const fastest = Math.min(...sp), slowest = Math.max(...sp);
     const d = new Date(t.start);
+    const S0 = (x) => x && x.id !== 'sample' && !x.live;
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       canReplay: !M || !!(t && t.points && t.points.length > 2), rpOp: s.replaying ? 1 : 0, rpY: s.replaying ? '0px' : '-12px',
@@ -171,6 +204,22 @@ class Component extends DCLogic {
           .then((img) => M.shareImage(img, 'share', MODES[t.mode][1] + ': ' + M.fmtDist(t.distanceM) + '. Tracked with Motio.'))
           .then((m) => m && this.showToast(m)).catch(() => {});
       },
+      ed: (() => {
+        const real = !!(M && S0(t)), next = real ? M.nextTrip(t.id) : null, stop = real ? M.longestStop(t.id) : null;
+        const hm = (x) => new Date(x).toTimeString().slice(0, 5);
+        return {
+          note: t.note || '', hasPhoto: !!t._photo, photo: t._photo || '', photoLabel: t._photo ? 'Change photo' : 'Add a photo',
+          // Saved a moment after typing stops (the field reports every keystroke).
+          saveNote: (e) => { if (!real) return; const v = e.target.value; clearTimeout(this.noteT); this.noteT = setTimeout(() => { if ((t.note || '') === v.trim()) return; M.setTripNote(t.id, v); this.showToast(v.trim() ? 'Note saved' : 'Note removed'); }, 900); },
+          pickPhoto: (e) => { const f = e.target.files && e.target.files[0]; if (!f || !real) return; M.setTripPhoto(t.id, f).then(() => { this.showToast('Photo added'); this.forceUpdate(); }).catch(() => this.showToast('Couldn’t use that photo')); },
+          removePhoto: () => { if (real) { M.setTripPhoto(t.id, null); this.showToast('Photo removed'); } },
+          canFix: !!(next || stop) || !M, canJoin: !!next || !M, canSplit: !!stop || !M,
+          joinSub: next ? (MODES[next.mode] || MODES.walk)[0] + ' at ' + hm(next.start) + ', ' + Math.max(1, Math.round((next.start - t.end) / 60000)) + ' min later' : 'Walk at 12:40, 4 min later',
+          join: () => { if (!real) return; M.joinWithNext(t.id); this.showToast('Joined into one trip'); this.forceUpdate(); },
+          splitTitle: stop ? 'Split at the ' + hm(stop.at) + ' stop (' + Math.round(stop.ms / 60000) + ' min)' : 'Split at the 12:40 stop (8 min)',
+          split: () => { if (!real) return; M.splitAtStop(t.id); this.showToast('Split into two trips'); this.forceUpdate(); }
+        };
+      })(),
       confirmOpen: !!s.confirm, askDelete: () => this.setState({ confirm: true }), cancelDelete: () => this.setState({ confirm: false }),
       confirmDelete: () => { this.setState({ confirm: false }); if (M) M.deleteTrip(t.id); if (this.props.onNav) this.props.onNav('back'); },
       hasToast: !!s.toast, toast: s.toast || ''

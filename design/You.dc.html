@@ -136,7 +136,7 @@ button:active,a:active{transform:scale(0.96)}
     <sc-if value="{{ sec.isGoals }}" hint-placeholder-val="{{ true }}">
       <div style="display: flex; flex-direction: column; gap: 10px">
         <div style="padding: 18px; border-radius: 26px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
-          <span style="display: flex; justify-content: space-between; align-items: flex-end"><span style="display: flex; flex-direction: column"><span style="font-size: 12px; opacity: 0.7">Current streak</span><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ sec.streak }}</span></span><span style="font-size: 12px; color: #F6C343; font-weight: 600">{{ sec.best }}</span></span>
+          <span style="display: flex; justify-content: space-between; align-items: flex-end"><span style="display: flex; flex-direction: column"><span style="font-size: 12px; opacity: 0.7">Goal streak</span><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ sec.streak }}</span></span><span style="font-size: 12px; color: #F6C343; font-weight: 600">{{ sec.best }}</span></span>
           <div role="img" aria-label="{{ sec.gridAria }}" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px"><sc-for list="{{ sec.grid }}" as="c" hint-placeholder-count="28"><span style="aspect-ratio: 1; border-radius: 8px; background: {{ c.bg }}; box-shadow: {{ c.ring }}; animation: motioSecCell 380ms cubic-bezier(0.34, 1.4, 0.64, 1) {{ c.d }} backwards"></span></sc-for></div>
         </div>
         <sc-for list="{{ sec.weekly }}" as="w" hint-placeholder-count="2">
@@ -181,7 +181,7 @@ button:active,a:active{transform:scale(0.96)}
   </section>
 
   <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 28px; background: #FFFFFF">
-    <h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 600">Personal records</h2>
+    <span style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Personal records</h2><a href="{{ LK.records.href }}" onClick="{{ LK.records.go }}" style="font-size: 13px; font-weight: 600; color: #5B4FE0; text-decoration: none">See all</a></span>
     <sc-if value="{{ noRecords }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 1.5; color: #6B6890">Your longest ride, most steps and fastest run show up here once you’ve moved a bit.</span></sc-if>
     <sc-for list="{{ records }}" as="r" hint-placeholder-count="3">
       <button onClick="{{ r.pick }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
@@ -373,7 +373,9 @@ class Component extends DCLogic {
     setTimeout(() => { this.navNow = true; el.click(); }, 200);
   }
   componentDidMount() {
-    if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.friends.board().then((b) => this.setState({ friendsN: b.people.length - 1 })).catch(() => {});
+    this.loadFriends = () => { if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.friends.board().then((b) => this.setState({ friendsN: b.people.length - 1 })).catch(() => {}); };
+    this.loadFriends();
+    window.addEventListener('motio:refresh', this.loadFriends);
     // Remember this tab so the next screen can slide its pill in from here.
     const v = String(2);
     try { window.localStorage.setItem('motio.tab', v); } catch (e) { /* blocked */ }
@@ -381,6 +383,7 @@ class Component extends DCLogic {
     try { window.top.__motioTab = 2; } catch (e) { /* cross-origin */ }
     window.__motioTab = 2;
   }
+  componentWillUnmount() { window.removeEventListener('motio:refresh', this.loadFriends); }
   // Profile numbers from your real trips (window.Motio). Shapes match the sample data below.
   liveVals(sh, open, s) {
     const M = window.Motio;
@@ -679,23 +682,23 @@ class Component extends DCLogic {
     }
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, standalone: !emb, LK: { k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), profile: lk('profile', 'Profile.dc.html'), friends: lk('friends', 'Friends.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
+      emb, standalone: !emb, LK: { records: lk('records', 'Records.dc.html'), k0: lk('personality', 'Personality.dc.html'), settings: lk('settings', 'Settings.dc.html'), ach: lk('achievements', 'Achievements.dc.html'), goals: lk('goals', 'Goals.dc.html'), profile: lk('profile', 'Profile.dc.html'), friends: lk('friends', 'Friends.dc.html'), health: lk('health', 'Health.dc.html'), places: lk('places', 'Places.dc.html'), explorer: lk('explorer', 'Explorer.dc.html') },
       ...(() => {
         const M = window.Motio;
         if (!M) return { goalsLine: '6-day streak', healthLine: '412 kcal today', achLine: '6 of 14 earned', achNew: true, placesLine: 'Home, Work and 3 more', explorerLine: '4.2% of your city explored' };
         const a = M.achievements(), got = a.filter((x) => x.got).length, pl = M.places();
         const ex = M.explorer();
         const G = M.goals(), B = M.body(), wDone = G.week.filter((g) => g.done).length;
-        return { goalsLine: (G.streak ? G.streak + '-day streak' : 'No streak yet') + (G.week.length ? ' · ' + wDone + '/' + G.week.length + ' weekly' : ''), healthLine: Math.round(B.today) + ' kcal today',
+        return { goalsLine: (G.streak ? G.streak + '-day goal streak' : 'No goal streak yet') + (G.week.length ? ' · ' + wDone + '/' + G.week.length + ' weekly' : ''), healthLine: Math.round(B.today) + ' kcal today',
           achLine: got + ' of ' + a.length + ' earned', achNew: a.some((x) => x.fresh), explorerLine: ex.count ? ex.pct.toFixed(1) + '% of your city explored' + (ex.newThisWeek ? ' · +' + ex.newThisWeek + ' this week' : '') : 'Clears as you move around your city',
           placesLine: pl.length ? pl.slice(0, 2).map((p) => p.name).join(', ') + (pl.length > 2 ? ' and ' + (pl.length - 2) + ' more' : '') : 'Appear after a few trips' };
       })(),
       sec: this.sectionVals(lk),
       chips: (() => {
         const M = window.Motio;
-        if (!M) return [{ v: '3', k: 'friends' }, { v: '6', k: 'day streak' }, { v: '10', k: 'badges' }, { v: '', k: 'Activity shared' }];
+        if (!M) return [{ v: '3', k: 'friends' }, { v: '6', k: 'days moving' }, { v: '10', k: 'badges' }, { v: '', k: 'Activity shared' }];
         const G = M.goals(), A = M.achievements().filter((a) => a.got).length, f = (this.state || {}).friendsN;
-        return [...(f != null ? [{ v: String(f), k: f === 1 ? 'friend' : 'friends' }] : []), { v: String(G.streak), k: 'day streak' }, { v: String(A), k: A === 1 ? 'badge' : 'badges' },
+        return [...(f != null ? [{ v: String(f), k: f === 1 ? 'friend' : 'friends' }] : []), { v: String(G.active || 0), k: G.active === 1 ? 'day moving' : 'days moving' }, { v: String(A), k: A === 1 ? 'badge' : 'badges' },
           { v: '', k: M.settings().hideActivity ? 'Activity private' : 'Activity shared' }];
       })(),
       navFrom: this.navFrom,
