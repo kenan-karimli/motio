@@ -29,6 +29,8 @@ button:active,a:active{transform:scale(0.96)}
 /* Full-screen backdrops (tap outside a sheet to close) never shrink on press: that flashed the screen edges. */
 button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inset:0"]:active{transform:none !important}
 body[data-sheet] .motio-upd{display:none}
+/* Tab content fades out above the tab bar instead of being cut with a flat edge. */
+[data-page="tab"] .motio-scroll{-webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}
 /* Nothing animates where nobody can see it: tabs out of view, and the tabs under an open page. */
 [data-page="tab"][aria-hidden="true"] *,body:has([data-page="overlay"]) [data-page="tab"] *{animation-play-state:paused!important}
 /* Tabs tapped into view build up in steps, like opened pages (Today has its own entrance). */

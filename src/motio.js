@@ -437,7 +437,7 @@ let moveAt = 0;
 async function nudge() {
   if (!native) return;
   try {
-    if (!S.token || S.settings.moveReminder === false) { await LocalNotifications.cancel({ notifications: [{ id: 22 }] }); return; }
+    if (!S.token || S.settings.moveReminder !== true) { await LocalNotifications.cancel({ notifications: [{ id: 22 }] }); return; }
     if (Date.now() - moveAt < 10 * MIN) return;
     moveAt = Date.now();
     const at = new Date(Date.now() + 2 * HOUR), h = at.getHours();
@@ -519,7 +519,7 @@ async function pollInbox() {
     window.dispatchEvent(new Event('motio:refresh'));
     if (native && document.hidden && (await LocalNotifications.checkPermissions()).display === 'granted') {
       if (!notifyChannel) { await LocalNotifications.createChannel({ id: 'motio-social', name: 'Friends and updates', importance: 4 }); notifyChannel = true; }
-      await LocalNotifications.schedule({ notifications: fresh.slice(0, 3).map((i, n) => ({ id: 1000 + ((Date.now() / 1000 + n) % 100000 | 0), title: i.title, body: i.body, channelId: 'motio-social', extra: { open: 'inbox' } })) });
+      await LocalNotifications.schedule({ notifications: (fresh.length > 1 ? [{ title: fresh.length + ' new in Motio', body: fresh.slice(0, 3).map((i) => i.title).join(' · ') }] : fresh).map((i) => ({ id: 1000 + (Date.now() / 1000 % 100000 | 0), title: i.title, body: i.body, channelId: 'motio-social', extra: { open: 'inbox' } })) });
     }
   } catch { /* offline: try again next time */ } finally { inboxBusy = false; }
 }
@@ -1569,7 +1569,14 @@ function checkRecords() {
   clearTimeout(recordT);
   recordT = setTimeout(() => {
     const seen = S.recordsSeen, now = {}, beaten = [];
-    for (const r of records().list) { now[r.key] = r.n; if (seen && seen[r.key] && r.n > seen[r.key] * 1.001 && Date.now() - r.at < 2 * DAY) beaten.push(r); }
+    // A record is announced once, only after a week of history, and never for things that grow while they
+    // happen (this week's total, a running streak): those would "break" the record with every trip.
+    const first = (allTrips()[0] || {}).start || Date.now(), pinged = (S.recordPinged = S.recordPinged || {});
+    for (const r of records().list) {
+      now[r.key] = r.n;
+      const id = r.key + ':' + r.at;
+      if (seen && seen[r.key] && r.n > seen[r.key] * 1.001 && Date.now() - r.at < 2 * DAY && Date.now() - first > 7 * DAY && !pinged[id] && r.key !== 'week' && r.key !== 'streak') { pinged[id] = 1; beaten.push(r); }
+    }
     S.recordsSeen = { ...(seen || {}), ...now };
     if (!seen || !beaten.length) { changed(); return; }
     const items = beaten.map((r) => ({ id: 'record-' + r.key + '-' + r.at, kind: 'record', at: Date.now(), title: 'New record: ' + r.title.toLowerCase(), body: fmtRecord(r) + ', your best so far.' }));

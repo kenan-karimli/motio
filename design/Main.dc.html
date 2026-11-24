@@ -173,7 +173,7 @@ button:active,a:active{transform:scale(0.96)}
       </g>
     </svg>
     <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
-      <button type="button" onClick="{{ c.open }}" aria-label="{{ c.aria }}" style="position: absolute; left: {{ c.left }}; top: {{ c.top }}; display: flex; align-items: center; gap: 6px; padding: 4px 10px; min-height: 26px; border: 0; border-radius: 14px; background: {{ c.bg }}; color: {{ c.fg }}; font: inherit; font-size: 11px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: {{ c.sh }}; transition: background-color 220ms ease, color 220ms ease, box-shadow 220ms ease, opacity 260ms ease; opacity: {{ c.op }}"><sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="1"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ d.color }}"></span></sc-for>{{ c.label }}</button>
+      <button type="button" onClick="{{ c.open }}" aria-label="{{ c.aria }}" style="position: absolute; left: {{ c.left }}; top: {{ c.top }}; display: flex; align-items: center; gap: 6px; padding: 3px 9px; min-height: 24px; border: 0; border-radius: 14px; background: {{ c.bg }}; color: {{ c.fg }}; font: inherit; font-size: 11px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: {{ c.sh }}; transition: background-color 220ms ease, color 220ms ease, box-shadow 220ms ease, opacity 260ms ease; opacity: {{ c.op }}"><sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="1"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ d.color }}"></span></sc-for>{{ c.label }}</button>
     </sc-for>
     <sc-if value="{{ hasNow }}" hint-placeholder-val="{{ true }}">
       <span aria-hidden="true" style="position: absolute; left: {{ nowX }}; top: {{ nowY }}; width: 16px; height: 16px; margin: -8px 0 0 -8px; pointer-events: none">
@@ -535,14 +535,14 @@ class Component extends DCLogic {
     // Label up to four of the longest trips on the road, without overlapping.
     const labelled = TR.slice().sort((x, y) => (y.end - y.start) - (x.end - x.start)).slice(0, 4).sort((x, y) => x.start - y.start);
     // Boxes chips must not cover (x1, y1, x2, y2): the time labels, the cup and the tree; placed chips join them.
-    const boxes = [[34, 68, 70, 84], [280, 68, 316, 84], [34, 163, 70, 179], [278, 260, 318, 276], [154, 100, 188, 132], [216, 192, 252, 228]];
-    const hit = (l, tp, w) => boxes.some((q) => l < q[2] && l + w > q[0] && tp < q[3] && tp + 26 > q[1]);
+    const boxes = [[34, 68, 70, 84], [280, 68, 316, 84], [34, 163, 70, 179], [278, 260, 318, 276], [154, 100, 188, 132], [216, 192, 252, 228], [216, 2, 252, 42]];
+    const hit = (l, tp, w) => boxes.some((q) => l < q[2] && l + w > q[0] && tp < q[3] && tp + 24 > q[1]);
     const chips = labelled.map((t) => {
       const p = posAt(t.start + (t.end - t.start) / 2);
       const label = hhmm(t.start) + ' · ' + MODES[t.mode][0];
       const w = Math.round(label.length * 5.8 + 32);
       const fit = (l) => Math.max(8, Math.min(342 - w, l));
-      const slots = p.lane === 0 ? [70, 104] : p.lane === 1 ? [164, 104] : [196, 258];
+      const slots = p.lane === 0 ? [8, 70] : p.lane === 1 ? [104, 164] : [198, 258];
       let top = -1, left = 0;
       search: for (const y of slots) {
         const want = fit(p.x - w / 2);
@@ -550,7 +550,7 @@ class Component extends DCLogic {
         for (const l of tries) if (!hit(l, y, w)) { top = y; left = l; break search; }
       }
       if (top < 0) return null; // no free spot: the trip stays unlabelled rather than covering another
-      boxes.push([left - 4, top, left + w + 4, top + 26]);
+      boxes.push([left - 4, top, left + w + 4, top + 24]);
       const sel = tripId === t.id;
       const keep = (!mode || mode === t.mode) && (tripId == null || sel);
       return { left: left + 'px', top: top + 'px', label, aria: 'Open trip: ' + label, dots: [{ color: MODES[t.mode][2] }],
@@ -598,7 +598,7 @@ class Component extends DCLogic {
     const hero = {
       heroV0: heroN % 3 === 0, heroV1: heroN % 3 === 1, heroV2: heroN % 3 === 2,
       // Before the first move the fox waits where the goal ring goes; during a confirmed trip a Trail draws itself.
-      ...(() => { const M = window.Motio, MM = window.MotioMascot, moving = !!(M && M.today().trips.some((t) => t.live)), on = !!MM && (totalMs === 0 || moving);
+      ...(() => { const M = window.Motio, MM = window.MotioMascot, moving = !!(M && M.today().trips.some((t) => t.live)), on = !!MM && totalMs === 0;
         return { showMo: on, showRing: !on, moRef: on ? (moving ? MM.trail('rise', 110) : MM.fox('idle', 110)) : null }; })(),
       heroTime: fmtMin(totalMs / 60000), heroPeakLead: peakH == null ? 'No moves yet today' : 'Peak at ', heroPeak: peakH == null ? '' : (peakH % 12 || 12) + (peakH < 12 ? ' AM' : ' PM'),
       heroDist: dist(totalM), heroTopLead: topModeByDist && totalM > 0 ? 'Mostly ' : 'Nothing travelled yet', heroTop: topModeByDist && totalM > 0 ? 'by ' + { walk: 'foot', run: 'running', bike: 'bike', drive: 'car', transit: 'transit' }[topModeByDist] : '',

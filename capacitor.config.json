@@ -6,9 +6,13 @@
   "android": {
     "allowMixedContent": false,
     "useLegacyBridge": true,
-    "webContentsDebuggingEnabled": true
+    "webContentsDebuggingEnabled": false
   },
   "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_launcher_monochrome",
+      "iconColor": "#5B4FE0"
+    },
     "SplashScreen": {
       "launchAutoHide": false,
       "backgroundColor": "#4B3FD8",

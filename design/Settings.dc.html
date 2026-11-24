@@ -304,7 +304,7 @@ class Component extends DCLogic {
         sw('countSteps', 'Count steps', 'Uses your phone’s motion sensor', true),
         sw('autoTrack', 'Track my moves', 'Background location, only while you’re moving', true),
         sw('gpsSaver', 'Battery saver', 'Rougher routes, less battery: location every 15 s instead of 5 s', false),
-        sw('moveReminder', 'Move reminders', 'A nudge after 2 hours still, 9:00 to 21:00', true)
+        sw('moveReminder', 'Move reminders', 'A nudge after 2 hours still, 9:00 to 21:00', false)
       ],
       goal: fmt(goalMin),
       goalDown: () => put('goalMin', Math.max(30, goalMin - 15)),
@@ -324,7 +324,7 @@ class Component extends DCLogic {
       setMi: () => put('unit', 'mi'),
       // The Motio website, opened in the in-app browser.
       openSite: () => M && M.openPage('/'),
-      versionLabel: 'Version 4.4.5' + (M && M.isDemo() ? ' · sample data' : ''),
+      versionLabel: 'Version 4.4.6' + (M && M.isDemo() ? ' · sample data' : ''),
       // Seven taps on About fills the app with five weeks of sample days (and seven more takes them away).
       aboutTap: () => {
         if (!M) return;

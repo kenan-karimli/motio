@@ -39,7 +39,7 @@ final class Inbox {
                 JSONArray items = new JSONObject(sb.toString()).getJSONArray("items");
                 long since = p.getLong("since", System.currentTimeMillis()), top = since;
                 int shown = 0;
-                for (int i = 0; i < items.length() && shown < 3; i++) {
+                for (int i = 0; i < items.length() && shown < 1; i++) {
                     JSONObject it = items.getJSONObject(i);
                     long at = it.optLong("at");
                     if (at <= since) continue;

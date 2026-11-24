@@ -164,9 +164,10 @@ const rows = (stats, P, { vf = `600 15px ${SANS}`, rule = true, pad = 9 } = {}) 
     <span style="font:500 11.5px/1.3 ${SANS};color:${P.mute}">${esc(cap(s.k))}${s.s ? `<br><span style="font-size:10px;opacity:.85">${esc(s.s)}</span>` : ''}</span>
     <span style="font:${vf};white-space:nowrap;font-variant-numeric:tabular-nums">${esc(s.v)}</span></div>`).join('');
 const cells = (stats, P, { cols = 0, vs = 19, vw = 700, gap = '16px 12px', cell = () => '' } = {}) => {
-  const n = cols || Math.min(3, stats.length), cw = 300 / n - 24;
+  const long = stats.some((s) => String(s.v).length > 11); // long values get two columns and may wrap
+  const n = cols || (long ? 2 : Math.min(3, stats.length)), cw = 300 / n - 24;
   return `<div style="display:grid;grid-template-columns:repeat(${n},minmax(0,1fr));gap:${gap}">${stats.map((s, i) => `
-    <div style="min-width:0;${cell(i)}"><div style="font:${vw} ${Math.min(vs, fit(s.v, cw, vs, 0.58))}px/1.15 ${SANS};white-space:nowrap;font-variant-numeric:tabular-nums">${esc(s.v)}</div>
+    <div style="min-width:0;${cell(i)}"><div style="font:${vw} ${Math.min(vs, fit(s.v, cw, vs, 0.58))}px/1.15 ${SANS};white-space:${String(s.v).length > 11 ? 'normal' : 'nowrap'};overflow-wrap:anywhere;font-variant-numeric:tabular-nums">${esc(s.v)}</div>
     <div style="font:500 10.5px/1.35 ${SANS};color:${P.mute};margin-top:3px">${esc(cap(s.k))}${s.s ? `<br>${esc(s.s)}` : ''}</div></div>`).join('')}</div>`;
 };
 const logo = (P, size = 14, color = P.fg, stroke = P.mark) => `<div style="display:flex;align-items:center;gap:6px;font:600 ${size}px/1 ${SANS};color:${color}">
@@ -185,7 +186,7 @@ const ifs = (v, html) => (v ? html : '');
 // The card's short link, printed (an image can't be tapped): people type it, or tap it where the text is shared.
 const openPill = (bg, fg, dot, dotFg, link = 'preview') => `<span style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px 0 5px;border-radius:16px;background:${bg};color:${fg};font:600 11.5px ${SANS}"><span style="width:22px;height:22px;border-radius:11px;background:${dot};display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="${dotFg}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>${link && link !== 'preview' ? esc(link.replace(/^https?:\/\//, '')) : 'Open in Motio'}</span></span>`;
 // The three 4.2 styles keep Instagram's own bars (top and bottom ~74 card px) clear of anything that matters.
-const SAFE = (F) => (F.chrome ? '88px 24px 88px' : '8px 24px 14px');
+const SAFE = (F) => (F.chrome ? '16px 24px 16px' : '8px 24px 14px');
 const LAYOUT = {
   glow: (M, P, F) => `<div style="${box(F, SAFE(F))}">
     <div style="display:flex;justify-content:space-between;align-items:center">${F.chrome ? logo(P, 14) : '<span></span>'}<span style="font:500 11px ${SANS};color:${P.mute}">${esc(M.eyebrow)}</span></div>
@@ -205,13 +206,13 @@ const LAYOUT = {
     ${heroHTML(M.hero, P, { w: 320, max: 168, track: -0.06, color: P.accent, lh: 0.82 })}
     ${ifs(M.line, `<div style="font:600 13px/1.45 ${SANS};margin-top:10px">${esc(M.line)}</div>`)}
     ${ifs(M.chart, `<div style="margin-top:16px">${chartHTML(M.chart, P, { h: 60, round: 4 })}</div>`)}
-    ${ifs(!M.chart && M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 3), P, { vs: 18 })}</div>`)}
+    ${ifs(!M.chart && M.stats.length, `<div style="margin-top:16px">${cells(M.stats.slice(0, 4), P, { vs: 18 })}</div>`)}
     ${ifs(F.chrome && M.link, `<div style="margin-top:16px">${openPill('#FFFFFF', '#1F1D47', '#1F1D47', '#F6C343', M.link)}</div>`)}
   </div>`,
 
   ticket: (M, P, F) => {
     const st = [...(M.hero && M.hero.v ? [{ k: M.lead || 'Covered', v: M.hero.v + (M.hero.u ? ' ' + M.hero.u : '') }] : []), ...M.stats].slice(0, 4);
-    return `<div style="${box(F, F.chrome ? '88px 22px 88px' : '8px 22px 14px')}">
+    return `<div style="${box(F, F.chrome ? '16px 22px 16px' : '8px 22px 14px')}">
     <div style="flex:1;display:flex;flex-direction:column;border-radius:22px;background:#FFFDF7;color:#1F1D47;overflow:hidden;box-shadow:0 18px 40px rgba(120,40,20,0.25)">
       <div style="padding:16px 18px 14px;background:#1F1D47;color:#FFFFFF;display:flex;justify-content:space-between;align-items:flex-end;gap:10px">
         <div style="min-width:0"><div style="font:500 10px ${SANS};color:#C9C5EC">Motio · ${esc(M.eyebrow || 'ticket')}</div><div style="font:700 19px/1.15 ${SANS};letter-spacing:-0.02em;margin-top:2px">${br(M.title || M.lead || 'My moves')}</div></div>
@@ -396,9 +397,10 @@ export function storyHTML(kind, data, o = {}) {
   if (o.showMap === false) M.routes = [];
   M.who = o.showName === false ? '' : o.name ?? who();
   if (o.inApp || hide.has('date')) M.eyebrow = ''; // the recap's own chip already says which period this is
-  M.link = hide.has('link') ? '' : o.link === undefined ? 'preview' : o.link || '';
+  M.link = ''; // a picture can't be tapped, so no link is printed on it
   const H = o.h || 640;
-  const F = { W: 360, H, top: o.inApp ? 74 : 0, bottom: o.inApp ? 78 : 0, chrome: !o.inApp };
+  // Shared images keep clear of Instagram's own bars (name row at the top, reply bar at the bottom).
+  const F = { W: 360, H, top: o.inApp ? 74 : 64, bottom: o.inApp ? 78 : 64, chrome: !o.inApp };
   return `<div style="width:360px;height:${H}px;position:relative;overflow:hidden;box-sizing:border-box;background:${backdrop(P)};color:${P.fg};font-family:${SANS};text-align:left;-webkit-font-smoothing:antialiased">${LAYOUT[id](M, P, F)}</div>`;
 }
 // Colours for app chrome laid over a card (recap bars, chips, buttons), as rgba() so the dark-mode
