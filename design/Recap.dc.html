@@ -8,7 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
@@ -38,41 +38,47 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+<div class="m-page {{ themeCls }}" onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
 
   <div role="group" aria-roledescription="story" aria-label="{{ storyLabel }}" style="position: absolute; inset: 0; overflow: hidden">
     <div ref="{{ sceneRef }}" style="position: absolute; inset: 0"></div>
   </div>
 
-  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
-    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.28); overflow: hidden"><span style="display: block; height: 100%; width: {{ b.w }}; border-radius: 2px; background: #FFFFFF; animation: {{ b.anim }}; animation-play-state: {{ b.play }}"></span></span></sc-for>
+  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: absolute; top: 48px; left: 16px; right: 16px; display: flex; gap: 4px">
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: var(--m-line); overflow: hidden"><span style="display: block; height: 100%; width: {{ b.w }}; border-radius: 2px; background: var(--m-ink); animation: {{ b.anim }}; animation-play-state: {{ b.play }}"></span></span></sc-for>
   </div>
 
-  <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
-    <span style="padding: 6px 12px; border-radius: 16px; background: {{ L.chip }}; color: {{ L.fg }}; font-size: 12px; font-weight: 600">{{ R.head }}</span>
-    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: {{ L.chip }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ L.fg }}" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+  <div style="position: absolute; top: 62px; left: 16px; right: 16px; z-index: 6; display: flex; justify-content: space-between; align-items: center">
+    <span class="m-sub">{{ R.bar }}</span>
+    <a class="m-icon" href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="background: transparent"><m-ic n="x"></m-ic></a>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0">
-    <button aria-label="Previous story" onClick="{{ prev }}" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 35%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: w-resize"></button>
+  <div style="position: absolute; left: 0; right: 0; top: 110px; bottom: 110px">
+    <button aria-label="Previous story" onClick="{{ prev }}" style="position: absolute; left: 0; top: 0; bottom: 0; width: 35%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: w-resize"></button>
     <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
-      <button aria-label="Next story" onClick="{{ next }}" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: e-resize"></button>
+      <button aria-label="Next story" onClick="{{ next }}" style="position: absolute; right: 0; top: 0; bottom: 0; width: 65%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: e-resize"></button>
     </sc-if>
     <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
-      <a href="{{ LK.k1.href }}" onClick="{{ LK.k1.go }}" aria-label="Finish recap and go back to Recaps" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; z-index: 5; cursor: e-resize"></a>
+      <a href="{{ LK.k1.href }}" onClick="{{ LK.k1.go }}" aria-label="Finish recap and go back to Recaps" style="position: absolute; right: 0; top: 0; bottom: 0; width: 65%; z-index: 5; cursor: e-resize"></a>
     </sc-if>
   </div>
 
-  <div style="position: relative; display: flex; gap: 8px">
-    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.fg }}; color: {{ L.bg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ L.bg }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share this story</button>
-  </div>
+  <sc-if value="{{ isBegin }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 22px; right: 22px; bottom: 34px; z-index: 6"><button type="button" class="m-btn wide" onClick="{{ next }}">Begin</button></div>
+  </sc-if>
+  <sc-if value="{{ notBegin }}" hint-placeholder-val="{{ true }}">
+    <div style="position: absolute; left: 22px; right: 22px; bottom: 34px; z-index: 6; display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+      <button type="button" class="m-btn w" onClick="{{ save }}" disabled="{{ saving }}">Save</button>
+      <button type="button" class="m-btn" onClick="{{ openShare }}">Share</button>
+    </div>
+  </sc-if>
 
   <sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
     <dc-import name="ShareEditor" job="{{ shareJob }}" on-close="{{ closeShare }}"></dc-import>
   </sc-if>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 96px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E7A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 100px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 22px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; animation: motioToast 2300ms ease forwards"><m-ic n="check" s="16"></m-ic>{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -151,6 +157,7 @@ class Component extends DCLogic {
   recapData() {
     const SAMPLE_MODES = [['Drive', 'DRIVING', '214 km', '214', 52, '#F6C343', '#E0A92C', '6h 30m', 91], ['Bike', 'CYCLING', '82 km', '82', 20, '#6E8CF7', '#6E8CF7', '4h 20m', 61], ['Transit', 'TRANSIT', '65 km', '65', 16, '#B57BE0', '#9B5FD0', '2h 36m', 36], ['Walk', 'WALKING', '36 km', '36', 9, '#3DBF5C', '#2FA84D', '7h 09m', 100], ['Run', 'RUNNING', '15 km', '15', 3, '#F2766B', '#F2766B', '1h 05m', 15]];
     const sample = {
+      kind: 'week', bar: 'Your week · 18–24 Nov', fullName: 'Alex Mammadov', coverSay: ['That’s ', '2h 10m more', ' than last week. Thursday did the heavy lifting.'], dayBars: [], scene: 'wanderer', wrapSub: '44% of your time on foot.', bigDay: '14 Nov', bigDaySay: null, peakSay: null,
       head: 'Week, wrapped · Oct 25–31', Your: 'Your week', This: 'This week', KIND: 'WEEK', Kind: 'Week', no: 44, span: 'Oct 25–31', SPAN: 'OCT 25–31',
       dist: '412 km', distNum: '412', unit: 'km', unitLong: 'kilometres', time: '21h 40m', prCount: '1 new PR',
       fromDow: 'SUN', fromDate: 'Oct 25', toDow: 'SAT', toDate: 'Oct 31', name: 'Alex', peak: '8 AM', second: '6 PM', seat: 'On foot', persShort: 'Wanderer',
@@ -232,6 +239,21 @@ class Component extends DCLogic {
     const byDist = r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, dist: d1(x.m) + ' ' + unit, distShort: d1(x.m) + ' ' + unit, pct: Math.max(2, Math.round(x.m / Math.max(1, r.m) * 100)) + '%', color: x.color, dark: x.color }));
     const tmax = Math.max(1, ...r.modes.map((x) => x.ms));
     const byTime = r.modes.map((x) => ({ label: x.label, LABEL: x.name.toUpperCase(), time: M.fmtMin(x.ms / M.MIN), rel: Math.round(x.ms / tmax * 100) + '%', color: x.color }));
+    // Board 08 sentences: one bold phrase each.
+    const verbs = { walk: ['walked', ''], run: ['ran', ''], bike: ['rode', ''], drive: ['drove', ''], transit: ['travelled', ' by bus and metro'] };
+    const placeOf = (t) => { const tl = M.timeline(M.dayStart(t.start)), k = tl.findIndex((x) => x.kind === 'trip' && x.id === t.id), n = k >= 0 ? tl[k + 1] : null; return n && n.kind === 'stay' && n.name && n.name !== 'A stop' ? n.name : ''; };
+    const place = longest ? placeOf(longest) : '';
+    const partOf = (t) => { const h = new Date(t).getHours(); return h < 12 ? 'in the morning' : h < 17 ? 'in the afternoon' : 'in the evening'; };
+    const mins = days.map((d) => d.min), topDay = days.length ? days[mins.indexOf(Math.max(...mins))] : null;
+    const goalMin = M.settings().goalMin || 180;
+    const diff = r.min - prev.min;
+    const heavy = topDay && topDay.min >= 1 ? (kind === 'week' ? ' ' + dow(topDay.from) + ' did the heavy lifting.' : ' Your busiest day was ' + fmtD(topDay.from, { weekday: 'short', day: 'numeric', month: 'short' }) + '.') : '';
+    const coverSay = kind === 'year' ? ['You moved ', M.fmtDist(r.m), (isNow ? ' this year' : ' in ' + Y) + '. Let’s walk through it.']
+      : kind === 'day' ? (longest ? ['You ' + verbs[longest.mode][0] + ' ', M.fmtDist(longest.distanceM), verbs[longest.mode][1] + (place ? ' to ' + place : '') + ' ' + partOf(longest.start) + '.'] : ['You moved for ', M.fmtMin(r.min), '.'])
+        : prev.min >= 1 ? ['That’s ', M.fmtMin(Math.abs(diff)) + (diff >= 0 ? ' more' : ' less'), ' than ' + prevName + '.' + heavy] : ['A fresh start: ', M.fmtMin(r.min), ' on the move.' + heavy];
+    const allDays = M.days(from, Math.round((to - from) / M.DAY));
+    const dayTop = Math.max(...allDays.map((d) => d.min));
+    const sceneOf = { wanderer: 'wanderer', commuter: 'commuter', speedster: 'runner', roadtripper: 'tripper', explorer: 'explorer', cyclist: 'wheeler', nightowl: 'explorer', metrohopper: 'commuter', earlybird: 'runner', weekender: 'tripper', steady: 'wanderer' };
     return {
       // For the animated recap: the longest trip (the map flies to it) and minutes per hour of each day (heatmap).
       longestId: longest ? longest.id : null, // Your typical week: minutes per hour for each weekday, Monday first, over the whole period.
@@ -239,6 +261,13 @@ class Component extends DCLogic {
       slidesOk: [true, r.m > 50, r.min >= 1, !!longest && r.trips.length > 0, true],
       hourly: r.hourly.map((v) => Math.round(v)), routes: M.route(from, to), byDistNum: r.modes.filter((x) => x.m > 0).sort((a, b) => b.m - a.m).map((x) => ({ label: x.label, value: d1(x.m) + ' ' + unit, pct: Math.round(x.m / Math.max(1, r.m) * 100), color: x.color })),
       head: (kind === 'year' ? 'Year' : kind === 'day' ? 'Day' : kind === 'week' ? 'Week' : 'Month') + ', wrapped · ' + span,
+      kind, fullName: user.name || 'You', coverSay, scene: sceneOf[pers.key] || 'wanderer',
+      bar: kind === 'year' ? '' : kind === 'day' ? 'Your day · ' + fmtD(from, { weekday: 'short', day: 'numeric', month: 'short' }) : kind === 'week' ? 'Your week · ' + span : 'Your ' + fmtD(from, { month: 'long' }),
+      dayBars: kind === 'day' || kind === 'year' ? [] : allDays.map((d) => ({ v: d.min, top: d.min > 0 && d.min === dayTop, goal: d.min >= goalMin })),
+      peakSay: peakH == null ? ['', 'No moves', ' recorded yet.'] : secondH == null ? ['', peakLine, ''] : [peakLine + ' ', 'Second wind at ' + M.fmtHour(secondH), '.'],
+      bigDay: longest ? fmtD(longest.start, { day: 'numeric', month: 'short' }) : '—',
+      bigDaySay: longest ? ['A ', M.fmtDist(longest.distanceM) + ' ' + nouns[longest.mode], (place ? ' to ' + place : '') + '. Nothing else came close.'] : null,
+      wrapSub: (top0 => top0 ? top0.pct + '% of your time ' + top0.name.toLowerCase() + ' · ' : '')(r.modes[0]) + M.fmtDist(r.m) + ' · ' + M.fmtNum(r.steps) + ' steps.',
       Your: 'Your ' + kind, This, KIND, Kind: KIND[0] + KIND.slice(1).toLowerCase(), no, span, SPAN: span.toUpperCase(),
       dist: M.fmtDist(r.m), distNum: d1(r.m), unit, unitLong: mi ? 'miles' : 'kilometres', time: M.fmtMin(r.min), prCount: isPR ? '1 new PR' : 'Best bits',
       fromDow: dowS(from).toUpperCase(), fromDate: fmtD(from, { month: 'short', day: 'numeric' }), toDow: dowS(end).toUpperCase(), toDate: fmtD(end, { month: 'short', day: 'numeric' }),
@@ -365,6 +394,18 @@ class Component extends DCLogic {
       sDown: (e) => this.storyDown(e), sMove: (e) => this.storyMove(e), sUp: (e) => this.storyUp(e),
       rootAnim: this.state && this.state.leaving ? 'motioSoftDown 200ms ease-in forwards' : this.entryAnim,
       shareOpen: !!s.share,
+      // Year in Motion is the one dark story; its cover has a single Begin button instead of Save and Share.
+      themeCls: R0.kind === 'year' ? 'm-dark-theme' : '',
+      isBegin: R0.kind === 'year' && pos === 0, notBegin: !(R0.kind === 'year' && pos === 0),
+      saving: !!s.saving,
+      save: () => {
+        const M = window.Motio;
+        if (!M || s.saving) return;
+        this.setState({ saving: true });
+        M.storyImage(job.kind, job.data).then((img) => M.shareImage(img, 'save', job.text))
+          .then((m) => this.showToast(m || 'Saved'), () => this.showToast('Couldn’t save right now'))
+          .then(() => this.setState({ saving: false }));
+      },
       openShare: () => { clearTimeout(this.adv); this.left = Math.max(400, this.left - (Date.now() - this.advAt)); this.setState({ share: true }); },
       shareJob: { ...job, theme: look && look.theme },
       closeShare: (msg) => { this.setState({ share: false }); this.advAt = Date.now(); if (pos !== order.length - 1) this.adv = setTimeout(() => this.go(pos + 1), this.left); if (msg) this.showToast(msg); },
