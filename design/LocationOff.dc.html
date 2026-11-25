@@ -8,10 +8,10 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-html,body{background:#3DBF5C}
+html,body{background:#ECECEA}
 a{color:inherit}
 button{font:inherit;cursor:pointer}
 button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease}
@@ -23,53 +23,12 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #3DBF5C; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; padding: 60px 28px 40px; display: flex; flex-direction: column">
-  <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none"><circle cx="360" cy="60" r="140" fill="#52C96D"></circle></svg>
-
-  <div style="position: relative; align-self: center; width: 240px; height: 210px; margin-top: 20px; animation: motioRise 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
-    <svg aria-hidden="true" width="240" height="210" viewBox="0 0 240 210" style="position: absolute; inset: 0">
-      <rect x="20" y="40" width="200" height="150" rx="24" fill="#FFFFFF"></rect>
-      <path d="M20 110 H220 M90 40 V190 M160 40 V190" stroke="#EEF0F6" stroke-width="12"></path>
-      <path d="M40 170 C 80 150, 70 100, 120 110" fill="none" stroke="#C9C5EC" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9"></path>
-      <ellipse cx="120" cy="176" rx="18" ry="5" fill="#E3E1F3"></ellipse>
-    </svg>
-    <span style="position: absolute; left: 96px; top: 52px; width: 48px; height: 48px; border-radius: 24px; background: {{ pulse }}; animation: motioPulse 1.8s ease-out infinite"></span>
-    <svg aria-hidden="true" width="56" height="74" viewBox="0 0 56 74" style="position: absolute; left: 92px; top: 30px; animation: {{ pinAnim }}">
-      <path d="M28 70 C 10 48, 2 36, 2 26 a26 26 0 0 1 52 0 c0 10 -8 22 -26 44z" fill="{{ pinColor }}" style="transition: fill 300ms ease"></path>
-      <circle cx="28" cy="26" r="10" fill="#FFFFFF"></circle>
-      <path d="M8 8 L48 56" stroke="#1F1D47" stroke-width="5" stroke-linecap="round" style="opacity: {{ slashOp }}; transition: opacity 300ms ease"></path>
-    </svg>
+<div class="m-page" style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 70px 32px 190px; text-align: center">
+  <span ref="{{ foxRef }}" class="m-pop" style="display: block; height: 150px"></span>
+<sc-if value="{{ notOn }}" hint-placeholder-val="{{ true }}"><h1 class="m-title m-in" style="font-size: 32px; --i: 1">Motio can’t see where you go.</h1><span class="m-sub m-in" style="--i: 2; max-width: 300px">Location access is turned off, so routes, distance and speed are paused. Steps still count.</span><div class="m-list m-in" style="--i: 3; width: 100%; text-align: left"><div class="m-row"><b>1</b>Open your phone’s Settings</div><div class="m-row"><b>2</b>Find Motio › Location</div><div class="m-row"><b>3</b>Choose “While using the app”</div></div></sc-if><sc-if value="{{ on }}" hint-placeholder-val="{{ false }}"><h1 class="m-title m-in" style="font-size: 32px; --i: 1">location is on.</h1><span class="m-sub m-in" style="--i: 2; max-width: 300px">Routes and distances are back. Nice.</span></sc-if>
+  <div style="position: absolute; left: 22px; right: 22px; bottom: 34px; display: flex; flex-direction: column; gap: 10px">
+<sc-if value="{{ notOn }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn wide" onClick="{{ openSettings }}">Open phone settings</button></sc-if><a class="m-btn w wide" href="{{ LK.home.href }}" onClick="{{ LK.home.go }}" style="text-decoration: none">Back to Today</a>
   </div>
-
-  <sc-if value="{{ notOn }}" hint-placeholder-val="{{ true }}">
-    <div style="position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; animation: motioRise 520ms cubic-bezier(0.22, 1, 0.36, 1) 120ms backwards">
-      <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.15">Motio can’t see<br>where you go</h1>
-      <p style="margin: 0; font-size: 14px; line-height: 1.5">Location access is turned off, so routes, distance and speed are paused. Steps still count.</p>
-      <ol style="margin: 6px 0 0; padding: 14px 16px 14px 34px; border-radius: 20px; background: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.7">
-        <li>Open your phone’s Settings</li>
-        <li>Find Motio › Location</li>
-        <li>Choose <b>While using the app</b></li>
-      </ol>
-    </div>
-  </sc-if>
-  <sc-if value="{{ on }}" hint-placeholder-val="{{ false }}">
-    <div style="position: relative; display: flex; flex-direction: column; gap: 10px; margin-top: 20px; align-items: flex-start">
-      <span style="width: 56px; height: 56px; border-radius: 28px; background: #1F1D47; display: flex; align-items: center; justify-content: center; animation: motioPop 520ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
-      <h1 style="margin: 0; font-size: 30px; font-weight: 700">Location is on</h1>
-      <p style="margin: 0; font-size: 14px">Routes and distances are back. Nice.</p>
-    </div>
-  </sc-if>
-
-  <div style="position: relative; margin-top: auto; display: flex; flex-direction: column; gap: 10px">
-    <sc-if value="{{ notOn }}" hint-placeholder-val="{{ true }}">
-      <button onClick="{{ openSettings }}" style="width: 100%; min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; box-shadow: none">Open phone settings</button>
-    </sc-if>
-    <a href="{{ LK.home.href }}" onClick="{{ LK.home.go }}" style="min-height: 52px; border-radius: 26px; background: {{ homeBg }}; color: {{ homeFg }}; font-size: 15px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">{{ homeLabel }}</a>
-  </div>
-
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 150px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
-  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -83,7 +42,7 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const on = !!s.on;
-    return {
+    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('curious', 150) : null,
       LK: { home: lk('home', 'Main.dc.html') },
       on, notOn: !on,
       pinColor: on ? '#3DBF5C' : '#F2766B', slashOp: on ? 0 : 1,

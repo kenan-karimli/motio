@@ -8,10 +8,10 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-html,body{background:#1F1D47}
+html,body{background:#ECECEA}
 a{color:inherit}a:hover{opacity:.9}
 button{font:inherit;cursor:pointer}
 @keyframes motioHubIn{from{opacity:0;transform:translateY(14px) scale(0.97)}to{opacity:1;transform:none}}
@@ -51,105 +51,71 @@ button:active,a:active{transform:scale(0.96)}
 </helmet>
 <div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 0 24px; display: flex; flex-direction: column; gap: 10px">
 
-  <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; pointer-events: none"><circle cx="360" cy="40" r="140" fill="#2D2A6E"></circle></svg>
-
-  <div style="position: relative; padding: 6px 20px 0; display: flex; align-items: center; justify-content: space-between">
-    <h1 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.1">Social</h1>
-    <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite" style="width: 44px; height: 44px; border-radius: 22px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"></path></svg></a>
+  <div style="padding: 52px 20px 0; display: flex; align-items: flex-end; gap: 8px">
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="m-sub">{{ standLine }}</span><h1 class="m-title">Social</h1></div>
+    <a class="m-icon" href="{{ LK.inbox.href }}" onClick="{{ LK.inbox.go }}" aria-label="Notifications" style="position: relative"><m-ic n="bell"></m-ic><sc-if value="{{ bellDot }}" hint-placeholder-val="{{ false }}"><i style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: var(--m-accent); box-shadow: 0 0 0 2px var(--m-card)"></i></sc-if></a>
+    <a class="m-icon" href="{{ LK.messages.href }}" onClick="{{ LK.messages.go }}" aria-label="Messages"><m-ic n="msg"></m-ic></a>
+    <a class="m-icon ink" href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite"><m-ic n="useradd"></m-ic></a>
   </div>
-  <div role="tablist" aria-label="Social" style="position: relative; margin: 4px 20px 0; display: flex; padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.08)">
-    <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 18px; background: #F6C343; transform: translateX({{ segX }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
-    <sc-for list="{{ segs }}" as="g" hint-placeholder-count="2">
-      <button type="button" role="tab" aria-selected="{{ g.on }}" onClick="{{ g.pick }}" style="position: relative; flex: 1; height: 38px; border: 0; border-radius: 18px; background: transparent; color: {{ g.fg }}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: color 240ms ease">{{ g.label }}<sc-if value="{{ g.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #F2766B; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{ g.badge }}</span></sc-if></button>
-    </sc-for>
+  <div role="tablist" aria-label="Social" style="display: flex; gap: 6px; padding: 12px 20px 0; overflow-x: auto; scrollbar-width: none; flex-shrink: 0">
+    <sc-for list="{{ segs }}" as="g" hint-placeholder-count="2"><button type="button" role="tab" class="m-chip {{ g.cls }}" aria-selected="{{ g.on }}" onClick="{{ g.pick }}">{{ g.label }}</button></sc-for>
+    <sc-for list="{{ hubTiles }}" as="h" hint-placeholder-count="4"><a class="m-chip" href="{{ h.href }}" onClick="{{ h.go }}" style="text-decoration: none; flex-shrink: 0">{{ h.title }}</a></sc-for>
   </div>
 
   <sc-if value="{{ viewFriends }}" hint-placeholder-val="{{ true }}">
-  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 12px 0 96px">
+  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; padding: 12px 20px 110px">
 
     <sc-if value="{{ hasInbox }}" hint-placeholder-val="{{ false }}">
-      <div role="region" aria-label="Waiting for you" style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Waiting for you</h2>
-        <sc-for list="{{ inbox }}" as="q" hint-placeholder-count="1">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; border: 1px solid rgba(246,195,67,0.35); animation: motioRowSlide 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
-            <a href="{{ q.href }}" onClick="{{ q.go }}" aria-label="{{ q.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none">
-              <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ q.ini }}</span>
-              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.title }}</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.sub }}</span></span>
-            </a>
-            <button type="button" onClick="{{ q.no }}" aria-label="{{ q.noAria }}" disabled="{{ q.busy }}" style="width: 38px; height: 38px; flex-shrink: 0; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-            <button type="button" onClick="{{ q.yes }}" aria-label="{{ q.yesAria }}" disabled="{{ q.busy }}" style="height: 38px; flex-shrink: 0; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">{{ q.yesLabel }}</button>
-          </div>
-        </sc-for>
-      </div>
+      <sc-for list="{{ inbox }}" as="q" hint-placeholder-count="1">
+        <div class="m-card m-in" style="display: flex; align-items: center; gap: 12px; padding: 14px">
+          <span class="av" style="background: var(--m-ink); color: var(--m-bg-hi)">{{ q.ini }}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><b style="font-size: 14px">{{ q.title }}</b><span class="m-sub" style="font-size: 12px">{{ q.sub }}</span></span>
+          <button type="button" class="m-btn" onClick="{{ q.yes }}" aria-label="{{ q.yesAria }}" style="height: 36px; padding: 0 14px; font-size: 13px">{{ q.yesLabel }}</button>
+          <button type="button" class="m-icon" onClick="{{ q.no }}" aria-label="{{ q.noAria }}" style="width: 36px; height: 36px; background: var(--m-soft)"><m-ic n="x"></m-ic></button>
+        </div>
+      </sc-for>
     </sc-if>
 
-    <div role="navigation" aria-label="Social pages" style="margin: 0 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
-      <sc-for list="{{ hubTiles }}" as="h" hint-placeholder-count="4">
-        <a href="{{ h.href }}" onClick="{{ h.go }}" style="position: relative; overflow: hidden; min-height: 92px; padding: 14px; border-radius: 22px; background: {{ h.bg }}; color: {{ h.fg }}; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; animation: motioHubIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ h.d }} backwards">
-          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ h.icon }}"></path></svg>
-          <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ h.title }}</span><span style="font-size: 11.5px; opacity: 0.75">{{ h.sub }}</span></span>
+    <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div class="m-skel" style="height: 220px; border-radius: 28px"></div></sc-if>
+
+    <sc-if value="{{ hasFriends }}" hint-placeholder-val="{{ true }}">
+      <sc-for list="{{ chals }}" as="c" hint-placeholder-count="2">
+        <a class="m-card dark m-in" href="{{ c.href }}" onClick="{{ c.go }}" style="display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; text-decoration: none; color: inherit">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="m-label">{{ c.tag }}</span><span class="m-sub" style="font-size: 12px">{{ c.left }}</span></div>
+          <span class="m-h2" style="font-size: 24px">{{ c.title }}</span>
+          <span class="m-sub" style="font-size: 13px">{{ c.lead }}</span>
         </a>
       </sc-for>
-    </div>
-    <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}"><div style="margin: 0 20px; height: 230px; border-radius: 28px; background: rgba(255,255,255,0.06); animation: motioPulseBg 1.2s ease-in-out infinite"></div></sc-if>
+      <a class="m-card m-in" href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="display: flex; align-items: center; gap: 12px; padding: 14px 18px; text-decoration: none; color: inherit"><span style="flex: 1"><b style="font-size: 14px">{{ newChal.title }}</b><div class="m-sub" style="font-size: 12px">{{ newChal.sub }}</div></span><m-ic n="chevron"></m-ic></a>
+    </sc-if>
 
     <sc-if value="{{ hasPodium }}" hint-placeholder-val="{{ true }}">
-      <div role="region" aria-label="This week's leaderboard" style="margin: 0 20px; padding: 18px 16px 16px; border-radius: 28px; background: linear-gradient(160deg, #2D2A6E 0%, #221F55 100%); display: flex; flex-direction: column; gap: 14px">
-        <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">This week</h2><span style="font-size: 12px; color: #C9C5EC">{{ weekRange }}</span></div>
-        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding-top: 6px">
-          <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
-            <a href="{{ p.href }}" onClick="{{ p.go }}" aria-label="{{ p.aria }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none; animation: motioRecapsIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
-              <span style="position: relative; width: {{ p.size }}; height: {{ p.size }}">
-                <span style="position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: {{ p.tint }}; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 0 0 3px {{ p.ring }}"><sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ p.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ true }}">{{ p.ini }}</sc-if></span>
-                <span style="position: absolute; right: -4px; bottom: -4px; width: 24px; height: 24px; border-radius: 12px; background: {{ p.ring }}; color: #1F1D47; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #2D2A6E">{{ p.rank }}</span>
-              </span>
-              <span style="max-width: 100%; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
-              <span style="width: 100%; height: {{ p.step }}; border-radius: 14px 14px 6px 6px; background: rgba(255,255,255,0.08); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; box-sizing: border-box; font-size: 13px; font-weight: 700; transform-origin: bottom; animation: motioBarUp 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">{{ p.time }}</span>
-            </a>
-          </sc-for>
+      <div class="m-card m-in" role="region" aria-label="This week's leaderboard" style="display: flex; flex-direction: column; gap: 6px; padding: 16px">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span class="m-h3">This week</span><span class="m-sub" style="font-size: 12px">active time</span></div>
+        <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+          <a class="m-row" href="{{ p.href }}" onClick="{{ p.go }}" aria-label="{{ p.aria }}" style="text-decoration: none; color: inherit">
+            <b style="width: 16px">{{ p.rank }}</b>
+            <span class="av" style="background: var(--m-ink); color: var(--m-bg-hi); overflow: hidden"><sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ p.photo }}" alt="" style="width: 38px; height: 38px; object-fit: cover"></sc-if><sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ true }}">{{ p.ini }}</sc-if></span>
+            <span style="flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
+            <b>{{ p.time }}</b>
+          </a>
+        </sc-for>
+        <div style="display: flex; gap: 6px; margin-top: 6px">
+          <button type="button" class="m-chip on" onClick="{{ cheerAll }}" style="height: 34px; font-size: 12px">{{ cheerAllLabel }}</button>
+          <button type="button" class="m-chip" onClick="{{ inviteFriend }}" style="height: 34px; font-size: 12px; background: var(--m-soft)">Invite</button>
         </div>
-        <span style="font-size: 13px; color: #C9C5EC; text-align: center">{{ standLine }}</span>
-        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
-          <button type="button" onClick="{{ cheerAll }}" style="height: 44px; border: 0; border-radius: 22px; background: {{ cheerAllBg }}; color: {{ cheerAllFg }}; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 220ms ease"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="{{ cheerAllFill }}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>{{ cheerAllLabel }}</button>
-          <a href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="height: 44px; border-radius: 22px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Challenge</a>
-          <button type="button" onClick="{{ inviteFriend }}" style="height: 44px; border: 0; border-radius: 22px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 13px; font-weight: 600">Invite</button>
-        </div>
-        <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="align-self: center; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #F6C343; text-decoration: none">All friends ›</a>
       </div>
     </sc-if>
 
     <sc-if value="{{ alone }}" hint-placeholder-val="{{ false }}">
-      <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="margin: 0 20px; padding: 22px 18px; border-radius: 28px; background: linear-gradient(160deg, #2D2A6E 0%, #221F55 100%); color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
-        <span style="display: flex"><span style="width: 46px; height: 46px; border-radius: 23px; background: #3DBF5C; border: 3px solid #2D2A6E"></span><span style="width: 46px; height: 46px; margin-left: -12px; border-radius: 23px; background: #F6C343; border: 3px solid #2D2A6E; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span><span style="width: 46px; height: 46px; margin-left: -12px; border-radius: 23px; background: #6E8CF7; border: 3px solid #2D2A6E"></span></span>
-        <span style="font-size: 17px; font-weight: 700">Moving is better together</span>
-        <span style="max-width: 260px; font-size: 13px; line-height: 1.45; color: #C9C5EC">Add friends to compare weeks, cheer each other on and start challenges.</span>
-        <span style="margin-top: 4px; padding: 10px 18px; border-radius: 20px; background: #F6C343; color: #1F1D47; font-size: 14px; font-weight: 700">Find or invite friends</span>
+      <a class="m-card m-in" href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 20px; text-align: center; text-decoration: none; color: inherit">
+        <tuli-fox pose="wave" size="110"></tuli-fox>
+        <span class="m-h2">Moving is better together</span>
+        <span class="m-sub" style="max-width: 260px">Add friends to compare weeks, cheer each other on and start challenges.</span>
+        <span class="m-btn" style="margin-top: 6px">Find or invite friends</span>
       </a>
     </sc-if>
-    <sc-if value="{{ socialError }}" hint-placeholder-val="{{ false }}"><span role="status" style="padding: 0 20px; font-size: 12px; color: #FFB3AB">{{ socialErrorText }}</span></sc-if>
-
-    <sc-if value="{{ hasFriends }}" hint-placeholder-val="{{ true }}">
-      <div role="region" aria-label="Challenges" style="display: flex; flex-direction: column; gap: 10px">
-        <div style="padding: 0 20px; display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Challenges</h2><span style="font-size: 12px; color: #C9C5EC">{{ chalCount }}</span></div>
-        <div class="motio-scroll" style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 20px 6px; scrollbar-width: none">
-          <sc-for list="{{ chals }}" as="c" hint-placeholder-count="2">
-            <a href="{{ c.href }}" onClick="{{ c.go }}" aria-label="{{ c.aria }}" style="flex-shrink: 0; width: 250px; box-sizing: border-box; padding: 16px; border-radius: 24px; background: {{ c.bg }}; color: #1F1D47; text-decoration: none; scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px">
-              <span style="display: flex; justify-content: space-between; align-items: center"><span style="padding: 3px 9px; border-radius: 9px; background: rgba(255,255,255,0.7); font-size: 11px; font-weight: 700">{{ c.tag }}</span><span style="font-size: 12px; font-weight: 600">{{ c.left }}</span></span>
-              <span style="font-size: 19px; font-weight: 700; line-height: 1.15">{{ c.title }}</span>
-              <span aria-hidden="true" style="position: relative; height: 30px; border-radius: 15px; background: rgba(31,29,71,0.12)">
-                <sc-for list="{{ c.racers }}" as="m" hint-placeholder-count="2"><span style="position: absolute; top: 3px; left: {{ m.x }}; width: 24px; height: 24px; margin-left: -12px; border-radius: 12px; overflow: hidden; background: {{ m.c }}; border: 2px solid #FFFFFF; box-sizing: border-box; color: #1F1D47; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: motioRacer 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ m.d }} backwards"><sc-if value="{{ m.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ m.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ m.noPhoto }}" hint-placeholder-val="{{ true }}">{{ m.ini }}</sc-if></span></sc-for>
-              </span>
-              <span style="font-size: 12px; font-weight: 600">{{ c.lead }}</span>
-            </a>
-          </sc-for>
-          <a href="{{ newChal.href }}" onClick="{{ newChal.go }}" style="flex-shrink: 0; width: 150px; box-sizing: border-box; padding: 16px; border-radius: 24px; border: 2px dashed rgba(255,255,255,0.25); color: #FFFFFF; text-decoration: none; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center">
-            <span style="width: 40px; height: 40px; border-radius: 20px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span>
-            <span style="font-size: 13px; font-weight: 600">New challenge</span>
-          </a>
-        </div>
-      </div>
-    </sc-if>
-
+    <sc-if value="{{ socialError }}" hint-placeholder-val="{{ false }}"><span role="status" class="m-sub" style="color: var(--m-warn)">{{ socialErrorText }}</span></sc-if>
   </div>
   </sc-if>
 
@@ -424,7 +390,7 @@ class Component extends DCLogic {
     const n = (this.lastInbox || 0);
     // The selected label stays dark on the yellow pill in both themes (#1B1940 isn't remapped in dark mode).
     return { viewFriends: v === 'friends', viewRecaps: v === 'recaps', segX: v === 'friends' ? '0px' : '100%',
-      segs: [['friends', 'Friends'], ['recaps', 'Recaps']].map(([k, label]) => ({ label, on: k === v, fg: k === v ? '#1B1940' : '#FFFFFF', pick: pick(k), hasBadge: k === 'friends' && n > 0, badge: String(n) })) };
+      segs: [['friends', 'Friends'], ['recaps', 'Recaps']].map(([k, label]) => ({ label, on: k === v, cls: k === v ? 'on' : '', pick: pick(k), hasBadge: k === 'friends' && n > 0, badge: String(n) })) };
   }
   // Covers, the last seven days and past weeks from your real trips. Each link says which period the story shows.
   liveVals(L) {
@@ -515,7 +481,7 @@ class Component extends DCLogic {
         ['challenges', 'Challenges.dc.html', 'Challenges', 'Badges to earn', '#6E8CF7', '#FFFFFF', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3'],
         ['leaderboard', 'Leaderboard.dc.html', 'Everyone', 'Weekly leaderboard', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M5 20V12M10 20V6M15 20v-9M20 20V9'],
         ['clubs', 'Clubs.dc.html', 'Clubs', 'Run with your crew', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 5.2a3.5 3.5 0 0 1 0 6.6M18 15c2 .6 3.2 2.2 3.8 5']]
-        .map(([t, f, title, sub, bg, fg, icon], i) => ({ ...lk(t, f), title, sub, bg, fg, icon, d: i * 60 + 'ms' })), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html') }, navFrom: this.navFrom };
+        .map(([t, f, title, sub, bg, fg, icon], i) => ({ ...lk(t, f), title, sub, bg, fg, icon, d: i * 60 + 'ms' })), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html'), inbox: lk('inbox', 'Inbox.dc.html'), messages: lk('messages', 'Messages.dc.html') }, bellDot: !!(window.Motio && window.Motio.inbox && window.Motio.inbox.unread() > 0), navFrom: this.navFrom };
   }
 }
 </script>

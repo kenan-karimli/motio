@@ -8,10 +8,10 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-html,body{background:#4B3FD8}
+html,body{background:#ECECEA}
 a{color:inherit}
 button,input{font:inherit}
 button{cursor:pointer}
@@ -41,108 +41,79 @@ input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rg
 @keyframes motioAuto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #4B3FD8; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-
-  <div style="position: relative; height: 250px; flex-shrink: 0; padding: 16px 24px 0; box-sizing: border-box; color: #FFFFFF">
-    <svg aria-hidden="true" width="390" height="250" viewBox="0 0 390 250" style="position: absolute; left: 0; top: 0">
-      <circle cx="360" cy="40" r="130" fill="#5649E4"></circle>
-      <g fill="none" stroke-width="6" stroke-linecap="round" opacity="0.95">
-        <path d="M232 150 C 270 120, 290 150, 320 110 S 360 70, 384 60" stroke="#3DBF5C"></path>
-        <path d="M240 90 C 280 92, 300 60, 336 70 S 370 110, 392 100" stroke="#6E8CF7"></path>
-      </g>
-      <circle cx="384" cy="60" r="6" fill="#FFFFFF" stroke="#3DBF5C" stroke-width="3.5"></circle>
-    </svg>
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 26px 0 0; font-size: 34px; font-weight: 600; line-height: 1.12">Welcome<br>back!</h1>
-    <p style="position: relative; margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,0.9)">Your moves missed you.</p>
-  </div>
-
-  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 26px 24px 28px; display: flex; flex-direction: column; gap: 16px; animation: motioSheetIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 80ms backwards">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 28px">
+  <div style="display: flex; align-items: center; min-height: 44px"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column">
 
     <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
-      <div style="display: flex; flex-direction: column; gap: 16px; animation: {{ formAnim }}">
+      <div style="display: flex; flex-direction: column; animation: {{ formAnim }}; flex: 1">
+        <div style="margin-top: 26px; display: flex; flex-direction: column; gap: 10px"><h1 class="m-title">welcome back.</h1><span class="m-sub" style="font-size: 15px">Log in to pick up your days.</span></div>
         <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
-          <div role="alert" style="display: flex; gap: 12px; padding: 14px; border-radius: 18px; background: {{ err.bg }}; animation: motioRise 280ms ease-out">
-            <span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: {{ err.iconBg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ err.glyph }}"></path></svg></span>
-            <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: {{ err.fg }}">{{ err.title }}</span><span style="font-size: 12px; line-height: 1.45; color: #4A4770">{{ err.body }}</span>
-              <sc-if value="{{ err.hasAction }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ err.act }}" style="align-self: flex-start; margin-top: 6px; min-height: 36px; padding: 0 14px; border-radius: 18px; border: 0; background: #FFFFFF; color: {{ err.fg }}; font-size: 12px; font-weight: 700">{{ err.actLabel }}</button></sc-if>
-            </span>
+          <div role="alert" class="m-card tx" style="margin-top: 20px; display: flex; flex-direction: column; gap: 4px; padding: 14px 16px">
+            <b style="font-size: 14px">{{ err.title }}</b><span class="m-sub" style="font-size: 12px">{{ err.body }}</span>
+            <sc-if value="{{ err.hasAction }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-btn" onClick="{{ err.act }}" style="align-self: flex-start; margin-top: 6px; height: 36px; font-size: 13px">{{ err.actLabel }}</button></sc-if>
           </div>
         </sc-if>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Email
-          <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ emailBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
-          <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">Enter a valid email address.</span></sc-if>
+        <label class="field" style="margin-top: 30px"><span class="m-label">Email</span>
+          <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 54px; box-sizing: border-box; width: 100%; padding: 0 18px; border-radius: 18px; border: 0; background: var(--m-card); color: var(--m-ink); font: 500 15px var(--m-font); box-shadow: inset 0 0 0 2px {{ emailBorder }}">
+          <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}"><span style="font: 500 12px var(--m-font); color: var(--m-warn)">Enter a valid email address</span></sc-if>
         </label>
-        <label style="position: relative; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Password
-          <input type="{{ pwType }}" autocomplete="current-password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ pwKey }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 56px 0 16px; border-radius: 18px; border: 2px solid {{ pwBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
-          <button type="button" onClick="{{ togglePw }}" aria-label="{{ pwToggleLabel }}" style="position: absolute; right: 6px; top: 30px; width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 4l16 16" style="opacity: {{ slashOp }}; transition: opacity 200ms ease"></path></svg></button>
-          <sc-if value="{{ pwErr }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">Password needs at least 8 characters.</span></sc-if>
+        <label class="field" style="margin-top: 12px; position: relative"><span class="m-label">Password</span>
+          <input type="{{ pwType }}" autocomplete="current-password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ pwKey }}" placeholder="At least 8 characters" style="height: 54px; box-sizing: border-box; width: 100%; padding: 0 52px 0 18px; border-radius: 18px; border: 0; background: var(--m-card); color: var(--m-ink); font: 500 15px var(--m-font); box-shadow: inset 0 0 0 2px {{ pwBorder }}">
+          <button type="button" onClick="{{ togglePw }}" aria-label="{{ pwToggleLabel }}" style="position: absolute; right: 6px; top: 23px; width: 44px; height: 44px; border: 0; background: transparent; color: var(--m-mute); display: flex; align-items: center; justify-content: center"><m-ic n="eye" s="18"></m-ic></button>
+          <sc-if value="{{ pwErr }}" hint-placeholder-val="{{ false }}"><span style="font: 500 12px var(--m-font); color: var(--m-warn)">At least 8 characters</span></sc-if>
         </label>
-        <div style="display: flex; align-items: center; justify-content: space-between">
-          <button type="button" role="checkbox" aria-checked="{{ remember }}" onClick="{{ toggleRemember }}" style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 13px; font-weight: 500"><span style="width: 22px; height: 22px; border-radius: 7px; background: {{ rememberBg }}; border: 2px solid {{ rememberBorder }}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><sc-if value="{{ remember }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 260ms ease-out"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span>Remember me</button>
-          <button type="button" onClick="{{ forgot }}" style="min-height: 44px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Forgot password?</button>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px">
+          <button type="button" role="checkbox" aria-checked="{{ remember }}" onClick="{{ toggleRemember }}" style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 0; padding: 0; background: transparent; color: var(--m-ink); font: 500 13px var(--m-font)"><span style="width: 22px; height: 22px; border-radius: 11px; background: {{ rememberBg }}; box-shadow: inset 0 0 0 1.5px {{ rememberBorder }}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms ease"><sc-if value="{{ remember }}" hint-placeholder-val="{{ true }}"><svg class="m-pop" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--m-bg-hi)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span>Remember me</button>
+          <button type="button" class="lnk" onClick="{{ forgot }}" style="border: 0; background: transparent; padding: 0; min-height: 44px">Forgot password?</button>
         </div>
-        <button type="button" onClick="{{ submit }}" style="min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none">
-          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span style="width: 18px; height: 18px; border-radius: 9px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #FFFFFF; animation: motioSpin 700ms linear infinite"></span></sc-if>
-          {{ submitLabel }}
-        </button>
+        <button type="button" class="m-btn wide" onClick="{{ submit }}" style="margin-top: 20px"><sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span style="width: 16px; height: 16px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; animation: motioSpin 700ms linear infinite"></span></sc-if>{{ submitLabel }}</button>
         <sc-if value="{{ g.show }}" hint-placeholder-val="{{ false }}">
-          <div aria-hidden="true" style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B6890"><span style="flex: 1; height: 1px; background: #E3E1F3"></span>or<span style="flex: 1; height: 1px; background: #E3E1F3"></span></div>
-          <button type="button" onClick="{{ g.go }}" disabled="{{ g.busy }}" style="min-height: 56px; border-radius: 28px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; opacity: {{ g.op }}; transition: opacity 200ms ease">
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
-            {{ g.label }}
-          </button>
-          <sc-if value="{{ g.hasErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="text-align: center; font-size: 12px; color: #C2412F">{{ g.err }}</span></sc-if>
+          <div style="display: flex; align-items: center; gap: 12px; margin: 22px 0"><i style="flex: 1; height: 1px; background: var(--m-line)"></i><span class="m-sub">or</span><i style="flex: 1; height: 1px; background: var(--m-line)"></i></div>
+          <button type="button" class="m-btn w wide" onClick="{{ g.go }}" disabled="{{ g.busy }}" style="opacity: {{ g.op }}"><svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.6a4.8 4.8 0 0 1-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.5z"></path><path fill="#34A853" d="M12 22.5c2.8 0 5.2-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7A10.5 10.5 0 0 0 12 22.5z"></path><path fill="#FBBC05" d="M6.2 14.1a6.3 6.3 0 0 1 0-4.1V7.3H2.7a10.5 10.5 0 0 0 0 9.4z"></path><path fill="#EA4335" d="M12 5.6c1.5 0 2.9.5 4 1.6l3-3A10.5 10.5 0 0 0 2.7 7.3L6.2 10C7 7.5 9.3 5.6 12 5.6z"></path></svg>{{ g.label }}</button>
+          <sc-if value="{{ g.hasErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="text-align: center; margin-top: 8px; font: 500 12px var(--m-font); color: var(--m-warn)">{{ g.err }}</span></sc-if>
         </sc-if>
-        <span style="text-align: center; font-size: 13px; color: #4A4770">New to Motio? <a href="{{ LK.register.href }}" onClick="{{ LK.register.go }}" style="color: #4B3FD8; font-weight: 600; text-decoration: none; display: inline-block; padding: 12px 4px">Create an account</a></span>
+        <span style="flex: 1; min-height: 20px"></span>
+        <span class="m-sub" style="text-align: center">New here? <a href="{{ LK.register.href }}" onClick="{{ LK.register.go }}" style="color: var(--m-ink); font-weight: 600; text-decoration: none">Create an account</a></span>
       </div>
     </sc-if>
 
     <sc-if value="{{ resetting }}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; flex-direction: column; gap: 14px; animation: motioRise 320ms ease-out">
-        <span style="font-size: 20px; font-weight: 700">Set a new password</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">We emailed a 6-digit code to {{ email }}. Enter it with your new password.</span>
-        <sc-if value="{{ hasDevCode }}" hint-placeholder-val="{{ false }}">
-          <div role="status" style="padding: 10px 14px; border-radius: 16px; background: #FFF4D6; color: #6B4E00; font-size: 12px; line-height: 1.5">Email isn’t set up on this server yet, so here’s your code: <b style="font-size: 15px; letter-spacing: 2px">{{ devCode }}</b></div>
-        </sc-if>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Code
-          <input inputmode="numeric" autocomplete="one-time-code" value="{{ rCode }}" onChange="{{ onRCode }}" placeholder="123456" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 20px; font-weight: 600; letter-spacing: 6px">
-        </label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">New password
-          <input type="password" autocomplete="new-password" value="{{ rPw }}" onChange="{{ onRPw }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid #E3E1F3; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
-        </label>
-        <sc-if value="{{ hasRErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 500; color: #C2412F">{{ rErr }}</span></sc-if>
-        <button type="button" onClick="{{ submitReset }}" style="min-height: 56px; border-radius: 28px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; box-shadow: none">{{ rLabel }}</button>
-        <button type="button" onClick="{{ cancelReset }}" style="min-height: 44px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Back to log in</button>
+      <div class="m-in" style="display: flex; flex-direction: column; gap: 12px; margin-top: 26px">
+        <h1 class="m-title" style="font-size: 32px">new password.</h1>
+        <span class="m-sub">We emailed a 6-digit code to <b style="color: var(--m-ink)">{{ email }}</b>. Enter it with your new password.</span>
+        <sc-if value="{{ hasDevCode }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-card tg" style="padding: 12px 14px; font-size: 12px">Email isn’t set up on this server yet, so here’s your code: <b style="font-size: 15px; letter-spacing: 2px">{{ devCode }}</b></div></sc-if>
+        <label class="field" style="margin-top: 8px"><span class="m-label">Code</span><input inputmode="numeric" autocomplete="one-time-code" value="{{ rCode }}" onChange="{{ onRCode }}" placeholder="123456" style="height: 54px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; border: 0; background: var(--m-card); color: var(--m-ink); font: 600 20px var(--m-font); letter-spacing: 6px"></label>
+        <label class="field"><span class="m-label">New password</span><input type="password" autocomplete="new-password" value="{{ rPw }}" onChange="{{ onRPw }}" placeholder="At least 8 characters" style="height: 54px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; border: 0; background: var(--m-card); color: var(--m-ink); font: 500 15px var(--m-font)"></label>
+        <sc-if value="{{ hasRErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font: 500 12px var(--m-font); color: var(--m-warn)">{{ rErr }}</span></sc-if>
+        <button type="button" class="m-btn wide" onClick="{{ submitReset }}" style="margin-top: 8px">{{ rLabel }}</button>
+        <button type="button" class="m-btn w wide" onClick="{{ cancelReset }}">Back to log in</button>
       </div>
     </sc-if>
 
     <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; animation: motioRise 360ms ease-out">
-        <span style="width: 88px; height: 88px; border-radius: 44px; background: #FDECEA; display: flex; align-items: center; justify-content: center; animation: motioShake 520ms ease 200ms"><svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C2412F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path><circle cx="12" cy="16" r="1.4" fill="#C2412F"></circle></svg></span>
-        <span style="font-size: 22px; font-weight: 700">Too many tries</span>
-        <span style="font-size: 14px; line-height: 1.5; color: #4A4770; max-width: 280px">We’ve paused logins for this account to keep it safe. Try again in</span>
-        <span style="font-size: 40px; font-weight: 700; letter-spacing: 1px; font-variant-numeric: tabular-nums">{{ lockClock }}</span>
-        <button type="button" onClick="{{ resetPw }}" style="margin-top: 8px; min-width: 240px; min-height: 54px; border-radius: 27px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600">Reset my password</button>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
+        <tuli-fox pose="droop" size="120"></tuli-fox>
+        <h1 class="m-title" style="font-size: 30px">too many tries.</h1>
+        <span class="m-sub" style="max-width: 280px">We’ve paused logins for this account to keep it safe. Try again in</span>
+        <span class="m-num" style="font-size: 40px">{{ lockClock }}</span>
+        <button type="button" class="m-btn" onClick="{{ resetPw }}" style="margin-top: 8px">Reset my password</button>
       </div>
     </sc-if>
 
     <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
       <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
-        <span style="width: 84px; height: 84px; border-radius: 42px; background: #3DBF5C; box-shadow: none; display: flex; align-items: center; justify-content: center; animation: motioPop 520ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
-        <span style="font-size: 22px; font-weight: 700; animation: motioRise 360ms ease-out 120ms backwards">You’re in, {{ doneName }}!</span>
-        <span style="font-size: 14px; color: #4A4770; animation: motioRise 360ms ease-out 200ms backwards">Tracking is back on. Let’s see your day.</span>
-        <div style="margin-top: 14px; width: 200px; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: motioRise 360ms ease-out 280ms backwards">
-          <span style="font-size: 12px; font-weight: 600; color: #6B6890">Opening Today…</span>
-          <span style="display: block; width: 100%; height: 6px; border-radius: 3px; background: #EEF0F6; overflow: hidden"><span style="display: block; height: 6px; border-radius: 3px; background: #5B4FE0; transform-origin: left; animation: motioAuto 1600ms cubic-bezier(0.4, 0, 0.2, 1) forwards"></span></span>
-        </div>
+        <tuli-fox pose="cheer" size="130"></tuli-fox>
+        <h1 class="m-title m-in" style="font-size: 30px; --i: 1">you’re in, {{ doneName }}.</h1>
+        <span class="m-sub m-in" style="--i: 2">Tracking is back on. Let’s see your day.</span>
+        <div class="m-progress m-late" style="width: 200px; margin-top: 14px"><i style="width: 100%; transform-origin: left; animation: motioAuto 1600ms cubic-bezier(0.4, 0, 0.2, 1) forwards"></i></div>
         <a href="{{ LK.home.href }}" ref="{{ homeRef }}" tabindex="-1" aria-hidden="true" style="position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none"></a>
       </div>
     </sc-if>
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2600ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; animation: motioToast 2600ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -245,12 +216,12 @@ class Component extends DCLogic {
       onPw: (e) => this.setState({ pw: e.target.value }),
       pwKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.renderVals().submit(); } },
       emailErr, pwErr,
-      emailBorder: emailErr ? '#C2412F' : '#E3E1F3',
-      pwBorder: pwErr ? '#C2412F' : '#E3E1F3',
+      emailBorder: emailErr ? 'var(--m-warn)' : 'transparent',
+      pwBorder: pwErr ? 'var(--m-warn)' : 'transparent',
       slashOp: s.showPw ? 1 : 0, pwType: s.showPw ? 'text' : 'password',
       pwToggleLabel: s.showPw ? 'Hide password' : 'Show password',
       togglePw: () => this.setState({ showPw: !s.showPw }),
-      remember, rememberBg: remember ? '#5B4FE0' : '#FFFFFF', rememberBorder: remember ? '#5B4FE0' : '#C9C5EC',
+      remember, rememberBg: remember ? 'var(--m-ink)' : 'var(--m-card)', rememberBorder: remember ? 'var(--m-ink)' : 'var(--m-line)',
       toggleRemember: () => this.setState({ remember: !remember }),
       forgot: () => (emailOk ? this.resetPassword() : this.showToast('Type your email first')),
       doneName: ((window.Motio && window.Motio.auth.user() && window.Motio.auth.user().name) || 'Alex').split(' ')[0],

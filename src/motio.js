@@ -1343,12 +1343,34 @@ export function places() {
     const home = spots.reduce((a, c) => (c[2].night > (a ? a[2].night : 0) ? c : a), null);
     const work = spots.filter((c) => c !== home).reduce((a, c) => (c[2].work > (a ? a[2].work : 0) ? c : a), null);
     const names = S.settings.placeNames || {};
-    return spots.slice(0, 10).map((c, i) => {
+    const geo = S.settings.placeGeo || {};
+    const list = spots.slice(0, 10).map((c, i) => {
       const id = c[0].toFixed(3) + ',' + c[1].toFixed(3);
-      const auto = c === home ? 'Home' : c === work ? 'Work' : 'Place ' + (i + 1);
-      return { id, lat: c[0], lng: c[1], name: names[id] || auto, kind: c === home ? 'home' : c === work ? 'work' : 'place', visits: c[2].visits, hours: c[2].ms / HOUR, last: c[2].last };
+      const auto = c === home ? 'Home' : c === work ? 'Work' : geo[id] || 'Place ' + (i + 1);
+      return { id, lat: c[0], lng: c[1], name: names[id] || auto, geo: geo[id] || '', kind: c === home ? 'home' : c === work ? 'work' : 'place', visits: c[2].visits, hours: c[2].ms / HOUR, last: c[2].last };
     });
+    nameSpots(list);
+    return list;
   });
+}
+// Real names for places ("Port Baku Mall", "Neftchilar Avenue 151"): the server asks OpenStreetMap about a ~100 m square
+// (never the exact fix) and keeps the answer, so each spot is asked once, here and on the server.
+const geoTried = new Set();
+function nameSpots(list) {
+  if (!S.token) return;
+  const todo = list.filter((p) => !p.geo && !geoTried.has(p.id));
+  if (!todo.length) return;
+  todo.forEach((p) => geoTried.add(p.id));
+  (async () => {
+    for (const p of todo) {
+      try {
+        const r = await api('GET', '/v1/place-name?lat=' + p.lat.toFixed(3) + '&lng=' + p.lng.toFixed(3));
+        if (r && r.name) { S.settings.placeGeo = { ...(S.settings.placeGeo || {}), [p.id]: r.name }; cache.delete('places'); }
+        else if (r && r.unavailable) geoTried.delete(p.id); // asked again next launch
+      } catch { geoTried.delete(p.id); }
+    }
+    changed();
+  })();
 }
 export const renamePlace = (id, name) => setSetting('placeNames', { ...(S.settings.placeNames || {}), [id]: String(name).slice(0, 30) });
 

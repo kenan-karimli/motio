@@ -22,7 +22,7 @@ try { for (const f of readdirSync('release-notes').filter((f) => f.endsWith('.md
 const appVersion = (/versionName "([^"]+)"/.exec(readFileSync('android/app/build.gradle', 'utf8')) || [])[1] || '';
 writeFileSync('www/dc-sources.js', 'window.__DC_SOURCES=' + JSON.stringify(sources) + ';window.__MOTIO_API=' + JSON.stringify(process.env.MOTIO_API || 'http://localhost:8787') + ';window.__MOTIO_NOTES=' + JSON.stringify(notes) + ';window.__MOTIO_VERSION=' + JSON.stringify(appVersion) + ';');
 
-const fonts = [['poppins', 'Poppins', [400, 500, 600, 700]], ['space-mono', 'Space Mono', [400, 700]]];
+const fonts = [['inter-tight', 'Inter Tight', [400, 500, 600, 700]], ['space-mono', 'Space Mono', [400, 700]]];
 let css = '';
 for (const [pkg, family, weights] of fonts) {
   for (const w of weights) {

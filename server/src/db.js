@@ -56,6 +56,7 @@ const SCHEMA = `
   CREATE INDEX IF NOT EXISTS trips_by_time ON trips(user_id, start);
   CREATE INDEX IF NOT EXISTS trips_by_update ON trips(user_id, updated_at);
   ALTER TABLE trips ADD COLUMN IF NOT EXISTS extra TEXT NOT NULL DEFAULT '{}';
+  CREATE TABLE IF NOT EXISTS place_names (key TEXT PRIMARY KEY, name TEXT NOT NULL, at BIGINT NOT NULL);
 `;
 
 // BIGINT (millisecond times) comes back as a JS number, not a string.

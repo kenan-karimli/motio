@@ -23,6 +23,7 @@ export const legalRoutes = (env) => ({
 <h2>How we use it</h2>
 <p>Only to show you your own stats, maps, recaps and widgets, and to keep them in sync between the app and our server. We do not sell your data, show ads, or use it to profile you for anyone else.</p>
 <h2>Sharing</h2>
+<p>To name your places (a street, a shop) Motio's server asks OpenStreetMap what is at a square of about 100 m around the spot. It sends no account details and never your exact position, and keeps each answer so a spot is asked only once.</p>
 <p>Nothing leaves Motio unless you send it: images you share, files you export, and, if you connect them, Health Connect (workouts, steps and distance written on your phone) and Strava (walks, runs and rides with their routes, uploaded to your Strava account). You can disconnect either at any time in Settings › Connected apps.</p>
 <h2>Privacy zones</h2>
 <p>Places you add as private zones (for example home) are hidden from maps and shared images.</p>

@@ -6,6 +6,6 @@
     <string name="custom_url_scheme">com.motio.app</string>
     <string name="capacitor_background_geolocation_notification_channel_name">Motio tracking</string>
     <string name="capacitor_background_geolocation_notification_icon">ic_launcher_monochrome</string>
-    <string name="capacitor_background_geolocation_notification_color">#4B3FD8</string>
+    <string name="capacitor_background_geolocation_notification_color">#141414</string>
     <string name="widget_description">Today’s time on the move, distance and steps</string>
 </resources>

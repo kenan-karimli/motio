@@ -8,7 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
 <style>
 body{margin:0}
 button{font:inherit;cursor:pointer}
@@ -29,8 +29,6 @@ button:active,a:active{transform:scale(0.96)}
 /* Full-screen backdrops (tap outside a sheet to close) never shrink on press: that flashed the screen edges. */
 button[style*="inset: 0"]:active,a[style*="inset: 0"]:active,button[style*="inset:0"]:active{transform:none !important}
 body[data-sheet] .motio-upd{display:none}
-/* Tab content fades out above the tab bar instead of being cut with a flat edge. */
-[data-page="tab"] .motio-scroll{-webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}
 /* Nothing animates where nobody can see it: tabs out of view, and the tabs under an open page. */
 [data-page="tab"][aria-hidden="true"] *,body:has([data-page="overlay"]) [data-page="tab"] *{animation-play-state:paused!important}
 /* Tabs tapped into view build up in steps, like opened pages (Today has its own entrance). */
@@ -39,7 +37,7 @@ body[data-sheet] .motio-upd{display:none}
 @media (prefers-reduced-motion: reduce){*{animation-duration:1ms!important;animation-delay:0ms!important;transition-duration:1ms!important}}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
+<div class="m-page" style="width: 390px; height: 844px; position: relative; overflow: hidden">
 
   <sc-if value="{{ baseReady }}" hint-placeholder-val="{{ true }}">
     <div style="position: absolute; inset: 0; transform: {{ baseShift }}; transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1); will-change: transform">
@@ -76,28 +74,7 @@ body[data-sheet] .motio-upd{display:none}
       <dc-import name="Personality" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
-  <nav aria-label="Main" style="position: absolute; left: 20px; right: 20px; bottom: 24px; z-index: 10; display: flex; gap: 4px; padding: 6px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 24px rgba(20,14,70,0.18); opacity: {{ navOp }}; transform: translateY({{ navY }}); transition: opacity 260ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1)">
-    <button aria-current="{{ T0.current }}" onClick="{{ T0.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T0.fg }}; font-size: 11px; font-weight: {{ T0.fw }}">
-      <sc-if value="{{ T0.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><mask id="motioTodayHands"><rect width="24" height="24" fill="#FFFFFF"></rect><path d="M12 7v5l3 2" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></mask><circle cx="12" cy="12" r="10" fill="currentColor" mask="url(#motioTodayHands)"></circle></svg></span></sc-if>
-      <sc-if value="{{ T0.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span></sc-if>
-      Today
-    </button>
-    <button aria-current="{{ T1.current }}" onClick="{{ T1.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T1.fg }}; font-size: 11px; font-weight: {{ T1.fw }}">
-      <sc-if value="{{ T1.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="10" width="5" height="11" rx="2"></rect><rect x="9.5" y="3" width="5" height="18" rx="2"></rect><rect x="16" y="12.5" width="5" height="8.5" rx="2"></rect></svg></span></sc-if>
-      <sc-if value="{{ T1.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg></span></sc-if>
-      Moves
-    </button>
-    <button aria-current="{{ T2.current }}" onClick="{{ T2.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T2.fg }}; font-size: 11px; font-weight: {{ T2.fw }}">
-      <sc-if value="{{ T2.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.5"></circle><path d="M3.5 21.5c1.3-4.6 4.6-7 8.5-7s7.2 2.4 8.5 7z"></path></svg></span></sc-if>
-      <sc-if value="{{ T2.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></span></sc-if>
-      You
-    </button>
-    <button aria-current="{{ T3.current }}" onClick="{{ T3.pick }}" style="position: relative; flex: 1; min-height: 52px; border: 0; padding: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{ T3.fg }}; font-size: 11px; font-weight: {{ T3.fw }}">
-      <sc-if value="{{ T3.on }}" hint-placeholder-val="{{ false }}"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="4"></circle><path d="M1.5 21c.8-4 3.8-6.5 7.5-6.5s6.7 2.5 7.5 6.5z"></path><path d="M16 3.3a4 4 0 0 1 0 7.4M18.5 14.6c2 .9 3.5 3 4 6.4h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></span></sc-if>
-      <sc-if value="{{ T3.off }}" hint-placeholder-val="{{ true }}"><span class="motio-tab-icon" style="display: flex"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M16 3.5a4 4 0 0 1 0 7M22 21v-1a6 6 0 0 0-4-5.6"></path></svg></span></sc-if>
-      Social
-    </button>
-  </nav>
+  <m-nav ref="{{ navRef }}" aria-label="Main" style="z-index: 10; opacity: {{ navOp }}; transform: translateY({{ navY }}) scale({{ navS }}); transition: {{ navT }}"></m-nav>
 
   <sc-if value="{{ O.settings.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.settings.kind }}" style="position: absolute; inset: 0; z-index: {{ O.settings.z }}; animation: {{ O.settings.anim }}; box-shadow: {{ O.settings.shadow }}">
@@ -368,6 +345,7 @@ class Component extends DCLogic {
     if (dt > 0) { d.v = 0.7 * d.v + 0.3 * ((dx - d.lastDx) / dt); d.lastDx = dx; d.lastT = e.timeStamp; }
     d.dx = dx;
     this.pagerEl.style.setProperty('--dx', dx + 'px');
+    if (this.navEl && this.navEl.setProgress) this.navEl.setProgress((this.state.tab || 0) - dx / (this.pagerEl.offsetWidth || 390));
   }
   dragEnd(e) {
     const d = this.drag;
@@ -380,9 +358,24 @@ class Component extends DCLogic {
     to = Math.max(0, Math.min(3, to));
     this.pagerEl.style.setProperty('--dur', '380ms');
     this.pagerEl.style.setProperty('--dx', '0px');
-    if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false }); }
+    if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false, hideNav: false }); }
+  }
+  // The pill always sits on the open tab (after a swipe, a back press or a link), without firing another change.
+  componentDidUpdate() {
+    const t = (this.state && this.state.tab) || 0;
+    if (this.navEl && this.navEl.go && this.navEl._i !== t) this.navEl.go(t, true, true);
   }
   componentDidMount() {
+    // Scrolling a tab down hides the tab bar; scrolling up, reaching the top or the bottom, or changing tab brings it back.
+    this.onTabScroll = (e) => {
+      const el = e.target;
+      if (!el.classList || !el.classList.contains('motio-scroll') || !el.closest('[data-page="tab"]')) return;
+      const y = el.scrollTop, last = el.__y || 0; el.__y = y;
+      const atEnd = y + el.clientHeight >= el.scrollHeight - 4;
+      const hide = y > 24 && !atEnd && y > last + 2 ? true : (y < last - 2 || y <= 24 || atEnd) ? false : !!(this.state && this.state.hideNav);
+      if (hide !== !!(this.state && this.state.hideNav)) this.setState({ hideNav: hide });
+    };
+    document.addEventListener('scroll', this.onTabScroll, true);
     // In-app update card (src/main.js finds the update and runs the download).
     window.addEventListener('motio:update', () => this.setState({ upd: { ...window.__motioUpdate } }));
     // Changing the theme reloads the app; come back to Settings where the switch was.
@@ -427,13 +420,13 @@ class Component extends DCLogic {
     const closing = !!s.closing;
     const top = stack[stack.length - 1] || null;
     const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
-    const tabIndex = { today: 0, moves: 1, you: 2, recaps: 3 };
+    const tabIndex = { today: 0, moves: 1, you: 2, social: 3, recaps: 3 };
     const stories = ['recap', 'month', 'live', 'summary'];
 
     // One shell for the whole app: tabs swap almost instantly (Instagram-style),
     // detail screens push from the right, recaps rise from the bottom, log-out fades.
     const go = (target) => {
-      if (target in tabIndex) return this.setState({ tab: tabIndex[target], stack: [], closing: false });
+      if (target in tabIndex) return this.setState({ tab: tabIndex[target], stack: [], closing: false, hideNav: false });
       if (target === 'home') { setAuth(true); return this.setState({ tab: 0, stack: [], closing: false }); }
       if (target === 'welcome') { setAuth(false); if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.auth.logout(); return this.setState({ stack: ['welcome'], closing: false }); }
       if (target === 'back-now') { if (stack.length) this.setState({ stack: stack.slice(0, -1), closing: false }); return; }
@@ -494,23 +487,31 @@ class Component extends DCLogic {
     const layer = (i) => ({ off: i - tab, pe: i === tab ? 'auto' : 'none', hidden: i === tab ? 'false' : 'true', enter: i === this.enterTab ? 'true' : 'false' });
     const item = (i, key) => {
       const on = i === tab;
-      return { on, off: !on, current: on ? 'page' : 'false', fg: on ? '#1F1D47' : '#6B6890', fw: on ? 700 : 500, pick: () => go(key) };
+      return { on, off: !on, cls: on ? 'on' : '', current: on ? 'page' : 'false', pick: () => go(key) };
     };
 
     const settled = top && !closing;
-    const coversNav = settled;
+    const coversNav = settled, hideNav = !!(this.state && this.state.hideNav) && !settled;
     return {
       go: this.goStable, O,
       baseReady: this.startedAuthed || !!s.ready || !!s.stack,
       pagerRef: (el) => { this.pagerEl = el; },
+      navRef: (el) => {
+        if (!el || el === this.navEl) return;
+        this.navEl = el;
+        el.addEventListener('m-tab', (e) => this.goFn && this.goFn(e.detail));
+      },
       onDown: (e) => this.dragStart(e),
       onMove: (e) => this.dragMove(e),
       onUp: (e) => this.dragEnd(e),
       L0: layer(0), L1: layer(1), L2: layer(2), L3: layer(3),
-      T0: item(0, 'today'), T1: item(1, 'moves'), T2: item(2, 'you'), T3: item(3, 'recaps'),
+      T0: item(0, 'today'), T1: item(1, 'moves'), T2: item(2, 'you'), T3: item(3, 'social'),
       baseShift: settled && !stories.includes(top) && top !== 'welcome' ? 'translateX(-72px)' : settled && stories.includes(top) ? 'scale(0.96)' : 'none',
-      navOp: coversNav ? 0 : 1,
-      navY: coversNav ? '24px' : '0px',
+      navOp: coversNav || hideNav ? 0 : 1,
+      navY: coversNav ? '24px' : hideNav ? '110px' : '0px',
+      navS: hideNav ? 0.96 : 1,
+      // Hides with a quick ease-out, comes back with a spring (as on the 5.0 boards).
+      navT: hideNav ? 'opacity 300ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'opacity 260ms ease, transform 550ms cubic-bezier(0.34, 1.4, 0.64, 1)',
       // Update card: tapping it opens the Update page.
       upd: (() => {
         const u = s.upd;

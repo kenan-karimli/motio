@@ -1,6 +1,7 @@
 import './motio.js';
 import './map.js';
 import './recap-scene.js';
+import './kit.js';
 import './mascot.js';
 
 // Everywhere in the app, cards and rows below the fold glide in as you scroll to them (the first screenful
@@ -38,7 +39,7 @@ const colorAt = (x, y) => {
     const c = getComputedStyle(el).backgroundColor;
     if (c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') return c;
   }
-  return 'rgb(75, 63, 216)';
+  return 'rgb(236, 236, 234)';
 };
 const isLight = (rgb) => {
   const [r, g, b] = rgb.match(/[\d.]+/g).map(Number);
@@ -109,7 +110,7 @@ document.addEventListener('animationend', settle, true);
 mount('App', app);
 syncBars();
 
-// The system splash is plain purple, so drop it at once and let the page's own opening animation play on the
+// The system splash is plain grey, so drop it at once and let the page's own opening animation play on the
 // same colour. The intro lifts away once the app has painted and the animation has had its moment (about 1.2 s).
 SplashScreen.hide({ fadeOutDuration: 0 }).catch(() => {});
 const intro = document.getElementById('intro');
@@ -164,7 +165,8 @@ async function checkUpdate() {
   updateCheckedAt = Date.now();
   try {
     const [rel, me] = await Promise.all([fetch(RELEASES).then((r) => (r.ok ? r.json() : null)), Updater.version()]);
-    const asset = rel && (rel.assets || []).find((a) => /^motio-\d+\.apk$/.test(a.name));
+    const asset = rel && (rel.assets || []).filter((a) => /^motio-\d+\.apk$/.test(a.name))
+      .reduce((best, a) => !best || Number(a.name.match(/\d+/)[0]) > Number(best.name.match(/\d+/)[0]) ? a : best, null);
     if (!asset || Number(asset.name.match(/\d+/)[0]) <= Number(me.code)) return;
     const name = String(rel.tag_name).replace(/^v/, '');
     // A download paused or finished in an earlier session picks up where it was.

@@ -8,10 +8,10 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-html,body{background:#F6C343}
+html,body{background:#ECECEA}
 a{color:inherit}
 a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
 a:active{transform:scale(0.96)}
@@ -21,36 +21,12 @@ a:active{transform:scale(0.96)}
 @keyframes motioQ{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-6px);opacity:0.6}}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6C343; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; padding: 60px 28px 40px; display: flex; flex-direction: column">
-  <span aria-hidden="true" style="position: absolute; right: -20px; top: 40px; font-size: 200px; font-weight: 700; line-height: 1; color: #F8D06A; letter-spacing: -10px">404</span>
-
-  <div style="position: relative; height: 300px; margin-top: 40px; animation: motioRise 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
-    <svg aria-hidden="true" width="334" height="300" viewBox="0 0 334 300" style="position: absolute; inset: 0">
-      <path d="M-20 270 C 60 230, 120 290, 190 250 S 300 200, 360 230" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14"></path>
-      <path d="M300 236 l-10 -16 h20 z" fill="#F2766B"></path><path d="M300 220 v-20" stroke="#1F1D47" stroke-width="4" stroke-linecap="round"></path>
-      <g style="animation: none"><g style="transform-origin: 170px 180px; animation: none">
-        <g transform="translate(60 40) scale(0.62)">
-          <path d="M188 214 L172 256 L160 294" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-          <rect x="146" y="132" width="34" height="66" rx="14" fill="#F2766B"></rect>
-          <path d="M204 214 L226 250 L242 290" fill="none" stroke="#2D2A7A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path>
-          <path d="M216 140 L240 160 L262 132" fill="none" stroke="#5B4FE0" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
-          <g transform="rotate(14 284 120)"><rect x="254" y="90" width="62" height="50" rx="4" fill="#FFFFFF"></rect><path d="M262 130 l10 -14 10 8 12 -18 12 10" fill="none" stroke="#C9C5EC" stroke-width="3" stroke-linecap="round"></path></g>
-          <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-          <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle>
-          <circle cx="212" cy="96" r="2.6" fill="#2A1B3D"></circle>
-          <path d="M207 107 Q212 104 218 107" fill="none" stroke="#2A1B3D" stroke-width="2.4" stroke-linecap="round"></path>
-        </g>
-      </g></g>
-      <text x="200" y="66" font-family="Poppins, sans-serif" font-size="40" font-weight="700" fill="#1F1D47" style="animation: none">?</text>
-      <text x="226" y="46" font-family="Poppins, sans-serif" font-size="26" font-weight="700" fill="#F2766B" style="animation: none">?</text>
-    </svg>
+<div class="m-page" style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 70px 32px 190px; text-align: center">
+  <span ref="{{ foxRef }}" class="m-pop" style="display: block; height: 150px"></span>
+<h1 class="m-title m-in" style="font-size: 32px; --i: 1">this page wandered off.</h1><span class="m-sub m-in" style="--i: 2; max-width: 300px">The link may be old, or the trip it pointed to was deleted. Even Wanderers take a wrong turn sometimes.</span>
+  <div style="position: absolute; left: 22px; right: 22px; bottom: 34px; display: flex; flex-direction: column; gap: 10px">
+<a class="m-btn wide" href="{{ LK.home.href }}" onClick="{{ LK.home.go }}" style="text-decoration: none">Take me back to Today</a>
   </div>
-
-  <h1 style="position: relative; margin: 10px 0 0; font-size: 32px; font-weight: 700; line-height: 1.15; animation: motioRise 520ms cubic-bezier(0.22, 1, 0.36, 1) 120ms backwards">This page<br>wandered off</h1>
-  <p style="position: relative; margin: 10px 0 0; font-size: 15px; line-height: 1.5; animation: motioRise 520ms cubic-bezier(0.22, 1, 0.36, 1) 180ms backwards">The link may be old, or the trip it pointed to was deleted. Even Wanderers take a wrong turn sometimes.</p>
-
-  <a href="{{ LK.home.href }}" onClick="{{ LK.home.go }}" style="position: relative; margin-top: auto; min-height: 56px; border-radius: 28px; background: #1F1D47; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; box-shadow: none">Take me back to Today</a>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -62,7 +38,7 @@ class Component extends DCLogic {
       if (e && e.preventDefault) e.preventDefault();
       if (this.props.onNav) this.props.onNav(target);
     } });
-    return { LK: { home: lk('home', 'Main.dc.html') } };
+    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('curious', 150) : null, LK: { home: lk('home', 'Main.dc.html') } };
   }
 }
 </script>
