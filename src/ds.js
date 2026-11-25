@@ -59,11 +59,21 @@ const CSS = `
 .m-face.on{background:var(--m-ink);color:var(--m-bg-hi);transform:scale(1.08)}
 .m-toggle{width:50px;height:30px;border-radius:15px;border:0;background:var(--m-line);position:relative;cursor:pointer;transition:background-color .25s}
 .m-toggle::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:12px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .3s var(--m-spring)}
-.m-toggle.on{background:var(--m-accent)}
-.m-toggle.on::after{transform:translateX(20px)}
+.m-toggle.on,.m-toggle[aria-checked="true"]{background:var(--m-accent)}
+.m-toggle.on::after,.m-toggle[aria-checked="true"]::after{transform:translateX(20px)}
 .m-progress{height:4px;border-radius:2px;background:var(--m-line);overflow:hidden}
 .m-progress>i{display:block;height:100%;background:var(--m-ink);border-radius:2px;transition:width .5s var(--m-ease)}
-/* Navigation: a floating frosted pill. */
+/* Top bar on pushed pages: transparent at the top; once you scroll it turns frosted and shows the page title small. */
+.m-topbar{position:absolute;left:0;right:0;top:0;z-index:8;display:flex;align-items:center;gap:8px;padding:54px 20px 10px;transition:background-color .3s var(--m-ease),box-shadow .3s var(--m-ease)}
+.m-topbar .m-tt{flex:1;text-align:center;font:600 16px var(--m-font);opacity:0;transform:translateY(6px);transition:opacity .3s var(--m-ease),transform .3s var(--m-ease)}
+.m-scrolled .m-topbar{background:color-mix(in srgb,var(--m-bg) 72%,transparent);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);box-shadow:0 1px 0 color-mix(in srgb,var(--m-ink) 8%,transparent)}
+.m-scrolled .m-topbar .m-tt{opacity:1;transform:none}
+.m-scrolled .m-title{opacity:0;transform:translateY(-8px) scale(.96);transform-origin:left;transition:opacity .3s var(--m-ease),transform .3s var(--m-ease)}
+.m-title{transition:opacity .3s var(--m-ease),transform .3s var(--m-ease)}
+/* Navigation: a floating frosted pill. Scrolling down tucks it away; it springs back on the way up. */
+m-nav.m-tabbar{transition:transform .55s cubic-bezier(.34,1.3,.64,1),opacity .3s ease!important}
+m-nav.m-tabbar.m-hide{transform:translateY(110px) scale(.96)!important;opacity:0!important;pointer-events:none;transition:transform .42s cubic-bezier(.22,1,.36,1),opacity .25s ease!important}
+
 .m-tabbar{position:absolute;left:14px;right:14px;bottom:18px;height:64px;padding:6px;display:flex;border-radius:32px;background:color-mix(in srgb,var(--m-card) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:26px;background:transparent;color:var(--m-mute);font:600 10.5px var(--m-font);cursor:pointer;transition:background-color .25s var(--m-ease),color .25s}
 .m-tab.on{background:var(--m-soft);color:var(--m-ink)}

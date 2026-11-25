@@ -26,7 +26,7 @@ button,a{font:inherit;cursor:pointer}
 </helmet>
 <div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
   <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; flex-direction: column; gap: 10px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
     <span style="display: flex; align-items: center; justify-content: space-between; gap: 10px"><h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.1">Personal records</h1><a href="{{ LK.routes.href }}" onClick="{{ LK.routes.go }}" style="flex-shrink: 0; height: 38px; padding: 0 14px; border-radius: 19px; background: #F6C343; color: #1F1D47; font-size: 13px; font-weight: 700; display: flex; align-items: center; text-decoration: none">Your routes</a></span>
     <span style="font-size: 13px; color: #C9C5EC">{{ sub }}</span>
   </div>

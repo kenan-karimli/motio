@@ -71,7 +71,7 @@ button:active,a:active{transform:scale(0.96)}
       <span class="m-h2" style="font-size: 24px">{{ persA }} {{ persB }}</span>
       <span style="display: flex; gap: 6px; flex-wrap: wrap"><span class="m-chip" style="height: 30px; font-size: 12px; background: rgba(255,255,255,0.12); color: inherit"><b>{{ persStatB }}</b>&nbsp;{{ persStatT }}</span><span class="m-chip" style="height: 30px; font-size: 12px">See why</span></span>
     </div>
-    <span ref="{{ foxRef }}" style="flex-shrink: 0; color: var(--m-on-dark)"></span>
+    <m-scene name="{{ scene }}" size="130" style="flex-shrink: 0"></m-scene>
   </a>
 
   <div class="m-card" style="display: flex; flex-direction: column; gap: 12px">
@@ -395,7 +395,7 @@ class Component extends DCLogic {
         busyPre: busiest ? 'Busiest day: ' : 'No moves in the last 30 days. ',
         busyDay: busiest ? short(busiest.from) : '',
         busyPost: busiest ? ', ' + fmt(busiest.min) + ' on the move' : 'Your days will fill in here.',
-        foxRef: window.MotioMascot ? window.MotioMascot.fox('idle', 92) : null, persA: words.slice(0, half).join(' ').replace('\u00a0', ' '), persB: words.slice(half).join(' '),
+        scene: ({ wanderer: 'wanderer', commuter: 'commuter', speedster: 'runner', roadtripper: 'tripper', explorer: 'explorer', cyclist: 'wheeler', wheeler: 'wheeler', nightowl: 'explorer' })[window.Motio ? window.Motio.personality().key : 'wanderer'] || 'wanderer', persA: words.slice(0, half).join(' ').replace('\u00a0', ' '), persB: words.slice(half).join(' '),
         persStatB: pers.enough && top ? top.pct + '%' : M.fmtMin(M.summarize(now - 30 * M.DAY, now).min),
         persStatT: pers.enough && top ? top.label.toLowerCase() : 'of 3h needed',
         noRecords: records.length === 0

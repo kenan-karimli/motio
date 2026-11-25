@@ -48,10 +48,10 @@ input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rg
   <div style="position: relative; flex-shrink: 0; padding: 16px 24px 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
     <div style="position: relative; display: flex; align-items: center; gap: 14px">
       <sc-if value="{{ firstStep }}" hint-placeholder-val="{{ true }}">
-        <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+        <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
       </sc-if>
       <sc-if value="{{ laterStep }}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{ prev }}" aria-label="Previous step" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+        <button onClick="{{ prev }}" aria-label="Previous step" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
       </sc-if>
       <div role="progressbar" aria-label="{{ stepLabel }}" aria-valuemin="1" aria-valuemax="4" aria-valuenow="{{ stepNum }}" style="flex: 1; display: flex; gap: 6px">
         <sc-for list="{{ segs }}" as="g" hint-placeholder-count="3"><span style="flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.4); overflow: hidden"><span style="display: block; height: 6px; width: {{ g.w }}; border-radius: 3px; background: #1F1D47; transition: width 480ms cubic-bezier(0.22, 1, 0.36, 1)"></span></span></sc-for>
@@ -62,19 +62,19 @@ input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rg
     <p style="position: relative; margin: 0; font-size: 14px">{{ subtitle }}</p>
   </div>
 
-  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 24px 24px 28px; display: flex; flex-direction: column; gap: 16px">
+  <div style="position: relative; flex: 1; min-height: 0; overflow-y: auto; background: transparent; padding: 24px 24px 28px; display: flex; flex-direction: column; gap: 16px">
 
     <sc-if value="{{ S1 }}" hint-placeholder-val="{{ true }}">
       <div style="display: flex; flex-direction: column; gap: 14px; animation: {{ stepAnim }}">
         <div style="display: flex; flex-direction: column; gap: 14px; animation: {{ shakeAnim }}">
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Your name
-            <input autocomplete="name" value="{{ name }}" onChange="{{ onName }}" placeholder="What should we call you?" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ nameBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          <label class="field"><span class="m-label">Your name</span>
+            <input autocomplete="name" value="{{ name }}" onChange="{{ onName }}" placeholder="What should we call you?" style="height: 54px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; border: 0; box-shadow: inset 0 0 0 2px {{ nameBorder }}; background: var(--m-card); color: #1F1D47; font-size: 15px; font-weight: 500">
           </label>
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Email
-            <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ emailBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          <label class="field"><span class="m-label">Email</span>
+            <input type="email" autocomplete="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@example.com" style="height: 54px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; border: 0; box-shadow: inset 0 0 0 2px {{ emailBorder }}; background: var(--m-card); color: #1F1D47; font-size: 15px; font-weight: 500">
           </label>
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Password
-            <input type="password" autocomplete="new-password" value="{{ pw }}" onChange="{{ onPw }}" placeholder="At least 8 characters" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 18px; border: 2px solid {{ pwBorder }}; background: #F6F5FC; color: #1F1D47; font-size: 15px; font-weight: 500">
+          <label class="field"><span class="m-label">Password</span>
+            <input type="password" autocomplete="new-password" value="{{ pw }}" onChange="{{ onPw }}" placeholder="At least 8 characters" style="height: 54px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; border: 0; box-shadow: inset 0 0 0 2px {{ pwBorder }}; background: var(--m-card); color: #1F1D47; font-size: 15px; font-weight: 500">
           </label>
           <div style="display: flex; flex-direction: column; gap: 6px">
             <div style="display: flex; gap: 4px">
@@ -82,7 +82,7 @@ input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rg
             </div>
             <span style="font-size: 12px; font-weight: 500; color: #4A4770">{{ strengthLabel }}</span>
           </div>
-          <button type="button" role="checkbox" aria-checked="{{ terms }}" onClick="{{ toggleTerms }}" style="display: flex; align-items: flex-start; gap: 10px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 13px; font-weight: 500; text-align: left"><span style="width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; border-radius: 7px; background: {{ termsBg }}; border: 2px solid {{ termsBorder }}; box-sizing: border-box; display: flex; align-items: center; justify-content: center"><sc-if value="{{ terms }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 260ms ease-out"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span><span>I agree to the Terms and Privacy Policy. Motio never sells location data.</span></button>
+          <button type="button" role="checkbox" aria-checked="{{ terms }}" onClick="{{ toggleTerms }}" style="display: flex; align-items: flex-start; gap: 10px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 13px; font-weight: 500; text-align: left"><span style="width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; border-radius: 11px; background: {{ termsBg }}; border: 1.5px solid {{ termsBorder }}; box-sizing: border-box; display: flex; align-items: center; justify-content: center"><sc-if value="{{ terms }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 260ms ease-out"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span><span>I agree to the Terms and Privacy Policy. Motio never sells location data.</span></button>
           <span style="display: flex; gap: 14px; margin: -4px 0 0 34px; font-size: 12px"><button type="button" onClick="{{ openTerms }}" style="border: 0; padding: 4px 0; background: transparent; color: #4B3FD8; font-weight: 600">Read the terms</button><button type="button" onClick="{{ openPolicy }}" style="border: 0; padding: 4px 0; background: transparent; color: #4B3FD8; font-weight: 600">Privacy policy</button></span>
           <sc-if value="{{ s1Err }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 500; color: #C2412F; animation: motioRise 220ms ease-out">{{ s1ErrText }}</span></sc-if>
           <sc-if value="{{ takenErr }}" hint-placeholder-val="{{ false }}"><a href="{{ LK.login.href }}" onClick="{{ LK.login.go }}" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 20px; background: #EEF0F6; color: #4B3FD8; font-size: 13px; font-weight: 600; text-decoration: none; animation: motioRise 260ms ease-out">Log in instead</a></sc-if>
@@ -150,7 +150,7 @@ input:focus{outline:none;border-color:#5B4FE0 !important;box-shadow:0 0 0 4px rg
           <div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 22px; background: #F6F5FC">
             <span style="width: 44px; height: 44px; border-radius: 22px; flex-shrink: 0; background: {{ p.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ p.glyph }}"></path></svg></span>
             <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ p.label }}</span><span style="font-size: 12px; line-height: 1.4; color: #6B6890">{{ p.hint }}</span></span>
-            <button type="button" role="switch" aria-checked="{{ p.on }}" aria-label="{{ p.label }}" onClick="{{ p.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ p.bg }}"><span style="position: absolute; top: 3px; left: {{ p.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 240ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
+            <button type="button" role="switch" aria-checked="{{ p.on }}" aria-label="{{ p.label }}" onClick="{{ p.toggle }}" class="m-toggle"></button>
           </div>
         </sc-for>
         <span style="font-size: 12px; line-height: 1.5; color: #4A4770">You can change these any time in Settings › Privacy &amp; location.</span>
@@ -322,13 +322,13 @@ class Component extends DCLogic {
       onName: (e) => this.setState({ name: e.target.value }),
       onEmail: (e) => this.setState({ email: e.target.value }),
       onPw: (e) => this.setState({ pw: e.target.value }),
-      nameBorder: tried && !nameOk ? '#C2412F' : '#E3E1F3',
-      emailBorder: tried && (!emailOk || taken) ? '#C2412F' : '#E3E1F3',
+      nameBorder: tried && !nameOk ? 'var(--m-warn)' : 'transparent',
+      emailBorder: tried && (!emailOk || taken) ? 'var(--m-warn)' : 'transparent',
       takenErr: tried && taken,
-      pwBorder: tried && !pwOk ? '#C2412F' : '#E3E1F3',
+      pwBorder: tried && !pwOk ? 'var(--m-warn)' : 'transparent',
       strength: [1, 2, 3, 4].map((k) => ({ bg: score >= k ? scoreColors[score] : '#E3E1F3' })),
       strengthLabel: scoreNames[score],
-      terms, termsBg: terms ? '#5B4FE0' : '#FFFFFF', termsBorder: terms ? '#5B4FE0' : tried ? '#C2412F' : '#C9C5EC',
+      terms, termsBg: terms ? 'var(--m-ink)' : 'var(--m-card)', termsBorder: terms ? 'var(--m-ink)' : tried ? 'var(--m-warn)' : 'var(--m-line)',
       toggleTerms: () => this.setState({ terms: !terms }),
       openTerms: () => window.Motio && window.Motio.openPage('/terms'),
       openPolicy: () => window.Motio && window.Motio.openPage('/privacy'),

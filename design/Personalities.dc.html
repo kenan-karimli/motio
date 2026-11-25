@@ -39,7 +39,7 @@ button:active,a:active{transform:scale(0.96)}
     <sc-for list="{{ types }}" as="t" hint-placeholder-count="6">
       <button type="button" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 0 14px; border: 3px solid {{ t.ring }}; border-radius: 26px; background: {{ t.bg }}; color: {{ t.fg }}; text-align: left; overflow: hidden; animation: motioCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
         <span style="display: block; height: 130px">
-          <span ref="{{ t.fox }}" style="display: flex; justify-content: center; align-items: center; height: 130px"></span>
+          <span style="display: flex; justify-content: center; align-items: center; height: 130px"><m-scene name="{{ t.scene }}" size="150"></m-scene></span>
         </span>
         <span style="padding: 0 14px; display: flex; flex-direction: column; gap: 2px">
           <span style="font-size: 15px; font-weight: 700; line-height: 1.2">{{ t.name }}</span>
@@ -109,7 +109,7 @@ class Component extends DCLogic {
       types: TYPES.map(([key, name, tag, bg, fg], i) => ({
         name, tag, bg, fg, delay: i * 60 + 'ms', yours: key === mine, badge: monthTag,
         ring: key === mine ? '#FFFFFF' : 'transparent', aria: name + (key === mine ? ', your type' : ''),
-        fox: window.MotioMascot ? window.MotioMascot.fox({ wanderer: 'idle', speedster: 'cheer', commuter: 'curious', roadtripper: 'idle', explorer: 'curious', nightowl: 'sleep' }[key] || 'idle', 104) : null, isWanderer: key === 'wanderer', isSpeedster: key === 'speedster', isCommuter: key === 'commuter',
+        scene: ({ wanderer: 'wanderer', commuter: 'commuter', speedster: 'runner', roadtripper: 'tripper', explorer: 'explorer', cyclist: 'wheeler', wheeler: 'wheeler', nightowl: 'explorer' })[key] || 'wanderer', fox: window.MotioMascot ? window.MotioMascot.fox({ wanderer: 'idle', speedster: 'cheer', commuter: 'curious', roadtripper: 'idle', explorer: 'curious', nightowl: 'sleep' }[key] || 'idle', 104) : null, isWanderer: key === 'wanderer', isSpeedster: key === 'speedster', isCommuter: key === 'commuter',
         isRoadTripper: key === 'roadtripper', isExplorer: key === 'explorer', isNightOwl: key === 'nightowl', is_earlybird: key === 'earlybird', is_cyclist: key === 'cyclist', is_metrohopper: key === 'metrohopper', is_weekender: key === 'weekender', is_steady: key === 'steady',
         open: () => this.setState({ open: key, closing: false })
       })),

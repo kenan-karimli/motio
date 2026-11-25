@@ -222,7 +222,7 @@ function build(node, scope) {
     props[name] = value;
   }
   // Page titles in 5.0 are lowercase with a full stop ("friends."), one voice on every page.
-  if (tag === 'h1' && node.kids.length === 1 && node.kids[0].text !== undefined) {
+  if (tag === 'h1' && node.kids.length === 1 && node.kids[0].text !== undefined && !node.kids[0].dyn) { // names and other data keep their case
     const t = interpolate(node.kids[0].text, scope).trim();
     if (t && t.length < 32 && !/[.!?:]$/.test(t)) {
       props.style = (props.style || '') + '; letter-spacing: -1px; font-weight: 600';

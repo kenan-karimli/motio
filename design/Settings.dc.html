@@ -32,144 +32,89 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #5B4FE0; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Settings</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">settings.</h1></div></div>
 
-  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box; color: #FFFFFF">
-    <svg aria-hidden="true" width="390" height="150" viewBox="0 0 390 150" style="position: absolute; left: 0; top: 0">
-      <circle cx="340" cy="40" r="110" fill="#6A5FE8"></circle>
-      <g transform="translate(270 34)">
-        <path d="M40 4 l6 0 2 10 8 4 9 -6 4 4 -6 9 4 8 10 2 0 6 -10 2 -4 8 6 9 -4 4 -9 -6 -8 4 -2 10 -6 0 -2 -10 -8 -4 -9 6 -4 -4 6 -9 -4 -8 -10 -2 0 -6 10 -2 4 -8 -6 -9 4 -4 9 6 8 -4z" fill="#F6C343"></path>
-        <circle cx="43" cy="43" r="12" fill="#5B4FE0"></circle>
-      </g>
-    </svg>
-    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Back" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 14px 0 0; font-size: 32px; font-weight: 700">Settings</h1>
-  </div>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <div class="m-row" style="background: transparent"><span style="flex: 1; font-size: 14px; font-weight: 600">Units</span><span style="display: flex; padding: 3px; border-radius: 18px; background: var(--m-soft)"><button type="button" class="m-chip {{ kmCls }}" aria-pressed="{{ km }}" onClick="{{ setKm }}" style="height: 30px; font-size: 12px; background: {{ kmBg }}">km</button><button type="button" class="m-chip {{ miCls }}" aria-pressed="{{ mi }}" onClick="{{ setMi }}" style="height: 30px; font-size: 12px; background: {{ miBg }}">miles</button></span></div>
+      <sc-for list="{{ unitSwitches }}" as="t" hint-placeholder-count="1"><div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ t.label }}</b><div class="m-sub" style="font-size: 12px">{{ t.hint }}</div></span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
+      <div class="m-row" style="background: transparent; flex-direction: column; align-items: stretch; gap: 10px"><span style="font-size: 14px; font-weight: 600">Theme <span class="m-sub" style="font-weight: 500; font-size: 12px">· {{ themeHint }}</span></span><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px"><sc-for list="{{ themes }}" as="t" hint-placeholder-count="3"><button type="button" role="radio" class="m-option {{ t.cls }}" aria-checked="{{ t.on }}" onClick="{{ t.pick }}" style="min-height: 44px; font-size: 13px">{{ t.label }}</button></sc-for></div></div>
+      <div class="m-row" style="background: transparent"><span style="flex: 1"><b style="font-size: 14px">Glass effect</b><div class="m-sub" style="font-size: 12px">Frosted tab bar, sheets and menus</div></span><button type="button" role="switch" class="m-toggle on" data-glass="" aria-label="Glass effect"></button></div>
+    </div>
 
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 22px">
+    <span class="m-label" style="margin: 4px 4px 0">Daily goal</span>
+    <div class="m-card" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px">
+      <span style="flex: 1"><span class="m-num s">{{ goal }}</span><div class="m-sub" style="font-size: 12px">of moving a day</div></span>
+      <button type="button" class="m-icon" onClick="{{ goalDown }}" aria-label="Lower goal by 15 minutes" style="background: var(--m-soft); font: 600 20px var(--m-font)">−</button>
+      <button type="button" class="m-icon ink" onClick="{{ goalUp }}" aria-label="Raise goal by 15 minutes" style="font: 600 20px var(--m-font)">+</button>
+    </div>
 
-    <section style="display: flex; flex-direction: column; gap: 12px">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Recaps</h2>
-      <div style="display: flex; gap: 8px; margin: 4px 0 8px">
-        <button type="button" onClick="{{ rcSpeed.next }}" style="flex: 1; min-height: 52px; border: 0; border-radius: 16px; background: #F6F5FC; color: #1F1D47; text-align: left; padding: 8px 12px; display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B6890">Slide speed</span><span style="font-size: 14px; font-weight: 600">{{ rcSpeed.label }}</span></button>
-        <button type="button" onClick="{{ rcMap.toggle }}" style="flex: 1; min-height: 52px; border: 0; border-radius: 16px; background: #F6F5FC; color: #1F1D47; text-align: left; padding: 8px 12px; display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B6890">Map background</span><span style="font-size: 14px; font-weight: 600">{{ rcMap.label }}</span></button>
-      </div>
-      <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Recap style</span><span style="font-size: 12px; color: #6B6890">Your recaps and share images use it. You can still change each image before you share it.</span></span>
-      <div role="radiogroup" aria-label="Recap style" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 2px">
-        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="9">
-          <button role="radio" aria-checked="{{ o.on }}" aria-label="{{ o.label }}: {{ o.hint }}" onClick="{{ o.pick }}" style="flex-shrink: 0; width: 72px; display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
-            <span style="position: relative; display: block; width: 72px; height: 128px; border-radius: 12px; overflow: hidden; background: #EEF0F6; outline: 3px solid {{ o.ring }}; outline-offset: 2px; transition: outline-color 200ms ease">
-              <span aria-hidden="true" ref="{{ o.paint }}" style="position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform: scale(0.2); transform-origin: 0 0; pointer-events: none"></span>
-              <sc-if value="{{ o.isMix }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 20px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg></span></sc-if>
-            </span>
-            <span style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 600; white-space: nowrap">{{ o.label }}</span><span style="font-size: 10.5px; color: #6B6890; line-height: 1.3">{{ o.hint }}</span></span>
-          </button>
-        </sc-for>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: space-between; min-height: 48px; border-top: 1px solid #EEF0F6; padding-top: 6px">
-        <span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Weekly recap ready</span><span style="font-size: 12px; color: #6B6890">Every Sunday at 9 AM</span></span>
-        <span style="padding: 4px 10px; border-radius: 12px; background: #EEF0F6; font-size: 12px; font-weight: 600">Sun · 9 AM</span>
-      </div>
-      <sc-for list="{{ recapSwitches }}" as="t" hint-placeholder-count="1">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 48px">
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
-          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}; transition: background 200ms ease"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 220ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
-        </div>
-      </sc-for>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Home &amp; lock screen</h2>
-      <a href="{{ LK.widgets.href }}" onClick="{{ LK.widgets.go }}" style="display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 20px; background: #F6F5FC; color: #1F1D47; text-decoration: none">
-        <span aria-hidden="true" style="position: relative; width: 64px; height: 64px; flex-shrink: 0">
-          <span style="position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 9px; background: #4B3FD8"></span>
-          <span style="position: absolute; right: 0; top: 0; width: 30px; height: 30px; border-radius: 9px; background: #3DBF5C"></span>
-          <span style="position: absolute; left: 0; bottom: 0; width: 64px; height: 30px; border-radius: 9px; background: #F6C343"></span>
-        </span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Widgets</span><span style="font-size: 12px; color: #6B6890">Today ring, steps, day road, streak and more</span></span>
-        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
-      </a>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 4px; padding-top: 18px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Tracking</h2>
-      <sc-for list="{{ trackSwitches }}" as="t" hint-placeholder-count="3">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
-          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}; transition: background 200ms ease"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 220ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
-        </div>
-      </sc-for>
+    <span class="m-label" style="margin: 4px 4px 0">Tracking</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <sc-for list="{{ trackSwitches }}" as="t" hint-placeholder-count="3"><div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ t.label }}</b><div class="m-sub" style="font-size: 12px">{{ t.hint }}</div></span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
       <sc-if value="{{ setup.show }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-top: 6px; padding: 14px; border-radius: 18px; background: {{ setup.bg }}; display: flex; flex-direction: column; gap: 10px">
-          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">{{ setup.title }}</span><span style="font-size: 12px; line-height: 1.45; color: #4A4770">{{ setup.body }}</span></span>
+        <div class="m-card tg" style="margin-top: 4px; display: flex; flex-direction: column; gap: 10px; padding: 14px">
+          <span><b style="font-size: 14px">{{ setup.title }}</b><div class="m-sub" style="font-size: 12px">{{ setup.body }}</div></span>
           <div style="display: flex; gap: 8px; flex-wrap: wrap">
-            <sc-if value="{{ setup.needBackground }}" hint-placeholder-val="{{ true }}"><button onClick="{{ setup.background }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">Allow location all the time</button></sc-if>
-            <sc-if value="{{ setup.needBattery }}" hint-placeholder-val="{{ true }}"><button onClick="{{ setup.battery }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">Allow in background</button></sc-if>
-            <sc-if value="{{ setup.xiaomi }}" hint-placeholder-val="{{ true }}"><button onClick="{{ setup.autostart }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600">Turn on Autostart</button></sc-if>
+            <sc-if value="{{ setup.needBackground }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn" onClick="{{ setup.background }}" style="height: 38px; font-size: 13px">Allow all the time</button></sc-if>
+            <sc-if value="{{ setup.needBattery }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn w" onClick="{{ setup.battery }}" style="height: 38px; font-size: 13px">Battery</button></sc-if>
+            <sc-if value="{{ setup.xiaomi }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn w" onClick="{{ setup.autostart }}" style="height: 38px; font-size: 13px">Autostart</button></sc-if>
           </div>
         </div>
       </sc-if>
-    </section>
+    </div>
 
-    <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Appearance</h2>
-      <div style="display: flex; align-items: center; gap: 12px">
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Theme</span><span style="font-size: 12px; color: #6B6890">{{ themeHint }}</span></span>
-        <div role="radiogroup" aria-label="Theme" style="display: flex; gap: 2px; padding: 4px; border-radius: 20px; background: #EEF0F6">
-          <sc-for list="{{ themes }}" as="t" hint-placeholder-count="3"><button role="radio" aria-checked="{{ t.on }}" onClick="{{ t.pick }}" style="height: 34px; padding: 0 12px; border-radius: 17px; border: 0; background: {{ t.bg }}; color: {{ t.fg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">{{ t.label }}</button></sc-for>
-        </div>
+    <span class="m-label" style="margin: 4px 4px 0">Sharing and recaps</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 10px; padding: 14px">
+      <span style="font-size: 14px; font-weight: 600">Recap style</span>
+      <div style="display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 4px 14px">
+        <sc-for list="{{ styles }}" as="o" hint-placeholder-count="6">
+          <button type="button" role="radio" aria-checked="{{ o.on }}" aria-label="{{ o.label }}: {{ o.hint }}" onClick="{{ o.pick }}" style="flex-shrink: 0; width: 72px; display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
+            <span style="position: relative; display: block; width: 72px; height: 128px; border-radius: 14px; overflow: hidden; background: var(--m-soft); outline: 2px solid {{ o.ring }}; outline-offset: 2px; transition: outline-color 200ms ease">
+              <span aria-hidden="true" ref="{{ o.paint }}" style="position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform: scale(0.2); transform-origin: 0 0; pointer-events: none"></span>
+              <sc-if value="{{ o.isMix }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center"><span class="m-icon" style="width: 40px; height: 40px"><m-ic n="sync" s="18"></m-ic></span></span></sc-if>
+            </span>
+            <span style="font: 600 12px var(--m-font); white-space: nowrap">{{ o.label }}</span>
+          </button>
+        </sc-for>
       </div>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Goals &amp; units</h2>
-      <div style="display: flex; align-items: center; gap: 12px">
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Daily movement goal</span><span style="font-size: 12px; color: #6B6890">Time on the move per day</span></span>
-        <button aria-label="Lower goal by 15 minutes" onClick="{{ goalDown }}" style="width: 40px; height: 40px; border-radius: 20px; border: 0; background: #EEF0F6; font-size: 20px; font-weight: 600; color: #1F1D47">−</button>
-        <span style="min-width: 64px; text-align: center; font-size: 16px; font-weight: 700">{{ goal }}</span>
-        <button aria-label="Raise goal by 15 minutes" onClick="{{ goalUp }}" style="width: 40px; height: 40px; border-radius: 20px; border: 0; background: #EEF0F6; font-size: 20px; font-weight: 600; color: #1F1D47">+</button>
+      <div style="display: flex; gap: 8px">
+        <button type="button" class="m-row" onClick="{{ rcSpeed.next }}" style="flex: 1; border: 0; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; color: inherit"><span class="m-label">Slide speed</span><b style="font-size: 14px">{{ rcSpeed.label }}</b></button>
+        <button type="button" class="m-row" onClick="{{ rcMap.toggle }}" style="flex: 1; border: 0; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; color: inherit"><span class="m-label">Map background</span><b style="font-size: 14px">{{ rcMap.label }}</b></button>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px">
-        <span style="flex: 1; font-size: 14px; font-weight: 600">Distance units</span>
-        <div style="display: flex; gap: 2px; padding: 4px; border-radius: 20px; background: #EEF0F6">
-          <button aria-pressed="{{ km }}" onClick="{{ setKm }}" style="height: 34px; padding: 0 16px; border-radius: 17px; border: 0; background: {{ kmBg }}; color: {{ kmFg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">km</button>
-          <button aria-pressed="{{ mi }}" onClick="{{ setMi }}" style="height: 34px; padding: 0 16px; border-radius: 17px; border: 0; background: {{ miBg }}; color: {{ miFg }}; font-size: 13px; font-weight: 600; transition: background 200ms ease">mi</button>
-        </div>
-      </div>
-      <sc-for list="{{ unitSwitches }}" as="t" hint-placeholder-count="3">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
-          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 46px; height: 28px; flex-shrink: 0; border-radius: 14px; border: 0; padding: 0; position: relative; background: {{ t.bg }}; transition: background 200ms ease"><span style="position: absolute; top: 3px; left: {{ t.knob }}; width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 220ms cubic-bezier(0.22, 1, 0.36, 1)"></span></button>
-        </div>
-      </sc-for>
-    </section>
+      <sc-for list="{{ recapSwitches }}" as="t" hint-placeholder-count="1"><div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ t.label }}</b><div class="m-sub" style="font-size: 12px">{{ t.hint }}</div></span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
+      <a class="m-row" href="{{ LK.widgets.href }}" onClick="{{ LK.widgets.go }}" style="background: transparent; text-decoration: none; color: inherit"><m-ic n="grid" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Widgets</span><m-ic n="chev" s="16"></m-ic></a>
+    </div>
 
-    <section style="display: flex; flex-direction: column; padding-top: 18px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Account &amp; data</h2>
-      <button type="button" onClick="{{ backup.now }}" aria-label="{{ backup.aria }}" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border: 0; padding: 0; background: transparent; color: #1F1D47; text-align: left">
-        <span aria-hidden="true" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: {{ backup.bg }}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ backup.icon }}"></path></svg></span>
-        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">{{ backup.title }}</span><span style="font-size: 12px; color: #6B6890">{{ backup.sub }}</span></span>
-      </button>
-      <a href="{{ LK.apps.href }}" onClick="{{ LK.apps.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Connected apps</span><span style="font-size: 12px; color: #6B6890">Health, Strava</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
-      <a href="{{ LK.privacy.href }}" onClick="{{ LK.privacy.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Privacy &amp; location data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
-      <a href="{{ LK.export.href }}" onClick="{{ LK.export.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Export my data</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
-      <a href="{{ LK.help.href }}" onClick="{{ LK.help.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; border: 0; padding: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 500; text-align: left; text-decoration: none"><span style="flex: 1">Help &amp; feedback</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
-      <div onClick="{{ aboutTap }}" style="display: flex; align-items: center; min-height: 48px; font-size: 14px; cursor: default; user-select: none"><span style="flex: 1; font-weight: 500">About Motio</span><span style="font-size: 12px; color: #6B6890">{{ versionLabel }}</span></div>
-    </section>
+    <span class="m-label" style="margin: 4px 4px 0">Your data</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <button type="button" class="m-row" onClick="{{ backup.now }}" aria-label="{{ backup.aria }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="cloud" s="18"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ backup.title }}</b><div class="m-sub" style="font-size: 12px">{{ backup.sub }}</div></span></button>
+      <a class="m-row" href="{{ LK.apps.href }}" onClick="{{ LK.apps.go }}" style="background: transparent; text-decoration: none; color: inherit"><m-ic n="link" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Connected apps</span><m-ic n="chev" s="16"></m-ic></a>
+      <a class="m-row" href="{{ LK.privacy.href }}" onClick="{{ LK.privacy.go }}" style="background: transparent; text-decoration: none; color: inherit"><m-ic n="shield" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Privacy and location</span><m-ic n="chev" s="16"></m-ic></a>
+      <a class="m-row" href="{{ LK.export.href }}" onClick="{{ LK.export.go }}" style="background: transparent; text-decoration: none; color: inherit"><m-ic n="download" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Export data</span><m-ic n="chev" s="16"></m-ic></a>
+    </div>
 
-    <button onClick="{{ askLogout }}" style="min-height: 52px; flex-shrink: 0; border-radius: 26px; border: 0; background: #FDECEA; color: #C2412F; font-size: 15px; font-weight: 600">Log out</button>
-    <button type="button" onClick="{{ openSite }}" style="flex-shrink: 0; min-height: 44px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">motio-api.onrender.com</button>
+    <span class="m-label" style="margin: 4px 4px 0">Motio</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <a class="m-row" href="{{ LK.help.href }}" onClick="{{ LK.help.go }}" style="background: transparent; text-decoration: none; color: inherit"><m-ic n="help" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Help and feedback</span><m-ic n="chev" s="16"></m-ic></a>
+      <button type="button" class="m-row" onClick="{{ openSite }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="globe" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">motio-api.onrender.com</span><m-ic n="chev" s="16"></m-ic></button>
+      <button type="button" class="m-row" onClick="{{ aboutTap }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="info" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Version</span><span class="m-sub">{{ versionLabel }}</span></button>
+      <button type="button" class="m-row" onClick="{{ askLogout }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="logout" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Log out</span></button>
+    </div>
+    <span class="m-sub" style="text-align: center; font-size: 12px; margin-top: 6px">Made in Baku</span>
   </div>
+
   <sc-if value="{{ logoutOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; color: #1F1D47">
-      <button aria-label="Cancel" onClick="{{ cancelLogout }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.55); cursor: default; animation: motioDlgFade 220ms ease-out"></button>
-      <div role="alertdialog" aria-label="Log out of Motio?" style="position: relative; width: 100%; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 10px; animation: motioDlgIn 300ms cubic-bezier(0.22, 1, 0.36, 1)">
-        <span style="font-size: 20px; font-weight: 700">Log out of Motio?</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Tracking pauses until you log back in. Your history stays safe in your account.</span>
-        <div style="display: flex; gap: 10px; margin-top: 8px">
-          <button onClick="{{ cancelLogout }}" style="flex: 1; height: 48px; border-radius: 24px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Stay</button>
-          <a href="{{ LK.out.href }}" onClick="{{ LK.out.go }}" style="flex: 1; height: 48px; border-radius: 24px; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Log out</a>
-        </div>
+    <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: flex-end">
+      <button type="button" aria-label="Cancel" onClick="{{ cancelLogout }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(15,15,15,0.4); animation: motioDlgFade 220ms ease-out"></button>
+      <div role="alertdialog" aria-label="Log out of Motio?" class="m-sheet" style="display: flex; flex-direction: column; gap: 10px; text-align: center; align-items: center">
+        <tuli-fox pose="droop" size="90"></tuli-fox>
+        <span class="m-h2">Log out of Motio?</span>
+        <span class="m-sub">Tracking pauses until you log back in. Your history stays safe in your account.</span>
+        <a class="m-btn wide" href="{{ LK.out.href }}" onClick="{{ LK.out.go }}" style="margin-top: 8px; text-decoration: none; background: var(--m-warn)">Log out</a>
+        <button type="button" class="m-btn w wide" onClick="{{ cancelLogout }}">Stay</button>
       </div>
     </div>
   </sc-if>
@@ -249,7 +194,7 @@ class Component extends DCLogic {
     const sample = { kicker: 'Week 44', title: 'Your week,\nwrapped', bigLabel: 'covered', big: '412 km', sub: 'Oct 25–31', routes: [{ color: '#6E8CF7', points: [[40.409, 49.867], [40.405, 49.872], [40.404, 49.879], [40.399, 49.884], [40.398, 49.892], [40.392, 49.894], [40.389, 49.901], [40.383, 49.903]] }] };
     const sw = (key, label, hint, def) => {
       const on = cfg[key] ?? def;
-      return { label, hint, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => put(key, !on) };
+      return { label, hint, on, cls: on ? 'on' : '', bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => put(key, !on) };
     };
     const goalMin = cfg.goalMin ?? 210;
     const unit = cfg.unit || 'km';
@@ -276,7 +221,7 @@ class Component extends DCLogic {
       emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
       styles: [['mix', 'Mix', 'A new style each story'], ...Object.keys(TH).map((k) => [k, TH[k].name, TH[k].hint])]
         .map(([k, label, hint]) => ({
-          label, hint, on: style === k, ring: style === k ? '#5B4FE0' : 'transparent', isMix: k === 'mix',
+          label, hint, on: style === k, ring: style === k ? 'var(--m-ink)' : 'transparent', isMix: k === 'mix',
           paint: (el) => { if (!el || !K || k === 'mix') return; const html = K.storyHTML('cover', sample, { theme: k, name: '' }); if (el.__card !== html) { el.innerHTML = html; el.__card = html; } },
           pick: () => {
             // Recaps read this when they open; share images start from it too.
@@ -315,9 +260,10 @@ class Component extends DCLogic {
         let cur = 'system';
         try { cur = window.localStorage.getItem('motio.theme') || 'system'; } catch (e) { /* storage blocked */ }
         return { themeHint: cur === 'system' ? 'Follows your phone' : cur === 'dark' ? 'Easy on the eyes at night' : 'Bright and clear',
-          themes: [['light', 'Light'], ['dark', 'Dark'], ['system', 'Auto']].map(([k, label]) => ({ label, on: k === cur, bg: k === cur ? '#1F1D47' : 'transparent', fg: k === cur ? '#FFFFFF' : '#1F1D47',
+          themes: [['light', 'Light'], ['dark', 'Dark'], ['system', 'Auto']].map(([k, label]) => ({ label, on: k === cur, cls: k === cur ? 'on' : '', bg: k === cur ? '#1F1D47' : 'transparent', fg: k === cur ? '#FFFFFF' : '#1F1D47',
             pick: () => { if (k === cur) return; try { window.localStorage.setItem('motio.theme', k); } catch (e) { /* storage blocked */ } try { window.sessionStorage.setItem('motio.reopen', 'settings'); } catch (e) { /* storage blocked */ } window.location.reload(); } })) };
       })(),
+      kmCls: unit === 'km' ? 'on' : '', miCls: unit === 'mi' ? 'on' : '',
       kmBg: unit === 'km' ? '#1F1D47' : 'transparent', kmFg: unit === 'km' ? '#FFFFFF' : '#1F1D47',
       miBg: unit === 'mi' ? '#1F1D47' : 'transparent', miFg: unit === 'mi' ? '#FFFFFF' : '#1F1D47',
       setKm: () => put('unit', 'km'),

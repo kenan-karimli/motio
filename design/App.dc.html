@@ -358,7 +358,7 @@ class Component extends DCLogic {
     to = Math.max(0, Math.min(3, to));
     this.pagerEl.style.setProperty('--dur', '380ms');
     this.pagerEl.style.setProperty('--dx', '0px');
-    if (to !== tab) { this.bySwipe = true; this.setState({ tab: to, closing: false, hideNav: false }); }
+    if (to !== tab) { this.bySwipe = true; if (this.navEl) this.navEl.classList.remove('m-hide'); this.setState({ tab: to, closing: false }); }
   }
   // The pill always sits on the open tab (after a swipe, a back press or a link), without firing another change.
   componentDidUpdate() {
@@ -369,10 +369,17 @@ class Component extends DCLogic {
     // Scrolling a tab down hides the tab bar; scrolling up, reaching the top, or changing tab brings it back.
     this.onTabScroll = (e) => {
       const el = e.target;
-      if (!el.classList || !el.classList.contains('motio-scroll') || !el.closest('[data-page="tab"]')) return;
-      const y = el.scrollTop, last = el.__y || 0; el.__y = y;
-      const hide = y > 24 && y > last + 2 ? true : (y < last - 2 || y <= 24) ? false : !!(this.state && this.state.hideNav);
-      if (hide !== !!(this.state && this.state.hideNav)) this.setState({ hideNav: hide });
+      if (!el.classList || !el.classList.contains('motio-scroll')) return;
+      const page = el.closest('.m-page'); if (page) page.classList.toggle('m-scrolled', el.scrollTop > 8);
+      if (!el.closest('[data-page="tab"]')) return;
+      const y = el.scrollTop, nav = this.navEl;
+      if (!nav) return;
+      // Only a real move counts: 36 px down hides it, 16 px up (or near the top) brings it back.
+      if (el.__y == null) el.__y = y;
+      const d = y - el.__y;
+      if (y <= 24 || d < -16) { nav.classList.remove('m-hide'); el.__y = y; }
+      else if (d > 36) { nav.classList.add('m-hide'); el.__y = y; }
+      else if ((d > 0 && nav.classList.contains('m-hide')) || (d < 0 && !nav.classList.contains('m-hide'))) el.__y = y;
     };
     document.addEventListener('scroll', this.onTabScroll, true);
     // In-app update card (src/main.js finds the update and runs the download).
@@ -425,7 +432,7 @@ class Component extends DCLogic {
     // One shell for the whole app: tabs swap almost instantly (Instagram-style),
     // detail screens push from the right, recaps rise from the bottom, log-out fades.
     const go = (target) => {
-      if (target in tabIndex) return this.setState({ tab: tabIndex[target], stack: [], closing: false, hideNav: false });
+      if (target in tabIndex) { if (this.navEl) this.navEl.classList.remove('m-hide'); return this.setState({ tab: tabIndex[target], stack: [], closing: false }); }
       if (target === 'home') { setAuth(true); return this.setState({ tab: 0, stack: [], closing: false }); }
       if (target === 'welcome') { setAuth(false); if (window.Motio && window.Motio.auth.isSignedIn()) window.Motio.auth.logout(); return this.setState({ stack: ['welcome'], closing: false }); }
       if (target === 'back-now') { if (stack.length) this.setState({ stack: stack.slice(0, -1), closing: false }); return; }
@@ -490,7 +497,7 @@ class Component extends DCLogic {
     };
 
     const settled = top && !closing;
-    const coversNav = settled, hideNav = !!(this.state && this.state.hideNav) && !settled;
+    const coversNav = settled, hideNav = false;
     return {
       go: this.goStable, O,
       baseReady: this.startedAuthed || !!s.ready || !!s.stack,

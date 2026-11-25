@@ -89,7 +89,7 @@ tuli-fox{display:inline-block;position:relative;line-height:0;cursor:pointer;-we
 .tl.tap .whole{animation:tlTap .95s cubic-bezier(.34,1.25,.64,1) both!important}
 .tl.tap .sh{animation:tlTapSh .95s cubic-bezier(.34,1.25,.64,1) both!important}
 .tl.tap .tail{animation:tlWag .24s ease-in-out 4 alternate!important}
-@keyframes tlTap{0%{transform:none}16%{transform:translateY(3px) scale(1.12,.84)}42%{transform:translateY(-24px) scale(.93,1.09)}58%{transform:translateY(-26px) scale(.98,1.02)}76%{transform:translateY(0) scale(1.09,.9)}88%{transform:scale(.98,1.03)}100%{transform:none}}
+@keyframes tlTap{0%{transform:none}18%{transform:translateY(1px) scale(1.05,.94)}45%{transform:translateY(-10px) scale(.98,1.03)}72%{transform:translateY(0) scale(1.03,.97)}100%{transform:none}}
 @keyframes tlTapSh{0%,100%{transform:scale(1);opacity:1}16%{transform:scale(1.12)}50%{transform:scale(.55);opacity:.35}76%{transform:scale(1.1);opacity:1}}
 .say{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:200px;padding:10px 14px;border-radius:18px;background:var(--m-card);color:var(--m-ink);box-shadow:0 10px 30px rgba(0,0,0,.12);font:500 13px/1.35 'Inter Tight';text-align:center;line-height:1.35;pointer-events:none;opacity:0;z-index:4}
 .say b{font-weight:700}
@@ -207,7 +207,9 @@ class TuliFox extends HTMLElement {
     sr(this).innerHTML = tuliAny(this.getAttribute('pose') || 'idle', +(this.getAttribute('size') || 96)) + (say ? `<span class="say${pin ? ' pin' : ''}${this.hasAttribute('say-r') ? ' r' : ''}">${say}</span>` : ''); }
   tap(){ const R = this.shadowRoot; if (!R) return; const t = R.querySelector('.tl'), s = R.querySelector('.say'); if (!t) return;
     t.classList.remove('tap'); void t.offsetWidth; t.classList.add('tap'); clearTimeout(this._t); this._t = setTimeout(() => t.classList.remove('tap'), 1000);
-    if (s && !this.hasAttribute('pin')) { s.classList.remove('on'); void s.offsetWidth; s.classList.add('on'); } }
+    if (s && !this.hasAttribute('pin')) { s.style.marginLeft = '0px'; s.classList.remove('on'); void s.offsetWidth; s.classList.add('on');
+      const r = s.getBoundingClientRect(), W = document.documentElement.clientWidth, k = r.width / (s.offsetWidth || r.width) || 1;
+      if (r.left < 12) s.style.marginLeft = (12 - r.left) / k + 'px'; else if (r.right > W - 12) s.style.marginLeft = (W - 12 - r.right) / k + 'px'; } }
 }
 
 
@@ -448,7 +450,7 @@ const setGlass = (on) => { document.documentElement.classList.toggle('m-glass', 
 let gOn = true; try { gOn = localStorage.getItem('motio-glass') !== '0'; } catch (_) {}
 document.documentElement.classList.toggle('m-glass', gOn);
 setTimeout(() => document.querySelectorAll('[data-glass]').forEach((t) => t.classList.toggle('on', gOn)), 300);
-if (!window.__mTog) { window.__mTog = 1; document.addEventListener('click', (e) => { const t = e.target.closest && e.target.closest('.m-toggle'); if (!t) return; e.stopPropagation(); if (t.hasAttribute('data-glass')) setGlass(!document.documentElement.classList.contains('m-glass')); else t.classList.toggle('on'); }, true);
+if (!window.__mTog) { window.__mTog = 1; document.addEventListener('click', (e) => { const t = e.target.closest && e.target.closest('.m-toggle'); if (!t || !(t.hasAttribute('data-glass') || t.closest('.ph'))) return; /* app switches handle their own taps */ e.stopPropagation(); if (t.hasAttribute('data-glass')) setGlass(!document.documentElement.classList.contains('m-glass')); else t.classList.toggle('on'); }, true);
   window.addEventListener('storage', (e) => { if (e.key === 'motio-glass') setGlass(e.newValue !== '0'); }); }
 
 
