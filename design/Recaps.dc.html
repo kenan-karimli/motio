@@ -54,7 +54,6 @@ button:active,a:active{transform:scale(0.96)}
   <div style="padding: 52px 20px 0; display: flex; align-items: flex-end; gap: 8px">
     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="m-sub">{{ standLine }}</span><h1 class="m-title">Social</h1></div>
     <a class="m-icon" href="{{ LK.inbox.href }}" onClick="{{ LK.inbox.go }}" aria-label="Notifications" style="position: relative"><m-ic n="bell"></m-ic><sc-if value="{{ bellDot }}" hint-placeholder-val="{{ false }}"><i style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: var(--m-accent); box-shadow: 0 0 0 2px var(--m-card)"></i></sc-if></a>
-    <a class="m-icon" href="{{ LK.messages.href }}" onClick="{{ LK.messages.go }}" aria-label="Messages"><m-ic n="msg"></m-ic></a>
     <a class="m-icon ink" href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite"><m-ic n="useradd"></m-ic></a>
   </div>
   <div role="tablist" aria-label="Social" style="display: flex; gap: 6px; padding: 12px 20px 0; overflow-x: auto; scrollbar-width: none; flex-shrink: 0">
@@ -191,7 +190,6 @@ button:active,a:active{transform:scale(0.96)}
     <a href="Recaps.dc.html" aria-current="page" style="position: relative; flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; font-size: 11px; color: #1F1D47; font-weight: 700"><span class="motio-tab-icon" style="display: flex; animation: motioTabPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="4"></circle><path d="M1.5 21c.8-4 3.8-6.5 7.5-6.5s6.7 2.5 7.5 6.5z"></path><path d="M16 3.3a4 4 0 0 1 0 7.4M18.5 14.6c2 .9 3.5 3 4 6.4h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></span>Social</a>
   </nav>
   </sc-if>
-  <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>

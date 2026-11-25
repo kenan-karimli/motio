@@ -366,13 +366,12 @@ class Component extends DCLogic {
     if (this.navEl && this.navEl.go && this.navEl._i !== t) this.navEl.go(t, true, true);
   }
   componentDidMount() {
-    // Scrolling a tab down hides the tab bar; scrolling up, reaching the top or the bottom, or changing tab brings it back.
+    // Scrolling a tab down hides the tab bar; scrolling up, reaching the top, or changing tab brings it back.
     this.onTabScroll = (e) => {
       const el = e.target;
       if (!el.classList || !el.classList.contains('motio-scroll') || !el.closest('[data-page="tab"]')) return;
       const y = el.scrollTop, last = el.__y || 0; el.__y = y;
-      const atEnd = y + el.clientHeight >= el.scrollHeight - 4;
-      const hide = y > 24 && !atEnd && y > last + 2 ? true : (y < last - 2 || y <= 24 || atEnd) ? false : !!(this.state && this.state.hideNav);
+      const hide = y > 24 && y > last + 2 ? true : (y < last - 2 || y <= 24) ? false : !!(this.state && this.state.hideNav);
       if (hide !== !!(this.state && this.state.hideNav)) this.setState({ hideNav: hide });
     };
     document.addEventListener('scroll', this.onTabScroll, true);

@@ -77,7 +77,7 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; padding: 18px 20px 24px; display: flex; flex-direction: column; gap: 14px">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; padding: 18px 20px 0; display: flex; flex-direction: column; gap: 14px">
 
   <div style="position: relative; display: flex; align-items: flex-end; gap: 8px">
     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
@@ -87,7 +87,7 @@ button:active,a:active{transform:scale(0.96)}
     <a class="{{ woCls }}" href="{{ LK.live.href }}" onClick="{{ LK.live.go }}" aria-label="{{ woAria }}" style="flex-shrink: 0; width: auto; min-width: 44px; padding: {{ woPad }}; gap: 7px; font: 600 13px var(--m-font); text-decoration: none; font-variant-numeric: tabular-nums"><sc-if value="{{ woOn }}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; border-radius: 4px; background: var(--m-run); animation: motioLiveDot 1.4s ease-out infinite"></span></sc-if><sc-if value="{{ woOff }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"></path></svg></sc-if><sc-if value="{{ woTick }}" hint-placeholder-val="{{ false }}"><span class="motio-clock" style="--d: {{ woDelay }}"></span></sc-if>{{ woLabel }}</a>
   </div>
 
-  <div class="motio-scroll motio-today" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -20px; padding: 2px 20px 16px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll motio-today" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -20px; padding: 2px 20px 110px; display: flex; flex-direction: column; gap: 10px">
 
   <div class="m-card dark motio-ti" style="--d: 0ms; position: relative; display: flex; align-items: center; gap: 12px; min-height: 168px; box-sizing: border-box; padding: 20px">
     <button type="button" onClick="{{ cycleHero }}" aria-label="Tap to switch between time, distance and steps" style="flex: 1; min-width: 0; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 8px">
@@ -188,8 +188,6 @@ button:active,a:active{transform:scale(0.96)}
   </div>
 
   </div>
-
-  <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="flex-shrink: 0; height: 64px; margin-top: auto"></div></sc-if>
 
   <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; inset: 0; z-index: 20; display: flex; justify-content: flex-end">
