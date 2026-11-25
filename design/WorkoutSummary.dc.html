@@ -28,54 +28,55 @@ button,a{font:inherit;cursor:pointer}
 @keyframes motioWsSplit{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
+.ws-when{transition:opacity .3s var(--m-ease)}
+.m-scrolled .ws-when{opacity:0}
+.ws-bar{transition:transform .55s var(--m-spring),opacity .3s ease}
+.ws-bar.hide{transform:translateY(110px) scale(.96);opacity:0;pointer-events:none;transition:transform .42s var(--m-ease),opacity .25s ease}
+.leaflet-control-attribution{font-size:8px!important;background:transparent!important;color:#999!important}
+.leaflet-control-attribution a{color:#999!important}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 110px">
-    <section style="position: relative; overflow: hidden; flex-shrink: 0; padding: 18px 20px 26px; background: {{ color }}; border-radius: 0 0 36px 36px; display: flex; flex-direction: column; gap: 6px">
-      <svg aria-hidden="true" width="520" height="520" viewBox="0 0 520 520" style="position: absolute; left: 50%; top: 50%; margin: -260px 0 0 -260px; opacity: 0.16; animation: motioWsRays 40s linear infinite"><g fill="#FFFFFF"><path d="M260 260 L250 0 L270 0 Z"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(30 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(60 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(90 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(120 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(150 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(180 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(210 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(240 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(270 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(300 260 260)"></path><path d="M260 260 L250 0 L270 0 Z" transform="rotate(330 260 260)"></path></g></svg>
-      <div style="position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px">
-        <span style="padding: 5px 12px; border-radius: 12px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">{{ tag }}</span>
-        <sc-if value="{{ hasBest }}" hint-placeholder-val="{{ true }}"><span style="padding: 6px 12px; border-radius: 14px; background: #F6C343; font-size: 12px; font-weight: 700; animation: motioWsBadge 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ dBadge }} backwards">{{ best }}</span></sc-if>
-      </div>
-      <span style="position: relative; margin-top: 18px; font-size: 15px; font-weight: 600">{{ verb }}</span>
-      <span style="position: relative; font-size: 88px; font-weight: 700; line-height: 0.95; letter-spacing: -4px"><span class="motio-ws-count" style="--n: {{ whole }}; --d: {{ dCount }}"></span>.<span class="motio-ws-count motio-ws-cc" style="--n: {{ frac }}; --d: {{ dCount }}"></span><span style="font-size: 26px; letter-spacing: 0; margin-left: 6px">{{ unit }}</span></span>
-      <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
-        <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3"><div style="padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,0.28); animation: motioWsIn 500ms cubic-bezier(0.22, 1, 0.36, 1) {{ st.d }} backwards"><div style="font-size: 18px; font-weight: 700">{{ st.v }}</div><div style="font-size: 11px">{{ st.k }}</div></div></sc-for>
-      </div>
-    </section>
-
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="m-topbar">
+    <a class="m-icon" href="{{ LK.done.href }}" onClick="{{ LK.done.go }}" aria-label="Close"><m-ic n="x"></m-ic></a>
+    <span style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 44px"><span class="m-sub ws-when">{{ when }}</span><span class="m-tt" style="position: absolute; left: 0; right: 0">{{ titleSmall }}</span></span>
+    <span style="width: 44px"></span>
+  </div>
+  <div class="motio-scroll" onScroll="{{ onScroll }}" style="position: absolute; inset: 0; overflow-y: auto; padding: 108px 20px 110px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+    <div class="m-in" style="--i: 0">
+      <sc-if value="{{ hasBest }}" hint-placeholder-val="{{ true }}"><span class="m-chip tg m-pop" style="height: 28px; font-size: 12px; margin-bottom: 10px; cursor: default; --i: 6">{{ best }}</span></sc-if>
+      <h1 class="m-title">{{ title }}</h1>
+      <p class="m-sub" style="font-size: 15px; margin: 10px 0 0; color: var(--m-ink-2)">{{ verb }} <b style="color: var(--m-ink)">{{ dist }}</b>{{ where }}.</p>
+    </div>
+    <div class="mapbox m-in" style="--i: 1; height: 170px; flex-shrink: 0; position: relative; background: var(--m-card)"><div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div></div>
+    <div class="grid3 m-in" style="--i: 2">
+      <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3"><div class="m-card" style="padding: 14px"><div class="m-label">{{ st.k }}</div><div class="m-num s" style="margin-top: 6px">{{ st.v }}</div></div></sc-for>
+    </div>
     <sc-if value="{{ hasCurve }}" hint-placeholder-val="{{ true }}">
-      <section style="margin: 0 20px; padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 10px; animation: motioWsIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
-        <span style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">{{ curveTitle }}</span><span style="font-size: 12px; color: #6B6890">{{ curveNote }}</span></span>
-        <svg role="img" aria-label="{{ curveAria }}" width="310" height="110" viewBox="0 0 310 110">
-          <path d="{{ area }}" fill="{{ color }}" fill-opacity="0.18" style="animation: motioWsArea 900ms ease-out {{ d2 }} backwards"></path>
-          <path d="{{ line }}" fill="none" stroke="{{ color }}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1000" style="animation: motioWsLine 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards"></path>
-          <circle cx="{{ peakX }}" cy="{{ peakY }}" r="6" fill="#FFFFFF" stroke="{{ color }}" stroke-width="3"></circle>
+      <div class="m-card m-in" style="--i: 3; display: flex; flex-direction: column; gap: 10px; padding: 16px">
+        <div style="display: flex; justify-content: space-between"><span class="m-label">{{ curveTitle }}</span><span class="m-sub" style="font-size: 12px">{{ curveNote }}</span></div>
+        <svg role="img" aria-label="{{ curveAria }}" width="100%" height="110" viewBox="0 0 310 110" preserveAspectRatio="none">
+          <path d="{{ area }}" fill="var(--m-ink)" fill-opacity="0.06"></path>
+          <path d="{{ line }}" fill="none" stroke="var(--m-ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" stroke-dasharray="1000" style="animation: motioWsLine 1400ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards"></path>
+          <circle cx="{{ peakX }}" cy="{{ peakY }}" r="5" fill="var(--m-card)" stroke="{{ color }}" stroke-width="3" vector-effect="non-scaling-stroke"></circle>
         </svg>
-      </section>
+      </div>
     </sc-if>
-
     <sc-if value="{{ hasSplits }}" hint-placeholder-val="{{ true }}">
-      <section style="margin: 0 20px; padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px; animation: motioWsIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
-        <span style="font-size: 15px; font-weight: 700">Splits</span>
-        <sc-for list="{{ splits }}" as="p" hint-placeholder-count="5">
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px">
-            <span style="width: 40px; color: #6B6890">{{ p.n }}</span>
-            <span style="flex: 1; height: 10px; border-radius: 5px; background: #F3F2FA"><span style="display: block; width: {{ p.w }}; height: 10px; border-radius: 5px; background: {{ p.c }}; transform-origin: left; animation: motioWsSplit 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"></span></span>
-            <span style="width: 48px; text-align: right; font-weight: {{ p.fw }}">{{ p.t }}</span>
-          </div>
+      <div class="m-card m-in" style="--i: 4; display: flex; flex-direction: column; gap: 8px; padding: 16px">
+        <div style="display: flex; justify-content: space-between"><span class="m-label">Splits</span><span class="m-sub" style="font-size: 12px">{{ splitUnit }}</span></div>
+        <sc-for list="{{ splits }}" as="p" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><b style="width: 18px">{{ p.n }}</b><span style="flex: 1; height: 8px; border-radius: 4px; background: var(--m-soft)"><i style="display: block; width: {{ p.w }}; height: 100%; border-radius: 4px; background: {{ p.c }}; transform-origin: left; animation: motioWsSplit 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"></i></span><b style="width: 40px; text-align: right">{{ p.t }}</b></div>
         </sc-for>
-      </section>
+      </div>
     </sc-if>
   </div>
-
-  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 20px 24px; background: linear-gradient(180deg, rgba(246,245,252,0), #F6F5FC 30%); display: flex; gap: 10px">
-    <button type="button" onClick="{{ share }}" style="flex: 1; height: 54px; border: 0; border-radius: 27px; background: #FFFFFF; color: #1F1D47; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 16px rgba(31,29,71,0.1)"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share</button>
-    <a href="{{ LK.done.href }}" onClick="{{ LK.done.go }}" style="flex: 1; height: 54px; border-radius: 27px; background: #1F1D47; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; text-decoration: none">Done</a>
+  <div class="grid2 ws-bar {{ barCls }}" style="position: absolute; left: 20px; right: 20px; bottom: 28px; z-index: 6">
+    <button type="button" class="m-btn w" onClick="{{ share }}" style="box-shadow: 0 6px 20px rgba(0,0,0,.08)"><m-ic n="share" s="17"></m-ic>Share</button>
+    <a href="{{ LK.done.href }}" onClick="{{ LK.done.go }}" class="m-btn" style="text-decoration: none">Done</a>
   </div>
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 96px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 96px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -87,7 +88,7 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: msg }), 30);
     this.toastT = setTimeout(() => this.setState({ toast: null }), 2330);
   }
-  componentWillUnmount() { clearTimeout(this.toastT); }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.mapT); if (this.ctrl) this.ctrl.destroy(); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -102,7 +103,7 @@ class Component extends DCLogic {
       splits: [352, 341, 338, 330, 312, 347], series: [2.6, 2.8, 3.0, 2.9, 3.1, 3.0, 3.2, 3.3, 3.5, 3.4, 3.0, 2.8] };
     const W = (M && this.tid && M.workoutSummary(this.tid)) || sample;
     const t = W.trip;
-    const COLORS = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#F6C343', transit: '#B57BE0' };
+    const COLORS = { walk: '#2FB457', run: '#E5604F', bike: '#4F7BF0', drive: '#E7A82A', transit: '#8E6BE0' };
     const VERB = { walk: 'You walked', run: 'You ran', bike: 'You rode', drive: 'You drove', transit: 'You travelled' };
     const NAME = { walk: 'walk', run: 'run', bike: 'ride', drive: 'drive', transit: 'trip' };
     const mi = M && M.settings().unit === 'mi';
@@ -125,22 +126,35 @@ class Component extends DCLogic {
     }
     const sp = W.splits || [];
     const fast = Math.min(...sp), slow = Math.max(...sp);
+    const st = this.state || {};
+    // The route, drawn after the page has slid in.
+    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT && t.points && t.points.length > 1) this.mapT = setTimeout(() => { if (this.mapEl) this.ctrl = window.MotioMap.mount(this.mapEl, [{ id: t.id, mode: t.mode, color: COLORS[t.mode], start: t.start, end: t.end, points: t.points }]); }, 440);
+    // Where it happened, when Motio knows the place: "along Seaside Boulevard".
+    const near = (p) => { if (!M || !p) return null; const k = Math.cos((p[0] * Math.PI) / 180); return M.places().find((x) => Math.hypot((x.lat - p[0]) * 111320, (x.lng - p[1]) * 111320 * k) < 300) || null; };
+    const pts = t.points || [], place = pts.length ? near(pts[Math.floor(pts.length / 2)]) || near(pts[pts.length - 1]) : null;
+    const where = !M ? ' along the Boulevard' : place && place.kind === 'place' && !/^Place \d+$/.test(place.name) ? ' around ' + place.name : '';
     return {
       rootAnim: emb ? 'motioStoryIn 460ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms ease',
       LK: { done: lk('home', 'Main.dc.html') },
-      color: COLORS[t.mode] || '#F2766B', tag: part + ' ' + NAME[t.mode] + ' · ' + new Date(t.start).toTimeString().slice(0, 5),
-      hasBest: !!W.best, best: W.best || '', verb: VERB[t.mode] || 'You moved',
-      whole: Math.floor(dist), frac: Math.floor((dist % 1) * 100), unit: mi ? 'mi' : 'km',
-      dCount: base + 'ms', dBadge: base + 900 + 'ms', d1: base + 250 + 'ms', d2: base + 380 + 'ms',
+      mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
+      color: COLORS[t.mode] || '#E5604F', title: part.toLowerCase() + ' ' + NAME[t.mode] + '.', titleSmall: part + ' ' + NAME[t.mode],
+      when: new Date(t.start).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + new Date(t.start).getHours() + ':' + String(new Date(t.start).getMinutes()).padStart(2, '0'),
+      hasBest: !!W.best, best: W.best || '', verb: VERB[t.mode] || 'You moved', dist: dist.toFixed(dist < 10 ? 2 : 1) + (mi ? ' mi' : ' km'), where,
+      d1: base + 250 + 'ms',
       stats: [
-        { v: clock(W.ms), k: 'time', d: base + 120 + 'ms' },
-        foot ? { v: pace(W.paceS == null ? null : W.paceS * (mi ? 1.609 : 1)), k: mi ? 'avg pace /mi' : 'avg pace /km', d: base + 200 + 'ms' } : { v: W.speed == null ? '—' : (W.speed / (mi ? 1.609 : 1)).toFixed(1), k: mi ? 'avg mph' : 'avg km/h', d: base + 200 + 'ms' },
-        { v: String(Math.max(0, Math.round(W.kcal))), k: 'kcal', d: base + 280 + 'ms' }
+        { v: clock(W.ms), k: 'Time' },
+        foot ? { v: pace(W.paceS == null ? null : W.paceS * (mi ? 1.609 : 1)), k: 'Pace' } : { v: W.speed == null ? '—' : (W.speed / (mi ? 1.609 : 1)).toFixed(1), k: mi ? 'Avg mph' : 'Avg km/h' },
+        { v: String(Math.max(0, Math.round(W.kcal))), k: 'Calories' }
       ],
       hasCurve: S.length > 2, curveTitle: foot ? 'Pace' : 'Speed', line, area, peakX, peakY,
       curveNote: 'fastest stretch marked', curveAria: (foot ? 'Pace' : 'Speed') + ' over the workout, fastest stretch marked',
-      hasSplits: sp.length > 0,
-      splits: sp.map((sec, i) => ({ n: (mi ? 'mi ' : 'km ') + (i + 1), t: pace(sec), w: Math.round(40 + (slow - sec) / Math.max(1, slow - fast) * 60) + '%', c: sec === fast ? COLORS[t.mode] : '#E3E1F3', fw: sec === fast ? 700 : 500, d: base + 420 + i * 70 + 'ms' })),
+      hasSplits: sp.length > 0, splitUnit: mi ? 'min / mi' : 'min / km',
+      splits: sp.map((sec, i) => ({ n: String(i + 1), t: pace(sec), w: Math.round(40 + (slow - sec) / Math.max(1, slow - fast) * 60) + '%', c: sec === fast ? COLORS[t.mode] : 'var(--m-ink)', d: base + 420 + i * 70 + 'ms' })),
+      // Share and Done tuck away while you scroll down and come back on the way up.
+      barCls: st.barHidden ? 'hide' : '',
+      onScroll: (e) => { const y = e.target.scrollTop, d = y - (this.lastY || 0), end = y + e.target.clientHeight >= e.target.scrollHeight - 4;
+        if (y <= 24 || d < -16 || end) { this.lastY = y; if (st.barHidden) this.setState({ barHidden: false }); }
+        else if (d > 36) { this.lastY = y; if (!st.barHidden) this.setState({ barHidden: true }); } },
       share: () => {
         if (!M || !t.id || t.id === 's') { this.showToast('Shared'); return; }
         const routes = M.route(t.start - 1, t.end + 1).filter((r) => r.id === t.id);
