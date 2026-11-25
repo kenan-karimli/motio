@@ -51,7 +51,7 @@ button:active,a:active{transform:scale(0.96)}
 </helmet>
 <div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 0 24px; display: flex; flex-direction: column; gap: 10px">
 
-  <div style="padding: 52px 20px 0; display: flex; align-items: flex-end; gap: 8px">
+  <div class="m-tabhead" style="margin: 0; padding: 52px 20px 10px; display: flex; align-items: flex-end; gap: 8px">
     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="m-sub">{{ standLine }}</span><h1 class="m-title">Social</h1></div>
     <a class="m-icon" href="{{ LK.inbox.href }}" onClick="{{ LK.inbox.go }}" aria-label="Notifications" style="position: relative"><m-ic n="bell"></m-ic><sc-if value="{{ bellDot }}" hint-placeholder-val="{{ false }}"><i style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: var(--m-accent); box-shadow: 0 0 0 2px var(--m-card)"></i></sc-if></a>
     <a class="m-icon ink" href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Find friends and invite"><m-ic n="useradd"></m-ic></a>

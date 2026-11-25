@@ -70,6 +70,10 @@ const CSS = `
 .m-scrolled .m-topbar .m-tt{opacity:1;transform:none}
 .m-scrolled .m-title{opacity:0;transform:translateY(-8px) scale(.96);transform-origin:left;transition:opacity .3s var(--m-ease),transform .3s var(--m-ease)}
 .m-title{transition:opacity .3s var(--m-ease),transform .3s var(--m-ease)}
+/* Tab headers: the big title stays; once you scroll, the header turns into a frosted bar the page slides under. */
+.m-tabhead{position:relative;z-index:6;margin:-18px -20px -14px;padding:18px 20px 14px;transition:background-color .3s var(--m-ease),box-shadow .3s var(--m-ease)}
+.m-scrolled .m-tabhead{background:color-mix(in srgb,var(--m-bg) 74%,transparent);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);box-shadow:0 1px 0 color-mix(in srgb,var(--m-ink) 8%,transparent)}
+.m-scrolled .m-tabhead .m-title{opacity:1;transform:none}
 /* Navigation: a floating frosted pill. Scrolling down tucks it away; it springs back on the way up. */
 m-nav.m-tabbar{transition:transform .55s cubic-bezier(.34,1.3,.64,1),opacity .3s ease!important}
 m-nav.m-tabbar.m-hide{transform:translateY(110px) scale(.96)!important;opacity:0!important;pointer-events:none;transition:transform .42s cubic-bezier(.22,1,.36,1),opacity .25s ease!important}
