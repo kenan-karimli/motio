@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · System messages</title>
+<title>Motio · Messages</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -12,191 +12,228 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-a{color:inherit}
-button{font:inherit;cursor:pointer}
-button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease}
-button:active,a:active{transform:scale(0.97)}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioBannerIn{from{transform:translateY(-130%)}to{transform:translateY(0)}}
-@keyframes motioBannerOut{from{transform:translateY(0)}to{transform:translateY(-130%)}}
-@keyframes motioFade{from{opacity:0}to{opacity:1}}
-@keyframes motioDlgIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
-@keyframes motioTimer{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes msgBarIn{from{opacity:0;transform:translateY(110px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes msgDim{from{opacity:0}to{opacity:1}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.msg-row{display:flex;align-items:center;gap:12px;padding:12px 16px;width:100%;border:0;background:transparent;color:var(--m-ink);text-align:left;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background-color .2s var(--m-ease)}
+.msg-row+.msg-row{border-top:1px solid var(--m-soft)}
+.msg-row.on{background:var(--m-soft)}
+.msg-av{width:46px;height:46px;border-radius:23px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--m-soft);color:var(--m-ink);font:600 15px var(--m-font);object-fit:cover}
+.msg-one{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-search{display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:24px;background:var(--m-card);color:var(--m-mute);transition:opacity .25s}
+.msg-search input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--m-ink);font:500 15px var(--m-font)}
+.msg-search input::placeholder{color:var(--m-faint)}
 </style>
 </helmet>
-<div style="animation: motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1); width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-
-  <div style="position: relative; flex-shrink: 0; padding: 16px 20px 22px; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="margin: 0; font-size: 30px; font-weight: 700">System messages</h1>
-    <span style="font-size: 13px; color: #C9C5EC">Every error, warning and confirmation in Motio. Tap one to see it in action.</span>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <sc-if value="{{ notSelecting }}" hint-placeholder-val="{{ true }}">
+    <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Messages</span><button type="button" class="m-icon ink" onClick="{{ openNew }}" aria-label="New message"><m-ic n="edit" s="17"></m-ic></button></div>
+  </sc-if>
+  <sc-if value="{{ selecting }}" hint-placeholder-val="{{ false }}">
+    <div class="m-topbar"><button type="button" class="m-icon" onClick="{{ endSelect }}" aria-label="Stop selecting"><m-ic n="x"></m-ic></button><span class="m-h3" style="flex: 1; text-align: center" aria-live="polite">{{ selLabel }}</span><button type="button" class="m-chip" style="height: 36px; font-size: 13px" onClick="{{ selectAll }}">{{ allLabel }}</button></div>
+  </sc-if>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 120px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">messages.</h1></div></div>
+    <label class="msg-search" style="opacity: {{ dimTools }}"><m-ic n="search" s="18"></m-ic><input type="search" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search" aria-label="Search chats" autocomplete="off" spellcheck="false"></label>
+    <div style="display: flex; gap: 6px; opacity: {{ dimTools }}">
+      <sc-for list="{{ filters }}" as="c" hint-placeholder-count="2"><button type="button" class="m-chip {{ c.cls }}" onClick="{{ c.pick }}" aria-pressed="{{ c.on }}">{{ c.label }}<sc-if value="{{ c.n }}" hint-placeholder-val="{{ false }}"><b style="font-size: 11px; color: {{ c.nc }}">{{ c.n }}</b></sc-if></button></sc-for>
+    </div>
+    <sc-if value="{{ hasMoving }}" hint-placeholder-val="{{ true }}">
+      <span class="m-label" style="margin: 4px 4px 0">Moving now</span>
+      <div style="display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding: 2px 4px 4px; flex-shrink: 0">
+        <sc-for list="{{ moving }}" as="v" hint-placeholder-count="2">
+          <button type="button" onClick="{{ v.open }}" aria-label="{{ v.aria }}" style="flex-shrink: 0; width: 62px; border: 0; padding: 0; background: transparent; color: var(--m-ink); display: flex; flex-direction: column; align-items: center; gap: 6px">
+            <span style="position: relative; width: 56px; height: 56px; border-radius: 28px; box-shadow: 0 0 0 2.5px {{ v.color }}; display: flex; align-items: center; justify-content: center; background: var(--m-card); font: 600 16px var(--m-font)">
+              <sc-if value="{{ v.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ v.avatar }}" alt="" style="width: 50px; height: 50px; border-radius: 25px; object-fit: cover"></sc-if><sc-if value="{{ v.noAvatar }}" hint-placeholder-val="{{ true }}">{{ v.ini }}</sc-if>
+              <span style="position: absolute; right: -3px; bottom: -3px; width: 22px; height: 22px; border-radius: 11px; background: {{ v.color }}; color: #fff; box-shadow: 0 0 0 2.5px var(--m-bg); display: flex; align-items: center; justify-content: center"><m-ic n="{{ v.icon }}" s="12"></m-ic></span>
+            </span>
+            <span class="msg-one" style="max-width: 62px; font: 600 12px var(--m-font)">{{ v.first }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card" style="padding: 12px; display: flex; flex-direction: column; gap: 8px"><div class="m-skel" style="height: 56px"></div><div class="m-skel" style="height: 56px"></div><div class="m-skel" style="height: 56px"></div></div>
+    </sc-if>
+    <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card" style="display: flex; align-items: center; gap: 12px"><m-ic n="wifioff"></m-ic><span class="m-sub" style="flex: 1">{{ error }}</span><button type="button" class="m-chip on" onClick="{{ retry }}">Retry</button></div>
+    </sc-if>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div class="m-in" style="margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+        <m-art name="chat" size="170"></m-art>
+        <span class="m-h3">{{ emptyTitle }}</span>
+        <span class="m-sub" style="max-width: 270px">{{ emptyText }}</span>
+        <sc-if value="{{ emptyCta }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn m-late" onClick="{{ openNew }}">Start a chat</button></sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card" style="padding: 4px 0; overflow: hidden">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+          <button type="button" class="msg-row {{ r.cls }}" onPointerDown="{{ r.down }}" onPointerUp="{{ cancelHold }}" onPointerLeave="{{ cancelHold }}" onPointerCancel="{{ cancelHold }}" onPointerMove="{{ moveHold }}" onContextMenu="{{ r.context }}" onClick="{{ r.tap }}" aria-label="{{ r.aria }}" aria-pressed="{{ r.pressed }}">
+            <sc-if value="{{ selecting }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{ r.tickBg }}; color: var(--m-bg-hi); box-shadow: {{ r.tickRing }}; transition: background-color .2s"><sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><m-ic n="check" s="14"></m-ic></sc-if></span></sc-if>
+            <sc-if value="{{ r.hasAvatar }}" hint-placeholder-val="{{ false }}"><img class="msg-av" src="{{ r.avatar }}" alt=""></sc-if><sc-if value="{{ r.noAvatar }}" hint-placeholder-val="{{ true }}"><span class="msg-av" aria-hidden="true">{{ r.ini }}</span></sc-if>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+              <span style="display: flex; align-items: baseline; gap: 8px"><b class="msg-one" style="flex: 1; font-size: 15px">{{ r.name }}</b><sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}"><span style="color: var(--m-faint); align-self: center; display: flex"><m-ic n="pin" s="13"></m-ic></span></sc-if><span style="font: {{ r.timeFont }}; color: {{ r.timeColor }}">{{ r.time }}</span></span>
+              <span style="display: flex; align-items: center; gap: 8px; min-height: 20px">
+                <span class="msg-one" style="flex: 1; min-width: 0; font-size: 13px; color: {{ r.textColor }}; font-weight: {{ r.textWeight }}"><sc-if value="{{ r.hasTick }}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; color: {{ r.tick.c }}; margin-right: 4px; vertical-align: -2px"><svg width="{{ r.tick.w }}" height="14" viewBox="{{ r.tick.vb }}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="{{ r.tick.d }}"></path></svg></span></sc-if>{{ r.preview }}</span>
+                <sc-if value="{{ r.muted }}" hint-placeholder-val="{{ false }}"><span style="color: var(--m-faint); display: flex" aria-label="Muted"><m-ic n="bell" s="14"></m-ic></span></sc-if>
+                <sc-if value="{{ r.unread }}" hint-placeholder-val="{{ false }}"><b style="min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: {{ r.badgeBg }}; color: var(--m-bg-hi); font: 700 11px/20px var(--m-font); text-align: center">{{ r.unread }}</b></sc-if>
+              </span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
   </div>
 
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 20px 20px 28px; display: flex; flex-direction: column; gap: 20px">
-    <section style="display: flex; flex-direction: column; gap: 6px">
-      <h2 style="margin: 0 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Full-screen states</h2>
-      <sc-for list="{{ pages }}" as="p" hint-placeholder-count="7">
-        <a href="{{ p.href }}" onClick="{{ p.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; color: #1F1D47; text-decoration: none">
-          <span style="width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0; background: {{ p.color }}; box-shadow: none"></span>
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ p.label }}</span><span style="font-size: 12px; color: #6B6890">{{ p.hint }}</span></span>
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
-        </a>
+  <sc-if value="{{ selecting }}" hint-placeholder-val="{{ false }}">
+    <div role="toolbar" aria-label="Selected chats" style="position: absolute; left: 14px; right: 14px; bottom: 24px; height: 72px; border-radius: 36px; background: var(--m-ink); color: var(--m-bg-hi); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; box-shadow: 0 14px 40px rgba(0,0,0,.2); animation: msgBarIn .55s var(--m-spring)">
+      <sc-for list="{{ actions }}" as="a" hint-placeholder-count="4">
+        <button type="button" onClick="{{ a.run }}" disabled="{{ a.off }}" style="height: 100%; border: 0; background: transparent; color: {{ a.color }}; opacity: {{ a.op }}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 10.5px var(--m-font)"><m-ic n="{{ a.icon }}" s="19"></m-ic>{{ a.label }}</button>
       </sc-for>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Banners · slide from the top</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <sc-for list="{{ banners }}" as="b" hint-placeholder-count="6">
-          <button onClick="{{ b.show }}" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 20px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 5px; background: {{ b.color }}"></span>{{ b.title }}</button>
-        </sc-for>
-      </div>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Toasts · rise from the bottom</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="5">
-          <button onClick="{{ t.show }}" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 20px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 5px; background: {{ t.color }}"></span>{{ t.label }}</button>
-        </sc-for>
-      </div>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Dialogs · pop in the middle</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <sc-for list="{{ dialogs }}" as="d" hint-placeholder-count="5">
-          <button onClick="{{ d.show }}" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 20px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 5px; background: {{ d.color }}"></span>{{ d.chip }}</button>
-        </sc-for>
-      </div>
-    </section>
-  </div>
-
-  <sc-if value="{{ bannerOn }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 12px; right: 12px; top: 12px; z-index: 60; border-radius: 22px; background: #FFFFFF; box-shadow: 0 14px 30px rgba(20,14,70,0.35); overflow: hidden; animation: {{ bannerAnim }}">
-      <div style="display: flex; align-items: center; gap: 12px; padding: 14px">
-        <span style="width: 40px; height: 40px; border-radius: 20px; flex-shrink: 0; background: {{ B.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ B.glyph }}"></path></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">{{ B.title }}</span><span style="font-size: 12px; line-height: 1.4; color: #4A4770">{{ B.body }}</span></span>
-        <button onClick="{{ bannerAction }}" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 12px; font-weight: 700">{{ B.action }}</button>
-      </div>
-      <span aria-hidden="true" style="display: block; height: 3px; background: {{ B.color }}; transform-origin: left; animation: motioTimer 4s linear forwards"></span>
     </div>
   </sc-if>
 
-  <sc-if value="{{ dialogOn }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 24px">
-      <button aria-label="Close" onClick="{{ closeDialog }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.55); cursor: default; animation: motioFade 220ms ease-out"></button>
-      <div role="alertdialog" aria-label="{{ D.title }}" style="position: relative; width: 100%; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 10px; animation: motioDlgIn 300ms cubic-bezier(0.22, 1, 0.36, 1)">
-        <span style="width: 52px; height: 52px; border-radius: 26px; background: {{ D.tint }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{ D.color }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ D.glyph }}"></path></svg></span>
-        <span style="font-size: 20px; font-weight: 700">{{ D.title }}</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">{{ D.body }}</span>
-        <div style="display: flex; gap: 10px; margin-top: 8px">
-          <button onClick="{{ dialogNo }}" style="flex: 1; min-height: 48px; border-radius: 24px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">{{ D.no }}</button>
-          <button onClick="{{ dialogYes }}" style="flex: 1; min-height: 48px; border-radius: 24px; border: 0; background: {{ D.color }}; color: #FFFFFF; font-size: 14px; font-weight: 600">{{ D.yes }}</button>
+  <sc-if value="{{ sheet }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position: absolute; inset: 0; z-index: 20; background: rgba(15,15,15,.18); animation: msgDim .32s ease"></div>
+    <div class="m-sheet" role="dialog" aria-label="{{ sheetTitle }}" style="z-index: 21; display: flex; flex-direction: column; gap: 10px; max-height: 70%; box-sizing: border-box">
+      <span class="m-h2">{{ sheetTitle }}</span>
+      <sc-if value="{{ confirming }}" hint-placeholder-val="{{ false }}">
+        <span class="m-sub">{{ confirmText }}</span>
+        <button type="button" class="m-btn wide" style="background: var(--m-warn); color: #fff; margin-top: 6px" onClick="{{ confirmRun }}">{{ confirmLabel }}</button>
+        <button type="button" class="m-btn w wide" onClick="{{ closeSheet }}">Cancel</button>
+      </sc-if>
+      <sc-if value="{{ picking }}" hint-placeholder-val="{{ false }}">
+        <div style="overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 0 -4px; padding: 0 4px">
+          <sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
+            <button type="button" class="m-row" onClick="{{ p.open }}" style="border: 0; width: 100%; text-align: left; color: var(--m-ink); font: 600 15px var(--m-font)">
+              <sc-if value="{{ p.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ p.avatar }}" alt="" style="width: 36px; height: 36px; border-radius: 18px; object-fit: cover"></sc-if><sc-if value="{{ p.noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 36px; height: 36px; border-radius: 18px; background: var(--m-card); display: flex; align-items: center; justify-content: center">{{ p.ini }}</span></sc-if>
+              <span style="flex: 1">{{ p.name }}</span><m-ic n="chev" s="16"></m-ic>
+            </button>
+          </sc-for>
+          <sc-if value="{{ noPeople }}" hint-placeholder-val="{{ false }}"><span class="m-sub">{{ noPeopleText }}</span><button type="button" class="m-btn wide" onClick="{{ LK.friends.go }}">Find friends</button></sc-if>
         </div>
-      </div>
+      </sc-if>
     </div>
   </sc-if>
-
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 36px; z-index: 80; display: flex; align-items: center; gap: 10px; max-width: 330px; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 10px 24px rgba(20,14,70,0.35); animation: motioToast 2600ms ease forwards"><span style="width: 10px; height: 10px; flex-shrink: 0; border-radius: 5px; background: {{ toastColor }}"></span>{{ toast }}</div>
-  </sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 30; padding: 12px 18px; border-radius: 22px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; animation: msgDim .25s ease">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  toastShow(msg, color) {
-    clearTimeout(this.toastTimer);
-    this.setState({ toast: null });
-    setTimeout(() => this.setState({ toast: msg, toastColor: color || '#3DBF5C' }), 30);
-    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2630);
+  componentDidMount() {
+    const M = window.Motio;
+    if (!M) return;
+    this.onChats = () => this.setState({ v: Date.now(), loading: false, error: null });
+    window.addEventListener('motio:chats', this.onChats);
+    this.load();
+    // While the list is open it is checked more often than the inbox, so new messages show up quickly.
+    this.poll = setInterval(() => { if (!document.hidden) M.chats.list().catch(() => {}); }, 6000);
   }
-  bannerShow(i) {
-    clearTimeout(this.bannerTimer);
-    this.setState({ banner: null, bannerOut: false });
-    setTimeout(() => this.setState({ banner: i + 1 }), 30);
-    this.bannerTimer = setTimeout(() => this.bannerHide(), 4030);
+  componentWillUnmount() { window.removeEventListener('motio:chats', this.onChats); clearInterval(this.poll); clearTimeout(this.holdT); clearTimeout(this.toastT); }
+  load() {
+    const M = window.Motio;
+    this.setState({ loading: !M.chats.cached(), error: null });
+    M.chats.list().catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t load your messages.' }));
   }
-  bannerHide() {
-    clearTimeout(this.bannerTimer);
-    this.setState({ bannerOut: true });
-    setTimeout(() => this.setState({ banner: null, bannerOut: false }), 280);
-  }
-  componentWillUnmount() {
-    clearTimeout(this.bannerTimer);
-    clearTimeout(this.toastTimer);
-  }
+  showToast(t) { clearTimeout(this.toastT); this.setState({ toast: t }); this.toastT = setTimeout(() => this.setState({ toast: null }), 2200); }
   renderVals() {
     const emb = !!this.props.embedded;
-    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
-      if (!emb) return;
-      if (e && e.preventDefault) e.preventDefault();
-      if (this.props.onNav) this.props.onNav(target);
-    } });
-    const s = this.state || {};
-    const G = {
-      gps: 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM4 4l16 16',
-      pause: 'M8 5v14M16 5v14',
-      sync: 'M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M18 3v6h-6M6 21v-6h6',
-      wifi: 'M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.01M3 3l18 18',
-      gift: 'M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z',
-      flag: 'M5 21V4h11l-2 4 2 4H5',
-      trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13',
-      undo: 'M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3',
-      motion: 'M4 12h4l2-5 4 10 2-5h4',
-      battery: 'M3 8h15v8H3zM20 11v2M7 11v2M11 11v2',
-      merge: 'M6 4v6a6 6 0 0 0 6 6h6M18 12l3 4-3 4M6 20v-4'
+    const nav = (t) => this.props.onNav && this.props.onNav(t);
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => { if (!emb) return; if (e && e.preventDefault) e.preventDefault(); nav(target); } });
+    const s = this.state || {}, M = window.Motio, now = Date.now();
+    // Sample chats for the design canvas; the app uses the server's list.
+    const sample = { unread: 2, moving: [{ id: 2, name: 'Leyla', mode: 'walk' }, { id: 5, name: 'Rashad', mode: 'bike' }], chats: [
+      { friend: { id: 2, name: 'Leyla' }, unread: 2, last: { mine: false, text: 'Parachute Tower, 18:00?', at: now - 20 * 60000 } },
+      { friend: { id: 3, name: 'Murad' }, unread: 0, last: { mine: true, status: 'delivered', text: '3:52, not bad at all', at: now - 3 * 3600000 } },
+      { friend: { id: 5, name: 'Rashad' }, unread: 0, muted: true, last: { mine: true, status: 'seen', text: 'see you at the bus stop', at: now - 2 * 86400000 } },
+      { friend: { id: 6, name: 'Aysel' }, unread: 0, last: { mine: true, status: 'sent', text: 'Same time tomorrow?', at: now - 3 * 86400000 } },
+      { friend: { id: 7, name: 'Nigar' }, unread: 0, last: { mine: false, text: 'Thanks for the add!', at: now - 4 * 86400000 } }] };
+    const data = M ? M.chats.cached() || { chats: [], moving: [], unread: 0 } : sample;
+    const sel = s.sel || null, selecting = !!sel;
+    const filter = s.filter || 'all', query = String(s.query || '').trim().toLowerCase();
+    const ini = (n) => String(n || '?').trim().charAt(0).toUpperCase();
+    const first = (n) => String(n || '').split(' ')[0];
+    const when = (t) => { const d = new Date(t), today = new Date(); today.setHours(0, 0, 0, 0);
+      if (t >= today.getTime()) return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      if (t >= today.getTime() - 6 * 86400000) return d.toLocaleDateString('en-GB', { weekday: 'short' });
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+    const TICK = { sent: { w: 14, vb: '0 0 24 24', d: 'M5 12.5l4.5 4.5L19 7', c: 'var(--m-faint)' }, delivered: { w: 18, vb: '0 0 30 24', d: 'M3 12.5l4.5 4.5L17 7M13 16l1 1L23.5 7', c: 'var(--m-faint)' } };
+    TICK.seen = { ...TICK.delivered, c: 'var(--m-ink)' };
+    const MODE = { walk: ['walk', 'walking'], run: ['run', 'running'], bike: ['bike', 'cycling'], transit: ['bus', 'on the bus'], drive: ['car', 'driving'] };
+    const openChat = (id) => { window.__motioChat = id; nav('chat'); };
+
+    const all = data.chats;
+    const shown = all.filter((c) => (filter !== 'unread' || c.unread > 0) && (filter !== 'pinned' || c.pinned)
+      && (!query || c.friend.name.toLowerCase().includes(query) || (c.last && String(c.last.text || '').toLowerCase().includes(query))));
+    const toggle = (id) => { const n = new Set(sel); if (n.has(id)) n.delete(id); else n.add(id); this.setState({ sel: n.size ? n : null }); };
+    this.holdStart = (id, e) => {
+      if (e && e.pointerType === 'mouse' && e.button !== 0) return;
+      clearTimeout(this.holdT); this.held = false; this.holdXY = e ? [e.clientX, e.clientY] : null;
+      this.holdT = setTimeout(() => { this.held = true; if (navigator.vibrate) navigator.vibrate(12); const n = new Set(sel || []); n.add(id); this.setState({ sel: n }); }, 450);
     };
-    const banners = [
-      ['GPS signal lost', 'We’ll fill in the gap when your signal is back.', '#E0A92C', G.gps, 'OK', null],
-      ['Tracking paused', 'Low Power Mode is on, so Motio stopped tracking.', '#5B4FE0', G.pause, 'Resume', 'Tracking resumed'],
-      ['Sync failed', '3 trips didn’t upload. We’ll retry on Wi-Fi.', '#C2412F', G.sync, 'Retry', 'All trips synced'],
-      ['You’re offline', 'Changes are saved on this phone until you reconnect.', '#E0A92C', G.wifi, 'OK', null],
-      ['Your week is wrapped', 'Oct 25–31 is ready to play.', '#3DBF5C', G.gift, 'Open', 'Opening your recap…'],
-      ['Goal reached!', '3h 30m on the move today. Legend.', '#3DBF5C', G.flag, 'Nice', null]
-    ];
-    const toasts = [
-      ['Trip saved', '#3DBF5C'],
-      ['Couldn’t save trip. Try again', '#C2412F'],
-      ['Export failed: not enough storage', '#C2412F'],
-      ['Couldn’t connect to Strava', '#E0A92C'],
-      ['Link copied', '#3DBF5C']
-    ];
-    const dialogs = [
-      ['Delete trip', 'Delete this trip?', 'The 18:10 drive (31.8 km) will be removed from today and your recaps.', 'Keep it', 'Delete', '#C2412F', '#FDECEA', G.trash, 'Trip deleted'],
-      ['Discard changes', 'Discard your changes?', 'You edited this trip’s type and time. Leaving now throws those edits away.', 'Keep editing', 'Discard', '#C2412F', '#FDECEA', G.undo, 'Changes discarded'],
-      ['Motion access', 'Let Motio count your steps?', 'Motion & fitness access lets Motio tell walking from cycling. Nothing leaves your phone without your say.', 'Not now', 'Allow', '#3DBF5C', '#DDF5E3', G.motion, 'Motion access allowed'],
-      ['Battery saver', 'Battery saver is limiting Motio', 'Your phone is stopping Motio in the background, so some trips may be missing.', 'Ignore', 'Fix it', '#5B4FE0', '#EEEBFF', G.battery, 'Opening battery settings…'],
-      ['Merge trips', 'Merge these two walks?', 'Looks like one walk got split at 12:41 when you stopped for coffee.', 'Keep separate', 'Merge', '#6E8CF7', '#E7ECFF', G.merge, 'Walks merged']
-    ];
-    const B = s.banner ? banners[s.banner - 1] : banners[0];
-    const D = s.dialog ? dialogs[s.dialog - 1] : dialogs[0];
-    const page = (label, hint, file, target, color) => ({ label, hint, color, ...lk(target, file) });
+    const rows = shown.map((c) => {
+      const id = c.friend.id, on = !!(sel && sel.has(id)), last = c.last, unread = c.unread || 0;
+      const preview = !last ? 'No messages' : (last.mine ? 'You: ' : '') + (last.trip ? (last.text ? last.text : 'Shared a ' + ((MODE[last.trip.mode] || ['', 'trip'])[0] === 'bus' ? 'bus trip' : (M ? M.MODES[last.trip.mode].label.toLowerCase() : 'walk'))) : last.text);
+      return { name: c.friend.name, ini: ini(c.friend.name), hasAvatar: !!c.friend.avatar, noAvatar: !c.friend.avatar, avatar: c.friend.avatar || '', on, cls: on ? 'on' : '', pressed: selecting ? String(on) : 'false',
+        tickBg: on ? 'var(--m-ink)' : 'transparent', tickRing: on ? 'none' : 'inset 0 0 0 2px var(--m-line)',
+        time: last ? when(last.at) : '', timeFont: unread ? "600 12px 'Inter Tight'" : "500 12px 'Inter Tight'", timeColor: unread ? 'var(--m-ink)' : 'var(--m-mute)',
+        textColor: unread ? 'var(--m-ink)' : 'var(--m-mute)', textWeight: unread ? 600 : 500, preview,
+        hasTick: !!(last && last.mine), tick: TICK[(last && last.status) || 'sent'], muted: !!c.muted, pinned: !!c.pinned, unread, badgeBg: c.muted ? 'var(--m-faint)' : 'var(--m-ink)',
+        aria: c.friend.name + (unread ? ', ' + unread + ' unread' : '') + (last ? '. ' + preview + ', ' + when(last.at) : '') + (c.muted ? '. Muted' : '') + (c.pinned ? '. Pinned' : ''),
+        down: (e) => this.holdStart(id, e),
+        context: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+        tap: () => { if (this.held) { this.held = false; return; } if (selecting) toggle(id); else openChat(id); } };
+    });
+
+    const ids = sel ? [...sel] : [], chosen = all.filter((c) => sel && sel.has(c.friend.id));
+    const done = (p, msg) => { this.setState({ sel: null }); p.then(() => msg && this.showToast(msg)).catch((e) => this.showToast((e && e.message) || 'Couldn’t do that. Try again.')); };
+    const allPinned = chosen.length && chosen.every((c) => c.pinned), allMuted = chosen.length && chosen.every((c) => c.muted);
+    const actions = [
+      { icon: 'pin', label: allPinned ? 'Unpin' : 'Pin', run: () => done(M.chats.pin(ids, !allPinned)) },
+      { icon: 'bell', label: allMuted ? 'Unmute' : 'Mute', run: () => done(M.chats.mute(ids, allMuted ? 0 : 8), allMuted ? null : 'Muted for 8 hours') },
+      { icon: 'check', label: 'Read', run: () => done(M.chats.read(ids)) },
+      { icon: 'trash', label: 'Delete', color: '#FF8A78', run: () => this.setState({ sheet: 'confirm' }) }
+    ].map((a) => ({ ...a, color: a.color || 'inherit', off: !ids.length || !M, op: ids.length ? 1 : 0.4 }));
+
+    const friendsList = s.people || [];
+    const moving = (data.moving || []).map((p) => { const m = MODE[p.mode] || MODE.walk;
+      return { first: first(p.name), ini: ini(p.name), hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', color: 'var(--m-' + (p.mode in MODE ? p.mode : 'walk') + ')', icon: m[0],
+        aria: 'Message ' + p.name + ', ' + m[1] + ' now', open: () => openChat(p.id) }; });
+    const sheet = s.sheet || null;
+    const n = ids.length;
     return {
-      LK: { back: lk('back', 'Settings.dc.html') },
-      pages: [
-        page('Offline', 'No internet, retry with spinner', 'Offline.dc.html', 'offline', '#6E8CF7'),
-        page('Location turned off', 'Permission denied, how to fix', 'LocationOff.dc.html', 'locationoff', '#3DBF5C'),
-        page('Server error', '503 with retry and status', 'ServerError.dc.html', 'servererror', '#F2766B'),
-        page('Page not found', '404, wandered off', 'NotFound.dc.html', 'notfound', '#F6C343'),
-        page('Session expired', 'Logged out for safety', 'SessionExpired.dc.html', 'session', '#5B4FE0'),
-        page('No moves yet', 'Empty day for new users', 'EmptyToday.dc.html', 'empty', '#4B3FD8'),
-        page('Wrong password & lockout', 'Try it on the Log in screen', 'Login.dc.html', 'login', '#C2412F')
-      ],
-      banners: banners.map((b, i) => ({ title: b[0], color: b[2], show: () => this.bannerShow(i) })),
-      bannerOn: !!s.banner,
-      bannerAnim: s.bannerOut ? 'motioBannerOut 260ms ease-in forwards' : 'motioBannerIn 420ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-      B: { title: B[0], body: B[1], color: B[2], glyph: B[3], action: B[4] },
-      bannerAction: () => { const done = B[5]; this.bannerHide(); if (done) this.toastShow(done, '#3DBF5C'); },
-      toasts: toasts.map(([label, color]) => ({ label, color, show: () => this.toastShow(label, color) })),
-      dialogs: dialogs.map((d, i) => ({ chip: d[0], color: d[5], show: () => this.setState({ dialog: i + 1 }) })),
-      dialogOn: !!s.dialog,
-      D: { title: D[1], body: D[2], no: D[3], yes: D[4], color: D[5], tint: D[6], glyph: D[7] },
-      closeDialog: () => this.setState({ dialog: null }),
-      dialogNo: () => this.setState({ dialog: null }),
-      dialogYes: () => { this.setState({ dialog: null }); this.toastShow(D[8], D[5]); },
-      hasToast: !!s.toast, toast: s.toast || '', toastColor: s.toastColor || '#3DBF5C'
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Recaps.dc.html'), friends: lk('friends', 'Friends.dc.html') },
+      selecting, notSelecting: !selecting, selLabel: n + ' selected', allLabel: n === all.length && n ? 'Select none' : 'Select all',
+      selectAll: () => this.setState({ sel: n === all.length ? null : new Set(all.map((c) => c.friend.id)) }),
+      endSelect: () => this.setState({ sel: null }),
+      cancelHold: () => clearTimeout(this.holdT),
+      moveHold: (e) => { if (this.holdXY && e && Math.hypot(e.clientX - this.holdXY[0], e.clientY - this.holdXY[1]) > 8) clearTimeout(this.holdT); },
+      dimTools: selecting ? 0.4 : 1,
+      query: s.query || '', onQuery: (e) => this.setState({ query: e.target.value }),
+      filters: [['all', 'All', 0], ['unread', 'Unread', data.unread], ['pinned', 'Pinned', 0]].map(([k, label, cnt]) => ({ label, n: cnt || 0, on: String(filter === k), cls: filter === k ? 'on' : '',
+        nc: filter === k ? 'var(--m-on-dark-mute)' : 'var(--m-mute)', pick: () => this.setState({ filter: k }) })),
+      hasMoving: moving.length > 0 && !selecting, moving,
+      loading: !!s.loading && !all.length, error: s.error && !all.length ? s.error : null, retry: () => this.load(),
+      empty: !s.loading && !s.error && !shown.length, emptyCta: !all.length,
+      emptyTitle: all.length ? 'Nothing here' : 'No messages yet', emptyText: all.length ? (query ? 'No chats match “' + s.query.trim() + '”.' : 'No chats in this filter.') : 'Message a friend about a run, a ride or where to meet. Only friends can message you.',
+      hasRows: rows.length > 0, rows, actions,
+      sheet: !!sheet, confirming: sheet === 'confirm', picking: sheet === 'new',
+      sheetTitle: sheet === 'confirm' ? (n === 1 ? 'Delete this chat?' : 'Delete ' + n + ' chats?') : 'New message',
+      confirmText: 'The messages are removed for you only. ' + (n === 1 ? 'The chat comes back' : 'A chat comes back') + ' if a new message arrives.',
+      confirmLabel: 'Delete', confirmRun: () => { this.setState({ sheet: null }); done(M.chats.remove(ids), n === 1 ? 'Chat deleted' : n + ' chats deleted'); },
+      closeSheet: () => this.setState({ sheet: null }),
+      openNew: () => {
+        this.setState({ sheet: 'new', sel: null });
+        if (M && !s.people) M.friends.board().then((r) => this.setState({ people: r.people.filter((p) => !p.me) })).catch(() => this.setState({ people: [] }));
+      },
+      people: friendsList.map((p) => ({ name: p.name, ini: ini(p.name), hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', open: () => { this.setState({ sheet: null }); openChat(p.id); } })),
+      noPeople: !!s.people && !friendsList.length, noPeopleText: 'Add a friend first. You can message anyone on your friends list.',
+      toast: s.toast || null
     };
   }
 }

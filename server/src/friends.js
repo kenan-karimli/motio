@@ -95,7 +95,8 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
         SUM(CASE WHEN mode = 'run' THEN 1 ELSE 0 END)::int AS runs
       FROM trips WHERE deleted = 0 AND start >= ? AND start < ? AND user_id = ANY(?) GROUP BY user_id`),
     activeCount: db.prepare(`SELECT COUNT(*)::int AS n FROM challenges c JOIN challenge_members m ON m.challenge_id = c.id WHERE m.user_id = ? AND c."end" > ?`),
-    leave: db.prepare('DELETE FROM challenge_members WHERE challenge_id = ? AND user_id = ?')
+    leave: db.prepare('DELETE FROM challenge_members WHERE challenge_id = ? AND user_id = ?'),
+    blocked: db.prepare('SELECT 1 AS ok FROM blocks WHERE (user_id = ? AND blocked_id = ?) OR (user_id = ? AND blocked_id = ?)')
   };
 
   // Each member's progress in a challenge, from walks, runs and rides inside its window (driving never counts).
@@ -198,6 +199,7 @@ export async function friendRoutes({ db, now, authUser, HttpError, bad }) {
         other = await q.byInvite.get(code);
         if (!other) throw new HttpError(404, 'code_unknown', 'No one has that code. Check it and try again.');
       }
+      if (await q.blocked.get(user.id, other.id, other.id, user.id)) throw new HttpError(404, 'not_found', 'You can’t add this person.');
       if (other.id === user.id) throw bad('code_self', body.id !== undefined ? 'That’s you.' : 'That’s your own code. Send it to a friend instead.');
       if (await q.isFriend.get(user.id, other.id)) return { friend: { id: other.id, name: other.name }, already: true };
       if ((await q.count.get(user.id)).n >= MAX_FRIENDS) throw bad('too_many', 'You can have up to ' + MAX_FRIENDS + ' friends.');
