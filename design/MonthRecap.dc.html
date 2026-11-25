@@ -2,255 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · October, wrapped</title>
+<title>Motio · Month, wrapped</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
-<style>
-body{margin:0}
-html,body{background:#ECECEA}
-a{color:inherit}
-button{font:inherit;cursor:pointer}
-button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease}
-button:active,a:active{transform:scale(0.95)}
-@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes motioSwap{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-@keyframes motioGrowX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes motioUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes motioDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
-@keyframes motioFade{from{opacity:0}to{opacity:1}}
-@keyframes motioFadeOut{from{opacity:1}to{opacity:0}}
-@keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
-@keyframes motioLeaveRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
-@keyframes motioLeaveDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
-@keyframes motioReturn{from{transform:translateX(-72px);opacity:0.4}to{transform:translateX(0);opacity:1}}
-@keyframes motioReturnScale{from{transform:scale(0.94);opacity:0.5}to{transform:scale(1);opacity:1}}
-@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioSoftBackIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioSoftUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-@keyframes motioSoftOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
-@keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
-</style>
+<style>body{margin:0}</style>
 </helmet>
-<div onpointerdown="{{ sDown }}" onpointermove="{{ sMove }}" onpointerup="{{ sUp }}" onpointercancel="{{ sUp }}" style="touch-action: none; animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{ L.bg }}; color: {{ L.fg }}; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 10px">
-
-  <div role="group" aria-roledescription="story" aria-label="{{ storyLabel }}" style="position: absolute; inset: 0; overflow: hidden">
-    <div ref="{{ paintCard }}" style="position: absolute; left: 0; top: 0; width: 360px; transform-origin: 0 0; animation: motioSwap 360ms ease-out"></div>
-  </div>
-
-  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="5" aria-valuenow="{{ storyNum }}" style="position: relative; display: flex; gap: 4px">
-    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: {{ b.bg }}; transition: background 300ms ease"></span></sc-for>
-  </div>
-
-  <div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
-    <span style="padding: 6px 12px; border-radius: 16px; background: {{ L.chip }}; color: {{ L.fg }}; font-size: 12px; font-weight: 600">{{ R.head }}</span>
-    <a href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="width: 44px; height: 44px; border-radius: 22px; background: {{ L.chip }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ L.fg }}" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
-  </div>
-
-  <div style="position: relative; flex: 1; min-height: 0">
-    <button aria-label="Previous story" onClick="{{ prev }}" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 35%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: w-resize"></button>
-    <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
-      <button aria-label="Next story" onClick="{{ next }}" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; border: 0; padding: 0; background: transparent; z-index: 5; cursor: e-resize"></button>
-    </sc-if>
-    <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
-      <a href="{{ LK.k1.href }}" onClick="{{ LK.k1.go }}" aria-label="Finish recap and go back to Recaps" style="position: absolute; right: -20px; top: 0; bottom: 0; width: 65%; z-index: 5; cursor: e-resize"></a>
-    </sc-if>
-  </div>
-
-  <div style="position: relative; display: flex; gap: 8px">
-    <button onClick="{{ openShare }}" style="flex: 1; height: 52px; border-radius: 26px; border: 0; background: {{ L.fg }}; color: {{ L.bg }}; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ L.bg }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share this story</button>
-  </div>
-
-  <sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
-    <dc-import name="ShareEditor" job="{{ shareJob }}" on-close="{{ closeShare }}"></dc-import>
-  </sc-if>
-
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 96px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 22px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E7A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>{{ toast }}</div>
-  </sc-if>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden">
+  <dc-import name="Recap" embedded="{{ embedded }}" on-nav="{{ onNav }}" hint-size="390px,844px"></dc-import>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  // Standalone artboards: remember which way we are going, and play this page's exit before the canvas jumps.
-  dirGet() {
-    let d = null;
-    try { d = window.localStorage.getItem('motio.dir'); } catch (e) { /* blocked */ }
-    if (d === null) { try { d = window.sessionStorage.getItem('motio.dir'); } catch (e) { /* blocked */ } }
-    if (d === null) { try { d = window.top.__motioDir; } catch (e) { /* cross-origin */ } }
-    if (d == null) d = window.__motioDir;
-    return d || null;
-  }
-  dirSet(v) {
-    try { window.localStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
-    try { window.sessionStorage.setItem('motio.dir', v); } catch (e) { /* blocked */ }
-    try { window.top.__motioDir = v; } catch (e) { /* cross-origin */ }
-    window.__motioDir = v;
-  }
-  standaloneNav(e, target) {
-    if (target !== 'back' || this.navNow) { this.navNow = false; if (target !== 'back') this.dirSet('forward'); return; }
-    const el = e && e.currentTarget;
-    if (!el) return;
-    e.preventDefault();
-    this.dirSet('back');
-    this.setState({ leaving: true });
-    setTimeout(() => { this.navNow = true; el.click(); }, 200);
-  }
-  showToast(msg) {
-    clearTimeout(this.toastTimer);
-    this.setState({ toast: null });
-    setTimeout(() => this.setState({ toast: msg }), 30);
-    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 2330);
-  }
-  // The card for the slide you're on: the same card the share image is made from.
-  storyJob(L) {
-    const i = (this.state && this.state.i) || 0;
-    if (!L) return { kind: 'cover', data: {}, i, text: '' };
-    const T = L.T;
-    const wmax = Math.max(0.001, ...L.weeks.map((w) => w[1]));
-    const recTiles = L.records.length ? L.records.map(([k, v, s]) => ({ k, v, s })) : [{ k: 'Records', v: '—', s: 'Your bests show up as you move' }];
-    const cards = [
-      ['cover', { kicker: T.month, title: T.month + ',\nwrapped', sub: T.days + ' days · ' + T.hours + ' on the move', bigLabel: 'covered', big: T.dist, routes: L.routes }],
-      ['distance', { kicker: T.month + ', wrapped', lead: 'In ' + T.month + ' you covered', num: T.distNum, unit: T.unit, line: T.compare, bars: L.weeks.map(([label, v]) => ({ label: 'Week of ' + label, value: Math.round(v) + ' ' + L.unit, pct: Math.round(v / wmax * 100) })) }],
-      ['distance', { kicker: T.month + ', wrapped', lead: 'You were on the move for', num: T.hours, unit: '', line: T.perDayLine, bars: L.modes.map(([label, color, time, pct]) => ({ label, value: time, pct, color })) }],
-      ['highlights', { kicker: T.month + ', wrapped', title: T.recTitle + '\n' + T.recSub, tiles: recTiles }],
-      ['wrap', { kicker: T.month + ', wrapped', lead: T.persLine + ', ' + T.persPre.toLowerCase(), name: T.pers, stat: T.busyDay !== '—' ? 'Busiest day: ' + T.busyDay + ', ' + T.busyTime : 'Every trip counts', grid: [{ v: T.dist, k: 'covered' }, { v: T.hours, k: 'on the move' }, { v: T.steps, k: 'steps' }], end: T.nextLine }]
-    ];
-    const [kind, data] = cards[Math.min(4, i)];
-    return { kind, data, i, text: T.month + ', wrapped: ' + T.dist + '. ' + T.hours + ' on the move, ' + T.steps + ' steps. Tracked with Motio.' };
-  }
-  // One calendar month of real trips. Records are the month's best day, run and ride.
-  liveVals() {
-    const M = window.Motio;
-    const now = Date.now();
-    const P = this.period || (this.period = (window.__motioRecap && window.__motioRecap.kind === 'month' ? window.__motioRecap : null) || { kind: 'month', from: M.monthStart(now) });
-    window.__motioRecap = null;
-    const from = P.from, d0 = new Date(from), to = new Date(d0.getFullYear(), d0.getMonth() + 1, 1).getTime();
-    const r = M.summarize(from, to);
-    const mi = M.settings().unit === 'mi', unit = mi ? 'mi' : 'km', num = (m) => (mi ? m / 1609.34 : m / 1000);
-    const monthName = d0.toLocaleDateString('en-GB', { month: 'long' });
-    const nDays = Math.round((to - from) / M.DAY), elapsed = Math.max(1, Math.min(nDays, Math.ceil((Math.min(now, to) - from) / M.DAY)));
-    const short = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
-    const weeks = [];
-    for (let a = from; a < to;) { const b = Math.min(to, M.weekStart(a) + 7 * M.DAY); weeks.push([short(a, { day: 'numeric' }) + '–' + short(b - 1, { day: 'numeric' }), num(M.summarize(a, b).m)]); a = b; }
-    if (weeks.length) weeks[0][0] = short(from, { month: 'short' }) + ' ' + weeks[0][0];
-    const modes = r.modes.map((x) => [x.label, x.color, M.fmtMin(x.ms / M.MIN), x.pct]);
-    const days = M.days(from, nDays).filter((d) => d.from <= now);
-    const busiest = days.reduce((a, d) => (d.min > (a ? a.min : 0) ? d : a), null);
-    const stepDay = days.reduce((a, d) => (d.steps > (a ? a.steps : 0) ? d : a), null);
-    const ride = r.trips.filter((t) => t.mode === 'bike').reduce((a, t) => (!a || t.distanceM > a.distanceM ? t : a), null);
-    const run = r.trips.filter((t) => t.mode === 'run' && t.distanceM > 800).reduce((a, t) => { const p = (t.end - t.start) / t.distanceM; return !a || p < a.p ? { t, p } : a; }, null);
-    const day = (t) => short(t, { weekday: 'short', day: 'numeric', month: 'short' });
-    const records = [];
-    if (stepDay && stepDay.steps) records.push(['MOST STEPS IN A DAY', M.fmtNum(stepDay.steps), day(stepDay.from), '#3DBF5C']);
-    if (run) { const sec = run.p * (mi ? 1609.34 : 1000) / 1000; records.push(['FASTEST RUN PACE', Math.floor(sec / 60) + ':' + String(Math.round(sec % 60)).padStart(2, '0') + ' /' + unit, day(run.t.start), '#F2766B']); }
-    if (ride) records.push(['LONGEST RIDE', M.fmtDist(ride.distanceM), day(ride.start), '#6E8CF7']);
-    const km = num(r.m) / (mi ? 0.621 : 1);
-    const places = [[42.2, 'a marathon'], [100, 'a 100 km ultra'], [344, 'London to Paris'], [878, 'Paris to Berlin'], [1430, 'London to Rome'], [3940, 'Lisbon to Moscow']];
-    const near = places.filter(([k]) => km >= k).pop();
-    const pers = M.personality(Math.min(to, now)), before = M.personality(from);
-    const big = (n) => (n >= 10000 ? Math.round(n / 1000) + 'k' : M.fmtNum(n));
-    const hrs = r.min / 60;
-    const nextMonth = new Date(d0.getFullYear(), d0.getMonth() + 1, 1);
-    const count = ['No records', 'One record', 'Two records', 'Three records'][records.length];
-    return {
-      routes: M.route(from, to), unit,
-      weeks, modes: modes.length ? modes : [['Nothing yet', '#C9C5EC', '0m', 1]], records,
-      T: {
-        month: monthName, days: nDays, distNum: M.fmtNum(num(r.m)), unit, unitLong: mi ? 'Miles' : 'Kilometres',
-        compare: near ? 'Farther than ' + near[1] + ', on your own two feet, wheels and rails.' : 'Every trip counts. Next month, even farther.',
-        hoursLong: hrs >= 1 ? Math.round(hrs) + (Math.round(hrs) === 1 ? ' hour' : ' hours') : M.fmtMin(r.min), perDayLine: 'That’s about ' + M.fmtMin(r.min / elapsed) + ' every day.',
-        busyDay: busiest ? short(busiest.from, { weekday: 'short', day: 'numeric' }) : '—', busyTime: busiest ? M.fmtMin(busiest.min) + ' on the move' : 'no moves yet',
-        recTitle: count, recSub: records.length ? 'stood out this month' : 'yet. Keep moving',
-        persLine: pers.enough && before.enough && before.key === pers.key ? 'Same as last month' : 'This month', persPre: pers.enough && before.key === pers.key ? 'You’re still' : 'You were', pers: pers.name,
-        dist: M.fmtDist(r.m), hours: Math.round(hrs) + 'h', steps: big(r.steps), prs: String(records.length), prsLabel: records.length === 1 ? 'month best' : 'month bests',
-        nextLine: now < to ? 'More to come before ' + nextMonth.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' }) + '.' : nextMonth.toLocaleDateString('en-GB', { month: 'long' }) + ' is already on the move.'
-      }
-    };
-  }
-  // Swipe down to close, like Instagram stories: the story follows the finger and closes past a threshold
-  // or on a flick; a short drag springs back. Taps still go to the left/right halves as before.
-  storyDown(e) {
-    if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    if (e.target.closest && e.target.closest('section[aria-label], [role=dialog]')) return;
-    this.sd = { x: e.clientX, y: e.clientY, el: e.currentTarget, id: e.pointerId, dy: 0, t: e.timeStamp, on: false };
-  }
-  storyMove(e) {
-    const d = this.sd;
-    if (!d || e.pointerId !== d.id) return;
-    const dy = e.clientY - d.y, dx = e.clientX - d.x;
-    if (!d.on) {
-      if (dy > 10 && dy > Math.abs(dx) * 1.2) { d.on = true; try { d.el.setPointerCapture(d.id); } catch (err) { /* pointer gone */ } }
-      else return;
-    }
-    const k = d.el.getBoundingClientRect().width / 390 || 1;
-    d.dy = Math.max(0, dy / k);
-    // Same look as the close button: the story just moves straight down, following the finger.
-    d.el.style.transition = 'none';
-    d.el.style.transform = 'translateY(' + d.dy + 'px)';
-  }
-  storyUp(e) {
-    const d = this.sd;
-    this.sd = null;
-    if (!d || !d.on) return;
-    const flick = d.dy / Math.max(1, e.timeStamp - d.t) > 0.7;
-    if ((d.dy > 140 || flick) && this.props.onNav) {
-      // Finish exactly like the close button (slide down, same curve), timed for the distance that's left.
-      const h = d.el.offsetHeight, ms = Math.round(Math.max(180, 380 * (1 - d.dy / h)));
-      d.el.style.transition = 'transform ' + ms + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
-      d.el.style.transform = 'translateY(' + h + 'px)';
-      setTimeout(() => this.props.onNav('back-now'), ms);
-      return;
-    }
-    d.el.style.transition = 'transform 300ms cubic-bezier(0.22, 1, 0.36, 1)';
-    d.el.style.transform = '';
-  }
+  // The month story is the same story as day, week and year (board 08), for one calendar month:
+  // the month asked for by the Recaps list, else this month.
   renderVals() {
-    if (this.entryAnim === undefined) {
-      const d = this.props.embedded ? null : this.dirGet();
-      if (d) this.dirSet('');
-      // Standalone artboards can't show the previous page underneath, so they use short in-place fades;
-      // inside the App prototype the full slides play over the real page behind.
-      this.entryAnim = this.props.embedded ? 'motioStoryIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : d === 'back' ? 'motioSoftBackIn 300ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftUp 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+    const M = window.Motio;
+    if (M && !this.picked) {
+      this.picked = true;
+      const p = window.__motioRecap;
+      window.__motioRecap = p && p.kind === 'month' ? p : { kind: 'month', from: M.monthStart(Date.now()) };
     }
-    const emb = !!this.props.embedded;
-    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
-      if (!emb) { this.standaloneNav(e, target); return; }
-      if (e && e.preventDefault) e.preventDefault();
-      if (this.props.onNav) this.props.onNav(target);
-    } });
-    const s = this.state || {};
-    const i = s.i || 0;
-    // Each opening starts the theme rotation somewhere new when the recap style is "Mix".
-    if (this.seed == null) this.seed = Math.floor(Math.random() * 8);
-    const K = window.Motio && window.Motio.storyImage && window.Motio.storyImage.kit;
-    const live = window.Motio ? this.liveVals() : null;
-    const job = this.storyJob(live), look = K ? K.slideLook(i, this.seed) : null;
-    const L = K ? K.storyChrome(look) : { fg: 'rgba(255,255,255,1)', bg: 'rgba(31,29,71,1)', chip: 'rgba(255,255,255,0.12)', on: 'rgba(255,255,255,1)', off: 'rgba(255,255,255,0.28)' };
-    return {
-      sDown: (e) => this.storyDown(e), sMove: (e) => this.storyMove(e), sUp: (e) => this.storyUp(e),
-      rootAnim: this.state && this.state.leaving ? 'motioSoftDown 200ms ease-in forwards' : this.entryAnim,
-      emb, LK: { k0: lk('back', 'Recaps.dc.html'), k1: lk('back', 'Recaps.dc.html') },
-      L, R: { head: (live ? live.T.month : 'October') + ', wrapped' },
-      bars: [0, 1, 2, 3, 4].map((k) => ({ bg: k <= i ? L.on : L.off })),
-      storyNum: i + 1, storyLabel: 'Story ' + (i + 1) + ' of 5',
-      isLast: i === 4, notLast: i !== 4,
-      prev: () => this.setState({ i: Math.max(0, i - 1) }),
-      next: () => this.setState({ i: Math.min(4, i + 1) }),
-      shareOpen: !!s.share,
-      openShare: () => this.setState({ share: true }),
-      shareJob: { ...job, theme: look && look.theme },
-      closeShare: (msg) => { this.setState({ share: false }); if (msg) this.showToast(msg); else this.forceUpdate(); },
-      paintCard: (el) => { if (el && K) K.paintStory(el, job.kind, job.data, look); },
-      cardKey: job.i + (look ? look.theme : ''),
-      hasToast: !!s.toast, toast: s.toast || ''
-    };
+    return { embedded: !!this.props.embedded, onNav: this.props.onNav };
   }
 }
 </script>
