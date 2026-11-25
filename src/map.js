@@ -81,10 +81,11 @@ window.MotioMap = {
   mountPlaces(el, list) {
     const map = L.map(el, { zoomControl: false, attributionControl: true });
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
-    const color = (k) => (k === 'home' ? '#F2766B' : k === 'work' ? '#5B4FE0' : '#3DBF5C');
+    // 5.0 map style: places are white stays with an ink ring (home filled ink), no colour.
+    const ink = '#0F0F0F';
     const pts = list.map((p) => {
-      L.circle([p.lat, p.lng], { radius: 150, color: color(p.kind), weight: 1, fillOpacity: 0.12 }).addTo(map);
-      L.circleMarker([p.lat, p.lng], { radius: 8, color: '#FFFFFF', weight: 3, fillColor: color(p.kind), fillOpacity: 1 }).addTo(map).bindTooltip(p.name, { permanent: list.length <= 6, direction: 'top', offset: [0, -8] });
+      L.circle([p.lat, p.lng], { radius: 150, color: ink, weight: 1, opacity: 0.25, fillOpacity: 0.06 }).addTo(map);
+      L.circleMarker([p.lat, p.lng], { radius: 7, color: ink, weight: 3, fillColor: p.kind === 'home' ? ink : '#FFFFFF', fillOpacity: 1 }).addTo(map).bindTooltip(p.name, { permanent: list.length <= 6, direction: 'top', offset: [0, -8] });
       return [p.lat, p.lng];
     });
     if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.35), { animate: false, maxZoom: 15 }); else map.setView([40.4093, 49.8671], 12);

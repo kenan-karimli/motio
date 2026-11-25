@@ -15,56 +15,34 @@ html,body{background:#ECECEA}
 button,a{font:inherit;cursor:pointer}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioRecHero{0%{opacity:0;transform:translateY(24px) scale(0.94)}70%{opacity:1;transform:translateY(-3px) scale(1.01)}100%{transform:none}}
-@keyframes motioRecCup{0%{transform:translateY(30px) rotate(-14deg) scale(0.6);opacity:0}60%{transform:translateY(-6px) rotate(6deg) scale(1.06);opacity:1}100%{transform:none}}
-@keyframes motioRecShine{0%{transform:translateX(-140%) skewX(-20deg)}100%{transform:translateX(260%) skewX(-20deg)}}
-@keyframes motioRecSpark{0%,100%{opacity:0;transform:scale(0.4)}50%{opacity:1;transform:scale(1)}}
-@keyframes motioRecTile{0%{opacity:0;transform:translateY(18px) scale(0.9)}70%{opacity:1;transform:translateY(-2px) scale(1.02)}100%{transform:none}}
 .motio-scroll::-webkit-scrollbar{display:none}
-@media (prefers-reduced-motion: reduce){*{animation-duration:1ms!important;animation-iteration-count:1!important}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; flex-direction: column; gap: 10px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <span style="display: flex; align-items: center; justify-content: space-between; gap: 10px"><h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.1">Personal records</h1><a href="{{ LK.routes.href }}" onClick="{{ LK.routes.go }}" style="flex-shrink: 0; height: 38px; padding: 0 14px; border-radius: 19px; background: #F6C343; color: #1F1D47; font-size: 13px; font-weight: 700; display: flex; align-items: center; text-decoration: none">Your routes</a></span>
-    <span style="font-size: 13px; color: #C9C5EC">{{ sub }}</span>
-  </div>
-
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 40px; display: flex; flex-direction: column; gap: 12px">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Records</span><a class="m-icon" href="{{ LK.routes.href }}" onClick="{{ LK.routes.go }}" aria-label="Your routes"><m-ic n="route"></m-ic></a></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><span class="m-sub">{{ sub }}</span><h1 class="m-title">records.</h1></div></div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-      <div style="padding: 22px 18px; border-radius: 24px; background: rgba(255,255,255,0.08); font-size: 14px; line-height: 1.5; color: #E3E1F3">Your first walk, run or ride sets your first records. Every time you beat one, Motio tells you.</div>
+      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; text-align: center"><tuli-fox pose="curious" size="96"></tuli-fox><span class="m-sub" style="max-width: 270px">Your first walk, run or ride sets your first records. <b style="color: var(--m-ink)">Every time you beat one</b>, Motio tells you.</span></div>
     </sc-if>
-
     <sc-if value="{{ hasHero }}" hint-placeholder-val="{{ true }}">
-      <button type="button" onClick="{{ hero.open }}" aria-label="{{ hero.aria }}" style="position: relative; overflow: hidden; border: 0; padding: 20px; border-radius: 28px; background: #F6C343; color: #1F1D47; text-align: left; display: flex; align-items: center; gap: 14px; animation: motioRecHero 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
-        <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; width: 60px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); animation: motioRecShine 1.4s ease-in-out {{ dShine }} 1 backwards"></span>
-        <span style="position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
-          <span style="font-size: 13px; font-weight: 600; opacity: 0.75">{{ hero.label }}</span>
-          <span style="font-size: 40px; font-weight: 700; line-height: 1.05; letter-spacing: -1px">{{ hero.value }}</span>
-          <span style="font-size: 14px; font-weight: 600">{{ hero.title }}</span>
-          <span style="font-size: 12px; opacity: 0.7">{{ hero.date }}</span>
-        </span>
-        <span aria-hidden="true" style="position: relative; width: 92px; height: 92px; flex-shrink: 0">
-          <span ref="{{ moRef }}" style="display: block; width: 96px; height: 112px"></span>
-          <svg width="92" height="92" viewBox="0 0 92 92" style="position: absolute; inset: 0"><g fill="#FFFFFF"><path d="M12 10l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" style="transform-origin: 12px 17px; animation: motioRecSpark 1.8s ease-in-out {{ d1 }} infinite"></path><path d="M80 52l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" style="transform-origin: 80px 57px; animation: motioRecSpark 1.8s ease-in-out {{ dShine }} infinite"></path></g></svg>
-        </span>
+      <button type="button" class="m-card dark m-in" onClick="{{ hero.open }}" aria-label="{{ hero.aria }}" style="border: 0; padding: 20px; text-align: left; display: flex; flex-direction: column; gap: 8px; cursor: {{ hero.cursor }}">
+        <span class="m-label">{{ hero.label }}</span>
+        <span class="m-num">{{ hero.value }}</span>
+        <span class="m-sub"><b style="color: var(--m-goal)">{{ hero.title }}</b><br>{{ hero.date }}</span>
       </button>
     </sc-if>
-
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
-      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="8">
-        <button type="button" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="position: relative; overflow: hidden; min-height: 128px; border: 0; padding: 14px; border-radius: 22px; background: {{ t.bg }}; color: {{ t.fg }}; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; cursor: {{ t.cursor }}; animation: motioRecTile 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ t.d }} backwards">
-          <svg aria-hidden="true" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: -10px; top: -10px; opacity: 0.16"><path d="{{ t.icon }}"></path></svg>
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.icon }}"></path></svg>
-          <span style="display: flex; flex-direction: column; gap: 1px">
-            <span style="font-size: 22px; font-weight: 700; line-height: 1.1">{{ t.value }}</span>
-            <span style="font-size: 12px; font-weight: 600; line-height: 1.3">{{ t.title }}</span>
-            <span style="font-size: 11px; opacity: 0.75">{{ t.date }}</span>
-          </span>
-        </button>
-      </sc-for>
-    </div>
+    <sc-if value="{{ hasTiles }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="6">
+          <button type="button" class="m-row" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="border: 0; width: 100%; text-align: left; color: var(--m-ink); font: inherit; cursor: {{ t.cursor }}">
+            <span class="m-dot" style="background: {{ t.dot }}"></span>
+            <span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ t.title }}</b><div class="m-sub" style="font-size: 12px">{{ t.date }}</div></span>
+            <b style="white-space: nowrap">{{ t.value }}</b>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
   </div>
 </div>
 </x-dc>
@@ -79,40 +57,31 @@ class Component extends DCLogic {
     } });
     const M = window.Motio, now = Date.now(), DAY = 86400000;
     const sample = [
-      { key: 'bike', title: 'Longest ride', v: '21.4 km', at: now - 3 * DAY, trip: 'x', color: '#6E8CF7' },
-      { key: 'run', title: 'Longest run', v: '10.2 km', at: now - 12 * DAY, trip: 'x', color: '#F2766B' },
-      { key: 'pace', title: 'Fastest run pace', v: '5:12 /km', at: now - 12 * DAY, trip: 'x', color: '#F2766B' },
-      { key: 'walk', title: 'Longest walk', v: '8.7 km', at: now - 30 * DAY, trip: 'x', color: '#3DBF5C' },
-      { key: 'steps', title: 'Most steps in a day', v: '18,402', at: now - 30 * DAY, color: '#3DBF5C' },
-      { key: 'active', title: 'Most active day', v: '3h 12m', at: now - 9 * DAY, color: '#F6C343' },
-      { key: 'week', title: 'Biggest week', v: '11h 40m', at: now - 14 * DAY, color: '#F6C343' },
-      { key: 'streak', title: 'Longest moving streak', v: '23 days', at: now - 40 * DAY, color: '#F2766B' }
+      { key: 'bike', title: 'Longest ride', v: '21.4 km', at: now - 3 * DAY, trip: 'x' },
+      { key: 'run', title: 'Longest run', v: '10.2 km', at: now - 12 * DAY, trip: 'x' },
+      { key: 'pace', title: 'Fastest run pace', v: '5:12 /km', at: now - 12 * DAY, trip: 'x' },
+      { key: 'walk', title: 'Longest walk', v: '8.7 km', at: now - 30 * DAY, trip: 'x' },
+      { key: 'steps', title: 'Most steps in a day', v: '18,402', at: now - 30 * DAY },
+      { key: 'active', title: 'Most active day', v: '3h 12m', at: now - 9 * DAY },
+      { key: 'week', title: 'Biggest week', v: '11h 40m', at: now - 14 * DAY },
+      { key: 'streak', title: 'Longest moving streak', v: '23 days', at: now - 40 * DAY }
     ];
     const list = M ? M.records().list.map((r) => ({ ...r, v: M.fmtRecord(r) })) : sample;
-    const ICON = {
-      walk: 'M13 4a1.5 1.5 0 1 0 0-.01M10 21l2-6 3 2v4M9 11l3-3 4 3 3 1M8 14l2-3', run: 'M15 4a1.5 1.5 0 1 0 0-.01M6 20l4-5 3 2 2 4M10 15l2-6 4 2 3-2M5 10l4-2 3 1',
-      bike: 'M5 17a3 3 0 1 0 0-.01M19 17a3 3 0 1 0 0-.01M5 17l4-7h6l4 7M9 10l-1-3H6M15 10l-2 7', pace: 'M12 13l3-3M5 18a8 8 0 1 1 14 0M12 5V3',
-      speed: 'M12 13l4-4M4 17a9 9 0 1 1 16 0', steps: 'M8 3c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5zM6 15h4v2a2 2 0 0 1-4 0zM16 7c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5zM14 19h4v1a2 2 0 0 1-4 0z',
-      active: 'M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z', km: 'M6 19a2 2 0 1 0 0-.01M18 5a2 2 0 1 0 0-.01M6 17V9a4 4 0 0 1 8 0v6a4 4 0 0 0 4 4',
-      week: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4', streak: 'M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z'
-    };
-    const DARK_TEXT = ['#F6C343', '#3DBF5C', '#F2766B'];
-    const date = (r) => (r.key === 'week' ? 'Week of ' : '') + new Date(r.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: new Date(r.at).getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+    // Colour only says which way of moving the record is about; day-wide records stay ink, streaks are goal yellow.
+    const DOT = { walk: 'var(--m-walk)', run: 'var(--m-run)', pace: 'var(--m-run)', bike: 'var(--m-bike)', speed: 'var(--m-bike)', active: 'var(--m-goal)', week: 'var(--m-goal)', streak: 'var(--m-goal)' };
+    const date = (r) => (r.key === 'week' ? 'Week of ' : '') + new Date(r.at).toLocaleDateString('en-GB', { weekday: r.key === 'week' ? undefined : 'short', day: 'numeric', month: 'short', year: new Date(r.at).getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
     const openTrip = (r) => () => { if (!r.trip || !this.props.onNav) return; window.__motioTrip = r.trip; this.props.onNav('trip'); };
     // The hero: the newest record (what you most recently beat).
     const hero = list.slice().sort((a, b) => b.at - a.at)[0];
-    const base = emb ? 380 : 0;
     const first = M ? (M.summarize(0, now).trips[0] || {}).start : now - 200 * DAY;
+    const tiles = list.filter((r) => r !== hero);
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'You.dc.html'), routes: lk('routes', 'Routes.dc.html') },
-      sub: first ? 'Your bests since ' + new Date(first).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : 'Your bests show up here',
-      moRef: window.MotioMascot ? window.MotioMascot.fox('cheer', 96) : null,
-      empty: !list.length, hasHero: !!hero,
-      d0: base + 'ms', d1: base + 250 + 'ms', dShine: base + 700 + 'ms',
-      hero: hero ? { label: Date.now() - hero.at < 7 * DAY ? 'Newest record' : 'Most recent record', value: hero.v, title: hero.title, date: date(hero), open: openTrip(hero), aria: hero.title + ', ' + hero.v + ', ' + date(hero) } : {},
-      tiles: list.filter((r) => r !== hero).map((r, i) => ({ value: r.v, title: r.title, date: date(r), bg: r.color, fg: DARK_TEXT.includes(r.color) ? '#1F1D47' : '#FFFFFF', icon: ICON[r.key] || ICON.km,
-        d: base + 200 + i * 70 + 'ms', open: openTrip(r), cursor: r.trip ? 'pointer' : 'default', aria: r.title + ', ' + r.v + ', ' + date(r) + (r.trip ? '. Open the trip' : '') }))
+      sub: first ? 'Your bests since ' + new Date(first).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : 'Your bests, all time',
+      empty: !list.length, hasHero: !!hero, hasTiles: tiles.length > 0,
+      hero: hero ? { label: (now - hero.at < 7 * DAY ? 'New record' : 'Latest record'), value: hero.v, title: hero.title, date: date(hero), open: openTrip(hero), cursor: hero.trip ? 'pointer' : 'default', aria: hero.title + ', ' + hero.v + ', ' + date(hero) + (hero.trip ? '. Open the trip' : '') } : {},
+      tiles: tiles.map((r) => ({ value: r.v, title: r.title, date: date(r), dot: DOT[r.key] || 'var(--m-ink)', open: openTrip(r), cursor: r.trip ? 'pointer' : 'default', aria: r.title + ', ' + r.v + ', ' + date(r) + (r.trip ? '. Open the trip' : '') }))
     };
   }
 }

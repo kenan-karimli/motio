@@ -88,7 +88,7 @@ button:active,a:active{transform:scale(0.96)}
 
   <section style="display: flex; flex-direction: column; gap: 10px">
     <div role="tablist" aria-label="Your sections" style="display: flex; gap: 6px">
-      <sc-for list="{{ sec.tabs }}" as="t" hint-placeholder-count="4"><button type="button" role="tab" class="m-chip {{ t.cls }}" aria-selected="{{ t.on }}" onClick="{{ t.pick }}" style="position: relative">{{ t.label }}<sc-if value="{{ t.dot }}" hint-placeholder-val="{{ false }}"><span aria-label="new" style="width: 7px; height: 7px; border-radius: 4px; background: var(--m-run)"></span></sc-if></button></sc-for>
+      <sc-for list="{{ sec.tabs }}" as="t" hint-placeholder-count="4"><button type="button" role="tab" class="m-chip {{ t.cls }}" aria-selected="{{ t.on }}" onClick="{{ t.pick }}" style="position: relative">{{ t.label }}<sc-if value="{{ t.dot }}" hint-placeholder-val="{{ false }}"><span aria-label="new" style="width: 7px; height: 7px; border-radius: 4px; background: var(--m-accent)"></span></sc-if></button></sc-for>
     </div>
 
     <sc-if value="{{ sec.isGoals }}" hint-placeholder-val="{{ true }}">
@@ -109,10 +109,10 @@ button:active,a:active{transform:scale(0.96)}
 
     <sc-if value="{{ sec.isHealth }}" hint-placeholder-val="{{ false }}">
       <div class="m-in" style="display: flex; flex-direction: column; gap: 10px">
-        <div class="m-card dark" style="display: flex; flex-direction: column; gap: 6px; padding: 18px"><span class="m-label">Burned moving today</span><span class="m-num">{{ sec.kcal }}</span><span class="m-sub">{{ sec.kcalSub }}</span></div>
+        <div class="m-card dark" style="display: flex; flex-direction: column; gap: 10px; padding: 18px"><span class="m-label">Burned moving today</span><div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 10px"><span class="m-num">{{ sec.kcal }}</span><span class="m-sub" style="text-align: right"><b style="color: var(--m-goal)">{{ sec.kcalMin }}</b> active<br>{{ sec.kcalSub }}</span></div></div>
         <div class="m-card" style="display: flex; flex-direction: column; gap: 10px; padding: 18px">
-          <span class="m-h3">Last 7 days</span>
-          <div role="img" aria-label="Calories burned moving, last 7 days" style="display: flex; align-items: flex-end; gap: 8px; height: 100px"><sc-for list="{{ sec.kbars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px"><span style="width: 100%; height: {{ b.h }}; border-radius: 8px; background: {{ b.c }}; animation: motioSecBar 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards; transform-origin: bottom"></span><span class="m-sub" style="font-size: 11px">{{ b.l }}</span></span></sc-for></div>
+          <div style="display: flex; justify-content: space-between"><span class="m-h3">Last 7 days</span><span class="m-sub" style="font-size: 12px">active kcal</span></div>
+          <div role="img" aria-label="Calories burned moving, last 7 days" style="display: flex; align-items: flex-end; gap: 10px; height: 110px"><sc-for list="{{ sec.kbars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font: 600 10px var(--m-font); color: {{ b.vc }}">{{ b.v }}</span><span style="width: 100%; height: {{ b.h }}; border-radius: 8px; background: {{ b.c }}; animation: motioSecBar 700ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards; transform-origin: bottom"></span><span style="font: 600 10px var(--m-font); color: {{ b.vc }}">{{ b.l }}</span></span></sc-for></div>
         </div>
       </div>
     </sc-if>
@@ -120,15 +120,15 @@ button:active,a:active{transform:scale(0.96)}
     <sc-if value="{{ sec.isBadges }}" hint-placeholder-val="{{ false }}">
       <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 14px; padding: 18px">
         <span style="display: flex; justify-content: space-between; gap: 8px"><span class="m-h3">{{ sec.badgeHead }}</span><span class="m-sub" style="font-size: 12px; text-align: right">{{ sec.badgeNext }}</span></span>
-        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px"><sc-for list="{{ sec.badges }}" as="b" hint-placeholder-count="6"><span style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; animation: motioSecBadge 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards"><span style="width: 60px; height: 60px; border-radius: 30px; background: {{ b.bg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ b.fg }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg></span><span style="font: 600 11px/1.25 var(--m-font); color: {{ b.lc }}">{{ b.name }}</span></span></sc-for></div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px"><sc-for list="{{ sec.badges }}" as="b" hint-placeholder-count="6"><span style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; animation: motioSecBadge 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards"><span style="width: 56px; height: 56px; border-radius: 28px; background: {{ b.bg }}; color: {{ b.fg }}; box-shadow: {{ b.ring }}; display: flex; align-items: center; justify-content: center"><m-ic n="{{ b.icon }}" s="24"></m-ic></span><span style="font: 600 12px/1.25 var(--m-font); color: {{ b.lc }}">{{ b.name }}</span><sc-if value="{{ b.locked }}" hint-placeholder-val="{{ false }}"><span class="m-progress" style="width: 60%"><i style="width: {{ b.pct }}"></i></span></sc-if></span></sc-for></div>
       </div>
     </sc-if>
 
     <sc-if value="{{ sec.isPlaces }}" hint-placeholder-val="{{ false }}">
       <div class="m-in" style="display: flex; flex-direction: column; gap: 8px">
-        <sc-for list="{{ sec.places }}" as="p" hint-placeholder-count="3">
-          <div class="m-card" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"><span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: var(--m-soft); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ p.c }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"></path></svg></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="m-h3" style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span class="m-sub" style="font-size: 12px">{{ p.meta }}</span></span></div>
-        </sc-for>
+        <sc-if value="{{ sec.hasPlaces }}" hint-placeholder-val="{{ true }}"><div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px"><sc-for list="{{ sec.places }}" as="p" hint-placeholder-count="3">
+          <div class="m-row" style="animation: motioSecIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards"><span class="av" style="background: {{ p.bg }}; color: {{ p.fg }}; box-shadow: {{ p.ring }}"><m-ic n="{{ p.icon }}" s="17"></m-ic></span><span style="flex: 1; min-width: 0"><b style="display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</b><div class="m-sub" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.meta }}</div></span><b style="font-size: 13px">{{ p.hours }}</b></div>
+        </sc-for></div></sc-if>
         <sc-if value="{{ sec.noPlaces }}" hint-placeholder-val="{{ false }}"><div class="m-card m-sub">Your places show up after a few trips: home, work and the spots you return to.</div></sc-if>
         <a class="m-card dark" href="{{ LK.explorer.href }}" onClick="{{ LK.explorer.go }}" style="display: flex; align-items: center; gap: 14px; padding: 16px; text-decoration: none"><span style="flex: 1; display: flex; flex-direction: column"><span class="m-h3" style="font-size: 15px">Explorer</span><span class="m-sub" style="font-size: 12px">{{ explorerLine }}</span></span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></a>
       </div>
@@ -414,6 +414,9 @@ class Component extends DCLogic {
     const P = M ? M.places() : [{ name: 'Home', kind: 'home', visits: 34, hours: 345 }, { name: 'Work', kind: 'work', visits: 25, hours: 111 }, { name: 'Gym', kind: 'place', visits: 9, hours: 14 }];
     const NAMES = { walk: ['Walk', '#3DBF5C'], run: ['Run', '#F2766B'], bike: ['Ride', '#6E8CF7'] };
     const unitL = { times: (n) => (n === 1 ? 'time' : 'times'), km: () => (M && M.settings().unit === 'mi' ? 'mi' : 'km'), min: () => 'min' };
+    const badgeIcon = (b) => { const t = ((b.id || '') + ' ' + b.title).toLowerCase();
+      return /streak|day|week/.test(t) && !/steps/.test(t) ? 'flame' : /night/.test(t) ? 'moon' : /early|morning/.test(t) ? 'sun' : /step/.test(t) ? 'steps' : /run/.test(t) ? 'run' : /bike|cycl|ride/.test(t) ? 'bike'
+        : /bus|transit|metro|line/.test(t) ? 'bus' : /car|drive/.test(t) ? 'car' : /place|explor|city|baku|map/.test(t) ? 'map' : /friend|club|together/.test(t) ? 'users' : /all|five|ways/.test(t) ? 'zap' : /first/.test(t) ? 'play' : /km|walk|foot/.test(t) ? 'walk' : 'badge'; };
     const got = A.filter((a) => a.got), next = A.filter((a) => !a.got).sort((x, y) => y.progress - x.progress)[0];
     const show = got.concat(A.filter((a) => !a.got).sort((x, y) => y.progress - x.progress)).slice(0, 6);
     const kmax = Math.max(1, ...B.week.map((d) => d.kcal));
@@ -430,11 +433,13 @@ class Component extends DCLogic {
       weekly: G.week.slice(0, 3).map((g, i) => ({ title: NAMES[g.mode][0] + ' ' + g.target + ' ' + unitL[g.metric](g.target), c: NAMES[g.mode][1], pct: Math.round(g.pct * 100) + '%', off: (138.2 * (1 - g.pct)).toFixed(1),
         sub: g.done ? 'Done this week' : (g.metric === 'km' ? g.have.toFixed(1) : Math.round(g.have)) + ' of ' + g.target, d: 160 + i * 80 + 'ms' })),
       noWeekly: !G.week.length,
-      kcal: Math.round(B.today) + ' kcal', kcalSub: fmtMin(B.todayMin) + ' active' + (vs == null ? '' : ' · ' + (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% this week'),
-      kbars: B.week.map((d, i) => ({ h: Math.max(4, Math.round(d.kcal / kmax * 76)) + 'px', c: d.day === t0 ? '#F2766B' : '#F8C9C4', l: new Date(d.day).toLocaleDateString('en-GB', { weekday: 'narrow' }), d: 80 + i * 50 + 'ms' })),
+      kcal: Math.round(B.today).toLocaleString('en-US'), kcalMin: fmtMin(B.todayMin), kcalSub: vs == null ? 'kcal today' : (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% this week',
+      kbars: B.week.map((d, i) => ({ h: Math.max(4, Math.round(d.kcal / kmax * 76)) + 'px', v: d.kcal ? Math.round(d.kcal) : '', c: d.day === t0 ? 'var(--m-goal)' : 'var(--m-ink)', vc: d.day === t0 ? 'var(--m-ink)' : 'var(--m-mute)', l: new Date(d.day).toLocaleDateString('en-GB', { weekday: 'narrow' }), d: 80 + i * 50 + 'ms' })),
       badgeHead: got.length + ' of ' + A.length + ' earned', badgeNext: next ? 'Next: ' + next.title : 'All earned',
-      badges: show.map((a, i) => ({ name: a.title, bg: a.got ? a.color : '#ECEAF8', fg: a.got ? '#FFFFFF' : '#B9B5D6', lc: a.got ? '#1F1D47' : '#6B6890', d: 60 + i * 70 + 'ms' })),
-      places: P.slice(0, 4).map((p, i) => ({ name: p.name, c: { home: '#F2766B', work: '#5B4FE0' }[p.kind] || '#3DBF5C', meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + Math.round(p.hours) + ' h here', d: 60 + i * 70 + 'ms' })),
+      badges: show.map((a, i) => ({ name: a.title, icon: badgeIcon(a), locked: !a.got, pct: Math.round(a.progress * 100) + '%', bg: a.got ? 'var(--m-ink)' : 'transparent', fg: a.got ? 'var(--m-bg-hi)' : 'var(--m-faint)', ring: a.got ? 'none' : 'inset 0 0 0 2px var(--m-line)', lc: a.got ? 'var(--m-ink)' : 'var(--m-mute)', d: 60 + i * 70 + 'ms' })),
+      hasPlaces: P.length > 0,
+      places: P.slice(0, 4).map((p, i) => ({ name: p.name, icon: { home: 'home', work: 'box' }[p.kind] || 'pin', bg: p.kind === 'home' ? 'var(--m-ink)' : p.kind === 'work' ? 'var(--m-ink-2)' : 'var(--m-card)', fg: p.kind === 'place' ? 'var(--m-ink)' : 'var(--m-bg-hi)', ring: p.kind === 'place' ? 'inset 0 0 0 1.5px var(--m-line)' : 'none',
+        meta: (p.geo && p.geo !== p.name ? p.geo + ' · ' : '') + p.visits + (p.visits === 1 ? ' visit' : ' visits'), hours: Math.round(p.hours) + 'h', d: 60 + i * 70 + 'ms' })),
       noPlaces: !P.length
     };
   }

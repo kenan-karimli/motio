@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · Personality types</title>
+<title>Motio · Movement personalities</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -12,59 +12,45 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a{font:inherit;cursor:pointer;transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
-button:active,a:active{transform:scale(0.96)}
+button,a{font:inherit;cursor:pointer}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioCardIn{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes motioShUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes motioShDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+@keyframes motioShDown{from{transform:translateY(0)}to{transform:translateY(105%)}}
 @keyframes motioShFade{from{opacity:0}to{opacity:1}}
 @keyframes motioShFadeOut{from{opacity:1}to{opacity:0}}
-@keyframes motioBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes motioTwinkle{0%,100%{opacity:1}50%{opacity:0.3}}
-@keyframes motioSpinSlow{to{transform:rotate(360deg)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1F1D47; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-
-  <div style="flex-shrink: 0; padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.1">Movement<br>personalities</h1>
-    <span style="font-size: 13px; color: #C9C5EC">Eleven ways people move. Yours can change every month.</span>
-  </div>
-
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 20px 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start">
-    <sc-for list="{{ types }}" as="t" hint-placeholder-count="6">
-      <button type="button" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 0 14px; border: 3px solid {{ t.ring }}; border-radius: 26px; background: {{ t.bg }}; color: {{ t.fg }}; text-align: left; overflow: hidden; animation: motioCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ t.delay }}">
-        <span style="display: block; height: 130px">
-          <span style="display: flex; justify-content: center; align-items: center; height: 130px"><m-scene name="{{ t.scene }}" size="150"></m-scene></span>
-        </span>
-        <span style="padding: 0 14px; display: flex; flex-direction: column; gap: 2px">
-          <span style="font-size: 15px; font-weight: 700; line-height: 1.2">{{ t.name }}</span>
-          <span style="font-size: 11px; font-weight: 500; opacity: 0.85">{{ t.tag }}</span>
-        </span>
-        <sc-if value="{{ t.yours }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 10px; top: 10px; padding: 3px 9px; border-radius: 10px; background: #FFFFFF; color: #1F1D47; font-size: 10px; font-weight: 700; letter-spacing: 0.5px">{{ t.badge }}</span></sc-if>
-      </button>
-    </sc-for>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Types</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><span class="m-sub">Your type can change every month</span><h1 class="m-title">{{ title }}</h1></div></div>
+    <div class="grid2">
+      <sc-for list="{{ types }}" as="t" hint-placeholder-count="6">
+        <button type="button" class="m-card {{ t.cls }}" onClick="{{ t.open }}" aria-label="{{ t.aria }}" style="border: 0; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; text-align: left; color: {{ t.fg }}; animation: motioCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ t.delay }} backwards">
+          <span style="display: flex; justify-content: space-between; align-items: center; min-height: 12px"><span class="m-dot" style="background: {{ t.dot }}"></span><sc-if value="{{ t.yours }}" hint-placeholder-val="{{ false }}"><span style="font: 600 10px var(--m-font); letter-spacing: .4px; color: var(--m-goal)">{{ t.badge }}</span></sc-if></span>
+          <span style="display: flex; justify-content: center"><m-scene name="{{ t.scene }}" size="140"></m-scene></span>
+          <span><b style="font-size: 14px">{{ t.name }}</b><div class="m-sub" style="font-size: 11px; margin-top: 2px">{{ t.tag }}</div></span>
+        </button>
+      </sc-for>
+    </div>
   </div>
 
   <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; color: #1F1D47">
-      <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(10,8,40,0.6); cursor: default; animation: {{ scrimAnim }}"></button>
-      <section aria-label="{{ cur.name }}" style="position: relative; border-radius: 32px 32px 0 0; background: #FFFFFF; padding: 10px 20px 28px; display: flex; flex-direction: column; gap: 12px; animation: {{ sheetAnim }}">
-        <span aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #C9C5EC"></span>
-        <div style="display: flex; align-items: center; gap: 12px">
-          <span style="width: 52px; height: 52px; border-radius: 18px; flex-shrink: 0; background: {{ cur.bg }}"></span>
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 22px; font-weight: 700; line-height: 1.15">{{ cur.name }}</span><span style="font-size: 12px; color: #6B6890">{{ cur.note }}</span></span>
+    <div style="position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end">
+      <button aria-label="Close" onClick="{{ close }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(0,0,0,0.38); cursor: default; animation: {{ scrimAnim }}"></button>
+      <section aria-label="{{ cur.name }}" class="m-page" style="position: relative; border-radius: 32px 32px 0 0; padding: 10px 20px 28px; display: flex; flex-direction: column; gap: 10px; animation: {{ sheetAnim }}">
+        <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--m-line)"></span>
+        <div style="display: flex; justify-content: center"><m-scene name="{{ cur.scene }}" size="200"></m-scene></div>
+        <span style="display: flex; flex-direction: column; gap: 4px"><span class="m-label">{{ cur.note }}</span><h2 class="m-h2">{{ cur.name }}</h2></span>
+        <p class="m-sub" style="margin: 0; font-size: 14px">{{ cur.desc }}</p>
+        <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+          <span class="m-label" style="padding: 4px 6px">How to get it</span>
+          <sc-for list="{{ cur.how }}" as="h" hint-placeholder-count="3"><div class="m-row" style="font-size: 14px"><span class="m-dot" style="background: {{ cur.dot }}"></span><span style="flex: 1">{{ h }}</span></div></sc-for>
         </div>
-        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4A4770">{{ cur.desc }}</p>
-        <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 18px; background: #F3F2FA">
-          <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: #6B6890">HOW TO GET IT</span>
-          <sc-for list="{{ cur.how }}" as="h" hint-placeholder-count="3"><span style="display: flex; gap: 8px; font-size: 13px; line-height: 1.45"><span style="width: 6px; height: 6px; margin-top: 7px; border-radius: 3px; flex-shrink: 0; background: {{ cur.bg }}"></span>{{ h }}</span></sc-for>
-        </div>
-        <button type="button" onClick="{{ close }}" style="min-height: 52px; border-radius: 26px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600">Got it</button>
+        <button type="button" class="m-btn wide" onClick="{{ close }}">Got it</button>
       </section>
     </div>
   </sc-if>
@@ -83,41 +69,44 @@ class Component extends DCLogic {
     // Only the type your trips actually give you gets the badge; nobody gets one before there's enough data.
     const mine = window.Motio ? window.Motio.personality().key : 'wanderer';
     const monthTag = 'YOU · ' + new Date().toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
+    // [key, name, tag, dot (the way of moving it's about), scene, description, how to get it]
     const TYPES = [
-      ['wanderer', 'The Urban Wanderer', 'Feet first, long way home', '#F2766B', '#1F1D47', '12%', 'You’d rather take the long way. Most of your moving is on foot, you range far from home and you rarely take the fastest route.', ['A third or more of your moving time on foot', 'Daily trips that are longer than the fastest route', 'At least three ways of moving in a month']],
-      ['speedster', 'The Speedster', 'Fast, focused, gone', '#6E8CF7', '#1F1D47', '9%', 'Short trips, high speeds. You run more than most and your average pace keeps creeping up.', ['Runs on at least 8 days of the month', 'A top-third average running pace', 'Little time spent idling between trips']],
-      ['commuter', 'The Commuter', 'Clockwork mornings', '#F6C343', '#1F1D47', '31%', 'Same time, same route, every weekday. Your peak hours line up like clockwork around work.', ['Weekday trips that start within 20 minutes of each other', 'Most moving between 7–9 AM and 5–7 PM', 'A steady weekday routine for 3+ weeks']],
-      ['roadtripper', 'The Road Tripper', 'Wheels and long hauls', '#5B4FE0', '#FFFFFF', '22%', 'You cover serious ground. Driving is your main way to move, and your weekends go far.', ['Half or more of your distance by car', 'At least one trip over 100 km', 'Weekend distance higher than weekdays']],
-      ['explorer', 'The Explorer', 'Always somewhere new', '#3DBF5C', '#1F1D47', '14%', 'New streets, new trails, new places. A big share of your trips go somewhere you’ve never been.', ['A quarter of trips to places you haven’t visited', 'Moves spread across lots of neighbourhoods', 'Weekend walks or rides over 10 km']],
-      ['nightowl', 'The Night Owl', 'Moves after dark', '#2D2A6E', '#FFFFFF', '12%', 'The city is yours after 8 PM. Your busiest hours come long after most people are home.', ['A third of your moving after 8 PM', 'Late runs or walks at least once a week', 'Quiet mornings before 10 AM']],
-      ['earlybird', 'The Early Bird', 'Out before the city wakes', '#F8A55C', '#1F1D47', '8%', 'Most of your moving happens before 9 AM, while the streets are still quiet.', ['Four in ten moving minutes before 9 AM', 'Early starts most weekdays', 'Quiet evenings']],
-      ['cyclist', 'The Cyclist', 'Two wheels, every day', '#6E8CF7', '#FFFFFF', '7%', 'A third or more of your moving is on a bike. You know every shortcut in the city.', ['A third of your moving time on a bike', 'Rides on most weeks', 'Longer trips than walkers']],
-      ['metrohopper', 'The Metro Hopper', 'Bus, metro, repeat', '#B57BE0', '#FFFFFF', '18%', 'Buses and trains carry most of your days. You know the lines and the stops by heart.', ['Four in ten moving minutes on buses or trains', 'Short walks to and from stops', 'Regular routes']],
-      ['weekender', 'The Weekend Warrior', 'Saves it for Saturday', '#F2766B', '#1F1D47', '10%', 'Quiet weekdays, big weekends. Most of your moving happens on Saturday and Sunday.', ['More than half your moving at weekends', 'Longest trips on Saturdays', 'Calm weekdays']],
-      ['steady', 'The Steady One', 'Every single day', '#3DBF5C', '#1F1D47', '11%', 'You move almost every day of the month. Not always the most, but never none.', ['Active on 25 or more days a month', 'No long gaps', 'A bit every day']],
+      ['wanderer', 'The Urban Wanderer', 'On foot, never the same way', 'var(--m-walk)', 'wanderer', 'You’d rather take the long way. Most of your moving is on foot, you range far from home and you rarely take the fastest route.', ['A third or more of your moving time on foot', 'Daily trips that are longer than the fastest route', 'At least three ways of moving in a month']],
+      ['commuter', 'The Commuter', 'Same time, every weekday', 'var(--m-transit)', 'commuter', 'Same time, same route, every weekday. Your peak hours line up like clockwork around work.', ['Weekday trips that start within 20 minutes of each other', 'Most moving between 7–9 and 17–19', 'A steady weekday routine for 3+ weeks']],
+      ['cyclist', 'The Cyclist', 'Two wheels, long loops', 'var(--m-bike)', 'wheeler', 'A third or more of your moving is on a bike. You know every shortcut in the city.', ['A third of your moving time on a bike', 'Rides on most weeks', 'Longer trips than walkers']],
+      ['speedster', 'The Speedster', 'Fast, focused, gone', 'var(--m-run)', 'runner', 'Short trips, high speeds. You run more than most and your average pace keeps creeping up.', ['Runs on at least 8 days of the month', 'A top-third average running pace', 'Little time spent idling between trips']],
+      ['explorer', 'The Explorer', 'Always somewhere new', 'var(--m-goal)', 'explorer', 'New streets, new trails, new places. A big share of your trips go somewhere you’ve never been.', ['A quarter of trips to places you haven’t visited', 'Moves spread across lots of neighbourhoods', 'Weekend walks or rides over 10 km']],
+      ['roadtripper', 'The Road Tripper', 'Far, by car', 'var(--m-drive)', 'tripper', 'You cover serious ground. Driving is your main way to move, and your weekends go far.', ['Half or more of your distance by car', 'At least one trip over 100 km', 'Weekend distance higher than weekdays']],
+      ['earlybird', 'The Early Bird', 'Out before the city wakes', 'var(--m-run)', 'runner', 'Most of your moving happens before 9 in the morning, while the streets are still quiet.', ['Four in ten moving minutes before 9:00', 'Early starts most weekdays', 'Quiet evenings']],
+      ['nightowl', 'The Night Owl', 'Moves after dark', 'var(--m-ink)', 'explorer', 'The city is yours after 20:00. Your busiest hours come long after most people are home.', ['A third of your moving after 20:00', 'Late runs or walks at least once a week', 'Quiet mornings before 10:00']],
+      ['metrohopper', 'The Metro Hopper', 'Bus, metro, repeat', 'var(--m-transit)', 'commuter', 'Buses and trains carry most of your days. You know the lines and the stops by heart.', ['Four in ten moving minutes on buses or trains', 'Short walks to and from stops', 'Regular routes']],
+      ['weekender', 'The Weekend Warrior', 'Quiet weeks, big Saturdays', 'var(--m-goal)', 'explorer', 'Quiet weekdays, big weekends. Most of your moving happens on Saturday and Sunday.', ['More than half your moving at weekends', 'Longest trips on Saturdays', 'Calm weekdays']],
+      ['steady', 'The Steady One', 'Every single day', 'var(--m-walk)', 'wanderer', 'You move almost every day of the month. Not always the most, but never none.', ['Active on 25 or more days a month', 'No long gaps', 'A bit every day']]
     ];
+    // Your type comes first and is the page's one dark card.
+    const order = TYPES.slice().sort((a, b) => (b[0] === mine) - (a[0] === mine));
     const pick = s.open || null;
     const cur = TYPES.find((t) => t[0] === pick) || TYPES[0];
     const close = () => {
       if (s.closing) return;
       this.setState({ closing: true });
-      setTimeout(() => this.setState({ open: null, closing: false }), 260);
+      setTimeout(() => this.setState({ open: null, closing: false }), 420);
     };
+    const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'Personality.dc.html') },
-      types: TYPES.map(([key, name, tag, bg, fg], i) => ({
-        name, tag, bg, fg, delay: i * 60 + 'ms', yours: key === mine, badge: monthTag,
-        ring: key === mine ? '#FFFFFF' : 'transparent', aria: name + (key === mine ? ', your type' : ''),
-        scene: ({ wanderer: 'wanderer', commuter: 'commuter', speedster: 'runner', roadtripper: 'tripper', explorer: 'explorer', cyclist: 'wheeler', wheeler: 'wheeler', nightowl: 'explorer' })[key] || 'wanderer', fox: window.MotioMascot ? window.MotioMascot.fox({ wanderer: 'idle', speedster: 'cheer', commuter: 'curious', roadtripper: 'idle', explorer: 'curious', nightowl: 'sleep' }[key] || 'idle', 104) : null, isWanderer: key === 'wanderer', isSpeedster: key === 'speedster', isCommuter: key === 'commuter',
-        isRoadTripper: key === 'roadtripper', isExplorer: key === 'explorer', isNightOwl: key === 'nightowl', is_earlybird: key === 'earlybird', is_cyclist: key === 'cyclist', is_metrohopper: key === 'metrohopper', is_weekender: key === 'weekender', is_steady: key === 'steady',
+      title: (words[TYPES.length] || TYPES.length) + ' types.',
+      types: order.map(([key, name, tag, dot, scene], i) => ({
+        name, tag, dot, scene, delay: (emb ? 300 : 0) + i * 60 + 'ms', yours: key === mine, badge: monthTag,
+        cls: key === mine ? 'dark' : '', fg: key === mine ? 'var(--m-on-dark)' : 'var(--m-ink)', aria: name + (key === mine ? ', your type' : ''),
         open: () => this.setState({ open: key, closing: false })
       })),
       sheetOpen: !!pick,
-      cur: { name: cur[1], bg: cur[3], share: cur[5], note: cur[0] === mine ? 'Your type right now' : mine ? 'Not your type right now' : 'Your type shows after 3h of moving', desc: cur[6], how: cur[7] },
+      cur: { name: cur[1], dot: cur[3], scene: cur[4], note: cur[0] === mine ? 'Your type right now' : mine ? 'Not your type right now' : 'Your type shows after 3h of moving', desc: cur[5], how: cur[6] },
       close,
-      sheetAnim: s.closing ? 'motioShDown 260ms ease-in forwards' : 'motioShUp 380ms cubic-bezier(0.22, 1, 0.36, 1)',
-      scrimAnim: s.closing ? 'motioShFadeOut 260ms ease-in forwards' : 'motioShFade 240ms ease-out'
+      sheetAnim: s.closing ? 'motioShDown 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards' : 'motioShUp 420ms cubic-bezier(0.22, 1, 0.36, 1)',
+      scrimAnim: s.closing ? 'motioShFadeOut 320ms ease-in forwards' : 'motioShFade 320ms ease-out'
     };
   }
 }

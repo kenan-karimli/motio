@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Motio · Places</title>
+<title>Motio · Your places</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -12,62 +12,51 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a,input{font:inherit}
-button,a{cursor:pointer}
+button,a{font:inherit;cursor:pointer}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioPlaceIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
-.motio-mapwrap .leaflet-bottom{bottom:24px}
-.motio-tiles{filter:saturate(0.7) brightness(1.03)}
+.motio-tiles{filter:grayscale(1) brightness(1.04) contrast(.92)}
+.m-dark-theme .motio-tiles{filter:grayscale(1) invert(1) brightness(.9) contrast(.9)}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-
-  <div class="motio-mapwrap" style="position: relative; z-index: 0; flex-shrink: 0; height: 330px; background: #DDE3EE">
-    <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
-    <sc-if value="{{ noMap }}" hint-placeholder-val="{{ true }}">
-      <svg aria-hidden="true" width="390" height="330" viewBox="0 0 390 330" style="position: absolute; inset: 0">
-        <rect width="390" height="330" fill="#E4E8F0"></rect>
-        <g stroke="#FFFFFF" stroke-width="10" fill="none"><path d="M-10 230 C 90 200, 160 260, 400 180"></path><path d="M120 -10 C 140 120, 90 220, 140 340"></path><path d="M250 -10 L 290 340"></path></g>
-        <g><circle cx="110" cy="200" r="34" fill="#F2766B" opacity="0.15"></circle><circle cx="110" cy="200" r="9" fill="#F2766B" stroke="#FFFFFF" stroke-width="3"></circle>
-        <circle cx="282" cy="110" r="34" fill="#5B4FE0" opacity="0.15"></circle><circle cx="282" cy="110" r="9" fill="#5B4FE0" stroke="#FFFFFF" stroke-width="3"></circle>
-        <circle cx="210" cy="260" r="26" fill="#3DBF5C" opacity="0.15"></circle><circle cx="210" cy="260" r="8" fill="#3DBF5C" stroke="#FFFFFF" stroke-width="3"></circle></g>
-      </svg>
-    </sc-if>
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon" style="position: absolute; left: 20px; top: 16px; z-index: 500;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-  </div>
-
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin-top: -24px; position: relative; z-index: 2; border-radius: 28px 28px 0 0; background: #FFFFFF; padding: 22px 20px 40px; display: flex; flex-direction: column; gap: 10px">
-    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Your places</h1>
-    <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Found from where your trips start and end. Only you can see them.</span>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Your places</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><span class="m-sub">Names Motio uses in your days</span><h1 class="m-title">your places.</h1></div></div>
+    <div class="mapbox m-in" style="position: relative; height: 150px; flex-shrink: 0; isolation: isolate; background: var(--m-soft)">
+      <div ref="{{ mapRef }}" style="position: absolute; inset: 0; z-index: 0"></div>
+      <sc-if value="{{ noMap }}" hint-placeholder-val="{{ true }}"><m-map kind="day" style="position: absolute; inset: 0"></m-map></sc-if>
+    </div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-      <div style="padding: 18px; border-radius: 20px; background: #F6F5FC; font-size: 13px; line-height: 1.5; color: #4A4770">Your places appear after a few trips: home, work and the spots you return to.</div>
+      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 20px; text-align: center"><m-art name="location" size="150"></m-art><span class="m-sub" style="max-width: 270px">Your places appear after a few trips: <b style="color: var(--m-ink)">home, work</b> and the spots you return to.</span></div>
     </sc-if>
-    <sc-for list="{{ list }}" as="p" hint-placeholder-count="4">
-      <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: #F6F5FC; animation: motioPlaceIn 360ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.delay }} backwards">
-        <button type="button" onClick="{{ p.focus }}" aria-label="{{ p.aria }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
-          <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ p.color }}; display: flex; align-items: center; justify-content: center">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ p.icon }}"></path></svg>
-          </span>
-          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span><span style="font-size: 12px; color: #6B6890">{{ p.meta }}</span></span>
-        </button>
-        <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
-          <div style="display: flex; gap: 8px">
-            <input value="{{ p.draft }}" onChange="{{ p.onDraft }}" aria-label="Place name" maxlength="30" style="flex: 1; min-width: 0; height: 40px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 2px solid #C9C5EC; background: #FFFFFF; color: #1F1D47; font-size: 14px">
-            <button type="button" onClick="{{ p.save }}" style="height: 40px; padding: 0 14px; border: 0; border-radius: 12px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">Save</button>
+    <sc-if value="{{ hasList }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <sc-for list="{{ list }}" as="p" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 6px; border-radius: 18px; background: var(--m-soft)">
+            <button type="button" class="m-row" onClick="{{ p.focus }}" aria-label="{{ p.aria }}" aria-expanded="{{ p.open }}" style="border: 0; width: 100%; text-align: left; color: var(--m-ink); font: inherit">
+              <span class="av" style="background: {{ p.avBg }}; color: {{ p.avFg }}; box-shadow: {{ p.avRing }}"><m-ic n="{{ p.icon }}" s="17"></m-ic></span>
+              <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</b><div class="m-sub" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.meta }}</div></span>
+              <span style="color: var(--m-mute); display: flex"><m-ic n="{{ p.end }}" s="16"></m-ic></span>
+            </button>
+            <sc-if value="{{ p.open }}" hint-placeholder-val="{{ false }}">
+              <div class="m-in" style="display: flex; flex-direction: column; gap: 8px; padding: 0 12px 12px">
+                <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 8px"><input class="input" value="{{ p.draft }}" onChange="{{ p.onDraft }}" aria-label="Place name" maxlength="30" style="flex: 1; min-width: 0; height: 42px; border: 0; outline: none; box-shadow: inset 0 0 0 2px var(--m-ink)"><button type="button" class="m-chip on" onClick="{{ p.save }}" style="height: 42px">Save</button></div>
+                </sc-if>
+                <div style="display: flex; gap: 6px"><button type="button" class="m-chip" onClick="{{ p.rename }}" style="height: 32px; font-size: 12px"><m-ic n="edit" s="14"></m-ic>Rename</button><button type="button" class="m-chip" onClick="{{ p.privacy }}" style="height: 32px; font-size: 12px"><m-ic n="lock" s="14"></m-ic>{{ p.privLabel }}</button></div>
+              </div>
+            </sc-if>
           </div>
-        </sc-if>
-        <div style="display: flex; gap: 8px">
-          <button type="button" onClick="{{ p.rename }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">Rename</button>
-          <button type="button" onClick="{{ p.privacy }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: {{ p.privBg }}; color: {{ p.privFg }}; font-size: 12px; font-weight: 600">{{ p.privLabel }}</button>
-        </div>
+        </sc-for>
       </div>
-    </sc-for>
+      <span class="m-sub" style="font-size: 12px; padding: 0 4px">Found from where your trips start and end. Only you can see them. A private place is hidden from maps and shared images.</span>
+    </sc-if>
   </div>
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 999px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -90,9 +79,9 @@ class Component extends DCLogic {
     const s = this.state || {};
     const M = window.Motio;
     const list = M ? M.places() : [
-      { id: 'a', name: 'Home', kind: 'home', visits: 34, hours: 345, last: Date.now() - 3600000 },
-      { id: 'b', name: 'Work', kind: 'work', visits: 25, hours: 111, last: Date.now() - 86400000 },
-      { id: 'c', name: 'Gym', kind: 'place', visits: 9, hours: 14, last: Date.now() - 3 * 86400000 }
+      { id: 'a', name: 'Home', geo: 'Yasamal', kind: 'home', visits: 34, hours: 345, last: Date.now() - 3600000 },
+      { id: 'b', name: 'Work', geo: 'Neftchilar Avenue 151', kind: 'work', visits: 25, hours: 111, last: Date.now() - 86400000 },
+      { id: 'c', name: 'Ganjlik Mall', geo: 'Ganjlik Mall', kind: 'place', visits: 9, hours: 14, last: Date.now() - 3 * 86400000 }
     ];
     // The map starts after the page has slid in, so the slide stays smooth.
     const key = list.map((p) => p.name).join('|');
@@ -101,25 +90,30 @@ class Component extends DCLogic {
     if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountPlaces(this.mapEl, list); }, 440);
     const zones = M ? M.settings().zones || [] : [];
     const near = (p) => zones.find((z) => Math.abs(z.lat - p.lat) < 0.0015 && Math.abs(z.lng - p.lng) < 0.0015);
-    const ICON = { home: 'M3 11l9-7 9 7v9H5v-9M10 20v-6h4v6', work: 'M4 8h16v12H4zM9 8V5h6v3M4 13h16', place: 'M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5' };
-    const COLOR = { home: '#F2766B', work: '#5B4FE0', place: '#3DBF5C' };
     const ago = (t) => { const d = Math.floor((Date.now() - t) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
+    const hrs = (h) => (h >= 1 ? Math.round(h) + ' h' : Math.max(1, Math.round(h * 60)) + ' min');
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'You.dc.html') },
       mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
-      noMap: !M, empty: !list.length,
-      list: list.map((p, i) => {
-        const zone = M && near(p), editing = s.edit === p.id;
+      noMap: !M, empty: !list.length, hasList: list.length > 0,
+      list: list.map((p) => {
+        const zone = M ? near(p) : p.kind === 'home', editing = s.edit === p.id, open = s.open === p.id || editing;
+        // The real street or place name sits under a name you gave it ("Work · Neftchilar Avenue 151").
+        const where = p.geo && p.geo !== p.name ? p.geo + ' · ' : '';
         return {
-          name: p.name, color: COLOR[p.kind], icon: ICON[p.kind], delay: (emb ? 420 : 0) + i * 50 + 'ms',
-          meta: p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + (p.hours >= 1 ? Math.round(p.hours) + ' h' : Math.max(1, Math.round(p.hours * 60)) + ' min') + ' here · last ' + ago(p.last),
-          aria: p.name + ', show on map', editing, draft: s.draft ?? p.name,
-          focus: () => this.ctrl && this.ctrl.fly(p.lat, p.lng),
-          rename: () => this.setState({ edit: editing ? null : p.id, draft: p.name }),
+          name: p.name, open, editing, draft: s.draft ?? p.name,
+          icon: { home: 'home', work: 'box' }[p.kind] || 'pin',
+          avBg: p.kind === 'home' ? 'var(--m-ink)' : p.kind === 'work' ? 'var(--m-ink-2)' : 'var(--m-card)',
+          avFg: p.kind === 'place' ? 'var(--m-ink)' : 'var(--m-bg-hi)', avRing: p.kind === 'place' ? 'inset 0 0 0 1.5px var(--m-line)' : 'none',
+          meta: where + (zone ? 'private · ' : '') + p.visits + (p.visits === 1 ? ' visit' : ' visits') + ' · ' + hrs(p.hours) + ' · ' + ago(p.last),
+          end: zone ? 'lock' : open ? 'down' : 'chev',
+          aria: p.name + (zone ? ', private' : '') + ', show on map',
+          focus: () => { if (this.ctrl) this.ctrl.fly(p.lat, p.lng); this.setState({ open: open ? null : p.id, edit: null }); },
+          rename: () => this.setState({ edit: editing ? null : p.id, open: p.id, draft: p.name }),
           onDraft: (e) => this.setState({ draft: e.target.value }),
           save: () => { const n = String(s.draft || '').trim(); if (n && M) M.renamePlace(p.id, n); this.setState({ edit: null }); if (n) this.showToast('Renamed to ' + n); },
-          privLabel: zone ? 'Private ✓' : 'Make private', privBg: zone ? '#DDF5E3' : '#FFFFFF', privFg: zone ? '#1E7A36' : '#1F1D47',
+          privLabel: zone ? 'Show on maps' : 'Make private',
           privacy: () => {
             if (!M) { this.showToast('Hidden from maps and shared images'); return; }
             if (zone) { M.removeZone(zone.id); this.showToast(p.name + ' shows on maps again'); }

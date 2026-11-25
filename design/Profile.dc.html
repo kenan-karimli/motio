@@ -102,44 +102,48 @@ button,a{font:inherit;cursor:pointer}
 
   <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end">
-      <button type="button" aria-label="Close" onClick="{{ closeSheet }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5); animation: motioPfFade 240ms ease-out"></button>
-      <section aria-label="{{ sheetTitle }}" style="position: relative; max-height: 88%; overflow-y: auto; box-sizing: border-box; padding: 10px 20px 28px; border-radius: 28px 28px 0 0; background: #FFFFFF; display: flex; flex-direction: column; gap: 14px; animation: motioPfSheet 380ms cubic-bezier(0.22, 1, 0.36, 1)">
-        <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #E3E1F3"></span>
-        <h2 style="margin: 0; font-size: 19px; font-weight: 700">{{ sheetTitle }}</h2>
+      <button type="button" aria-label="Close" onClick="{{ closeSheet }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(0,0,0,0.38); animation: motioPfFade 320ms ease-out"></button>
+      <section aria-label="{{ sheetTitle }}" class="m-page" style="position: relative; max-height: 92%; overflow-y: auto; box-sizing: border-box; padding: 10px 20px 28px; border-radius: 32px 32px 0 0; display: flex; flex-direction: column; gap: 12px; animation: motioPfSheet 420ms cubic-bezier(0.22, 1, 0.36, 1)">
+        <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--m-line)"></span>
+        <div class="top"><button type="button" class="m-icon" onClick="{{ closeSheet }}" aria-label="Close"><m-ic n="x"></m-ic></button><span class="m-h3" style="flex: 1; text-align: center">{{ sheetTitle }}</span><span style="width: 44px"></span></div>
 
         <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}">
-          <div style="display: flex; align-items: center; gap: 14px">
-            <span style="width: 72px; height: 72px; border-radius: 36px; background: #1F1D47; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 24px; font-weight: 700"><sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ ed.photo }}" alt="New profile photo" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ ed.noPhoto }}" hint-placeholder-val="{{ true }}">{{ initials }}</sc-if></span>
-            <label style="position: relative; height: 40px; padding: 0 16px; border-radius: 20px; background: #EEF0F6; display: flex; align-items: center; font-size: 13px; font-weight: 600; cursor: pointer">Change photo<input type="file" accept="image/*" onChange="{{ ed.onPhoto }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer"></label>
-            <sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ ed.removePhoto }}" style="height: 40px; padding: 0 12px; border: 0; border-radius: 20px; background: transparent; color: #C2412F; font-size: 13px; font-weight: 600">Remove</button></sc-if>
+          <div style="display: flex; justify-content: center; margin: 6px 0 8px">
+            <label style="position: relative; cursor: pointer" aria-label="Change photo">
+              <span class="av" style="width: 88px; height: 88px; border-radius: 44px; font-size: 28px; background: var(--m-ink); color: var(--m-bg-hi); overflow: hidden"><sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ ed.photo }}" alt="New profile photo" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ ed.noPhoto }}" hint-placeholder-val="{{ true }}">{{ initials }}</sc-if></span>
+              <span class="m-icon" style="position: absolute; right: -4px; bottom: -4px; width: 36px; height: 36px; box-shadow: 0 4px 12px rgba(0,0,0,.1)"><m-ic n="camera" s="16"></m-ic></span>
+              <input type="file" accept="image/*" onChange="{{ ed.onPhoto }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer">
+            </label>
           </div>
-          <label class="field"><span class="m-label">Name</span><input value="{{ ed.name }}" onChange="{{ ed.onName }}" maxlength="60" autocomplete="name" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; color: #1F1D47; font-size: 15px; font-weight: 500"></label>
-          <label class="field"><span class="m-label">Bio</span><textarea rows="3" value="{{ ed.bio }}" onChange="{{ ed.onBio }}" maxlength="160" style="box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 2px solid #E3E1F3; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none; font-family: inherit"></textarea><span style="align-self: flex-end; font-size: 11px; font-weight: 400; color: #6B6890">{{ ed.bioCount }}</span></label>
-          <div style="display: flex; align-items: center; gap: 12px">
-            <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Public profile</span><span style="font-size: 12px; color: #6B6890">{{ ed.pubHint }}</span></span>
-            <button type="button" role="switch" aria-checked="{{ ed.pub }}" aria-label="Public profile" onClick="{{ ed.togglePub }}" class="m-toggle"></button>
+          <sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ ed.removePhoto }}" style="align-self: center; margin-top: -6px; border: 0; background: transparent; color: var(--m-warn); font: 600 13px var(--m-font)">Remove photo</button></sc-if>
+          <label class="field"><span class="m-label">Name</span><input class="input" value="{{ ed.name }}" onChange="{{ ed.onName }}" maxlength="60" autocomplete="name" style="border: 0; outline: none; width: 100%"></label>
+          <label class="field"><span class="m-label">Bio</span><textarea class="input" rows="2" value="{{ ed.bio }}" onChange="{{ ed.onBio }}" maxlength="160" style="height: auto; min-height: 54px; padding: 14px 18px; border: 0; outline: none; resize: none; width: 100%"></textarea><span class="m-sub" style="align-self: flex-end; font-size: 11px">{{ ed.bioCount }}</span></label>
+          <div class="grid2">
+            <label class="field"><span class="m-label">Height</span><span class="input"><input type="number" inputmode="numeric" min="100" max="250" value="{{ ed.cm }}" onChange="{{ ed.onCm }}" aria-label="Height in centimetres" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; color: inherit; padding: 0"><span style="color: var(--m-mute)">cm</span></span></label>
+            <label class="field"><span class="m-label">Weight</span><span class="input"><input type="number" inputmode="numeric" min="30" max="250" value="{{ ed.kg }}" onChange="{{ ed.onKg }}" aria-label="Weight in kilograms" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; color: inherit; padding: 0"><span style="color: var(--m-mute)">kg</span></span></label>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px">
-            <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Show my activity to friends</span><span style="font-size: 12px; color: #6B6890">{{ ed.shareHint }}</span></span>
-            <button type="button" role="switch" aria-checked="{{ ed.share }}" aria-label="Show my activity to friends" onClick="{{ ed.toggleShare }}" class="m-toggle"></button>
+          <span class="m-sub" style="font-size: 12px; padding: 0 4px">Height and weight are only used for calories. Nobody else sees them.</span>
+          <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+            <div class="m-row"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Public profile</b><div class="m-sub" style="font-size: 12px">{{ ed.pubHint }}</div></span><button type="button" role="switch" aria-checked="{{ ed.pub }}" aria-label="Public profile" onClick="{{ ed.togglePub }}" class="m-toggle" style="flex-shrink: 0"></button></div>
+            <div class="m-row"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Show my activity to friends</b><div class="m-sub" style="font-size: 12px">{{ ed.shareHint }}</div></span><button type="button" role="switch" aria-checked="{{ ed.share }}" aria-label="Show my activity to friends" onClick="{{ ed.toggleShare }}" class="m-toggle" style="flex-shrink: 0"></button></div>
           </div>
         </sc-if>
 
         <sc-if value="{{ isPassword }}" hint-placeholder-val="{{ false }}">
-          <label class="field"><span class="m-label">Current password</span><input type="password" value="{{ pw.cur }}" onChange="{{ pw.onCur }}" autocomplete="current-password" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; font-size: 15px"></label>
-          <label class="field"><span class="m-label">New password</span><input type="password" value="{{ pw.next }}" onChange="{{ pw.onNext }}" autocomplete="new-password" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; font-size: 15px"><span style="font-size: 11px; font-weight: 400; color: #6B6890">At least 8 characters. Other phones get signed out.</span></label>
+          <label class="field"><span class="m-label">Current password</span><input class="input" type="password" value="{{ pw.cur }}" onChange="{{ pw.onCur }}" autocomplete="current-password" style="border: 0; outline: none; width: 100%"></label>
+          <label class="field"><span class="m-label">New password</span><input class="input" type="password" value="{{ pw.next }}" onChange="{{ pw.onNext }}" autocomplete="new-password" style="border: 0; outline: none; width: 100%"><span class="m-sub" style="font-size: 12px">At least 8 characters. Other phones get signed out.</span></label>
         </sc-if>
 
-        <sc-if value="{{ isLogout }}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; line-height: 1.5; color: #4A4770">Your trips are saved to your account. Log back in any time to pick up where you left off.</span></sc-if>
+        <sc-if value="{{ isLogout }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-size: 14px">Your trips are saved to your account. <b style="color: var(--m-ink)">Log back in any time</b> to pick up where you left off.</span></sc-if>
 
         <sc-if value="{{ isDelete }}" hint-placeholder-val="{{ false }}">
-          <span style="font-size: 14px; line-height: 1.5; color: #4A4770">This permanently deletes your account, every trip, your friends and challenges. It can’t be undone.</span>
-          <label class="field"><span class="m-label">Enter your password to confirm</span><input type="password" value="{{ del.pw }}" onChange="{{ del.onPw }}" autocomplete="current-password" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #F5C6C0; font-size: 15px"></label>
-          <sc-if value="{{ del.google }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ del.withGoogle }}" style="align-self: flex-start; min-height: 40px; border: 0; padding: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Signed up with Google? Confirm with Google instead</button></sc-if>
+          <span class="m-sub" style="font-size: 14px">This permanently deletes your account, every trip, your friends and challenges. <b style="color: var(--m-ink)">It can’t be undone.</b></span>
+          <label class="field"><span class="m-label">Enter your password to confirm</span><input class="input tx" type="password" value="{{ del.pw }}" onChange="{{ del.onPw }}" autocomplete="current-password" style="border: 0; outline: none; width: 100%"></label>
+          <sc-if value="{{ del.google }}" hint-placeholder-val="{{ false }}"><button type="button" class="lnk" onClick="{{ del.withGoogle }}" style="align-self: flex-start; min-height: 40px; border: 0; padding: 0; background: transparent">Signed up with Google? Confirm with Google instead</button></sc-if>
         </sc-if>
 
-        <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; color: #C2412F">{{ error }}</span></sc-if>
-        <button type="button" onClick="{{ primary }}" disabled="{{ busy }}" style="height: 52px; border: 0; border-radius: 26px; background: {{ primaryBg }}; color: #FFFFFF; font-size: 15px; font-weight: 600; opacity: {{ busyOp }}; transition: opacity 200ms ease">{{ primaryLabel }}</button>
+        <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; color: var(--m-warn)">{{ error }}</span></sc-if>
+        <button type="button" class="m-btn wide" onClick="{{ primary }}" disabled="{{ busy }}" style="margin-top: 6px; background: {{ primaryBg }}; color: {{ primaryFg }}; opacity: {{ busyOp }}">{{ primaryLabel }}</button>
       </section>
     </div>
   </sc-if>
@@ -256,7 +260,7 @@ class Component extends DCLogic {
       // Scrolling past the photo slides in a slim title bar, like social apps do.
       onScroll: (e) => { const on = e.currentTarget.scrollTop > 150; if (on !== scrolled) this.setState({ scrolled: on }); },
       barOp: scrolled ? 1 : 0, barY: scrolled ? '0px' : '-12px', barHidden: scrolled ? 'false' : 'true',
-      edit: () => this.setState({ sheet: 'edit', err: null, dName: name, dBio: u.bio || '', dPhoto: u.avatar || '', dShare: !(M && M.settings().hideActivity), dPub: !(M && M.settings().privateProfile) }),
+      edit: () => this.setState({ sheet: 'edit', err: null, dName: name, dBio: u.bio || '', dPhoto: u.avatar || '', dKg: String((M && (M.settings().body || {}).kg) || ''), dCm: String((M && (M.settings().body || {}).cm) || ''), dShare: !(M && M.settings().hideActivity), dPub: !(M && M.settings().privateProfile) }),
       email: u.email || 'you@example.com',
       account: [
         { label: 'Change password', fg: '#1F1D47', go: () => this.setState({ sheet: 'password', err: null, pwCur: '', pwNext: '' }) },
@@ -268,12 +272,12 @@ class Component extends DCLogic {
       closeSheet: () => this.setState({ sheet: null }),
       hasError: !!s.err, error: s.err || '', busy: !!s.busy, busyOp: s.busy ? 0.6 : 1,
       primaryLabel: s.busy ? 'One moment…' : { edit: 'Save', password: 'Change password', logout: 'Log out', delete: 'Delete forever' }[s.sheet] || '',
-      primaryBg: s.sheet === 'delete' || s.sheet === 'logout' ? '#C2412F' : '#1F1D47',
+      primaryBg: s.sheet === 'delete' || s.sheet === 'logout' ? 'var(--m-warn)' : 'var(--m-ink)', primaryFg: s.sheet === 'delete' || s.sheet === 'logout' ? '#FFFFFF' : 'var(--m-bg-hi)',
       ed: (() => {
         const ph = s.dPhoto || '', share = s.dShare !== false, pub = s.dPub !== false;
         return { name: s.dName || '', bio: s.dBio || '', bioCount: (s.dBio || '').length + ' / 160', photo: ph, hasPhoto: !!ph, noPhoto: !ph, share,
           shareBg: share ? '#3DBF5C' : '#C9C5EC', knob: share ? '21px' : '3px', shareHint: share ? 'Friends see your weekly totals' : 'Friends see only your name and photo',
-          onName: (e) => this.setState({ dName: e.target.value }), onBio: (e) => this.setState({ dBio: e.target.value.slice(0, 160) }),
+          onName: (e) => this.setState({ dName: e.target.value }), kg: s.dKg || '', cm: s.dCm || '', onKg: (e) => this.setState({ dKg: e.target.value }), onCm: (e) => this.setState({ dCm: e.target.value }), onBio: (e) => this.setState({ dBio: e.target.value.slice(0, 160) }),
           pub, pubBg: pub ? '#3DBF5C' : '#C9C5EC', pubKnob: pub ? '21px' : '3px', pubHint: pub ? 'Anyone on Motio can find you and see your week' : 'Only friends see your bio and week; others see your name and photo',
           togglePub: () => this.setState({ dPub: !pub }),
           toggleShare: () => this.setState({ dShare: !share }), removePhoto: () => this.setState({ dPhoto: '' }),
@@ -300,7 +304,7 @@ class Component extends DCLogic {
           const n = (s.dName || '').trim();
           if (!n) { this.setState({ err: 'Your name can’t be empty.' }); return; }
           this.setState({ busy: true, err: null });
-          try { await M.updateProfile({ name: n, bio: (s.dBio || '').trim(), avatar: s.dPhoto || '' }); M.setSetting('hideActivity', s.dShare === false); M.setSetting('privateProfile', s.dPub === false); this.setState({ busy: false, sheet: null }); this.showToast('Profile saved'); } catch (e) { fail(e); }
+          try { await M.updateProfile({ name: n, bio: (s.dBio || '').trim(), avatar: s.dPhoto || '' }); M.setSetting('hideActivity', s.dShare === false); M.setSetting('privateProfile', s.dPub === false); { const kg = Math.round(+s.dKg), cm = Math.round(+s.dCm), b = M.settings().body || {}; if ((kg >= 30 && kg <= 250 && kg !== b.kg) || (cm >= 100 && cm <= 250 && cm !== b.cm)) M.setSetting('body', { ...b, ...(kg >= 30 && kg <= 250 ? { kg } : {}), ...(cm >= 100 && cm <= 250 ? { cm } : {}) }); } this.setState({ busy: false, sheet: null }); this.showToast('Profile saved'); } catch (e) { fail(e); }
         } else if (s.sheet === 'password') {
           if ((s.pwNext || '').length < 8) { this.setState({ err: 'New password needs at least 8 characters.' }); return; }
           this.setState({ busy: true, err: null });
