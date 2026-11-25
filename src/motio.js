@@ -507,6 +507,7 @@ let inboxBusy = false, notifyChannel = false;
 async function pollInbox() {
   if (!S.token || inboxBusy) return;
   inboxBusy = true;
+  chats.list().catch(() => {});
   try {
     const r = await api('GET', '/v1/inbox');
     const items = r.items.filter((i) => i.kind !== 'update' || newer(i.version));
@@ -535,6 +536,25 @@ export const inbox = {
   readAll: () => { S.inboxRead = Date.now(); changed(); },
   isNew: (i) => i.at > (S.inboxRead || 0),
   refresh: pollInbox
+};
+
+// Messages with friends. The chat list is checked along with the inbox; fetching it also tells the server the
+// messages reached this phone (the sender's ✓✓). Pages listen for `motio:chats` to redraw.
+let chatList = null;
+const chatsChanged = (r) => { chatList = r; window.dispatchEvent(new Event('motio:chats')); return r; };
+const chatMut = (p) => p.then((r) => { chats.list().catch(() => {}); return r; });
+export const chats = {
+  list: () => api('GET', '/v1/chats').then(chatsChanged),
+  cached: () => chatList,
+  unread: () => (chatList ? chatList.unread : 0),
+  open: (id, after) => api('GET', '/v1/chat?id=' + id + (after ? '&after=' + after : '')),
+  send: (id, text, tripId) => api('POST', '/v1/chat/send', { id, text, tripId }),
+  read: (ids) => chatMut(api('POST', '/v1/chats/read', { ids })),
+  pin: (ids, on) => chatMut(api('POST', '/v1/chats/pin', { ids, on })),
+  mute: (ids, hours) => chatMut(api('POST', '/v1/chats/mute', { ids, hours })),
+  clear: (id) => chatMut(api('POST', '/v1/chats/clear', { id })),
+  remove: (ids) => chatMut(api('POST', '/v1/chats/delete', { ids })),
+  block: (id) => chatMut(api('POST', '/v1/chats/block', { id }))
 };
 
 // Daily step totals (the numbers Today shows) go to the server every 15 minutes, for the all-users steps board.
@@ -1655,7 +1675,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

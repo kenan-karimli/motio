@@ -136,6 +136,11 @@ body[data-sheet] .motio-upd{display:none}
       <dc-import name="Messages" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.chat.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.chat.kind }}" style="position: absolute; inset: 0; z-index: {{ O.chat.z }}; animation: {{ O.chat.anim }}; box-shadow: {{ O.chat.shadow }}">
+      <dc-import name="Chat" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
   <sc-if value="{{ O.offline.show }}" hint-placeholder-val="{{ false }}">
     <div data-page="overlay" data-kind="{{ O.offline.kind }}" style="position: absolute; inset: 0; z-index: {{ O.offline.z }}; animation: {{ O.offline.anim }}; box-shadow: {{ O.offline.shadow }}">
       <dc-import name="Offline" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
@@ -468,7 +473,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records', 'feed', 'challenges', 'routes', 'clubs'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'chat', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records', 'feed', 'challenges', 'routes', 'clubs'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

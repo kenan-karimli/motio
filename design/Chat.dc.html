@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Chat</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#ECECEA}
+button,a{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes chatDim{from{opacity:0}to{opacity:1}}
+@keyframes chatMenu{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+@keyframes chatBubble{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.motio-scroll::-webkit-scrollbar{display:none}
+.chat-b{max-width:76%;padding:12px 16px;font-size:15px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;animation:chatBubble .32s var(--m-ease) backwards}
+.chat-b.them{align-self:flex-start;border-radius:22px 22px 22px 8px;background:var(--m-card)}
+.chat-b.me{align-self:flex-end;border-radius:22px 22px 8px 22px;background:var(--m-ink);color:var(--m-bg-hi)}
+.chat-trip{width:72%;max-width:none;padding:0;overflow:hidden;background:var(--m-card)!important;color:var(--m-ink)!important}
+.chat-bar{position:absolute;left:14px;right:14px;bottom:24px;display:flex;gap:8px;align-items:center;z-index:9;transition:transform .55s var(--m-spring),opacity .3s ease}
+.chat-bar.hide{transform:translateY(110px) scale(.96);opacity:0;pointer-events:none;transition:transform .42s var(--m-ease),opacity .25s ease}
+.chat-in{flex:1;min-width:0;height:54px;box-sizing:border-box;padding:0 20px;border:0;outline:0;border-radius:27px;background:var(--m-card);color:var(--m-ink);font:500 15px var(--m-font);box-shadow:0 6px 24px rgba(0,0,0,.06)}
+.chat-in::placeholder{color:var(--m-faint)}
+.chat-menu .m-row{background:transparent;border:0;width:100%;text-align:left;color:inherit;font:600 14px var(--m-font)}
+.chat-menu .m-row:active{background:var(--m-soft)}
+</style>
+</helmet>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar" style="justify-content: flex-start; gap: 10px">
+    <a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a>
+    <button type="button" onClick="{{ viewProfile }}" aria-label="{{ profileAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: var(--m-ink); text-align: left">
+      <sc-if value="{{ hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ avatar }}" alt="" style="width: 36px; height: 36px; border-radius: 18px; object-fit: cover; flex-shrink: 0"></sc-if>
+      <sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: var(--m-card); box-shadow: inset 0 0 0 1.5px var(--m-line); display: flex; align-items: center; justify-content: center; font: 600 14px var(--m-font)">{{ ini }}</span></sc-if>
+      <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ name }}</b><sc-if value="{{ status }}" hint-placeholder-val="{{ true }}"><span class="m-sub" style="font-size: 12px; display: flex; align-items: center; gap: 5px"><sc-if value="{{ statusDot }}" hint-placeholder-val="{{ true }}"><i style="width: 7px; height: 7px; border-radius: 4px; background: {{ statusDot }}"></i></sc-if>{{ status }}</span></sc-if></span>
+    </button>
+    <button type="button" class="m-icon" onClick="{{ openMenu }}" aria-label="Chat options" aria-haspopup="menu"><m-ic n="more"></m-ic></button>
+  </div>
+  <sc-if value="{{ filterBar }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 20px; right: 20px; top: 112px; z-index: 8; display: flex; gap: 8px; align-items: center; animation: chatDim .25s ease">
+      <sc-if value="{{ searching }}" hint-placeholder-val="{{ false }}"><label style="flex: 1; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 16px; border-radius: 23px; background: var(--m-card); color: var(--m-mute); box-shadow: 0 6px 24px rgba(0,0,0,.06)"><m-ic n="search" s="17"></m-ic><input ref="{{ searchRef }}" type="search" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search in chat" aria-label="Search in chat" autocomplete="off" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--m-ink); font: 500 15px var(--m-font)"></label></sc-if>
+      <sc-if value="{{ tripsOnly }}" hint-placeholder-val="{{ false }}"><span class="m-chip on" style="flex: 1; justify-content: center">Shared trips · {{ tripCount }}</span></sc-if>
+      <button type="button" class="m-icon" onClick="{{ endFilter }}" aria-label="Show all messages"><m-ic n="x"></m-ic></button>
+    </div>
+  </sc-if>
+  <div class="motio-scroll" ref="{{ scrollRef }}" onScroll="{{ onScroll }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: {{ padTop }} 20px 110px; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div class="m-skel" style="align-self: flex-start; width: 60%; height: 46px; border-radius: 22px"></div><div class="m-skel" style="align-self: flex-end; width: 50%; height: 46px; border-radius: 22px"></div></sc-if>
+    <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}"><div class="m-card" style="display: flex; align-items: center; gap: 12px"><m-ic n="wifioff"></m-ic><span class="m-sub" style="flex: 1">{{ error }}</span><button type="button" class="m-chip on" onClick="{{ retry }}">Retry</button></div></sc-if>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div class="m-in" style="margin: auto 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+        <m-art name="chat" size="150"></m-art>
+        <span class="m-sub" style="max-width: 260px">{{ emptyText }}</span>
+      </div>
+    </sc-if>
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+      <sc-if value="{{ it.sep }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="text-align: center; font-size: 12px; margin: 6px 0">{{ it.sep }}</span></sc-if>
+      <sc-if value="{{ it.text }}" hint-placeholder-val="{{ true }}"><div class="chat-b {{ it.side }}" aria-label="{{ it.aria }}">{{ it.text }}</div></sc-if>
+      <sc-if value="{{ it.trip }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="chat-b chat-trip {{ it.side }}" onClick="{{ it.openTrip }}" aria-label="{{ it.tripAria }}" style="border: 0; text-align: left; cursor: {{ it.cursor }}">
+          <svg width="100%" height="90" viewBox="0 0 260 90" preserveAspectRatio="xMidYMid meet" style="display: block; background: var(--m-soft)"><path d="{{ it.trip.d }}" fill="none" stroke="var(--m-card)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ it.trip.d }}" fill="none" stroke="{{ it.trip.color }}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="{{ it.trip.x0 }}" cy="{{ it.trip.y0 }}" r="5" fill="var(--m-card)" stroke="var(--m-ink)" stroke-width="2.5"></circle><circle cx="{{ it.trip.x1 }}" cy="{{ it.trip.y1 }}" r="5" fill="var(--m-ink)"></circle></svg>
+          <div style="padding: 10px 14px"><b style="font-size: 13px">{{ it.trip.title }}</b><div class="m-sub" style="font-size: 12px">{{ it.trip.sub }}</div></div>
+        </button>
+      </sc-if>
+      <sc-if value="{{ it.meta }}" hint-placeholder-val="{{ false }}"><span style="align-self: {{ it.metaAlign }}; display: flex; align-items: center; gap: 4px; font: {{ it.metaFont }}; color: {{ it.metaColor }}; padding: 0 6px"><sc-if value="{{ it.tick }}" hint-placeholder-val="{{ false }}"><svg width="{{ it.tick.w }}" height="14" viewBox="{{ it.tick.vb }}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="{{ it.tick.d }}"></path></svg></sc-if>{{ it.meta }}</span></sc-if>
+    </sc-for>
+  </div>
+
+  <form class="chat-bar {{ barCls }}" onSubmit="{{ send }}">
+    <button type="button" class="m-icon" style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0" onClick="{{ openTrips }}" aria-label="Share a trip"><m-ic n="route" s="18"></m-ic></button>
+    <input class="chat-in" value="{{ draft }}" onInput="{{ onDraft }}" placeholder="Message" aria-label="{{ draftAria }}" maxlength="1000" autocomplete="off" enterkeyhint="send">
+    <button type="submit" class="m-icon ink" style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; opacity: {{ sendOp }}" disabled="{{ sendOff }}" aria-label="Send"><m-ic n="send" s="18"></m-ic></button>
+  </form>
+
+  <sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeAll }}" style="position: absolute; inset: 0; z-index: 20; background: rgba(15,15,15,.18); animation: chatDim .32s ease"></div>
+    <div class="m-card chat-menu" role="menu" aria-label="Chat options" style="position: absolute; right: 16px; top: 100px; z-index: 21; width: 230px; box-sizing: border-box; padding: 8px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 18px 50px rgba(0,0,0,.16); border-radius: 24px; transform-origin: top right; animation: chatMenu .42s var(--m-spring)">
+      <button type="button" role="menuitem" class="m-row" onClick="{{ viewProfile }}"><m-ic n="user" s="17"></m-ic>View profile</button>
+      <button type="button" role="menuitem" class="m-row" onClick="{{ startSearch }}"><m-ic n="search" s="17"></m-ic>Search in chat</button>
+      <button type="button" role="menuitem" class="m-row" onClick="{{ toggleMute }}"><m-ic n="bell" s="17"></m-ic><span style="flex: 1">{{ muteLabel }}</span><span class="m-sub" style="font-size: 12px">{{ muteNote }}</span></button>
+      <button type="button" role="menuitem" class="m-row" onClick="{{ showTrips }}"><m-ic n="image" s="17"></m-ic>Shared trips</button>
+      <i style="height: 1px; background: var(--m-line); margin: 4px 10px"></i>
+      <button type="button" role="menuitem" class="m-row" onClick="{{ askClear }}"><m-ic n="refresh" s="17"></m-ic>Clear chat</button>
+      <button type="button" role="menuitem" class="m-row" style="color: var(--m-warn)" onClick="{{ askDelete }}"><m-ic n="trash" s="17"></m-ic>Delete chat</button>
+      <button type="button" role="menuitem" class="m-row" style="color: var(--m-warn)" onClick="{{ askBlock }}"><m-ic n="x" s="17"></m-ic>Block {{ first }}</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sheet }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeAll }}" style="position: absolute; inset: 0; z-index: 20; background: rgba(15,15,15,.18); animation: chatDim .32s ease"></div>
+    <div class="m-sheet" role="dialog" aria-label="{{ sheetTitle }}" style="z-index: 21; display: flex; flex-direction: column; gap: 10px; max-height: 70%; box-sizing: border-box">
+      <span class="m-h2">{{ sheetTitle }}</span>
+      <sc-if value="{{ confirming }}" hint-placeholder-val="{{ false }}">
+        <span class="m-sub">{{ confirmText }}</span>
+        <button type="button" class="m-btn wide" style="background: var(--m-warn); color: #fff; margin-top: 6px" onClick="{{ confirmRun }}">{{ confirmLabel }}</button>
+        <button type="button" class="m-btn w wide" onClick="{{ closeAll }}">Cancel</button>
+      </sc-if>
+      <sc-if value="{{ picking }}" hint-placeholder-val="{{ false }}">
+        <div style="overflow-y: auto; display: flex; flex-direction: column; gap: 6px">
+          <sc-for list="{{ myTrips }}" as="t" hint-placeholder-count="3">
+            <button type="button" class="m-row" onClick="{{ t.pick }}" style="border: 0; width: 100%; text-align: left; color: var(--m-ink)">
+              <span style="width: 36px; height: 36px; border-radius: 18px; background: {{ t.color }}; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><m-ic n="{{ t.icon }}" s="17"></m-ic></span>
+              <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 14px">{{ t.title }}</b><span class="m-sub" style="font-size: 12px">{{ t.sub }}</span></span><m-ic n="send" s="16"></m-ic>
+            </button>
+          </sc-for>
+          <sc-if value="{{ noTrips }}" hint-placeholder-val="{{ false }}"><span class="m-sub">No walks, runs or rides in the last two weeks to share yet.</span></sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 30; padding: 12px 18px; border-radius: 22px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; animation: chatDim .25s ease">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.load();
+    // New messages and read ticks while the chat is open, like the inbox but every few seconds.
+    this.poll = setInterval(() => { if (!document.hidden) this.fetchNew(); }, 3500);
+    this.onVis = () => { if (!document.hidden) this.fetchNew(); };
+    document.addEventListener('visibilitychange', this.onVis);
+  }
+  componentWillUnmount() { clearInterval(this.poll); clearTimeout(this.toastT); document.removeEventListener('visibilitychange', this.onVis); }
+  load() {
+    const M = window.Motio;
+    this.fid = window.__motioChat;
+    if (!M || !this.fid) return;
+    this.setState({ loading: true, error: null, chat: null, filter: null, query: '', draft: '', menu: false, sheet: null });
+    M.chats.open(this.fid).then((r) => { if (r.friend.id !== this.fid) return; this.setState({ chat: r, loading: false }); this.toBottom(true); M.chats.list().catch(() => {}); })
+      .catch((e) => this.setState({ loading: false, error: (e && e.message) || 'Couldn’t open this chat.' }));
+  }
+  fetchNew() {
+    const M = window.Motio, c = this.state && this.state.chat;
+    if (!M || !c || this.busy) return;
+    const last = c.messages.length ? c.messages[c.messages.length - 1].id : 0, fid = this.fid;
+    this.busy = true;
+    M.chats.open(fid, last).then((r) => {
+      const cur = this.state.chat;
+      if (!cur || fid !== this.fid) return;
+      const known = new Set(cur.messages.map((m) => m.id)), add = r.messages.filter((m) => !known.has(m.id));
+      this.setState({ chat: { ...r, messages: cur.messages.concat(add) } });
+      if (add.length) { this.toBottom(); if (add.some((m) => !m.mine)) M.chats.list().catch(() => {}); }
+    }).catch(() => {}).then(() => { this.busy = false; });
+  }
+  toBottom(now) {
+    setTimeout(() => { const el = this.scrollEl; if (el) el.scrollTo({ top: el.scrollHeight, behavior: now ? 'auto' : 'smooth' }); }, 30);
+  }
+  showToast(t) { clearTimeout(this.toastT); this.setState({ toast: t }); this.toastT = setTimeout(() => this.setState({ toast: null }), 2200); }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const nav = (t) => this.props.onNav && this.props.onNav(t);
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => { if (!emb) return; if (e && e.preventDefault) e.preventDefault(); nav(target); } });
+    const s = this.state || {}, M = window.Motio, now = Date.now();
+    // Another chat was opened while this page stayed in the stack: show that one.
+    if (M && window.__motioChat && this.fid && window.__motioChat !== this.fid) setTimeout(() => this.load(), 0);
+    const seg = [[40.3640, 49.8388], [40.3662, 49.8446], [40.3688, 49.8504]];
+    const sample = { friend: { id: 2, name: 'Leyla' }, moving: 'walk', theirRead: 3, theirReadAt: now - 8 * 60000, theirDelivered: 3, muted: false, messages: [
+      { id: 1, mine: false, text: 'Did you see Murad’s sprint time?', at: now - 40 * 60000 },
+      { id: 2, mine: true, text: '3:41. He’s been training in secret.', at: now - 30 * 60000 },
+      { id: 3, mine: true, text: '', trip: { mode: 'run', start: now - 86400000 * 11, end: now - 86400000 * 11 + 232000, distanceM: 1400, points: seg }, at: now - 29 * 60000 },
+      { id: 4, mine: false, text: 'Let’s all try it Saturday. Parachute Tower, 18:00?', at: now - 5 * 60000 }] };
+    const c = M ? s.chat : sample;
+    const f = c ? c.friend : { name: '' };
+    const first = String(f.name || '').split(' ')[0];
+    const MODE = { walk: ['walk', 'walking now', 'Walk'], run: ['run', 'running now', 'Run'], bike: ['bike', 'cycling now', 'Ride'], transit: ['bus', 'on the bus now', 'Bus trip'], drive: ['car', 'driving now', 'Drive'] };
+    const hm = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const dayOf = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+    const today = dayOf(now);
+    const dayLabel = (t) => { const d = dayOf(t); return d === today ? 'Today' : d === today - 86400000 ? 'Yesterday' : new Date(t).toLocaleDateString('en-GB', d > today - 6 * 86400000 ? { weekday: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' }); };
+    const km = (m) => (M ? M.fmtDist(m) : (m / 1000).toFixed(1) + ' km');
+    const dur = (ms) => { const min = Math.round(ms / 60000); return min >= 60 ? Math.floor(min / 60) + 'h ' + String(min % 60).padStart(2, '0') + 'm' : min + ' min'; };
+    // The route, fitted into the 260 × 90 card the same way the app draws routes.
+    const draw = (pts) => {
+      if (!pts || pts.length < 2) return { d: '', x0: -9, y0: -9, x1: -9, y1: -9 };
+      const k = Math.cos(pts[0][0] * Math.PI / 180), xs = pts.map((p) => p[1] * k), ys = pts.map((p) => -p[0]);
+      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+      const sc = Math.min(236 / Math.max(1e-9, maxX - minX), 66 / Math.max(1e-9, maxY - minY));
+      const ox = (260 - (maxX - minX) * sc) / 2, oy = (90 - (maxY - minY) * sc) / 2;
+      const P = pts.map((p, i) => [((xs[i] - minX) * sc + ox).toFixed(1), ((ys[i] - minY) * sc + oy).toFixed(1)]);
+      return { d: P.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' '), x0: P[0][0], y0: P[0][1], x1: P[P.length - 1][0], y1: P[P.length - 1][1] };
+    };
+    const TICK = { sent: { w: 14, vb: '0 0 24 24', d: 'M5 12.5l4.5 4.5L19 7' }, delivered: { w: 18, vb: '0 0 30 24', d: 'M3 12.5l4.5 4.5L17 7M13 16l1 1L23.5 7' } };
+    const stOf = (m) => (m.id <= (c.theirRead || 0) ? 'seen' : m.id <= (c.theirDelivered || 0) ? 'delivered' : 'sent');
+
+    const filter = s.filter || null, q = String(s.query || '').trim().toLowerCase();
+    const all = c ? c.messages : [];
+    const msgs = all.filter((m) => (filter !== 'trips' || m.trip) && (filter !== 'search' || !q || String(m.text || '').toLowerCase().includes(q)));
+    const lastMine = [...all].reverse().find((m) => m.mine), lastMsg = all[all.length - 1];
+    const items = [];
+    let prevDay = null;
+    msgs.forEach((m) => {
+      const d = dayOf(m.at);
+      if (d !== prevDay) { items.push({ sep: dayLabel(m.at) }); prevDay = d; }
+      const side = m.mine ? 'me' : 'them';
+      if (m.trip) {
+        const md = MODE[m.trip.mode] || MODE.walk, r = draw(m.trip.points);
+        const title = md[2] + ' · ' + km(m.trip.distanceM || 0);
+        const sub = dur((m.trip.end || 0) - (m.trip.start || 0)) + ', ' + new Date(m.trip.start).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+        const mineTrip = m.mine && M && m.trip.id;
+        items.push({ side, trip: { ...r, color: 'var(--m-' + (m.trip.mode in MODE ? m.trip.mode : 'walk') + ')', title, sub }, tripAria: (m.mine ? 'You shared ' : first + ' shared ') + title + ', ' + sub, cursor: mineTrip ? 'pointer' : 'default',
+          openTrip: () => { if (mineTrip && M.findTrip && M.findTrip(m.trip.id)) { window.__motioTrip = m.trip.id; nav('trip'); } } });
+      }
+      if (m.text) items.push({ side, text: m.text, aria: (m.mine ? 'You' : first) + ', ' + hm(m.at) + ': ' + m.text });
+      if (filter) items.push({ meta: hm(m.at), metaAlign: m.mine ? 'flex-end' : 'flex-start', metaFont: "500 11px 'Inter Tight'", metaColor: 'var(--m-mute)' });
+      else if (lastMine && m.id === lastMine.id) {
+        const st = stOf(m);
+        items.push({ meta: st === 'seen' ? 'Seen ' + (c.theirReadAt ? hm(c.theirReadAt) : '') : st === 'delivered' ? 'Delivered' : 'Sent', tick: TICK[st === 'sent' ? 'sent' : 'delivered'],
+          metaAlign: 'flex-end', metaFont: "600 11px 'Inter Tight'", metaColor: st === 'seen' ? 'var(--m-ink)' : 'var(--m-faint)' });
+      } else if (m === lastMsg && !m.mine) items.push({ meta: hm(m.at), metaAlign: 'flex-start', metaFont: "500 11px 'Inter Tight'", metaColor: 'var(--m-mute)' });
+    });
+
+    const mode = c && c.moving ? MODE[c.moving] || MODE.walk : null;
+    const closeAll = () => this.setState({ menu: false, sheet: null });
+    const act = (p, msg, after) => { closeAll(); p.then(() => { if (msg) this.showToast(msg); if (after) after(); }).catch((e) => this.showToast((e && e.message) || 'Couldn’t do that. Try again.')); };
+    const CONFIRM = {
+      clear: ['Clear this chat?', 'The messages are removed for you only. ' + first + ' still has them.', 'Clear chat', () => act(M.chats.clear(this.fid), 'Chat cleared', () => this.load())],
+      delete: ['Delete this chat?', 'It’s removed from your messages, for you only. It comes back if ' + first + ' writes again.', 'Delete chat', () => act(M.chats.remove([this.fid]), null, () => nav('back'))],
+      block: ['Block ' + first + '?', 'You stop being friends, this chat is deleted for you, and neither of you can message or add the other.', 'Block', () => act(M.chats.block(this.fid), null, () => { window.dispatchEvent(new Event('motio:refresh')); nav('back'); })]
+    };
+    const sheet = s.sheet || null, cf = CONFIRM[sheet];
+    const tripList = M && sheet === 'trips' ? M.summarize(now - 14 * 86400000, now).trips.filter((t) => ['walk', 'run', 'bike'].includes(t.mode) && !t.live && t.points && t.points.length > 1).sort((a, b) => b.start - a.start).slice(0, 12) : [];
+    const sending = !!s.sending, draft = s.draft || '';
+    const doSend = (text, tripId) => {
+      if (!M || !this.fid || sending) return;
+      this.setState({ sending: true, sheet: null });
+      (tripId ? M.sync().catch(() => {}) : Promise.resolve())
+        .then(() => M.chats.send(this.fid, text, tripId))
+        .then((r) => { const cur = this.state.chat; if (!tripId) this.setState({ draft: '' }); if (cur) this.setState({ chat: { ...cur, messages: cur.messages.concat([r.message]) } }); this.toBottom(); M.chats.list().catch(() => {}); })
+        .catch((e) => this.showToast((e && e.message) || 'Not sent. Try again.'))
+        .then(() => this.setState({ sending: false }));
+    };
+    const muted = !!(c && c.muted);
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      LK: { back: lk('back', 'Messages.dc.html') },
+      name: f.name || ' ', first, ini: String(f.name || '?').charAt(0).toUpperCase(), hasAvatar: !!f.avatar, noAvatar: !f.avatar, avatar: f.avatar || '',
+      status: mode ? mode[1] : muted ? 'Muted' : '', statusDot: mode ? 'var(--m-' + c.moving + ')' : '',
+      profileAria: 'View ' + (f.name || '') + '’s profile',
+      viewProfile: () => { closeAll(); if (f.id) { window.__motioFriend = f.id; nav('friend'); } },
+      openMenu: () => this.setState({ menu: true }), menu: !!s.menu, closeAll,
+      startSearch: () => { this.setState({ menu: false, filter: 'search', query: '' }); setTimeout(() => this.searchEl && this.searchEl.focus(), 60); },
+      showTrips: () => { this.setState({ menu: false, filter: 'trips' }); this.toBottom(true); },
+      endFilter: () => { this.setState({ filter: null, query: '' }); this.toBottom(true); },
+      filterBar: !!filter, searching: filter === 'search', tripsOnly: filter === 'trips', tripCount: all.filter((m) => m.trip).length,
+      searchRef: (el) => { this.searchEl = el; }, query: s.query || '', onQuery: (e) => this.setState({ query: e.target.value }),
+      padTop: filter ? '170px' : '116px',
+      muteLabel: muted ? 'Unmute' : 'Mute', muteNote: muted ? (c.mutedUntil ? 'until ' + hm(c.mutedUntil) : '') : '8 h',
+      toggleMute: () => act(M.chats.mute([this.fid], muted ? 0 : 8), muted ? 'Notifications on' : 'Muted for 8 hours', () => this.fetchNew()),
+      askClear: () => this.setState({ menu: false, sheet: 'clear' }), askDelete: () => this.setState({ menu: false, sheet: 'delete' }), askBlock: () => this.setState({ menu: false, sheet: 'block' }),
+      sheet: !!sheet, confirming: !!cf, picking: sheet === 'trips', sheetTitle: cf ? cf[0] : 'Share a trip', confirmText: cf ? cf[1] : '', confirmLabel: cf ? cf[2] : '', confirmRun: cf ? cf[3] : () => {},
+      openTrips: () => this.setState({ sheet: 'trips' }),
+      myTrips: tripList.map((t) => { const md = MODE[t.mode]; return { icon: md[0], color: 'var(--m-' + t.mode + ')', title: md[2] + ' · ' + km(t.distanceM || 0),
+        sub: dayLabel(t.start) + ', ' + hm(t.start) + ' · ' + dur(t.end - t.start), pick: () => doSend('', t.id) }; }),
+      noTrips: sheet === 'trips' && !tripList.length,
+      items, loading: !!s.loading, error: s.error || null, retry: () => this.load(),
+      empty: !!c && !s.loading && !msgs.length, emptyText: filter === 'trips' ? 'No trips shared in this chat yet. Tap the route button to share one.' : filter ? 'No messages match.' : 'Say hi to ' + first + '. Share a walk, a run or where to meet.',
+      scrollRef: (el) => { this.scrollEl = el; },
+      // Scrolling down tucks the message box away; scrolling up, or reaching the bottom, brings it back.
+      onScroll: (e) => {
+        const el = e.target, y = el.scrollTop, d = y - (this.lastY || 0), atEnd = el.scrollHeight - y - el.clientHeight < 24;
+        let hide = !!this.state.barHidden;
+        if (atEnd || d < -12) hide = false; else if (d > 24 && y > 24 && document.activeElement !== this.draftEl) hide = true;
+        if (atEnd || Math.abs(d) > 12) this.lastY = y;
+        if (hide !== !!this.state.barHidden) this.setState({ barHidden: hide });
+      },
+      barCls: s.barHidden ? 'hide' : '',
+      draft, onDraft: (e) => { this.draftEl = e.target; this.setState({ draft: e.target.value }); }, draftAria: 'Message ' + first,
+      sendOff: !draft.trim() || sending, sendOp: !draft.trim() || sending ? 0.45 : 1,
+      send: (e) => { if (e && e.preventDefault) e.preventDefault(); if (draft.trim()) doSend(draft.trim()); },
+      toast: s.toast || null
+    };
+  }
+}
+</script>
+</body>
+</html>
