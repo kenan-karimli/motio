@@ -1,5 +1,29 @@
-// Real map for the Map screen: routes coloured by movement type and a marker that follows a time slider.
+// Real maps, in the 5.0 grey style: calm grey tiles, routes 5px in the mode colour over a 4px card-coloured casing,
+// stays as white circles with an ink ring, and where you are as an ink dot.
 import L from 'leaflet';
+
+const dark = () => typeof document !== 'undefined' && document.documentElement.classList.contains('m-dark-theme');
+const ink = () => (dark() ? '#F2F2F0' : '#0F0F0F');
+const card = () => (dark() ? '#1A1A1A' : '#FFFFFF');
+// Trips still carry the 4.x mode colours; draw them in the 5.0 ones.
+const NEW = { '#3DBF5C': '#2FB457', '#F2766B': '#E5604F', '#6E8CF7': '#4F7BF0', '#B57BE0': '#8E6BE0', '#F6C343': '#E7A82A' };
+const MODE = { walk: '#2FB457', run: '#E5604F', bike: '#4F7BF0', transit: '#8E6BE0', drive: '#E7A82A' };
+const col = (c) => NEW[String(c || '').toUpperCase()] || c || ink();
+function tiles(map, el) {
+  el.style.background = dark() ? '#1B1B1B' : '#EEEEEC';
+  const t = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/' + (dark() ? 'World_Dark_Gray_Base' : 'World_Light_Gray_Base') + '/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom: 19, maxNativeZoom: 16, attribution: 'Esri, HERE, OpenStreetMap', className: 'motio-tiles' }).addTo(map);
+  if (!dark()) map.getPane('tilePane').style.filter = 'saturate(0)';
+  map.attributionControl && map.attributionControl.setPrefix(false);
+  return t;
+}
+// A route: card-coloured casing under a mode-coloured line. Returns the coloured line.
+const routeLine = (ll, c, layer, w = 5) => {
+  L.polyline(ll, { color: card(), weight: w + 4, opacity: 1, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(layer);
+  return L.polyline(ll, { color: col(c), weight: w, opacity: 1, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+};
+const stay = (p, layer) => L.circleMarker(p, { radius: 7, color: ink(), weight: 3, fillColor: card(), fillOpacity: 1 }).addTo(layer);
+const inkDot = (p, layer, r = 6, c = ink()) => { L.circleMarker(p, { radius: r + 3, stroke: false, fillColor: card(), fillOpacity: 1, interactive: false }).addTo(layer); return L.circleMarker(p, { radius: r, stroke: false, fillColor: c, fillOpacity: 1 }).addTo(layer); };
 
 function interpolate(routes, t) {
   for (const r of routes) {
@@ -25,12 +49,10 @@ function interpolate(routes, t) {
 window.MotioMap = {
   mount(el, routes) {
     const map = L.map(el, { zoomControl: false, attributionControl: true, preferCanvas: true });
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles'
-    }).addTo(map);
+    tiles(map, el);
     const layers = L.layerGroup().addTo(map);
     const dim = L.layerGroup().addTo(map);
-    const dot = L.circleMarker([0, 0], { radius: 9, color: '#FFFFFF', weight: 4, fillColor: '#1F1D47', fillOpacity: 1 });
+    const dot = L.circleMarker([0, 0], { radius: 7, color: card(), weight: 3, fillColor: ink(), fillOpacity: 1 });
     let current = [];
     let lines = [];
     let dead = false;
@@ -42,11 +64,12 @@ window.MotioMap = {
       for (const r of rs) {
         const ll = r.points.map((p) => [p[0], p[1]]);
         all.push(...ll);
-        L.polyline(ll, { color: '#1F1D47', weight: 9, opacity: 0.18, lineCap: 'round', lineJoin: 'round' }).addTo(dim);
-        const line = L.polyline(ll, { color: r.color, weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }).addTo(layers);
-        lines.push({ r, line });
-        L.circleMarker(ll[0], { radius: 4, color: r.color, weight: 2, fillColor: '#FFFFFF', fillOpacity: 1 }).addTo(layers);
+        lines.push({ r, line: routeLine(ll, r.color, layers) });
       }
+      // Stays: where each trip started and where the day ended.
+      const ends = [];
+      rs.forEach((r) => { ends.push(r.points[0]); if (!r.live) ends.push(r.points[r.points.length - 1]); });
+      ends.filter((p, i) => !ends.slice(0, i).some((q) => Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) < 0.0012)).forEach((p) => stay([p[0], p[1]], dim));
       if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.18), { animate: false });
       else map.setView([40.4093, 49.8671], 12);
     }
@@ -63,7 +86,7 @@ window.MotioMap = {
         const p = interpolate(current, t);
         if (!p) { dot.remove(); return null; }
         dot.setLatLng([p.lat, p.lng]).addTo(map);
-        dot.setStyle({ fillColor: p.route ? p.route.color : '#1F1D47' });
+        dot.bringToFront();
         // Fade every route except the one you're on.
         for (const { r, line } of lines) line.setStyle({ opacity: !p.route || r.id === p.route.id ? 1 : 0.35 });
         if (follow) map.panTo([p.lat, p.lng], { animate: true, duration: 0.25 });
@@ -77,15 +100,14 @@ window.MotioMap = {
       destroy() { dead = true; ro.disconnect(); map.remove(); }
     };
   },
-  // Places: a dot per place (home and work in their own colours), framed to fit; fly() eases to one.
+  // Places: a stay ring per place (home filled ink), framed to fit; fly() eases to one.
   mountPlaces(el, list) {
     const map = L.map(el, { zoomControl: false, attributionControl: true });
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
+    tiles(map, el);
     // 5.0 map style: places are white stays with an ink ring (home filled ink), no colour.
-    const ink = '#0F0F0F';
     const pts = list.map((p) => {
-      L.circle([p.lat, p.lng], { radius: 150, color: ink, weight: 1, opacity: 0.25, fillOpacity: 0.06 }).addTo(map);
-      L.circleMarker([p.lat, p.lng], { radius: 7, color: ink, weight: 3, fillColor: p.kind === 'home' ? ink : '#FFFFFF', fillOpacity: 1 }).addTo(map).bindTooltip(p.name, { permanent: list.length <= 6, direction: 'top', offset: [0, -8] });
+      L.circle([p.lat, p.lng], { radius: 150, color: ink(), weight: 1, opacity: 0.25, fillOpacity: 0.06, interactive: false }).addTo(map);
+      (p.kind === 'home' ? inkDot([p.lat, p.lng], map, 7) : stay([p.lat, p.lng], map)).bindTooltip(p.name, { permanent: list.length <= 6, direction: 'top', offset: [0, -8] });
       return [p.lat, p.lng];
     });
     if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.35), { animate: false, maxZoom: 15 }); else map.setView([40.4093, 49.8671], 12);
@@ -139,9 +161,8 @@ window.MotioMap = {
   // show(data) redraws with new data; the view frames everything the first time only, so polling doesn't jump.
   mountFriend(el) {
     const map = L.map(el, { zoomControl: false, attributionControl: true, preferCanvas: true }).setView([40.4093, 49.8671], 12);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
+    tiles(map, el);
     const layer = L.layerGroup().addTo(map);
-    const COLOR = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#8C7CF0', transit: '#F6C343' };
     let dead = false, framed = false;
     [300, 700].forEach((ms) => setTimeout(() => { if (!dead) map.invalidateSize(); }, ms));
     return {
@@ -151,19 +172,17 @@ window.MotioMap = {
         const all = [];
         for (const t of trips) {
           const ll = t.points.map((p) => [p[0], p[1]]);
-          L.polyline(ll, { color: '#1F1D47', weight: 8, opacity: 0.14, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
-          L.polyline(ll, { color: COLOR[t.mode] || '#5B4FE0', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+          routeLine(ll, MODE[t.mode], layer);
           all.push(...ll);
         }
         for (const p of places) {
-          L.circle([p.lat, p.lng], { radius: 120, color: '#5B4FE0', weight: 1, fillOpacity: 0.12 }).addTo(layer);
-          L.circleMarker([p.lat, p.lng], { radius: 7, color: '#FFFFFF', weight: 3, fillColor: '#5B4FE0', fillOpacity: 1 }).addTo(layer)
+          stay([p.lat, p.lng], layer)
             .bindTooltip(p.name || p.visits + (p.visits === 1 ? ' visit' : ' visits'), { direction: 'top', offset: [0, -6] });
           all.push([p.lat, p.lng]);
         }
         if (live) {
-          L.circle([live.lat, live.lng], { radius: 60, color: '#F2766B', weight: 0, fillOpacity: 0.25 }).addTo(layer);
-          L.circleMarker([live.lat, live.lng], { radius: 10, color: '#FFFFFF', weight: 4, fillColor: '#F2766B', fillOpacity: 1 }).addTo(layer);
+          L.circleMarker([live.lat, live.lng], { radius: 16, stroke: false, fillColor: ink(), fillOpacity: 0.12 }).addTo(layer);
+          inkDot([live.lat, live.lng], layer, 7);
         }
         if (live && !framed) map.setView([live.lat, live.lng], 15, { animate: false });
         else if (all.length && !framed) map.fitBounds(L.latLngBounds(all).pad(0.2), { animate: false, maxZoom: 15 });
@@ -174,21 +193,17 @@ window.MotioMap = {
       destroy() { dead = true; map.remove(); }
     };
   },
-  // One trip, coloured by speed (blue slow → yellow → red fast), with start and finish dots.
-  mountTrip(el, points) {
+  // One trip in its mode colour, from a stay ring (start) to an ink dot (finish).
+  mountTrip(el, points, color) {
     const map = L.map(el, { zoomControl: false, attributionControl: true, preferCanvas: true });
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
-    const R = 6371000, rad = Math.PI / 180;
-    const dist = (a, b) => { const x = Math.sin(((b[0] - a[0]) * rad) / 2) ** 2 + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(((b[1] - a[1]) * rad) / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
-    const speeds = points.slice(1).map((p, i) => dist(points[i], p) / Math.max(1, (p[2] - points[i][2]) / 1000));
-    const top = Math.max(1, ...speeds.slice().sort((a, b) => a - b).slice(0, Math.max(1, Math.floor(speeds.length * 0.95))));
-    const ramp = (f) => { const c = f < 0.5 ? [[110, 140, 247], [246, 195, 67]] : [[246, 195, 67], [242, 118, 107]]; const k = f < 0.5 ? f * 2 : (f - 0.5) * 2; return 'rgb(' + c[0].map((v, i) => Math.round(v + (c[1][i] - v) * k)).join(',') + ')'; };
-    L.polyline(points.map((p) => [p[0], p[1]]), { color: '#1F1D47', weight: 10, opacity: 0.15, lineCap: 'round' }).addTo(map);
-    const segs = speeds.map((v, i) => L.polyline([[points[i][0], points[i][1]], [points[i + 1][0], points[i + 1][1]]], { color: ramp(Math.min(1, v / top)), weight: 6, lineCap: 'round' }).addTo(map));
+    tiles(map, el);
+    L.polyline(points.map((p) => [p[0], p[1]]), { color: card(), weight: 9, opacity: 1, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(map);
+    // One short line per step, so the replay can draw the route in behind the runner.
+    const segs = points.slice(1).map((p, i) => L.polyline([[points[i][0], points[i][1]], [p[0], p[1]]], { color: col(color), weight: 5, lineCap: 'round' }).addTo(map));
     if (points.length) {
-      L.circleMarker([points[0][0], points[0][1]], { radius: 7, color: '#FFFFFF', weight: 3, fillColor: '#3DBF5C', fillOpacity: 1 }).addTo(map);
+      stay([points[0][0], points[0][1]], map);
       const e = points[points.length - 1];
-      L.circleMarker([e[0], e[1]], { radius: 7, color: '#FFFFFF', weight: 3, fillColor: '#1F1D47', fillOpacity: 1 }).addTo(map);
+      inkDot([e[0], e[1]], map);
       map.fitBounds(L.latLngBounds(points.map((p) => [p[0], p[1]])).pad(0.2), { animate: false });
     } else map.setView([40.4093, 49.8671], 12);
     let dead = false, raf = 0, runner = null;
@@ -200,7 +215,7 @@ window.MotioMap = {
         if (dead || points.length < 2) return;
         cancelAnimationFrame(raf);
         segs.forEach((g) => g.setStyle({ opacity: 0 }));
-        if (!runner) runner = L.circleMarker([points[0][0], points[0][1]], { radius: 9, color: '#FFFFFF', weight: 4, fillColor: '#1F1D47', fillOpacity: 1 }).addTo(map);
+        if (!runner) runner = L.circleMarker([points[0][0], points[0][1]], { radius: 7, color: card(), weight: 3, fillColor: ink(), fillOpacity: 1 }).addTo(map);
         const t0 = performance.now(), D = Math.min(9000, Math.max(4500, points.length * 30));
         const a = points[0][2], span = Math.max(1, points[points.length - 1][2] - a);
         let i = 0;
@@ -220,38 +235,34 @@ window.MotioMap = {
       destroy() { dead = true; cancelAnimationFrame(raf); map.remove(); }
     };
   },
-  // Explorer: the map under a fog that's cleared, softly, wherever you've been.
+  // Explorer: every ~150 m square you've passed through is filled in ink on the grey map.
   mountFog(el, cells, center) {
     const map = L.map(el, { zoomControl: false, attributionControl: true }).setView([center.lat, center.lng], 13);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap contributors', className: 'motio-tiles' }).addTo(map);
-    // The fog is drawn by a Leaflet canvas renderer, so it pans and zooms (pinch and animated) in step with the tiles.
-    const fog = L.canvas({ padding: 0.3 });
-    map.addLayer(fog);
+    tiles(map, el);
+    // The squares are drawn by a Leaflet canvas renderer, so they pan and zoom (pinch and animated) in step with the tiles.
+    const cv = L.canvas({ padding: 0.3 });
+    map.addLayer(cv);
+    const CELL = 0.00135; // must match explorer() in motio.js
     let dead = false;
-    fog.on('update', () => {
+    cv.on('update', () => {
       if (dead) return;
-      const g = fog._ctx, b = fog._bounds;
+      const g = cv._ctx, b = cv._bounds;
       g.save();
-      g.fillStyle = 'rgba(22,20,47,0.86)'; g.fillRect(b.min.x, b.min.y, b.max.x - b.min.x, b.max.y - b.min.y);
-      g.globalCompositeOperation = 'destination-out';
-      // ~150 m around each visited square, so neighbouring squares merge into one clear trail.
-      const px = map.latLngToLayerPoint([center.lat, center.lng]).distanceTo(map.latLngToLayerPoint([center.lat + 0.0014, center.lng]));
-      const rad = Math.max(4, px), soft = g.createRadialGradient(0, 0, 0, 0, 0, rad);
-      soft.addColorStop(0, 'rgba(0,0,0,1)'); soft.addColorStop(0.7, 'rgba(0,0,0,0.95)'); soft.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = soft;
+      g.fillStyle = ink(); g.globalAlpha = 0.55;
       for (const c of cells) {
-        const p = map.latLngToLayerPoint([c[0], c[1]]);
-        if (p.x < b.min.x - rad || p.y < b.min.y - rad || p.x > b.max.x + rad || p.y > b.max.y + rad) continue;
-        g.translate(p.x, p.y); g.beginPath(); g.arc(0, 0, rad, 0, Math.PI * 2); g.fill(); g.translate(-p.x, -p.y);
+        const dl = CELL / 2, dg = CELL / 2 / Math.cos((c[0] * Math.PI) / 180);
+        const p = map.latLngToLayerPoint([c[0] + dl, c[1] - dg]), q = map.latLngToLayerPoint([c[0] - dl, c[1] + dg]);
+        if (q.x < b.min.x || q.y < b.min.y || p.x > b.max.x || p.y > b.max.y) continue;
+        const w = q.x - p.x, h = q.y - p.y, gap = w > 6 ? 1 : 0;
+        g.fillRect(p.x + gap, p.y + gap, Math.max(1, w - 2 * gap), Math.max(1, h - 2 * gap));
       }
       g.restore();
     });
-    // Redraw at most once a frame while dragging or flying, so no unfogged edge shows; pinch and zoom animations are handled by Leaflet.
+    // Redraw at most once a frame while dragging or flying; pinch and zoom animations are handled by Leaflet.
     let raf = 0;
-    map.on('move', () => { if (!raf && !map._animatingZoom) raf = requestAnimationFrame(() => { raf = 0; if (!dead && !map._animatingZoom) fog._update(); }); });
-    // Frame everything explored, clear of the title above and the stats card below.
-    if (cells.length) map.fitBounds(L.latLngBounds(cells.map((c) => [c[0], c[1]])), { paddingTopLeft: [24, 100], paddingBottomRight: [24, 300], maxZoom: 15 });
-    [0, 300, 700].forEach((ms) => setTimeout(() => { if (!dead) { map.invalidateSize(); fog._update(); } }, ms));
+    map.on('move', () => { if (!raf && !map._animatingZoom) raf = requestAnimationFrame(() => { raf = 0; if (!dead && !map._animatingZoom) cv._update(); }); });
+    if (cells.length) map.fitBounds(L.latLngBounds(cells.map((c) => [c[0], c[1]])), { padding: [20, 20], maxZoom: 15 });
+    [0, 300, 700].forEach((ms) => setTimeout(() => { if (!dead) { map.invalidateSize(); cv._update(); } }, ms));
     return { fly(lat, lng, z = 15) { if (!dead) map.flyTo([lat, lng], z, { duration: 0.9 }); }, destroy() { dead = true; map.remove(); } };
   }
 };

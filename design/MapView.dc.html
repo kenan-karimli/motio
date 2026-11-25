@@ -17,72 +17,67 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
 @keyframes motioCardUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-@keyframes motioPulse{0%{box-shadow:0 0 0 0 rgba(242,118,107,0.6)}100%{box-shadow:0 0 0 12px rgba(242,118,107,0)}}
 .motio-range{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
-.motio-range::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:#E3E1F3}
-.motio-range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-9px;border-radius:13px;background:#1F1D47;border:4px solid #FFFFFF;box-shadow:0 2px 8px rgba(31,29,71,0.35)}
+.motio-range::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--m-line)}
+.motio-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:11px;background:var(--m-ink);border:3px solid var(--m-card);box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .motio-chips::-webkit-scrollbar{display:none}
-.leaflet-container{background:#EEF0F6;font-family:'Poppins',sans-serif}
-.motio-tiles{filter:saturate(0.55) brightness(1.04)}
-.leaflet-control-attribution{font-size:9px !important;background:rgba(255,255,255,0.7) !important}
+.mv-glass{background:color-mix(in srgb,var(--m-card) 62%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 16px rgba(0,0,0,.08)}
+.mv-step{width:30px;height:30px;border:0;border-radius:15px;background:transparent;color:var(--m-ink);display:inline-flex;align-items:center;justify-content:center;padding:0}
+.leaflet-control-attribution{font-size:8px!important;background:transparent!important;color:#999!important}
+.leaflet-control-attribution a{color:#999!important}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #EEF0F6; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div ref="{{ mapRef }}" style="position: absolute; inset: 0 0 280px; z-index: 0"></div>
 
-  <div ref="{{ mapRef }}" style="position: absolute; inset: 0; z-index: 0"></div>
-  <sc-if value="{{ noMapLib }}" hint-placeholder-val="{{ true }}">
-    <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; inset: 0">
-      <rect width="390" height="844" fill="#ECEEF3"></rect>
-      <path d="M0 210 H390 M0 420 H390 M0 600 H390 M80 0 V844 M210 0 V844 M320 0 V844" stroke="#FFFFFF" stroke-width="14"></path>
-      <path d="M-20 520 C 80 470, 140 560, 240 500 S 360 440, 420 470" fill="none" stroke="#C8D6FF" stroke-width="26"></path>
-      <path d="M40 330 C 60 260, 140 250, 160 300 S 230 380, 260 300" fill="#CDEFD5"></path>
-      <path d="M60 640 L80 420 L210 420 L320 210" fill="none" stroke="#3DBF5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
-      <path d="M210 420 L320 600 L320 700" fill="none" stroke="#F6C343" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
-      <circle cx="210" cy="420" r="9" fill="#1F1D47" stroke="#FFFFFF" stroke-width="4"></circle>
-    </svg>
-  </sc-if>
-
-  <div style="position: absolute; left: 16px; right: 16px; top: 14px; z-index: 5; display: flex; align-items: center; gap: 10px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 6px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 14px rgba(31,29,71,0.18)">
-      <button type="button" onClick="{{ prevDay }}" aria-label="Previous day" style="width: 36px; height: 36px; border: 0; border-radius: 18px; background: transparent; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
-      <span style="font-size: 14px; font-weight: 600">{{ dayLabel }}</span>
-      <button type="button" onClick="{{ nextDay }}" aria-label="Next day" style="width: 36px; height: 36px; border: 0; border-radius: 18px; background: transparent; display: flex; align-items: center; justify-content: center; opacity: {{ nextOp }}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
-    </div>
+  <div style="position: absolute; left: 16px; right: 16px; top: 52px; z-index: 5; display: flex; align-items: center; gap: 8px">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon mv-glass"><m-ic n="back"></m-ic></a>
+    <span class="m-chip mv-glass" style="height: 44px; padding: 0 6px; gap: 2px; cursor: default">
+      <button type="button" class="mv-step" onClick="{{ prevDay }}" aria-label="Previous day"><m-ic n="back" s="15"></m-ic></button>
+      <span style="min-width: 104px; text-align: center">{{ dayLabel }}</span>
+      <button type="button" class="mv-step" onClick="{{ nextDay }}" aria-label="Next day" style="opacity: {{ nextOp }}"><m-ic n="chev" s="15"></m-ic></button>
+    </span>
+    <span class="sp"></span>
+    <button type="button" class="m-icon mv-glass" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}"><m-ic n="{{ playIcon }}" s="17"></m-ic></button>
   </div>
 
   <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; left: 24px; right: 24px; top: 40%; z-index: 4; padding: 18px; border-radius: 22px; background: rgba(255,255,255,0.94); text-align: center; box-shadow: 0 8px 24px rgba(31,29,71,0.16)">
-      <span style="display: block; font-size: 16px; font-weight: 700">No trips on this day</span>
-      <span style="display: block; font-size: 13px; color: #4A4770; margin-top: 4px">{{ emptyHint }}</span>
+    <div class="m-card" style="position: absolute; left: 24px; right: 24px; top: 34%; z-index: 4; text-align: center; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.08)">
+      <b style="display: block; font-size: 16px">No trips on this day.</b>
+      <span class="m-sub" style="display: block; margin-top: 4px">{{ emptyHint }}</span>
     </div>
   </sc-if>
 
-  <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 5; padding: 16px 16px 14px; border-radius: 28px; background: #FFFFFF; box-shadow: 0 12px 30px rgba(31,29,71,0.22); display: flex; flex-direction: column; gap: 12px; animation: motioCardUp 460ms cubic-bezier(0.22, 1, 0.36, 1) 120ms backwards">
-    <div style="display: flex; align-items: center; gap: 12px">
-      <button type="button" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}" style="width: 52px; height: 52px; flex-shrink: 0; border: 0; border-radius: 26px; background: #1F1D47; box-shadow: none; display: flex; align-items: center; justify-content: center">
-        <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="#F6C343"><rect x="6" y="5" width="4" height="14" rx="1.5"></rect><rect x="14" y="5" width="4" height="14" rx="1.5"></rect></svg></sc-if>
-        <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="#F6C343"></path></svg></sc-if>
-      </button>
-      <span style="flex: 1; display: flex; flex-direction: column">
-        <span style="font-size: 30px; font-weight: 700; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums">{{ clock }}</span>
-        <span style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; font-weight: 600"><span style="width: 9px; height: 9px; border-radius: 5px; background: {{ nowColor }}; animation: {{ nowPulse }}"></span>{{ nowLabel }}</span>
-      </span>
-      <span style="display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 18px; font-weight: 700">{{ sofar }}</span><span style="font-size: 11px; color: #6B6890">so far</span></span>
+  <div class="m-sheet" style="z-index: 5; padding: 12px 20px 30px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 -10px 40px rgba(0,0,0,.08)">
+    <i style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--m-line)"></i>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <div><div class="m-label">{{ movedLabel }}</div><div class="m-num" style="font-size: 36px; margin-top: 6px">{{ moved }}</div></div>
+      <span class="m-sub" style="text-align: right">{{ totalDist }}<br>{{ counts }}</span>
     </div>
-    <input class="motio-range" type="range" min="0" max="1000" step="1" value="{{ pos }}" onChange="{{ onScrub }}" aria-label="Time of day">
-    <div style="display: flex; justify-content: space-between; margin-top: -6px; font-size: 10px; font-weight: 600; color: #6B6890"><span>{{ startLabel }}</span><span>{{ endLabel }}</span></div>
-    <div class="motio-chips" style="display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none">
-      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
-        <button type="button" onClick="{{ c.go }}" style="flex-shrink: 0; display: flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 2px solid {{ c.border }}; border-radius: 17px; background: {{ c.bg }}; color: #1F1D47; font-size: 12px; font-weight: 600; transition: border-color 200ms ease, background-color 200ms ease"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ c.color }}"></span>{{ c.label }}</button>
-      </sc-for>
-    </div>
+    <sc-if value="{{ hasTrips }}" hint-placeholder-val="{{ true }}">
+      <div class="motio-chips" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 2px 20px; scrollbar-width: none">
+        <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+          <button type="button" class="m-row {{ c.tint }}" onClick="{{ c.go }}" style="flex-shrink: 0; min-width: 150px; border: 0; flex-direction: column; align-items: flex-start; gap: 2px; color: var(--m-ink); text-align: left; box-shadow: {{ c.ring }}; transition: box-shadow .2s"><b style="font-size: 13px">{{ c.title }}</b><span class="m-sub" style="font-size: 12px; color: var(--m-ink-2)">{{ c.sub }}</span></button>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600"><span class="m-dot" style="width: 8px; height: 8px; background: {{ nowColor }}"></span><span style="flex: 1">{{ clock }} · {{ nowLabel }}</span><span class="m-sub" style="font-size: 12px">{{ sofar }} so far</span></div>
+        <input class="motio-range" type="range" min="0" max="1000" step="1" value="{{ pos }}" onChange="{{ onScrub }}" aria-label="Time of day">
+        <div class="m-sub" style="display: flex; justify-content: space-between; margin-top: -4px; font-size: 11px"><span>{{ startLabel }}</span><span>{{ endLabel }}</span></div>
+      </div>
+    </sc-if>
+    <button type="button" class="m-btn wide" onClick="{{ share }}" disabled="{{ empty }}" style="opacity: {{ shareOp }}">Share this day</button>
   </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 50%; top: 110px; z-index: 50; transform: translateX(-50%); padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 13px; white-space: nowrap">{{ toast }}</div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
+  toast(msg) { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 2300); }
   componentWillUnmount() {
+    clearTimeout(this.toastT);
     clearInterval(this.timer);
     clearTimeout(this.mountT);
     if (this.ctrl) this.ctrl.destroy();
@@ -96,16 +91,19 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const M = window.Motio;
-    const off = s.dayOff || 0;
+    // Day handed over by the timeline (days back from today).
+    if (this.off0 === undefined) { this.off0 = window.__motioDay || 0; window.__motioDay = null; }
+    const off = s.dayOff ?? this.off0;
     const DAY = 86400000;
     const from = (M ? M.dayStart() : new Date().setHours(0, 0, 0, 0)) - off * DAY;
     const to = from + DAY;
-    const COLORS = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#F6C343', transit: '#B57BE0' };
-    const NAMES = { walk: 'Walking', run: 'Running', bike: 'Cycling', drive: 'Driving', transit: 'Transit' };
+    const COLORS = { walk: '#2FB457', run: '#E5604F', bike: '#4F7BF0', drive: '#E7A82A', transit: '#8E6BE0' };
+    const NAMES = { walk: 'Walking', run: 'Running', bike: 'Cycling', drive: 'Driving', transit: 'Bus & metro' };
+    const SHORT = { walk: 'Walk', run: 'Run', bike: 'Ride', drive: 'Drive', transit: 'Bus' }, TINT = { walk: 'tw', run: 'tr', bike: 'tb', drive: 'td', transit: 'tt' };
     // On the design canvas there is no data layer: show a sample day.
     const routes = M ? M.route(from, to) : [
-      { id: 'a', mode: 'walk', color: COLORS.walk, start: from + 7.67 * 3600000, end: from + 8.08 * 3600000, points: [[0, 0, from + 7.67 * 3600000], [0, 0, from + 8.08 * 3600000]], distanceM: 2000 },
-      { id: 'b', mode: 'drive', color: COLORS.drive, start: from + 18.17 * 3600000, end: from + 19.07 * 3600000, points: [[0, 0, from + 18.17 * 3600000], [0, 0, from + 19.07 * 3600000]], distanceM: 31800 }
+      { id: 'a', mode: 'walk', color: COLORS.walk, start: from + 7.8 * 3600000, end: from + 8.13 * 3600000, points: [[40.3836, 49.815, from + 7.8 * 3600000], [40.3747, 49.8597, from + 8.13 * 3600000]], distanceM: 1600 },
+      { id: 'b', mode: 'bike', color: COLORS.bike, start: from + 8.33 * 3600000, end: from + 8.95 * 3600000, points: [[40.3747, 49.8597, from + 8.33 * 3600000], [40.3628, 49.8342, from + 8.95 * 3600000]], distanceM: 9100 }
     ];
     const t0 = routes.length ? routes[0].start - 10 * 60000 : from + 6 * 3600000;
     const t1 = routes.length ? routes[routes.length - 1].end + 10 * 60000 : from + 24 * 3600000 - 60000;
@@ -142,30 +140,44 @@ class Component extends DCLogic {
       }, 50);
     };
     const dayLabel = off === 0 ? 'Today' : off === 1 ? 'Yesterday' : new Date(from).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const dateShort = new Date(from).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const movedMs = routes.reduce((a, r) => a + Math.min(r.end, Date.now()) - r.start, 0), totalM = routes.reduce((a, r) => a + r.distanceM, 0);
+    const pl = M ? M.timeline(from).filter((x) => x.kind === 'stay').length : 3;
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    const fmtMin = (m) => (M ? M.fmtMin(m) : Math.floor(m / 60) + 'h ' + Math.round(m % 60) + 'm');
+    const dur = (ms) => { const m = Math.max(1, Math.round(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + ' min'; };
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'Main.dc.html') },
       mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first) requestAnimationFrame(() => this.setState({ ready: true })); },
-      noMapLib: !window.MotioMap,
-      dayLabel, nextOp: off === 0 ? 0.3 : 1,
+      dayLabel: off < 2 ? dayLabel + ', ' + dateShort : dayLabel, nextOp: off === 0 ? 0.3 : 1,
       prevDay: () => { clearInterval(this.timer); this.setState({ dayOff: off + 1, pos: 1000, playing: false }); },
       nextDay: () => { if (off > 0) { clearInterval(this.timer); this.setState({ dayOff: off - 1, pos: 1000, playing: false }); } },
-      empty: !routes.length,
-      emptyHint: off === 0 ? 'Your route draws itself here as you move.' : 'Swipe back a day, or move a little today.',
+      empty: !routes.length, hasTrips: !!routes.length, shareOp: routes.length ? 1 : 0.4,
+      emptyHint: off === 0 ? 'Your route draws itself here as you move.' : 'Go back a day, or move a little today.',
+      movedLabel: off === 0 ? 'Moved today' : 'Moved that day', moved: fmtMin(movedMs / 60000), totalDist: dist(totalM),
+      counts: plural(routes.length, 'trip') + ' · ' + plural(pl, 'place'),
       pos, onScrub: (e) => { clearInterval(this.timer); this.setState({ pos: +e.target.value, playing: false }); },
-      playing: !!s.playing, paused: !s.playing, playLabel: s.playing ? 'Pause' : 'Play the day',
+      playIcon: s.playing ? 'pause' : 'play', playLabel: s.playing ? 'Pause' : 'Play the day',
       togglePlay,
       clock: hhmm(t),
       nowLabel: cur ? NAMES[cur.mode] + ' · ' + (M ? M.fmtSpeed(speed) : Math.round(speed * 3.6) + ' km/h') : 'Not moving',
-      nowColor: cur ? cur.color : '#C9C5EC',
-      nowPulse: cur ? 'motioPulse 1.2s ease-out infinite' : 'none',
+      nowColor: cur ? COLORS[cur.mode] : 'var(--m-faint)',
       sofar: dist(so),
       startLabel: hhmm(t0), endLabel: hhmm(t1),
       chips: routes.map((r) => {
         const on = cur && cur.id === r.id;
-        return { label: hhmm(r.start) + ' · ' + NAMES[r.mode], color: r.color, bg: on ? '#F3F2FA' : '#FFFFFF', border: on ? '#1F1D47' : '#E3E1F3',
+        return { title: SHORT[r.mode] + ' · ' + dist(r.distanceM), sub: hhmm(r.start) + ' · ' + dur(Math.min(r.end, Date.now()) - r.start), tint: TINT[r.mode], ring: on ? 'inset 0 0 0 2px ' + COLORS[r.mode] : 'none',
           go: () => { clearInterval(this.timer); if (this.ctrl) this.ctrl.focus(r.id); this.setState({ playing: false, pos: Math.round((r.start - t0) / (t1 - t0) * 1000) }); } };
-      })
+      }),
+      share: () => {
+        if (!M || !routes.length) return;
+        M.storyImage('trip', { kicker: new Date(from).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }), lead: 'My day', color: COLORS[routes[0].mode],
+          big: dist(totalM), routes, stats: [{ v: fmtMin(movedMs / 60000), k: 'moving' }, { v: String(routes.length), k: routes.length === 1 ? 'trip' : 'trips' }, { v: String(pl), k: pl === 1 ? 'place' : 'places' }] })
+          .then((img) => M.shareImage(img, 'share', 'My day: ' + dist(totalM) + '. Tracked with Motio.'))
+          .then((m) => m && this.toast(m)).catch(() => {});
+      },
+      hasToast: !!s.toast, toast: s.toast || ''
     };
   }
 }
