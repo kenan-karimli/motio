@@ -31,6 +31,13 @@ test('hidden stats, chart, map and name stay out of the card', () => {
   const html = storyHTML('today', D.today, { theme: 'editorial', hide: ['steps', 'chart'], showMap: false, showName: false, name: 'Alex' });
   assert.ok(!html.includes('9,412') && html.includes('9 km'));
   assert.ok(!html.includes('<svg width="100%"') && !html.includes('Walk'));
-  assert.ok(!html.includes('Alex') && html.includes('Tracked with Motio'));
+  assert.ok(!html.includes('Alex') && html.includes('motio.'));
   assert.deepEqual(storyParts('today', D.today).map((p) => p.key), ['distance', 'steps', 'chart']);
+});
+
+test('the five board styles, and old style names still work', () => {
+  assert.deepEqual(Object.keys(THEMES), ['mono', 'glow', 'poster', 'ticket', 'editorial']);
+  assert.match(storyHTML('time', D.time, { theme: 'night' }), /radial-gradient\(90% 60%/); // night → glow
+  assert.match(storyHTML('time', D.time, { theme: 'poster' }), />21h<br>40m</);
+  assert.match(storyHTML('trip', D.trip, { theme: 'mono', h: 360 }), /^<div style="width:360px;height:360px/);
 });

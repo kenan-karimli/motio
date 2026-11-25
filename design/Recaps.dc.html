@@ -119,66 +119,34 @@ button:active,a:active{transform:scale(0.96)}
   </sc-if>
 
   <sc-if value="{{ viewRecaps }}" hint-placeholder-val="{{ false }}">
-  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 12px 0 96px">
-    <div style="display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 8px; scrollbar-width: none">
-      <sc-if value="{{ noCovers }}" hint-placeholder-val="{{ false }}"><div style="flex-shrink: 0; width: 272px; height: 200px; box-sizing: border-box; padding: 20px; border-radius: 30px; background: #2D2A6E; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px"><span style="font-size: 20px; font-weight: 700">Your first recap is on its way</span><span style="font-size: 13px; color: #C9C5EC">Move a little today and it appears here, wrapped into stories.</span></div></sc-if>
-      <sc-for list="{{ covers }}" as="c" hint-placeholder-count="3">
-        <a href="{{ c.href }}" onClick="{{ c.go }}" style="position: relative; flex-shrink: 0; width: 272px; height: 340px; box-sizing: border-box; padding: 18px; border-radius: 30px; background: {{ c.bg }}; color: {{ c.fg }}; text-decoration: none; scroll-snap-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 16px 30px rgba(0,0,0,0.3); animation: motioCoverIn 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ c.delay }}">
-          <svg aria-hidden="true" width="272" height="340" viewBox="0 0 272 340" style="position: absolute; left: 0; top: 0"><circle cx="220" cy="250" r="120" fill="{{ c.blob }}"></circle><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.road }}" stroke-width="22" stroke-linecap="round"></path><path d="M-10 300 C 60 240, 120 320, 200 260 S 290 220, 300 200" fill="none" stroke="{{ c.fg }}" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 9"></path></svg>
-          <div style="position: relative; display: flex; justify-content: space-between; align-items: center"><span style="padding: 4px 10px; border-radius: 10px; background: rgba(255,255,255,0.85); color: #1F1D47; font-size: 11px; font-weight: 700">{{ c.tag }}</span><sc-if value="{{ c.isNew }}" hint-placeholder-val="{{ false }}"><span style="width: 10px; height: 10px; border-radius: 5px; background: #F2766B; box-shadow: 0 0 0 3px rgba(255,255,255,0.7)"></span></sc-if></div>
-          <div style="position: relative; display: flex; flex-direction: column; gap: 2px">
-            <span style="font-size: 14px; font-weight: 600; opacity: 0.85">{{ c.kicker }}</span>
-            <span style="font-size: 54px; font-weight: 700; line-height: 1; letter-spacing: -2px">{{ c.big }}</span>
-            <span style="font-size: 22px; font-weight: 600; line-height: 1.15">{{ c.title }}</span>
-          </div>
-          <span style="position: relative; align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600"><span style="width: 28px; height: 28px; border-radius: 14px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="#1F1D47"></path></svg></span>Play</span>
-        </a>
-      </sc-for>
-    </div>
+  <div class="motio-scroll motio-rc" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; padding: 12px 20px 110px">
+    <a class="m-card dark m-in" href="{{ yearLink.href }}" onClick="{{ yearLink.go }}" aria-label="{{ yearAria }}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 20px; text-decoration: none">
+      <span class="m-label">{{ yearTag }}</span>
+      <span class="m-h2" style="font-size: 28px">{{ yearLabel }} in motion.</span>
+      <span class="m-sub" style="max-width: 190px">Your year in a few slides: distance, time, your big day.</span>
+      <span class="m-chip" style="align-self: flex-start">{{ yearCta }}</span>
+      <span aria-hidden="true" style="position: absolute; right: -10px; bottom: -4px; opacity: 0.95"><tuli-fox pose="run" size="140"></tuli-fox></span>
+    </a>
 
-    <div role="region" aria-label="Daily recaps" style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
-      <div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Daily recaps</h2><span style="font-size: 12px; color: #C9C5EC">last 7 days</span></div>
-      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
-        <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
-          <a href="{{ d.href }}" onClick="{{ d.go }}" aria-label="{{ d.aria }}" style="height: 84px; border-radius: 16px; background: {{ d.fill }}; color: {{ d.fg }}; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 0; box-sizing: border-box; border: 2px solid {{ d.ring }}">
-            <span style="font-size: 11px; font-weight: 600; opacity: 0.8">{{ d.label }}</span>
-            <span style="font-size: 17px; font-weight: 700">{{ d.num }}</span>
-            <span style="font-size: 10px; font-weight: 600; opacity: 0.85">{{ d.dist }}</span>
+    <sc-if value="{{ noRecaps }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 6px; padding: 20px"><span class="m-h3">Your first recap is on its way.</span><span class="m-sub">Move a little today and it appears here, wrapped into a story.</span></div>
+    </sc-if>
+    <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" role="list" aria-label="Recaps" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+          <a class="m-row" role="listitem" href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}" style="text-decoration: none; color: inherit">
+            <span aria-hidden="true" style="width: 40px; height: 52px; flex-shrink: 0; border-radius: 10px; background: {{ r.tileBg }}; color: {{ r.tileFg }}; display: flex; align-items: center; justify-content: center; font: 600 11px var(--m-font)">{{ r.tag }}</span>
+            <span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ r.title }}</b><div class="m-sub" style="font-size: 12px">{{ r.sub }}</div></span>
+            <sc-if value="{{ r.isNew }}" hint-placeholder-val="{{ false }}"><i aria-hidden="true" style="width: 8px; height: 8px; border-radius: 4px; background: var(--m-accent)"></i></sc-if>
           </a>
         </sc-for>
       </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 20px">
-      <a href="{{ LK.insights.href }}" onClick="{{ LK.insights.go }}" style="position: relative; overflow: hidden; height: 120px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
-        <span aria-hidden="true" style="position: absolute; right: 12px; top: 14px; display: flex; align-items: flex-end; gap: 3px; height: 30px"><span style="width: 6px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.35)"></span><span style="width: 6px; height: 28px; border-radius: 2px; background: #F6C343"></span><span style="width: 6px; height: 18px; border-radius: 2px; background: rgba(255,255,255,0.35)"></span></span>
-        <span style="font-size: 12px; color: #C9C5EC">Insights</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ insightLine }}</span>
-      </a>
-      <a href="{{ memo.href }}" onClick="{{ memo.go }}" style="position: relative; overflow: hidden; height: 120px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #2D2A6E; color: #FFFFFF; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
-        <span aria-hidden="true" style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border-radius: 15px; background: {{ memo.dot }}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path></svg></span>
-        <span style="font-size: 12px; color: #C9C5EC">On this day</span><span style="font-size: 15px; font-weight: 700; line-height: 1.25">{{ memo.line }}</span>
-      </a>
-    </div>
-
-    <sc-if value="{{ hasPast }}" hint-placeholder-val="{{ true }}">
-    <div role="region" aria-label="Past weeks" style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Past weeks</h2><span style="font-size: 12px; color: #C9C5EC">{{ pastCount }}</span></div>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
-        <sc-for list="{{ past }}" as="w" hint-placeholder-count="4">
-          <a href="{{ w.href }}" onClick="{{ w.go }}" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 22px; background: {{ w.bg }}; color: #1F1D47; text-decoration: none; animation: motioCoverIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ w.delay }}">
-            <span style="font-size: 12px; font-weight: 700">{{ w.range }}</span>
-            <span style="display: flex; align-items: flex-end; gap: 3px; height: 30px"><sc-for list="{{ w.bars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; height: {{ b }}; border-radius: 3px; background: #1F1D47; opacity: 0.8"></span></sc-for></span>
-            <span style="display: flex; justify-content: space-between; font-size: 12px"><b>{{ w.km }}</b><span>{{ w.note }}</span></span>
-          </a>
-        </sc-for>
-      </div>
-    </div>
     </sc-if>
 
-    <a href="{{ yearLink.href }}" onClick="{{ yearLink.go }}" style="text-decoration: none; color: #FFFFFF; margin: 0 20px; padding: 18px; border-radius: 26px; background: #2D2A6E; display: flex; align-items: center; gap: 14px">
-      <span style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; background: #F6C343; color: #1F1D47; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ yearDays }}d</span>
-      <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">{{ yearLabel }}, wrapped</span><span style="font-size: 12px; color: #C9C5EC">Your year in motion so far: routes, totals, personality</span></span>
-    </a>
+    <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <a class="m-row" href="{{ LK.insights.href }}" onClick="{{ LK.insights.go }}" style="text-decoration: none; color: inherit"><span style="flex: 1; min-width: 0"><span class="m-label">Insights</span><div style="font-size: 14px; font-weight: 600; margin-top: 2px">{{ insightLine }}</div></span><m-ic n="chev"></m-ic></a>
+      <a class="m-row" href="{{ memo.href }}" onClick="{{ memo.go }}" style="text-decoration: none; color: inherit"><span style="flex: 1; min-width: 0"><span class="m-label">On this day</span><div style="font-size: 14px; font-weight: 600; margin-top: 2px">{{ memo.line }}</div></span><m-ic n="chev"></m-ic></a>
+    </div>
   </div>
   </sc-if>
 
@@ -390,10 +358,11 @@ class Component extends DCLogic {
     return { viewFriends: v === 'friends', viewRecaps: v === 'recaps', segX: v === 'friends' ? '0px' : '100%',
       segs: [['friends', 'Friends'], ['recaps', 'Recaps']].map(([k, label]) => ({ label, on: k === v, cls: k === v ? 'on' : '', pick: pick(k), hasBadge: k === 'friends' && n > 0, badge: String(n) })) };
   }
-  // Covers, the last seven days and past weeks from your real trips. Each link says which period the story shows.
+  // Every recap you can open, newest first: the last seven days, this and the last four weeks, this and the last
+  // two months, all from your real trips. Each link says which period the story shows.
   liveVals(L) {
     const M = window.Motio;
-    const now = Date.now(), today = M.dayStart(), unit = M.settings().unit === 'mi' ? 'mi' : 'km';
+    const now = Date.now(), today = M.dayStart(), goal = M.settings().goalMin || 180;
     // A recap is "new" until it has been opened (per period: this week, this month, today).
     let seen = {};
     try { seen = JSON.parse(window.localStorage.getItem('motio.seenRecaps') || '{}'); } catch (e) { /* storage blocked */ }
@@ -404,34 +373,38 @@ class Component extends DCLogic {
       l.go(e);
     } }; };
     const short = (t, o) => new Date(t).toLocaleDateString('en-GB', o);
-    const span = (a, b) => { const same = new Date(a).getMonth() === new Date(b).getMonth(); return short(a, same ? { day: 'numeric' } : { day: 'numeric', month: 'short' }) + '–' + short(b, { day: 'numeric', month: 'short' }); };
-    const distNum = (m) => M.fmtNum(unit === 'mi' ? m / 1609.34 : m / 1000);
-    const w0 = M.weekStart(now), wk = M.summarize(w0, w0 + 7 * M.DAY), mon = M.range('month'), td = M.today();
-    const monthName = short(now, { month: 'long' });
-    const covers = [
-      ['THIS WEEK', span(w0, Math.min(now, w0 + 6 * M.DAY)), M.fmtDist(wk.m), wk.ms ? 'Your week, wrapped' : 'Your week starts here', '#3DBF5C', '#1F1D47', '#52CC6E', '#2FA84D', 'recap', 'Recap.dc.html', wk.ms > 0, { kind: 'week', from: w0 }],
-      [monthName.toUpperCase(), 'Month in motion', distNum(mon.m), (unit === 'mi' ? 'miles' : 'kilometres') + ' in ' + monthName, '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', mon.ms > 0, { kind: 'month', from: M.monthStart(now) }],
-      ['TODAY', short(now, { weekday: 'long' }), M.fmtMin(td.min), 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false, { kind: 'day', from: today }]
-    ].filter((c, k) => [wk.min >= 1, mon.min >= 1, td.min >= 1][k]) // no recap for a period you didn't move in
-      .map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew, period], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew: isNew && !seen[seenKey(period)], delay: i * 80 + 'ms', ...to(t, f, period) }));
-    const days = Array.from({ length: 7 }, (_, k) => {
-      const d = today - (6 - k) * M.DAY, x = M.summarize(d, d + M.DAY), moved = x.min >= 1, fresh = k >= 5 && moved;
-      const off = { href: '#', go: (e) => { if (e && e.preventDefault) e.preventDefault(); } };
-      return { label: short(d, { weekday: 'short' }), num: new Date(d).getDate(), dist: moved ? M.fmtDist(x.m).replace(' ', '') : '—', fg: moved ? '#1F1D47' : 'rgba(255,255,255,0.4)', aria: moved ? 'Recap for ' + short(d, { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + M.fmtDist(x.m) : short(d, { weekday: 'long' }) + ': no moves, no recap',
-        ring: k === 6 ? '#F6C343' : 'transparent', fill: fresh ? '#FFFFFF' : moved ? '#C9C5EC' : 'rgba(255,255,255,0.06)', labelColor: moved ? (fresh ? '#FFFFFF' : '#C9C5EC') : 'rgba(255,255,255,0.35)',
-        ...(moved ? to('recap', 'Recap.dc.html', { kind: 'day', from: d }) : off) };
-    });
-    const notes = { walk: 'most on foot', run: 'running week', bike: 'pedal power', drive: 'road week', transit: 'transit week' };
-    const colors = ['#B57BE0', '#6E8CF7', '#F2766B', '#F6C343'];
-    const past = [];
-    for (let k = 1; k <= 4; k++) {
-      const a = w0 - k * 7 * M.DAY, x = M.summarize(a, a + 7 * M.DAY);
-      if (!x.ms) continue;
-      const ds = M.days(a, 7), mx = Math.max(1, ...ds.map((d) => d.min));
-      past.push({ range: span(a, a + 6 * M.DAY), km: M.fmtDist(x.m), note: notes[x.modes[0].key], bg: colors[(k - 1) % 4], bars: ds.map((d) => Math.max(4, Math.round(d.min / mx * 100)) + '%'), delay: 200 + past.length * 60 + 'ms', ...to('recap', 'Recap.dc.html', { kind: 'week', from: a }) });
+    const rows = [];
+    const add = (kind, from, x, title, sub, canBeNew) => {
+      const period = { kind, from }, isNew = canBeNew && !seen[seenKey(period)];
+      rows.push({ from, k: { day: 0, week: 1, month: 2 }[kind], tag: { day: 'DAY', week: 'WK', month: 'MO' }[kind], title, sub, isNew,
+        tileBg: isNew ? 'var(--m-ink)' : 'var(--m-card)', tileFg: isNew ? 'var(--m-bg-hi)' : 'var(--m-ink)', aria: title + ', ' + sub + (isNew ? ', new' : ''),
+        ...(kind === 'month' ? to('month', 'MonthRecap.dc.html', period) : to('recap', 'Recap.dc.html', period)) });
+    };
+    for (let k = 0; k < 7; k++) {
+      const d = today - k * M.DAY, x = M.summarize(d, d + M.DAY);
+      if (x.min < 1) continue; // no recap for a day you didn't move
+      const name = short(d, { weekday: 'short', day: 'numeric', month: 'short' });
+      add('day', d, x, k === 0 ? 'Today · ' + name : k === 1 ? 'Yesterday · ' + name : name, M.fmtMin(x.min) + ' · ' + M.fmtDist(x.m), k === 0);
     }
-    const dec1 = new Date(new Date(now).getFullYear(), 11, 1).getTime();
-    return { covers, days, past, hasPast: past.length > 0, pastCount: past.length ? past.length + (past.length === 1 ? ' week' : ' weeks') : 'none yet', unseen: covers.filter((c) => c.isNew).length, yearLabel: new Date(now).getFullYear(), yearLink: (() => { const l = L('recap', 'Recap.dc.html'); return { href: l.href, go: (e) => { window.__motioRecap = { kind: 'year', from: new Date(new Date(now).getFullYear(), 0, 1).getTime() }; l.go(e); } }; })(), yearDays: Math.max(0, Math.ceil((dec1 - now) / M.DAY)) };
+    const w0 = M.weekStart(now);
+    for (let k = 0; k <= 4; k++) {
+      const a = w0 - k * 7 * M.DAY, x = M.summarize(a, a + 7 * M.DAY);
+      if (x.min < 1) continue;
+      const ds = M.days(a, 7).filter((d) => d.from <= now), hit = ds.filter((d) => d.min >= goal).length;
+      add('week', a, x, k === 0 ? 'This week' : 'Week of ' + short(a, { day: 'numeric', month: 'short' }), M.fmtMin(x.min) + ' · on goal ' + hit + ' of ' + (k === 0 ? ds.length : 7), k === 0);
+    }
+    const m0 = new Date(M.monthStart(now));
+    for (let k = 0; k <= 2; k++) {
+      const a = new Date(m0.getFullYear(), m0.getMonth() - k, 1).getTime(), b = new Date(m0.getFullYear(), m0.getMonth() - k + 1, 1).getTime(), x = M.summarize(a, b);
+      if (x.min < 1) continue;
+      add('month', a, x, short(a, { month: 'long' }) + (k === 0 ? ' so far' : ''), M.fmtMin(x.min) + ' · ' + M.fmtDist(x.m), k === 0);
+    }
+    rows.sort((p, q) => q.from - p.from || p.k - q.k);
+    const Y = new Date(now).getFullYear(), dec1 = new Date(Y, 11, 1).getTime(), yearDays = Math.max(0, Math.ceil((dec1 - now) / M.DAY));
+    return { rows, hasRows: rows.length > 0, noRecaps: rows.length === 0, unseen: rows.filter((r) => r.isNew).length, yearLabel: Y, yearDays,
+      yearTag: yearDays > 0 ? 'New · ready from 1 Dec' : 'New · ready now', yearCta: yearDays > 0 ? 'Preview' : 'Play',
+      yearAria: Y + ' in motion, ' + (yearDays > 0 ? 'preview' : 'play'),
+      yearLink: (() => { const l = L('recap', 'Recap.dc.html'); return { href: l.href, go: (e) => { window.__motioRecap = { kind: 'year', from: new Date(Y, 0, 1).getTime() }; l.go(e); } }; })() };
   }
   renderVals() {
     if (this.entryAnim === undefined) {
@@ -459,27 +432,16 @@ class Component extends DCLogic {
     }
     return { ...(() => {
         const L = (t, f) => lk(t, f);
-        const covers = [
-          ['THIS WEEK', 'Oct 25–31', '412 km', 'Your week, wrapped', '#3DBF5C', '#1F1D47', '#52CC6E', '#2FA84D', 'recap', 'Recap.dc.html', true],
-          ['OCTOBER', 'Month in motion', '1,780', 'kilometres in October', '#F6C343', '#1F1D47', '#F8D06A', '#E0A92C', 'month', 'MonthRecap.dc.html', true],
-          ['TODAY', 'Saturday', '3h 12m', 'on the move', '#F2766B', '#1F1D47', '#F58C83', '#D9534A', 'recap', 'Recap.dc.html', false]
-        ].map(([tag, kicker, big, title, bg, fg, blob, road, t, f, isNew], i) => ({ tag, kicker, big, title, bg, fg, blob, road, isNew, delay: i * 80 + 'ms', ...L(t, f) }));
-        const dayKm = [37, 52, 48, 61, 96, 58, 60];
-        const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, i) => {
-          const fresh = i >= 5;
-          return { label, num: 25 + i, dist: dayKm[i] + 'km', fg: '#1F1D47', aria: 'Recap for Oct ' + (25 + i) + ', ' + dayKm[i] + ' km',
-            ring: i === 6 ? '#F6C343' : 'transparent', fill: fresh ? '#FFFFFF' : '#C9C5EC', labelColor: fresh ? '#FFFFFF' : '#C9C5EC', ...L('recap', 'Recap.dc.html') };
-        });
-        const past = [['Oct 18–24', '386 km', 'busy Tuesday', '#B57BE0', [50, 70, 100, 60, 55, 80, 40]], ['Oct 11–17', '402 km', 'steps record', '#6E8CF7', [60, 50, 70, 80, 100, 65, 55]], ['Oct 4–10', '371 km', 'most on foot', '#F2766B', [40, 60, 55, 100, 70, 50, 60]], ['Sep 27–Oct 3', '344 km', 'rainy week', '#F6C343', [70, 40, 50, 60, 100, 45, 30]]]
-          .map(([range, km, note, bg, bars], i) => ({ range, km, note, bg, bars: bars.map((b) => b + '%'), delay: 200 + i * 60 + 'ms', ...L('recap', 'Recap.dc.html') }));
         if (window.Motio) return this.liveVals(L);
-        return { covers, days, past, hasPast: true, pastCount: past.length + ' weeks', unseen: 2, yearLabel: 2026, yearDays: 29, yearLink: { href: 'Recap.dc.html', go: () => {} } };
+        const rows = [['DAY', 'Today · Tue 24 Nov', '1h 20m · 16.2 km', true], ['WK', 'Week of 16 Nov', '12h 10m · on goal 6 of 7'], ['MO', 'October', '58h 02m · 461 km'], ['WK', 'Week of 9 Nov', '11h 48m · on goal 5 of 7'], ['MO', 'September', '61h 30m · 461 km']]
+          .map(([tag, title, sub, isNew]) => ({ tag, title, sub, isNew: !!isNew, tileBg: isNew ? 'var(--m-ink)' : 'var(--m-card)', tileFg: isNew ? 'var(--m-bg-hi)' : 'var(--m-ink)', aria: title, ...L('recap', 'Recap.dc.html') }));
+        return { rows, hasRows: true, noRecaps: false, unseen: 1, yearLabel: 2026, yearDays: 6, yearTag: 'New · ready from 1 Dec', yearCta: 'Preview', yearAria: '2026 in motion, preview', yearLink: { href: 'Recap.dc.html', go: () => {} } };
       })(), ...this.socialVals((t, f) => lk(t, f)), ...this.segVals(),
       hubTiles: [['feed', 'Feed.dc.html', 'Feed', 'Trips friends posted', '#F6C343', '#1F1D47', 'M4 5h16M4 12h16M4 19h10'],
         ['challenges', 'Challenges.dc.html', 'Challenges', 'Badges to earn', '#6E8CF7', '#FFFFFF', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3'],
         ['leaderboard', 'Leaderboard.dc.html', 'Everyone', 'Weekly leaderboard', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M5 20V12M10 20V6M15 20v-9M20 20V9'],
         ['clubs', 'Clubs.dc.html', 'Clubs', 'Run with your crew', 'rgba(255,255,255,0.1)', '#FFFFFF', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 5.2a3.5 3.5 0 0 1 0 6.6M18 15c2 .6 3.2 2.2 3.8 5']]
-        .map(([t, f, title, sub, bg, fg, icon], i) => ({ ...lk(t, f), title, sub, bg, fg, icon, d: i * 60 + 'ms' })), noCovers: !!window.Motio && !this.liveVals((t, f) => lk(t, f)).covers.length, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html'), inbox: lk('inbox', 'Inbox.dc.html'), messages: lk('messages', 'Messages.dc.html') }, bellDot: !!(window.Motio && window.Motio.inbox && window.Motio.inbox.unread() > 0), navFrom: this.navFrom };
+        .map(([t, f, title, sub, bg, fg, icon], i) => ({ ...lk(t, f), title, sub, bg, fg, icon, d: i * 60 + 'ms' })), rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, standalone: !emb, LK: { k0: lk('recap', 'Recap.dc.html'), month: lk('month', 'MonthRecap.dc.html'), friends: lk('friends', 'Friends.dc.html'), feed: lk('feed', 'Feed.dc.html'), challenges: lk('challenges', 'Challenges.dc.html'), insights: lk('insights', 'Insights.dc.html'), inbox: lk('inbox', 'Inbox.dc.html'), messages: lk('messages', 'Messages.dc.html') }, bellDot: !!(window.Motio && window.Motio.inbox && window.Motio.inbox.unread() > 0), navFrom: this.navFrom };
   }
 }
 </script>
