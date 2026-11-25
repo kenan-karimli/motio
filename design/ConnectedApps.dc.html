@@ -34,63 +34,48 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #6E8CF7; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Connected apps</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">connected apps.</h1></div></div>
 
-  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700">Connected apps</h1>
-  </div>
-
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; background: transparent; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 18px">
-    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #4A4770">{{ intro }}</p>
-
-    <div style="display: flex; flex-direction: column; gap: 10px">
-      <sc-for list="{{ apps }}" as="a" hint-placeholder-count="5">
-        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; background: #F6F5FC; animation: motioRowIn 360ms ease-out backwards; animation-delay: {{ a.delay }}">
-          <span style="width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0; background: {{ a.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ a.glyph }}"></path></svg></span>
-          <span style="flex: 1; display: flex; flex-direction: column; min-width: 0"><span style="font-size: 14px; font-weight: 600">{{ a.name }}</span><span style="font-size: 12px; color: #6B6890">{{ a.status }}</span></span>
-          <button onClick="{{ a.toggle }}" aria-label="{{ a.aria }}" style="min-width: 108px; height: 40px; padding: 0 14px; border-radius: 20px; border: {{ a.border }}; background: {{ a.bg }}; color: {{ a.fg }}; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px">
-            <sc-if value="{{ a.busy }}" hint-placeholder-val="{{ false }}"><span style="width: 14px; height: 14px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #FFFFFF; animation: motioSpin 700ms linear infinite"></span></sc-if>
-            <sc-if value="{{ a.done }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E7A36" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)"><path d="M5 12l5 5 9-10"></path></svg></sc-if>
-            {{ a.label }}
-          </button>
-        </div>
-      </sc-for>
+    <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 14px; padding: 18px">
+      <div style="display: flex; align-items: center; gap: 12px"><span style="width: 48px; height: 48px; border-radius: 16px; background: var(--m-soft); display: flex; align-items: center; justify-content: center; color: var(--m-run); flex-shrink: 0"><m-ic n="heart" s="22"></m-ic></span><span style="flex: 1; min-width: 0"><b style="font-size: 15px">Health Connect</b><div class="m-sub" style="font-size: 12px; display: flex; align-items: center; gap: 5px"><sc-if value="{{ hc.on }}" hint-placeholder-val="{{ true }}"><i style="width: 7px; height: 7px; border-radius: 4px; background: var(--m-ok); flex-shrink: 0"></i></sc-if>{{ hc.status }}</div></span></div>
+      <sc-if value="{{ hc.usable }}" hint-placeholder-val="{{ true }}">
+        <div class="m-row"><span style="flex: 1; font-size: 14px">Read steps</span><button type="button" role="switch" class="m-toggle {{ hc.readCls }}" aria-checked="{{ hc.read }}" aria-label="Read steps" onClick="{{ hc.toggle }}"></button></div>
+        <div class="m-row"><span style="flex: 1; font-size: 14px">Write workouts</span><button type="button" role="switch" class="m-toggle {{ hc.cls }}" aria-checked="{{ hc.on }}" aria-label="Write workouts" onClick="{{ hc.toggle }}"></button></div>
+      </sc-if>
     </div>
 
-    <section style="display: flex; flex-direction: column; gap: 10px">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Bring in and send out</h2>
-      <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; background: #F6F5FC">
-        <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #3DBF5C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg></span>
-        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Import GPX files</span><span style="font-size: 12px; color: #6B6890">From Strava, Garmin, Komoot or any app's export</span></span>
-        <label style="position: relative; min-width: 84px; height: 40px; padding: 0 14px; box-sizing: border-box; border-radius: 20px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer">Choose<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple onChange="{{ onGpx }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer"></label>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 20px; background: #F6F5FC">
-        <div style="display: flex; align-items: center; gap: 12px">
-          <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #5B4FE0; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 1 0-5.6l3-3a4 4 0 0 1 5.6 5.6l-1.5 1.5M14 10a4 4 0 0 1 0 5.6l-3 3a4 4 0 0 1-5.6-5.6l1.5-1.5"></path></svg></span>
-          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Webhooks</span><span style="font-size: 12px; color: #6B6890">{{ hookStatus }}</span></span>
-        </div>
-        <input type="url" inputmode="url" value="{{ hookUrl }}" onChange="{{ onHook }}" placeholder="https://… (IFTTT, Zapier, Make, Home Assistant)" aria-label="Webhook address" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 13px">
-        <div style="display: flex; gap: 8px">
-          <button type="button" onClick="{{ saveHook }}" style="flex: 1; height: 40px; border: 0; border-radius: 20px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600">{{ hookSaveLabel }}</button>
-          <button type="button" onClick="{{ testHook }}" style="flex: 1; height: 40px; border: 2px solid #E3E1F3; border-radius: 20px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600">Send a test</button>
-        </div>
-      </div>
-    </section>
+    <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px">
+      <div style="display: flex; align-items: center; gap: 12px"><span style="width: 48px; height: 48px; border-radius: 16px; background: var(--m-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><m-ic n="activity" s="22"></m-ic></span><span style="flex: 1; min-width: 0"><b style="font-size: 15px">Strava</b><div class="m-sub" style="font-size: 12px; display: flex; align-items: center; gap: 5px"><sc-if value="{{ sv.on }}" hint-placeholder-val="{{ false }}"><i style="width: 7px; height: 7px; border-radius: 4px; background: var(--m-ok); flex-shrink: 0"></i></sc-if>{{ sv.status }}</div></span><button type="button" class="m-chip {{ sv.cls }}" onClick="{{ sv.toggle }}" aria-label="{{ sv.aria }}" style="height: 36px; flex-shrink: 0; background: {{ sv.bg }}">{{ sv.label }}</button></div>
+      <sc-if value="{{ sv.on }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ switches }}" as="t" hint-placeholder-count="2"><div class="m-row"><span style="flex: 1; min-width: 0"><span style="font-size: 14px">{{ t.label }}</span><div class="m-sub" style="font-size: 12px">{{ t.hint }}</div></span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
+      </sc-if>
+    </div>
 
-    <section style="display: flex; flex-direction: column; padding-top: 14px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Sync</h2>
-      <sc-for list="{{ switches }}" as="t" hint-placeholder-count="2">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 52px">
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ t.label }}</span><span style="font-size: 12px; color: #6B6890">{{ t.hint }}</span></span>
-          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" class="m-toggle"></button>
-        </div>
-      </sc-for>
-    </section>
+    <sc-if value="{{ hasPartners }}" hint-placeholder-val="{{ true }}">
+      <span class="m-label" style="margin: 4px 4px 0">Works through Health Connect</span>
+      <div class="m-card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+        <sc-for list="{{ partners }}" as="a" hint-placeholder-count="4">
+          <div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ a.name }}</b><div class="m-sub" style="font-size: 12px">{{ a.status }}</div></span><button type="button" class="m-chip {{ a.cls }}" onClick="{{ a.toggle }}" aria-label="{{ a.aria }}" style="height: 32px; font-size: 12px; flex-shrink: 0; background: {{ a.bg }}">{{ a.label }}</button></div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <span class="m-label" style="margin: 4px 4px 0">Bring in and send out</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 10px; padding: 12px">
+      <div class="m-row" style="background: transparent; padding: 6px"><m-ic n="download" s="18"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Import GPX files</b><div class="m-sub" style="font-size: 12px">From Strava, Garmin, Komoot or any app’s export</div></span><label class="m-chip on" style="position: relative; height: 32px; font-size: 12px; flex-shrink: 0; cursor: pointer">Choose<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple onChange="{{ onGpx }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer"></label></div>
+      <div class="m-row" style="background: transparent; padding: 6px"><m-ic n="link" s="18"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Webhooks</b><div class="m-sub" style="font-size: 12px">{{ hookStatus }}</div></span></div>
+      <input type="url" inputmode="url" value="{{ hookUrl }}" onChange="{{ onHook }}" placeholder="https://… (IFTTT, Zapier, Make, Home Assistant)" aria-label="Webhook address" class="input" style="border: 0; outline: 0; width: 100%; background: var(--m-soft); height: 48px; font-size: 13px">
+      <div style="display: flex; gap: 8px"><button type="button" class="m-btn" onClick="{{ saveHook }}" style="flex: 1; height: 44px; font-size: 14px">{{ hookSaveLabel }}</button><button type="button" class="m-btn w" onClick="{{ testHook }}" style="flex: 1; height: 44px; font-size: 14px; background: var(--m-soft)">Send a test</button></div>
+    </div>
+
+    <span class="m-sub" style="padding: 0 6px">Motio never sells your data. Disconnecting stops new syncs; nothing already sent is changed. Drives and transit stay in Motio.</span>
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 30; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 30; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -244,9 +229,9 @@ class Component extends DCLogic {
     const apps = list.map(([key, name, color, glyph, on, status], i) => {
       const isBusy = busy === key, done = justDone === key;
       const get = key.startsWith('g:'), soon = key === 'strava' && M && s.sv && !s.sv.configured && !s.sv.offline;
-      if (get || soon) return { name, color, glyph, delay: i * 60 + 'ms', status, busy: false, done: false, label: get ? 'Get' : 'Soon', aria: (get ? 'Get ' : 'Coming soon: ') + name, bg: '#FFFFFF', fg: soon ? '#9A97B8' : '#1F1D47', border: '2px solid #E3E1F3', toggle: get ? toggle(key, name, false) : () => this.showToast('Strava connection is coming soon') };
+      if (get || soon) return { key, on: false, name, color, glyph, delay: i * 60 + 'ms', status, busy: false, done: false, label: get ? 'Get' : 'Soon', aria: (get ? 'Get ' : 'Coming soon: ') + name, bg: '#FFFFFF', fg: soon ? '#9A97B8' : '#1F1D47', border: '2px solid #E3E1F3', toggle: get ? toggle(key, name, false) : () => this.showToast('Strava connection is coming soon') };
       return {
-        name, color, glyph, delay: i * 60 + 'ms',
+        key, on, name, color, glyph, delay: i * 60 + 'ms',
         status: isBusy ? 'Connecting…' : status,
         busy: isBusy, done: done && on,
         label: isBusy ? 'Connecting' : key.startsWith('p:') ? (on ? 'Open' : 'Connect') : on ? (done ? 'Connected' : 'Disconnect') : 'Connect',
@@ -259,12 +244,21 @@ class Component extends DCLogic {
     });
     const sw = (key, label, hint, def) => {
       const on = (M ? M.settings()[key] : s[key]) ?? def;
-      return { label, hint, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => (M ? M.setSetting(key, !on) : this.setState({ [key]: !on })) };
+      return { label, hint, on, cls: on ? 'on' : '', bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => (M ? M.setSetting(key, !on) : this.setState({ [key]: !on })) };
     };
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
       emb, LK: { back: lk('back', 'Settings.dc.html') },
-      apps,
+      ...(() => {
+        const H = apps.find((a) => a.key === 'health') || {}, V = apps.find((a) => a.key === 'strava') || {};
+        const partners = apps.filter((a) => /^[pg]:/.test(a.key)).map((a) => ({ ...a, cls: a.label === 'Connect' ? 'on' : '', bg: a.label === 'Connect' ? '' : 'var(--m-soft)' }));
+        const read = !!H.on && (!M || !!(s.hc && s.hc.readSteps));
+        return {
+          hc: { on: !!H.on, cls: H.on ? 'on' : '', read, readCls: read ? 'on' : '', status: H.status, usable: !M || !!(s.hc && s.hc.available), toggle: H.toggle },
+          sv: { on: !!V.on, status: V.status, label: V.label, aria: V.aria, cls: V.on || V.label === 'Soon' ? '' : 'on', bg: V.on || V.label === 'Soon' ? 'var(--m-soft)' : '', toggle: V.toggle },
+          partners, hasPartners: partners.length > 0
+        };
+      })(),
       intro: 'Send your walks, runs and rides to the apps you already use. Drives and transit stay in Motio.',
       syncNow,
       // GPX files become trips; the file's own activity type is used when it has one.

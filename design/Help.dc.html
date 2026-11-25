@@ -35,67 +35,42 @@ input:focus,textarea:focus{outline:none;border-color:#5B4FE0 !important}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F2766B; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Help</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">help.</h1></div></div>
+    <label class="input m-in" style="cursor: text"><m-ic n="search" s="18"></m-ic><input value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search help" aria-label="Search help" style="flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: inherit; font: 500 15px var(--m-font)"></label>
 
-  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700">Help &amp; feedback</h1>
-  </div>
-
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; background: transparent; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 18px">
-
-    <label style="position: relative; display: block">
-      <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search help</span>
-      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.4" stroke-linecap="round" style="position: absolute; left: 16px; top: 15px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-      <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search: battery, steps, export…" style="width: 100%; height: 48px; box-sizing: border-box; padding: 0 16px 0 44px; border-radius: 24px; border: 0; background: var(--m-card); color: #1F1D47; font-size: 14px">
-    </label>
-
-    <section style="display: flex; flex-direction: column; gap: 8px">
-      <h2 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Common questions</h2>
-      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
-        <div style="border-radius: 18px; background: #F6F5FC; overflow: hidden">
-          <button aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; background: transparent; color: #1F1D47; font-size: 14px; font-weight: 600; text-align: left">
-            <span style="flex: 1">{{ q.title }}</span>
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{ q.rot }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"><path d="M6 9l6 6 6-6"></path></svg>
-          </button>
-          <div style="display: grid; grid-template-rows: {{ q.rows }}; transition: grid-template-rows 360ms cubic-bezier(0.22, 1, 0.36, 1)">
-            <div style="overflow: hidden"><p style="margin: 0; padding: 0 14px 14px; font-size: 13px; line-height: 1.55; color: #4A4770">{{ q.body }}</p></div>
-          </div>
+    <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="4">
+        <div>
+          <button type="button" class="m-row" aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width: 100%; background: transparent; border: 0; color: inherit; text-align: left"><span style="flex: 1; font-size: 14px; font-weight: 600">{{ q.title }}</span><span style="display: inline-flex; transform: rotate({{ q.rot }}); transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1)"><m-ic n="chev" s="16"></m-ic></span></button>
+          <div style="display: grid; grid-template-rows: {{ q.rows }}; transition: grid-template-rows 360ms cubic-bezier(0.22, 1, 0.36, 1)"><div style="overflow: hidden"><p class="m-sub" style="margin: 0; padding: 0 14px 12px; font-size: 13px">{{ q.body }}</p></div></div>
         </div>
       </sc-for>
-      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
-        <span style="padding: 14px; border-radius: 18px; background: #F6F5FC; font-size: 13px; color: #4A4770">Nothing matches “{{ query }}”. Ask us below and we’ll get back to you.</span>
-      </sc-if>
-    </section>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="padding: 12px 14px">Nothing matches “{{ query }}”. Ask us below and we’ll get back to you.</span></sc-if>
+    </div>
 
-    <section style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Send feedback</h2>
-      <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
-        <div style="display: flex; flex-direction: column; gap: 10px">
-          <div style="display: flex; gap: 8px">
-            <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3">
-              <button aria-pressed="{{ k.on }}" onClick="{{ k.pick }}" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: {{ k.fg }}; font-size: 12px; font-weight: 600">{{ k.label }}</button>
-            </sc-for>
-          </div>
-          <label class="field"><span class="m-label">Your message</span>
-            <textarea rows="4" value="{{ message }}" onChange="{{ onMessage }}" placeholder="Tell us what happened or what you’d love to see…" style="box-sizing: border-box; padding: 12px 14px; border-radius: 16px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px; font-weight: 400; resize: none"></textarea>
-          </label>
-          <button onClick="{{ send }}" aria-disabled="{{ cantSend }}" style="min-height: 52px; border-radius: 26px; border: 0; background: {{ sendBg }}; color: #FFFFFF; font-size: 15px; font-weight: 600">Send feedback</button>
-        </div>
-      </sc-if>
-      <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px; border-radius: 22px; background: #DDF5E3; text-align: center; animation: motioRise 360ms ease-out">
-          <span style="width: 56px; height: 56px; border-radius: 28px; background: #3DBF5C; display: flex; align-items: center; justify-content: center; animation: motioPop 480ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
-          <span style="font-size: 16px; font-weight: 700">Thanks, it’s on its way!</span>
-          <span style="font-size: 13px; color: #1E7A36">We usually reply within two days.</span>
-          <button onClick="{{ again }}" style="margin-top: 4px; height: 40px; padding: 0 16px; border-radius: 20px; border: 0; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600">Send another</button>
-        </div>
-      </sc-if>
-    </section>
+    <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" style="--i: 2; display: flex; flex-direction: column; gap: 14px; padding: 18px">
+        <span class="m-h3">How is Motio 5.0 for you?</span>
+        <div role="radiogroup" aria-label="Rate Motio from 1 to 5" style="display: flex; justify-content: space-between"><sc-for list="{{ faces }}" as="f" hint-placeholder-count="5"><button type="button" role="radio" class="m-face {{ f.cls }}" aria-checked="{{ f.on }}" aria-label="{{ f.n }} out of 5" onClick="{{ f.pick }}" style="background: {{ f.bg }}; font: 600 16px var(--m-font)">{{ f.n }}</button></sc-for></div>
+        <textarea rows="3" value="{{ message }}" onInput="{{ onMessage }}" placeholder="What would make it better?" aria-label="What would make it better?" class="input" style="height: 84px; padding-top: 14px; border: 0; outline: 0; resize: none; background: var(--m-soft); font: 500 15px var(--m-font)"></textarea>
+        <button type="button" class="m-btn wide" onClick="{{ send }}" aria-disabled="{{ cantSend }}" style="opacity: {{ sendOp }}">{{ sendLabel }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px; text-align: center">
+        <span class="m-pop"><tuli-fox pose="cheer" size="90"></tuli-fox></span>
+        <p class="m-say m-in" style="margin: 0; font-size: 18px">Thanks, it’s <b>on its way</b>.</p>
+        <span class="m-sub">We usually reply within two days.</span>
+        <button type="button" class="m-chip m-late" onClick="{{ again }}" style="margin-top: 4px; background: var(--m-soft)">Send another</button>
+      </div>
+    </sc-if>
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -149,11 +124,13 @@ class Component extends DCLogic {
     const query = s.query || '';
     const openId = s.open ?? null;
     const all = [
+      ['A trip is missing', 'Motio needs location “all the time”, physical activity, and room to run in the background. Open Settings › Tracking health check: it shows what’s off and fixes it in one tap.'],
+      ['Bus shows up as driving', 'Buses and cars move alike. Tap the trip and change its mode: Motio learns your bus lines and gets them right next time.'],
       ['How does Motio know if I’m walking or driving?', 'Your phone’s motion sensors and speed tell us how you’re moving. Walking and running have a rhythm, cycling is smooth and steady, and driving is fast with stops. You can fix any trip by tapping it.'],
       ['Does tracking drain my battery?', 'Very little. With location set to “While moving”, GPS only turns on when you’re actually going somewhere. Most people see under 4% a day.'],
       ['Why are my steps different from my watch?', 'Watches and phones count from different places on your body. If you connect a watch app in Connected apps, Motio uses its steps instead.'],
       ['When does my weekly recap arrive?', 'Every Sunday at 9 AM. The monthly recap arrives on the 1st. You can change the recap style in Settings.'],
-      ['How do I export or delete my data?', 'Go to Settings › Export my data for a CSV, GPX or JSON file. To delete everything, go to Settings › Privacy & location.']
+      ['How do I export or delete my data?', 'Go to Settings › Export data for a GPX, CSV or JSON file. To delete your history, go to Settings › Privacy; to delete your account, use Delete account at the bottom of Settings.']
     ];
     const q = query.trim().toLowerCase();
     const faqs = all
@@ -163,7 +140,8 @@ class Component extends DCLogic {
         const open = openId === f.id;
         return { ...f, open, rot: open ? '180deg' : '0deg', rows: open ? '1fr' : '0fr', toggle: () => this.setState({ open: open ? null : f.id }) };
       });
-    const kind = s.kind || 'idea';
+    const rate = s.rate || 0;
+    const kind = rate >= 5 ? 'love' : rate && rate <= 2 ? 'bug' : 'idea';
     const message = s.message || '';
     const cantSend = message.trim().length < 3;
     return {
@@ -171,19 +149,18 @@ class Component extends DCLogic {
       emb, LK: { back: lk('back', 'Settings.dc.html') },
       query, onQuery: (e) => this.setState({ query: e.target.value }),
       faqs, noResults: faqs.length === 0,
-      kinds: [['idea', 'Idea'], ['bug', 'Something’s wrong'], ['love', 'Love it']].map(([k, label]) => ({
-        label, on: kind === k,
-        bg: kind === k ? '#1F1D47' : '#FFFFFF', fg: kind === k ? '#FFFFFF' : '#1F1D47', border: kind === k ? '#1F1D47' : '#E3E1F3',
-        pick: () => this.setState({ kind: k })
-      })),
+      faces: [1, 2, 3, 4, 5].map((n) => ({ n, on: rate === n, cls: rate === n ? 'on' : '', bg: rate === n ? '' : 'var(--m-soft)', pick: () => this.setState({ rate: n }) })),
+      sendOp: cantSend ? 0.4 : 1, sendLabel: s.busy ? 'Sending…' : 'Send feedback',
       message, onMessage: (e) => this.setState({ message: e.target.value }),
       cantSend: cantSend ? 'true' : 'false',
       sendBg: cantSend ? '#9A97B5' : '#1F1D47',
       send: () => {
         if (cantSend) { this.showToast('Write a few words first'); return; }
         if (!window.Motio) { this.setState({ sent: true, message: '' }); return; }
-        window.Motio.sendFeedback(kind, message).then(() => this.setState({ sent: true, message: '' }))
-          .catch((e) => this.showToast(e.code === 'offline' ? 'You’re offline. Try again when connected' : 'Couldn’t send. Try again'));
+        if (s.busy) return;
+        this.setState({ busy: true });
+        window.Motio.sendFeedback(kind, (rate ? 'Rating ' + rate + '/5. ' : '') + message).then(() => this.setState({ sent: true, busy: false, message: '', rate: 0 }))
+          .catch((e) => this.setState({ busy: false }) || this.showToast(e.code === 'offline' ? 'You’re offline. Try again when connected' : 'Couldn’t send. Try again'));
       },
       sent: !!s.sent, notSent: !s.sent,
       again: () => this.setState({ sent: false }),

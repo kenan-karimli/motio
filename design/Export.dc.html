@@ -8,7 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
@@ -33,69 +33,32 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6C343; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-
-  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700">Export my data</h1>
-  </div>
-
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; background: transparent; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 20px">
-
-    <section style="display: flex; flex-direction: column; gap: 10px">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Format</h2>
-      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-        <sc-for list="{{ formats }}" as="f" hint-placeholder-count="3">
-          <button aria-pressed="{{ f.on }}" onClick="{{ f.pick }}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; border-radius: 18px; border: 0; background: {{ f.bg }}; color: {{ f.fg }}; outline: 3px solid {{ f.ring }}; outline-offset: 2px; text-align: left">
-            <span style="font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700">{{ f.label }}</span>
-            <span style="font-size: 11px; line-height: 1.3; opacity: 0.85">{{ f.hint }}</span>
-          </button>
-        </sc-for>
-      </div>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Time range</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
-          <button aria-pressed="{{ r.on }}" onClick="{{ r.pick }}" style="height: 38px; padding: 0 16px; border-radius: 19px; border: 2px solid {{ r.border }}; background: {{ r.bg }}; color: {{ r.fg }}; font-size: 13px; font-weight: 600">{{ r.label }}</button>
-        </sc-for>
-      </div>
-    </section>
-
-    <section style="display: flex; flex-direction: column; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Include</h2>
-      <sc-for list="{{ parts }}" as="t" hint-placeholder-count="3">
-        <div style="display: flex; align-items: center; gap: 12px; min-height: 48px">
-          <span style="flex: 1; font-size: 14px; font-weight: 600">{{ t.label }}</span>
-          <button role="switch" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" class="m-toggle"></button>
-        </div>
-      </sc-for>
-    </section>
-
-    <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">
-      <button onClick="{{ start }}" style="min-height: 54px; flex-shrink: 0; border-radius: 27px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 15px; font-weight: 600; box-shadow: none">Prepare export</button>
-    </sc-if>
-
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Export</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <div class="m-in" style="display: flex; justify-content: center"><m-art name="box" size="200"></m-art></div>
+    <div class="head m-in" style="--i: 1"><div class="t"><h1 class="m-title">export.</h1><span class="m-sub" style="font-size: 15px">{{ intro }}</span></div></div>
+    <div class="field m-in" style="--i: 2"><span class="m-label">Format</span><div style="display: flex; gap: 6px"><sc-for list="{{ formats }}" as="f" hint-placeholder-count="3"><button type="button" class="m-chip {{ f.cls }}" aria-pressed="{{ f.on }}" aria-label="{{ f.label }}: {{ f.hint }}" onClick="{{ f.pick }}">{{ f.label }}</button></sc-for></div></div>
+    <div class="field m-in" style="--i: 3"><span class="m-label">Range</span><div style="display: flex; gap: 6px; flex-wrap: wrap"><sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3"><button type="button" class="m-chip {{ r.cls }}" aria-pressed="{{ r.on }}" onClick="{{ r.pick }}">{{ r.label }}</button></sc-for></div></div>
+    <div class="m-card m-in" style="--i: 4; display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <sc-for list="{{ parts }}" as="t" hint-placeholder-count="3"><div class="m-row" style="background: transparent"><span style="flex: 1; font-size: 14px; font-weight: 600">{{ t.label }}</span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
+    </div>
     <sc-if value="{{ working }}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 22px; background: #F6F5FC; animation: motioRise 320ms ease-out">
+      <div class="m-card" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
         <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600"><span>{{ stepLabel }}</span><span>{{ pctLabel }}</span></div>
-        <div style="height: 10px; border-radius: 5px; background: #E3E1F3; overflow: hidden"><div style="width: {{ pct }}; height: 10px; border-radius: 5px; background: #5B4FE0; transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1)"></div></div>
+        <div class="m-progress"><i style="width: {{ pct }}"></i></div>
       </div>
     </sc-if>
-
     <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 22px; background: #DDF5E3; animation: motioRise 360ms ease-out">
-        <span style="width: 44px; height: 44px; border-radius: 22px; flex-shrink: 0; background: #3DBF5C; display: flex; align-items: center; justify-content: center; animation: motioPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
-        <span style="flex: 1; display: flex; flex-direction: column; min-width: 0"><span style="font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ fileName }}</span><span style="font-size: 12px; color: #1E7A36">Ready · {{ fileSize }}</span></span>
-        <button onClick="{{ download }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">Download</button>
-      </div>
-      <button onClick="{{ reset }}" style="min-height: 44px; border-radius: 22px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Start a new export</button>
+      <div class="m-card m-in" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px"><m-ic n="file" s="18"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ fileName }}</b><div class="m-sub" style="font-size: 12px">{{ fileDate }} · {{ fileSize }}</div></span><button type="button" class="m-chip" onClick="{{ download }}" style="height: 32px; font-size: 12px; background: var(--m-soft)">Download</button></div>
     </sc-if>
+    <span class="sp" style="min-height: 12px"></span>
+    <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn wide m-late" onClick="{{ start }}">{{ startLabel }}</button></sc-if>
+    <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-btn w wide" onClick="{{ reset }}">Start a new export</button></sc-if>
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -149,35 +112,36 @@ class Component extends DCLogic {
       if (this.props.onNav) this.props.onNav(target);
     } });
     const s = this.state || {};
-    const fmt = s.fmt || 'csv';
-    const range = s.range || 'month';
+    const fmt = s.fmt || 'gpx';
+    const range = s.range || 'all';
     const phase = s.phase || 'idle';
     const p = s.p || 0;
     const sw = (key, label, def) => {
       const on = s[key] ?? def;
-      return { label, on, bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => this.setState({ [key]: !on }) };
+      return { label, on, cls: on ? 'on' : '', bg: on ? '#3DBF5C' : '#C9C5EC', knob: on ? '21px' : '3px', toggle: () => this.setState({ [key]: !on }) };
     };
-    const steps = ['Collecting trips', 'Adding steps & speeds', 'Packing your file'];
+    const steps = ['Collecting trips', 'Adding steps and speeds', 'Packing your file'];
     const M = window.Motio;
     const monthName = new Date().toLocaleString('en', { month: 'long' });
-    const sizes = { week: '0.6 MB', month: '2.4 MB', all: '14.8 MB' };
-    const rangeNames = { week: 'last-week', month: monthName.toLowerCase(), all: 'all-time' };
+    const sizes = { year: '9.1 MB', month: '2.4 MB', all: '14.8 MB' };
+    const yr = new Date().getFullYear(), rangeNames = { year: String(yr), month: yr + '-' + String(new Date().getMonth() + 1).padStart(2, '0'), all: 'all-time' };
     const kb = (n) => (n > 900000 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
     const mimes = { csv: 'text/csv', gpx: 'application/gpx+xml', json: 'application/json' };
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
       emb, LK: { back: lk('back', 'Settings.dc.html') },
-      formats: [['csv', 'CSV', 'Spreadsheets'], ['gpx', 'GPX', 'Routes for maps'], ['json', 'JSON', 'For developers']].map(([k, label, hint]) => ({
-        label, hint, on: fmt === k,
+      intro: (() => { const st = M ? M.status() : { trips: 1840 }; return 'All ' + (st.trips || 0) + (st.trips === 1 ? ' trip' : ' trips') + ', every route and place, in a file that’s yours.'; })(),
+      formats: [['gpx', 'GPX', 'Routes for maps'], ['csv', 'CSV', 'Spreadsheets'], ['json', 'JSON', 'For developers']].map(([k, label, hint]) => ({
+        label, hint, on: fmt === k, cls: fmt === k ? 'on' : '',
         bg: fmt === k ? '#1F1D47' : '#F6F5FC', fg: fmt === k ? '#FFFFFF' : '#1F1D47', ring: fmt === k ? '#F6C343' : 'transparent',
         pick: () => this.setState({ fmt: k, phase: phase === 'ready' ? 'idle' : phase })
       })),
-      ranges: [['week', 'Last 7 days'], ['month', monthName], ['all', 'Everything']].map(([k, label]) => ({
-        label, on: range === k,
+      ranges: [['month', 'This month'], ['year', 'This year'], ['all', 'Everything']].map(([k, label]) => ({
+        label, on: range === k, cls: range === k ? 'on' : '',
         bg: range === k ? '#1F1D47' : '#FFFFFF', fg: range === k ? '#FFFFFF' : '#1F1D47', border: range === k ? '#1F1D47' : '#E3E1F3',
         pick: () => this.setState({ range: k, phase: phase === 'ready' ? 'idle' : phase })
       })),
-      parts: [sw('routes', 'Routes (GPS points)', true), sw('steps', 'Steps & speeds', true), sw('types', 'Activity types', true)],
+      parts: [sw('routes', 'Routes (GPS points)', true), sw('steps', 'Steps and speeds', true), sw('types', 'Activity types', true)],
       idle: phase === 'idle', working: phase === 'working', ready: phase === 'ready',
       pct: p + '%', pctLabel: p + '%', stepLabel: steps[Math.min(2, Math.floor(p / 34))],
       start: () => {
@@ -193,7 +157,7 @@ class Component extends DCLogic {
         }, 220);
         if (!M) { file = 'x'.repeat(600000); return; }
         const now = Date.now();
-        const from = range === 'week' ? now - 7 * M.DAY : range === 'month' ? M.monthStart(now) : 0;
+        const from = range === 'year' ? new Date(yr, 0, 1).getTime() : range === 'month' ? M.monthStart(now) : 0;
         const part = (k) => s[k] ?? true;
         M.exportData(fmt, from, now, { routes: part('routes'), steps: part('steps'), types: part('types') })
           .then((t) => { file = t; })
@@ -201,6 +165,8 @@ class Component extends DCLogic {
       },
       fileName: 'motio-' + rangeNames[range] + '.' + fmt,
       fileSize: s.size || sizes[range],
+      fileDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+      startLabel: range === 'all' ? 'Export everything' : range === 'year' ? 'Export this year' : 'Export this month',
       download: () => {
         if (!M || !this.file) { this.showToast('Download started'); return; }
         M.saveFile('motio-' + rangeNames[range] + '.' + fmt, this.file, mimes[fmt]).then(() => this.showToast('Export saved')).catch(() => this.showToast('Couldn’t save the file'));
