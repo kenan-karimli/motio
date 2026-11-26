@@ -12,70 +12,104 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a,input{font:inherit}
-button,a{cursor:pointer}
+button,a,input{font:inherit;color:inherit}
+button,a{cursor:pointer;text-decoration:none}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.97)}
+button.m-row,a.m-row{border:0;width:100%;text-align:left}
+.avn{background:var(--m-card);box-shadow:inset 0 0 0 1.5px var(--m-line);color:var(--m-ink);overflow:hidden}
+.avn img{width:100%;height:100%;object-fit:cover}
+.avme{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me .m-sub{color:color-mix(in srgb,var(--m-bg-hi) 70%,transparent)}
+.m-row.me .avme{background:var(--m-ink-2)}
+.bare{flex:1;min-width:0;height:100%;border:0;padding:0;background:transparent;outline:none;font:500 15px var(--m-font);color:var(--m-ink)}
+.bare::placeholder{color:var(--m-faint)}
+.m-toast{position:absolute;left:50%;bottom:28px;z-index:50;padding:12px 18px;border-radius:999px;background:var(--m-ink);color:var(--m-bg-hi);font:600 13px var(--m-font);white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:motioToast 2300ms ease forwards}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioFdIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes motioFdHeart{0%{transform:scale(1)}35%{transform:scale(1.35)}65%{transform:scale(0.92)}100%{transform:scale(1)}}
-@keyframes motioFdDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
+@keyframes motioFdDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes motioFdHeart{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.fd-seg{display:flex;padding:3px;border-radius:20px;background:var(--m-card)}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 8px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Feed</h1>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar">
+    <a class="m-icon" href="{{ LK.back.href }}" onClick="{{ backGo }}" aria-label="Back"><m-ic n="back"></m-ic></a>
+    <span class="m-tt">{{ topTitle }}</span>
+    <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}"><span class="fd-seg" role="tablist"><button type="button" role="tab" aria-selected="true" class="m-chip on" style="height: 32px; font-size: 12px">Friends</button><a role="tab" aria-selected="false" class="m-chip" href="{{ LK.clubs.href }}" onClick="{{ LK.clubs.go }}" style="height: 32px; font-size: 12px; background: transparent">Clubs</a></span></sc-if>
+    <sc-if value="{{ postView }}" hint-placeholder-val="{{ false }}"><span style="width: 44px"></span></sc-if>
   </div>
 
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 16px 40px; display: flex; flex-direction: column; gap: 12px">
-    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; display: flex; flex-direction: column; align-items: center; gap: 6px"><span ref="{{ loadRef }}" style="display: block; width: 90px; height: 82px"></span>Loading the feed…</div></sc-if>
-    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 16px; border-radius: 20px; background: #FDE9E6; color: #C2412F; font-size: 13px">{{ error }}</div></sc-if>
+  <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}">
+  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">feed.</h1></div></div>
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><span class="m-skel" style="height: 300px; border-radius: 28px"></span><span class="m-skel" style="height: 160px; border-radius: 28px"></span></sc-if>
+    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-card tx" style="font-size: 13px">{{ error }}</div></sc-if>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-top: 40px; padding: 24px 20px; border-radius: 26px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
-        <span ref="{{ trailRef }}" style="display: block; width: 130px; height: 120px"></span>
-        <span style="font-size: 17px; font-weight: 700">Nothing posted yet</span>
-        <span style="max-width: 270px; font-size: 13px; line-height: 1.5; color: #6B6890">Open one of your trips and tap “Post to feed”. Only your friends see it, and only the trips you choose.</span>
+      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 20px; text-align: center">
+        <m-art name="sign" style="width: 110px; height: 110px"></m-art>
+        <span class="m-h3">Nothing posted yet</span>
+        <span class="m-sub" style="max-width: 270px">Open one of your trips and tap <b style="color: var(--m-ink)">Post to feed</b>. Only your friends see it, and only the trips you choose.</span>
       </div>
     </sc-if>
 
     <sc-for list="{{ posts }}" as="p" hint-placeholder-count="2">
-      <article style="padding: 14px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 10px; animation: motioFdIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ p.d }} backwards">
+      <article class="m-card m-in" style="--i: {{ p.i }}; display: flex; flex-direction: column; gap: 12px; padding: 16px">
         <div style="display: flex; align-items: center; gap: 10px">
-          <button type="button" onClick="{{ p.openWho }}" aria-label="{{ p.whoAria }}" style="width: 40px; height: 40px; flex-shrink: 0; border: 0; padding: 0; border-radius: 20px; background: {{ p.tint }}; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #1F1D47"><sc-if value="{{ p.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ p.avatar }}" alt="" style="width: 40px; height: 40px; object-fit: cover"></sc-if><sc-if value="{{ p.noAvatar }}" hint-placeholder-val="{{ true }}">{{ p.ini }}</sc-if></button>
-          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.headline }}</span><span style="font-size: 11.5px; color: #6B6890">{{ p.when }}</span></span>
-          <sc-if value="{{ p.mine }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ p.del }}" style="height: 30px; padding: 0 10px; border: 0; border-radius: 15px; background: #F3F2FA; color: #6B6890; font-size: 11.5px; font-weight: 600">{{ p.delLabel }}</button></sc-if>
+          <button type="button" class="av avn" onClick="{{ p.openWho }}" aria-label="{{ p.whoAria }}" style="border: 0; padding: 0"><sc-if value="{{ p.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ p.avatar }}" alt=""></sc-if><sc-if value="{{ p.noAvatar }}" hint-placeholder-val="{{ true }}">{{ p.ini }}</sc-if></button>
+          <span style="flex: 1; min-width: 0"><b style="font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</b><div class="m-sub" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.when }}</div></span>
+          <span class="m-chip {{ p.tint }}" style="height: 28px; font-size: 11px; cursor: default">{{ p.mode }}</span>
         </div>
-        <sc-if value="{{ p.hasCaption }}" hint-placeholder-val="{{ true }}"><span style="font-size: 14px; line-height: 1.45">{{ p.caption }}</span></sc-if>
+        <sc-if value="{{ p.hasCaption }}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 15px">{{ p.caption }}</p></sc-if>
         <sc-if value="{{ p.hasRoute }}" hint-placeholder-val="{{ true }}">
-          <div aria-hidden="true" style="height: 150px; border-radius: 18px; background: #EEF0F6; overflow: hidden"><svg width="100%" height="150" viewBox="0 0 330 150"><path d="{{ p.path }}" fill="none" stroke="{{ p.color }}" stroke-opacity="0.25" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ p.path }}" fill="none" stroke="{{ p.color }}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" style="animation: motioFdDraw 1.4s cubic-bezier(0.45, 0, 0.25, 1) {{ p.dDraw }} backwards"></path><circle cx="{{ p.sx }}" cy="{{ p.sy }}" r="5" fill="#FFFFFF" stroke="{{ p.color }}" stroke-width="3"></circle><circle cx="{{ p.ex }}" cy="{{ p.ey }}" r="6" fill="#1F1D47"></circle></svg></div>
+          <button type="button" onClick="{{ p.open }}" aria-label="{{ p.openAria }}" style="display: block; height: 120px; border: 0; padding: 0; border-radius: 18px; background: var(--m-soft); overflow: hidden"><svg aria-hidden="true" width="100%" height="120" viewBox="0 0 330 150" preserveAspectRatio="xMidYMid meet"><path d="{{ p.path }}" fill="none" stroke="var(--m-card)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ p.path }}" fill="none" stroke="{{ p.color }}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" style="animation: motioFdDraw 1.4s cubic-bezier(0.45, 0, 0.25, 1) {{ p.dDraw }} backwards"></path><circle cx="{{ p.sx }}" cy="{{ p.sy }}" r="5" fill="var(--m-card)" stroke="var(--m-ink)" stroke-width="2.5"></circle><circle cx="{{ p.ex }}" cy="{{ p.ey }}" r="5.5" fill="var(--m-ink)"></circle></svg></button>
         </sc-if>
-        <div style="display: flex; gap: 18px">
-          <sc-for list="{{ p.stats }}" as="st" hint-placeholder-count="3"><span style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">{{ st.v }}</span><span style="font-size: 11px; color: #6B6890">{{ st.k }}</span></span></sc-for>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px">
-          <button type="button" onClick="{{ p.cheer }}" aria-pressed="{{ p.cheeredAria }}" style="height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: {{ p.cheerBg }}; color: {{ p.cheerFg }}; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="{{ p.heartFill }}" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" style="animation: {{ p.heartAnim }}"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>{{ p.cheerLabel }}</button>
-          <span style="font-size: 12px; color: #6B6890">{{ p.cheerNames }}</span>
-        </div>
-        <sc-if value="{{ p.hasComments }}" hint-placeholder-val="{{ true }}">
-          <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid #EEF0F6">
-            <sc-if value="{{ p.hasMore }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ p.more }}" style="align-self: flex-start; border: 0; padding: 0; background: transparent; color: #6B6890; font-size: 12px; font-weight: 600">{{ p.moreLabel }}</button></sc-if>
-            <sc-for list="{{ p.comments }}" as="c" hint-placeholder-count="2">
-              <span style="display: flex; gap: 8px; align-items: baseline; font-size: 13px; line-height: 1.45"><b style="font-weight: 600; flex-shrink: 0">{{ c.name }}</b><span style="flex: 1; min-width: 0; word-wrap: break-word">{{ c.text }}</span><sc-if value="{{ c.mine }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ c.del }}" aria-label="Delete comment" style="border: 0; padding: 0 2px; background: transparent; color: #9A97B8; font-size: 15px; line-height: 1">×</button></sc-if></span>
-            </sc-for>
-          </div>
-        </sc-if>
-        <div style="display: flex; gap: 8px">
-          <input value="{{ p.draft }}" onInput="{{ p.onDraft }}" aria-label="{{ p.commentAria }}" placeholder="Add a comment" maxlength="500" style="flex: 1; min-width: 0; height: 40px; box-sizing: border-box; padding: 0 14px; border-radius: 20px; border: 2px solid #EEF0F6; background: #F6F5FC; color: #1F1D47; font-size: 13px">
-          <button type="button" onClick="{{ p.send }}" disabled="{{ p.sendOff }}" aria-label="Send comment" style="width: 40px; height: 40px; flex-shrink: 0; border: 0; border-radius: 20px; background: {{ p.sendBg }}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+        <div class="grid3"><sc-for list="{{ p.stats }}" as="st" hint-placeholder-count="3"><div><div class="m-label">{{ st.k }}</div><b style="font-size: 16px">{{ st.v }}</b></div></sc-for></div>
+        <div style="display: flex; gap: 6px; align-items: center">
+          <button type="button" class="m-chip {{ p.cheerCls }}" onClick="{{ p.cheer }}" aria-pressed="{{ p.cheeredAria }}" style="height: 34px; font-size: 12px; background: {{ p.cheerBg }}"><m-ic n="hand" s="14" style="animation: {{ p.heartAnim }}"></m-ic>{{ p.cheerLabel }}</button>
+          <button type="button" class="m-chip" onClick="{{ p.open }}" aria-label="{{ p.openAria }}" style="height: 34px; font-size: 12px; background: var(--m-soft)"><m-ic n="msg" s="14"></m-ic>{{ p.commentCount }}</button>
+          <span class="sp"></span>
+          <sc-if value="{{ p.mine }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-chip" onClick="{{ p.del }}" style="height: 34px; font-size: 12px; background: transparent; color: var(--m-mute)">{{ p.delLabel }}</button></sc-if>
         </div>
       </article>
     </sc-for>
   </div>
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
+
+  <sc-if value="{{ postView }}" hint-placeholder-val="{{ false }}">
+  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 110px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><span class="m-sub">{{ cur.when }}</span><h1 class="m-title" style="font-size: 32px">{{ cur.title }}</h1></div></div>
+    <sc-if value="{{ cur.hasCaption }}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 15px">{{ cur.caption }}</p></sc-if>
+    <sc-if value="{{ cur.hasRoute }}" hint-placeholder-val="{{ true }}">
+      <div class="m-in" style="height: 150px; border-radius: 22px; background: var(--m-card); overflow: hidden"><svg aria-hidden="true" width="100%" height="150" viewBox="0 0 330 150"><path d="{{ cur.path }}" fill="none" stroke="var(--m-soft)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ cur.path }}" fill="none" stroke="{{ cur.color }}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" style="animation: motioFdDraw 1.4s cubic-bezier(0.45, 0, 0.25, 1) backwards"></path><circle cx="{{ cur.sx }}" cy="{{ cur.sy }}" r="5" fill="var(--m-card)" stroke="var(--m-ink)" stroke-width="2.5"></circle><circle cx="{{ cur.ex }}" cy="{{ cur.ey }}" r="5.5" fill="var(--m-ink)"></circle></svg></div>
+    </sc-if>
+    <div class="grid3 m-card" style="padding: 14px 16px"><sc-for list="{{ cur.stats }}" as="st" hint-placeholder-count="3"><div><div class="m-label">{{ st.k }}</div><b style="font-size: 16px">{{ st.v }}</b></div></sc-for></div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <button type="button" class="m-chip {{ cur.cheerCls }}" onClick="{{ cur.cheer }}" aria-pressed="{{ cur.cheeredAria }}" style="height: 34px; font-size: 12px; flex-shrink: 0"><m-ic n="hand" s="14" style="animation: {{ cur.heartAnim }}"></m-ic>{{ cur.cheerLabel }}</button>
+      <sc-if value="{{ cur.hasNames }}" hint-placeholder-val="{{ true }}"><span class="m-sub" style="font-size: 13px">{{ cur.namesLine }}</span></sc-if>
+    </div>
+    <sc-if value="{{ cur.hasComments }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 14px; padding: 16px">
+        <sc-for list="{{ cur.comments }}" as="c" hint-placeholder-count="3">
+          <div style="display: flex; gap: 10px">
+            <span class="av {{ c.avCls }}" style="width: 32px; height: 32px; font-size: 11px">{{ c.ini }}</span>
+            <span style="flex: 1; min-width: 0"><b style="font-size: 13px">{{ c.name }}</b> <span class="m-sub" style="font-size: 12px">{{ c.ago }}</span><div style="font-size: 14px; margin-top: 2px; word-wrap: break-word">{{ c.text }}</div></span>
+            <sc-if value="{{ c.mine }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ c.del }}" aria-label="Delete comment" style="align-self: flex-start; border: 0; padding: 2px; background: transparent; color: var(--m-faint)"><m-ic n="x" s="14"></m-ic></button></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ cur.noComments }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="padding: 4px">No comments yet. Say something nice.</span></sc-if>
+  </div>
+  <div style="position: absolute; left: 14px; right: 14px; bottom: 24px; z-index: 9; display: flex; gap: 8px; align-items: center">
+    <label class="input" style="flex: 1; min-width: 0; border-radius: 27px; box-shadow: 0 6px 24px rgba(0,0,0,.06)"><input class="bare" value="{{ cur.draft }}" onInput="{{ cur.onDraft }}" aria-label="{{ cur.commentAria }}" placeholder="Add a comment" maxlength="500"></label>
+    <button type="button" class="m-icon ink" onClick="{{ cur.send }}" disabled="{{ cur.sendOff }}" aria-label="Send comment" style="width: 54px; height: 54px; border-radius: 27px; opacity: {{ cur.sendOp }}"><m-ic n="send" s="18"></m-ic></button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-toast" style="bottom: 96px">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -102,13 +136,15 @@ class Component extends DCLogic {
       trip: { mode: 'run', start: now - 3000000, end: now - 420000, distanceM: 8400, points: [[40.36, 49.83], [40.365, 49.84], [40.362, 49.85], [40.37, 49.86], [40.375, 49.87]] },
       comments: [{ id: 1, text: 'That pace though', user: { id: 3, name: 'Murad' } }] }];
     const posts = M ? s.posts || [] : sample;
-    const NOUN = { walk: ['went for a walk', 'Walk'], run: ['went for a run', 'Run'], bike: ['went for a ride', 'Ride'], drive: ['drove', 'Drive'], transit: ['took transit', 'Transit'] };
-    const COLOR = { walk: '#3DBF5C', run: '#F2766B', bike: '#6E8CF7', drive: '#F6C343', transit: '#B57BE0' };
-    const TINTS = ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B', '#B57BE0'];
+    const NOUN = { walk: ['walk', 'Walk'], run: ['run', 'Run'], bike: ['ride', 'Ride'], drive: ['drive', 'Drive'], transit: ['trip', 'Transit'] };
+    const COLOR = { walk: 'var(--m-walk)', run: 'var(--m-run)', bike: 'var(--m-bike)', drive: 'var(--m-drive)', transit: 'var(--m-transit)' };
+    const TINT = { walk: 'tw', run: 'tr', bike: 'tb', drive: 'td', transit: 'tt' };
     const mi = M && M.settings().unit === 'mi';
     const dist = (m) => (mi ? (m / 1609.34).toFixed(1) + ' mi' : (m / 1000).toFixed(1) + ' km');
-    const dur = (ms) => { const m = Math.round(ms / 60000); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + ' min'; };
-    const ago = (t) => { const m = Math.round((now - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+    const dur = (ms) => { const m = Math.round(ms / 60000); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm'; };
+    const ago = (t) => { const m = Math.round((now - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+    const short = (t) => { const m = Math.round((now - (t || now)) / 60000); return m < 1 ? 'now' : m < 60 ? m + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : Math.round(m / 1440) + 'd'; };
+    const ini = (n) => String(n || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
     // The route, fitted into the 330 × 150 picture.
     const shape = (pts) => {
       if (!pts || pts.length < 2) return null;
@@ -118,49 +154,62 @@ class Component extends DCLogic {
       const P = pts.map((p) => [((p[1] * k - x0) * sc + ox).toFixed(1), ((-p[0] - y0) * sc + oy).toFixed(1)]);
       return { d: P.map((q, i) => (i ? 'L' : 'M') + q[0] + ' ' + q[1]).join(' '), s: P[0], e: P[P.length - 1] };
     };
-    const base = emb ? 380 : 0, drafts = s.drafts || {}, open = s.open || {};
+    const base = emb ? 380 : 0, drafts = s.drafts || {};
     const set = (patch) => this.setState(patch);
+    const view = (p, i) => {
+      const t = p.trip, sh = shape(t.points), first = p.mine ? 'You' : String(p.user.name).split(' ')[0];
+      const mins = (t.end - t.start) / 60000, onFoot = t.mode === 'walk' || t.mode === 'run';
+      const paceS = t.distanceM > 200 ? (t.end - t.start) / 1000 / (t.distanceM / (mi ? 1609.34 : 1000)) : 0;
+      const all = p.comments || [], draft = drafts[p.id] || '', N = NOUN[t.mode] || NOUN.walk;
+      const bump = s.bump === p.id, names = p.cheerNames || [];
+      return {
+        i, dDraw: base + 200 + Math.min(i, 6) * 70 + 'ms',
+        name: p.mine ? 'You' : p.user.name, title: (p.mine ? 'your ' : first + '’s ') + N[0] + '.',
+        when: ago(p.at) + ' · ' + new Date(t.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        mode: N[1], tint: TINT[t.mode] || 'tw',
+        ini: ini(p.user.name), hasAvatar: !!p.user.avatar, noAvatar: !p.user.avatar, avatar: p.user.avatar || '', whoAria: 'Open ' + p.user.name + '’s profile',
+        openWho: () => { if (p.mine) { this.props.onNav && this.props.onNav('profile'); return; } window.__motioFriend = p.user.id; this.props.onNav && this.props.onNav('friend'); },
+        open: () => set({ post: p.id }), openAria: 'Open ' + first + '’s ' + N[0] + ' and its comments',
+        mine: !!p.mine, delLabel: s.confirmDel === p.id ? 'Delete?' : 'Delete',
+        del: () => { if (s.confirmDel !== p.id) { set({ confirmDel: p.id }); return; } M.friends.deletePost(p.id).then(() => { this.showToast('Post deleted'); this.load(); }); },
+        hasCaption: !!p.caption, caption: p.caption,
+        hasRoute: !!sh, path: sh ? sh.d : '', sx: sh ? sh.s[0] : 0, sy: sh ? sh.s[1] : 0, ex: sh ? sh.e[0] : 0, ey: sh ? sh.e[1] : 0, color: COLOR[t.mode] || 'var(--m-ink)',
+        stats: [{ v: dist(t.distanceM || 0), k: 'Distance' }, { v: dur(t.end - t.start), k: 'Time' },
+          onFoot && paceS ? { v: Math.floor(paceS / 60) + ':' + String(Math.round(paceS % 60)).padStart(2, '0') + (mi ? ' /mi' : ' /km'), k: 'Pace' } : { v: Math.round((t.distanceM || 0) / Math.max(1, mins * 60) * (mi ? 2.237 : 3.6)) + (mi ? ' mph' : ' km/h'), k: 'Average' }],
+        cheeredAria: p.cheered ? 'true' : 'false', cheerCls: p.cheered ? 'on' : '', cheerBg: p.cheered ? 'var(--m-ink)' : 'var(--m-soft)',
+        heartAnim: bump ? 'motioFdHeart 520ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+        cheerLabel: (p.cheered ? 'Cheered' : 'Cheer') + (p.cheers ? ' · ' + p.cheers : ''),
+        hasNames: names.length > 0 || !!p.cheered,
+        namesLine: (p.cheered ? ['You', ...names] : names).slice(0, 2).join(', ') + (p.cheers > 2 ? ' and ' + (p.cheers - 2) + (p.cheers - 2 === 1 ? ' other' : ' others') : '') + ' cheered',
+        cheer: () => {
+          if (!M) return;
+          const on = !p.cheered;
+          set({ bump: on ? p.id : null, posts: (s.posts || []).map((x) => (x.id === p.id ? { ...x, cheered: on, cheers: x.cheers + (on ? 1 : -1) } : x)) });
+          M.friends.cheerPost(p.id, on).catch(() => this.load());
+        },
+        commentCount: String(all.length),
+        hasComments: all.length > 0, noComments: !all.length,
+        comments: all.map((c) => ({ name: c.mine ? 'You' : String(c.user.name).split(' ')[0], ini: ini(c.mine ? 'You' : c.user.name), avCls: c.mine ? 'avme' : 'avn', ago: '· ' + short(c.at), text: c.text, mine: !!c.mine,
+          del: () => M.friends.uncomment(c.id).then(() => this.load()) })),
+        draft, commentAria: 'Comment on ' + first + '’s trip', onDraft: (e) => set({ drafts: { ...drafts, [p.id]: e.target.value } }),
+        sendOff: !draft.trim(), sendOp: draft.trim() ? 1 : 0.4,
+        send: () => { if (!M || !draft.trim()) return; M.friends.comment(p.id, draft).then(() => { set({ drafts: { ...drafts, [p.id]: '' } }); this.load(); }).catch((e) => this.showToast((e && e.message) || 'Couldn’t send. Try again.')); }
+      };
+    };
+    const curP = s.post != null ? posts.find((p) => p.id === s.post) : null;
+    const back = lk('back', 'Recaps.dc.html');
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-      LK: { back: lk('back', 'Recaps.dc.html') },
+      LK: { back, clubs: lk('clubs', 'Clubs.dc.html') },
+      // Back from a post returns to the list; from the list, leaves the feed.
+      backGo: (e) => { if (curP) { if (e && e.preventDefault) e.preventDefault(); set({ post: null }); return; } back.go(e); },
+      // Switching between the list and a post swaps the scroller: the frosted bar follows the new one.
+      scrollRef: (el) => { const pg = el && el.closest('.m-page'); if (pg) pg.classList.toggle('m-scrolled', el.scrollTop > 8); },
+      listView: !curP, postView: !!curP, topTitle: curP ? (curP.mine ? 'Your ' : String(curP.user.name).split(' ')[0] + '’s ') + (NOUN[curP.trip.mode] || NOUN.walk)[0] : 'Feed',
+      cur: curP ? view(curP, 0) : { stats: [], comments: [] },
       loading: !!s.loading && !posts.length, hasError: !!s.error && !posts.length, error: s.error || '',
-      empty: !!M && !!s.posts && !posts.length, trailRef: window.MotioMascot ? window.MotioMascot.trail('wave', 130) : null, loadRef: window.MotioMascot ? window.MotioMascot.trail('loop', 90) : null,
-      posts: posts.map((p, i) => {
-        const t = p.trip, sh = shape(t.points), first = p.mine ? 'You' : String(p.user.name).split(' ')[0];
-        const mins = (t.end - t.start) / 60000, onFoot = t.mode === 'walk' || t.mode === 'run';
-        const paceS = t.distanceM > 200 ? (t.end - t.start) / 1000 / (t.distanceM / (mi ? 1609.34 : 1000)) : 0;
-        const all = p.comments || [], shown = open[p.id] ? all : all.slice(-2), draft = drafts[p.id] || '';
-        const bump = s.bump === p.id;
-        return {
-          d: base + Math.min(i, 6) * 70 + 'ms', dDraw: base + 200 + Math.min(i, 6) * 70 + 'ms',
-          headline: first + ' ' + (NOUN[t.mode] || NOUN.walk)[0], when: ago(p.at) + ' · ' + new Date(t.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-          ini: String(p.user.name).split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), tint: TINTS[p.user.id % TINTS.length],
-          hasAvatar: !!p.user.avatar, noAvatar: !p.user.avatar, avatar: p.user.avatar || '', whoAria: 'Open ' + p.user.name + '’s profile',
-          openWho: () => { if (p.mine) { this.props.onNav && this.props.onNav('profile'); return; } window.__motioFriend = p.user.id; this.props.onNav && this.props.onNav('friend'); },
-          mine: !!p.mine, delLabel: s.confirmDel === p.id ? 'Delete?' : 'Delete',
-          del: () => { if (s.confirmDel !== p.id) { set({ confirmDel: p.id }); return; } M.friends.deletePost(p.id).then(() => { this.showToast('Post deleted'); this.load(); }); },
-          hasCaption: !!p.caption, caption: p.caption,
-          hasRoute: !!sh, path: sh ? sh.d : '', sx: sh ? sh.s[0] : 0, sy: sh ? sh.s[1] : 0, ex: sh ? sh.e[0] : 0, ey: sh ? sh.e[1] : 0, color: COLOR[t.mode] || '#5B4FE0',
-          stats: [{ v: dist(t.distanceM || 0), k: 'distance' }, { v: dur(t.end - t.start), k: 'time' },
-            onFoot && paceS ? { v: Math.floor(paceS / 60) + ':' + String(Math.round(paceS % 60)).padStart(2, '0') + (mi ? ' /mi' : ' /km'), k: 'pace' } : { v: Math.round((t.distanceM || 0) / Math.max(1, mins * 60) * (mi ? 2.237 : 3.6)) + (mi ? ' mph' : ' km/h'), k: 'average' }],
-          cheeredAria: p.cheered ? 'true' : 'false', cheerBg: p.cheered ? '#FDE9E6' : '#F3F2FA', cheerFg: p.cheered ? '#C2412F' : '#1F1D47', heartFill: p.cheered ? 'currentColor' : 'none',
-          heartAnim: bump ? 'motioFdHeart 520ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-          cheerLabel: p.cheers ? p.cheers + (p.cheers === 1 ? ' cheer' : ' cheers') : 'Cheer',
-          cheerNames: p.cheerNames && p.cheerNames.length ? p.cheerNames.join(', ') : '',
-          cheer: () => {
-            if (!M) return;
-            const on = !p.cheered;
-            set({ bump: on ? p.id : null, posts: (s.posts || []).map((x) => (x.id === p.id ? { ...x, cheered: on, cheers: x.cheers + (on ? 1 : -1) } : x)) });
-            M.friends.cheerPost(p.id, on).catch(() => this.load());
-          },
-          hasComments: all.length > 0, comments: shown.map((c) => ({ name: c.mine ? 'You' : String(c.user.name).split(' ')[0], text: c.text, mine: !!c.mine,
-            del: () => M.friends.uncomment(c.id).then(() => this.load()) })),
-          hasMore: all.length > 2 && !open[p.id], moreLabel: 'View all ' + all.length + ' comments', more: () => set({ open: { ...open, [p.id]: true } }),
-          draft, commentAria: 'Comment on ' + first + '’s trip', onDraft: (e) => set({ drafts: { ...drafts, [p.id]: e.target.value } }),
-          sendOff: !draft.trim(), sendBg: draft.trim() ? '#1F1D47' : '#C9C5EC',
-          send: () => { if (!M || !draft.trim()) return; M.friends.comment(p.id, draft).then(() => { set({ drafts: { ...drafts, [p.id]: '' } }); this.load(); }).catch((e) => this.showToast((e && e.message) || 'Couldn’t send. Try again.')); }
-        };
-      }),
+      empty: !!M && !!s.posts && !posts.length,
+      posts: posts.map(view),
       hasToast: !!s.toast, toast: s.toast || ''
     };
   }

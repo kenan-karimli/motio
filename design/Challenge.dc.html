@@ -12,96 +12,112 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a{font:inherit;cursor:pointer}
+button,a,input{font:inherit;color:inherit}
+button,a{cursor:pointer;text-decoration:none}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.97)}
+button.m-row,a.m-row{border:0;width:100%;text-align:left}
+.avn{background:var(--m-card);box-shadow:inset 0 0 0 1.5px var(--m-line);color:var(--m-ink);overflow:hidden}
+.avn img{width:100%;height:100%;object-fit:cover}
+.avme{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me .m-sub{color:color-mix(in srgb,var(--m-bg-hi) 70%,transparent)}
+.m-row.me .avme{background:var(--m-ink-2)}
+.bare{flex:1;min-width:0;height:100%;border:0;padding:0;background:transparent;outline:none;font:500 15px var(--m-font);color:var(--m-ink)}
+.bare::placeholder{color:var(--m-faint)}
+.m-toast{position:absolute;left:50%;bottom:28px;z-index:50;padding:12px 18px;border-radius:999px;background:var(--m-ink);color:var(--m-bg-hi);font:600 13px var(--m-font);white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:motioToast 2300ms ease forwards}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioChIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-@keyframes motioChGo{from{offset-distance:0%}}
-@keyframes motioChDraw{from{stroke-dashoffset:900}}
-@keyframes motioChFlag{0%,100%{transform:skewY(0)}50%{transform:skewY(-8deg)}}
-@keyframes motioChToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
-@keyframes motioChPick{from{transform:scale(0.95)}to{transform:none}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
-.motio-runner{position:absolute;left:0;top:0;offset-path:path('M30 230 C 90 230, 90 150, 150 150 S 220 210, 270 160 S 300 60, 340 50');offset-rotate:0deg;animation:motioChGo 1800ms cubic-bezier(0.22,1,0.36,1) var(--d) backwards}
+@keyframes motioChBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ch-av{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;padding:0;background:transparent;font:600 11px var(--m-font);color:var(--m-ink-2);width:52px}
+.ch-av .av{transition:box-shadow .2s var(--m-ease)}
+.ch-av.on .av{box-shadow:0 0 0 3px var(--m-ink)}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.1">{{ title }}</h1><span style="font-size: 12px; color: #6B6890">{{ sub }}</span></div>
-  </div>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="top" style="flex-shrink: 0; margin-bottom: 6px"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Close"><m-ic n="{{ backIcon }}"></m-ic></a><span class="m-h3" style="flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ title }}</span><span style="width: 44px"></span></div>
+  <sc-if value="{{ hasChips }}" hint-placeholder-val="{{ false }}">
+    <div class="motio-scroll" role="tablist" aria-label="Your challenges" style="flex-shrink: 0; display: flex; gap: 6px; overflow-x: auto; margin: 0 -20px 6px; padding: 2px 20px">
+      <sc-for list="{{ chips }}" as="k" hint-placeholder-count="3">
+        <button type="button" role="tab" class="m-chip {{ k.cls }}" aria-selected="{{ k.on }}" onClick="{{ k.pick }}" style="flex-shrink: 0; white-space: nowrap"><sc-if value="{{ k.dot }}" hint-placeholder-val="{{ false }}"><i style="width: 7px; height: 7px; border-radius: 4px; background: var(--m-accent)"></i></sc-if>{{ k.label }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
 
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; white-space: nowrap; animation: motioChToast 2300ms ease forwards">{{ toast }}</div></sc-if>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 32px; display: flex; flex-direction: column; gap: 14px">
-    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="padding: 22px; border-radius: 22px; background: #FFFFFF; font-size: 13px; color: #6B6890; text-align: center">Loading…</div></sc-if>
-    <sc-if value="{{ hasChips }}" hint-placeholder-val="{{ false }}">
-      <div class="motio-scroll" role="tablist" aria-label="Your challenges" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 2px 20px">
-        <sc-for list="{{ chips }}" as="k" hint-placeholder-count="3">
-          <button type="button" role="tab" aria-selected="{{ k.on }}" onClick="{{ k.pick }}" style="flex-shrink: 0; height: 38px; padding: 0 14px; border-radius: 19px; border: 0; background: {{ k.bg }}; color: {{ k.fg }}; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: background-color 200ms ease"><sc-if value="{{ k.dot }}" hint-placeholder-val="{{ false }}"><span style="width: 7px; height: 7px; border-radius: 4px; background: #F2766B"></span></sc-if>{{ k.label }}</button>
-        </sc-for>
-      </div>
-    </sc-if>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: 0 -20px; padding: 4px 20px 32px; display: flex; flex-direction: column; gap: 14px">
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><span class="m-skel" style="height: 200px; border-radius: 28px"></span></sc-if>
 
     <sc-if value="{{ isInvite }}" hint-placeholder-val="{{ false }}">
-      <section style="padding: 18px; border-radius: 24px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioChIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
-        <span style="font-size: 13px; color: #C9C5EC">{{ inviteFrom }} challenged you</span>
-        <span style="font-size: 22px; font-weight: 700; line-height: 1.2">{{ title }}</span>
-        <span style="font-size: 12px; color: #C9C5EC">{{ sub }}. Only walks, runs and rides count.</span>
-        <div style="display: flex; gap: 10px">
-          <button type="button" onClick="{{ reject }}" style="flex: 1; height: 48px; border: 0; border-radius: 24px; background: rgba(255,255,255,0.12); color: #FFFFFF; font-size: 14px; font-weight: 600">Reject</button>
-          <button type="button" onClick="{{ accept }}" style="flex: 1; height: 48px; border: 0; border-radius: 24px; background: #F6C343; color: #1F1D47; font-size: 14px; font-weight: 700">Accept</button>
+      <div class="m-card dark m-in" style="display: flex; flex-direction: column; gap: 12px; padding: 20px">
+        <span class="m-label">{{ inviteFrom }} challenged you</span>
+        <span style="font: 600 24px/1.2 var(--m-font); letter-spacing: -.5px">{{ title }}</span>
+        <span class="m-sub">{{ sub }}. Only walks, runs and rides count.</span>
+        <div style="display: flex; gap: 8px; margin-top: 4px">
+          <button type="button" class="m-icon" onClick="{{ reject }}" aria-label="Reject" style="width: 52px; height: 52px; border-radius: 26px; background: rgba(255,255,255,.12); color: var(--m-on-dark)"><m-ic n="x" s="18"></m-ic></button>
+          <button type="button" class="m-btn w" onClick="{{ accept }}" style="flex: 1">Accept</button>
         </div>
-      </section>
-    </sc-if>
-    <sc-if value="{{ hasRace }}" hint-placeholder-val="{{ true }}">
-      <section style="position: relative; height: 290px; flex-shrink: 0; border-radius: 28px; background: {{ raceBg }}; overflow: hidden; animation: motioChIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d0 }} backwards">
-        <svg role="img" aria-label="{{ raceAria }}" width="350" height="290" viewBox="0 0 350 290" style="position: absolute; left: 0; top: 0">
-          <circle cx="300" cy="260" r="120" fill="#FFFFFF" fill-opacity="0.12"></circle>
-          <path d="M30 230 C 90 230, 90 150, 150 150 S 220 210, 270 160 S 300 60, 340 50" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="26" stroke-linecap="round"></path>
-          <path d="M30 230 C 90 230, 90 150, 150 150 S 220 210, 270 160 S 300 60, 340 50" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="7 9"></path>
-          <path d="M30 230 C 90 230, 90 150, 150 150 S 220 210, 270 160 S 300 60, 340 50" fill="none" stroke="#1F1D47" stroke-width="6" stroke-linecap="round" pathLength="900" stroke-dasharray="{{ leadDash }}" style="animation: motioChDraw 1800ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards"></path>
-          <g transform="translate(318 22)"><rect x="0" y="0" width="3" height="34" rx="1.5" fill="#1F1D47"></rect><path d="M3 2 h18 l-5 6 l5 6 h-18z" fill="#FFFFFF" style="transform-box: fill-box; transform-origin: left center; animation: motioChFlag 1.6s ease-in-out infinite"></path></g>
-        </svg>
-        <sc-for list="{{ racers }}" as="m" hint-placeholder-count="2"><span class="motio-runner" style="offset-distance: {{ m.at }}; --d: {{ m.d }}; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 17px; background: {{ m.c }}; border: 3px solid #1F1D47; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700">{{ m.ini }}</span></sc-for>
-        <span style="position: absolute; left: 18px; top: 16px; padding: 5px 12px; border-radius: 12px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600">{{ leadLine }}</span>
-        <button type="button" onClick="{{ share }}" aria-label="Share this challenge to your story" style="position: absolute; right: 14px; bottom: 14px; height: 38px; padding: 0 14px 0 10px; border: 0; border-radius: 19px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 6px 14px rgba(31,29,71,0.2)"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Share</button>
-      </section>
-      <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #6B6890">{{ pendingLine }}</span></sc-if>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; animation: motioChIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d1 }} backwards">
-        <sc-for list="{{ racers }}" as="m" hint-placeholder-count="2"><div style="padding: 14px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #6B6890">{{ m.name }}</span><span style="font-size: 24px; font-weight: 700">{{ m.value }}</span><span style="font-size: 11px; color: #6B6890">{{ m.left }}</span></div></sc-for>
       </div>
-      <span style="font-size: 12px; line-height: 1.5; color: #4A4770">Walks, runs and rides count. Driving and transit don’t.</span>
-      <button type="button" onClick="{{ leave }}" style="align-self: center; height: 40px; padding: 0 16px; border: 0; border-radius: 20px; background: transparent; color: #C2412F; font-size: 13px; font-weight: 600">{{ leaveLabel }}</button>
+    </sc-if>
+
+    <sc-if value="{{ hasRace }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card dark m-in" role="img" aria-label="{{ raceAria }}" style="display: flex; flex-direction: column; gap: 12px; padding: 20px">
+        <div style="display: flex; justify-content: space-between"><span class="m-label">{{ title }}</span><span class="m-sub" style="font-size: 12px">{{ subShort }}</span></div>
+        <span style="font: 600 22px/1.2 var(--m-font); letter-spacing: -.5px">{{ leadLine }}</span>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{ racers }}" as="m" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span class="av {{ m.avCls }}" style="width: 26px; height: 26px; font-size: 10px">{{ m.ini }}</span>
+              <span style="flex: 1; height: 6px; border-radius: 3px; background: rgba(128,128,128,.25)"><i style="display: block; width: {{ m.at }}; height: 100%; border-radius: 3px; background: {{ m.c }}; transform-origin: left; animation: motioChBar 1s cubic-bezier(0.22, 1, 0.36, 1) {{ m.d }} backwards"></i></span>
+              <b style="font-size: 12px; width: 60px; text-align: right; white-space: nowrap">{{ m.value }}</b>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="padding: 0 4px; font-size: 12px">{{ pendingLine }}</span></sc-if>
+      <div class="grid2 m-in" style="--i: 1">
+        <sc-for list="{{ racers }}" as="m" hint-placeholder-count="2"><div class="m-card" style="padding: 14px"><div class="m-label">{{ m.name }}</div><div class="m-num s" style="margin-top: 6px">{{ m.value }}</div><div class="m-sub" style="font-size: 12px">{{ m.left }}</div></div></sc-for>
+      </div>
+      <button type="button" class="m-btn w wide m-in" onClick="{{ share }}" style="--i: 2"><m-ic n="share" s="17"></m-ic>Share to your story</button>
+      <span class="m-sub" style="padding: 0 4px; font-size: 12px">Walks, runs and rides count. Driving and transit don’t.</span>
+      <button type="button" onClick="{{ leave }}" style="align-self: center; height: 40px; padding: 0 16px; border: 0; background: transparent; color: var(--m-warn); font: 600 13px var(--m-font)">{{ leaveLabel }}</button>
     </sc-if>
 
     <sc-if value="{{ composing }}" hint-placeholder-val="{{ true }}">
-    <section style="padding: 18px; border-radius: 24px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioChIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d2 }} backwards">
-      <span style="font-size: 15px; font-weight: 700">{{ composerTitle }}</span>
-      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
-        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3">
-          <button type="button" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px; border-radius: 18px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: #1F1D47; text-align: left; transition: background-color 220ms ease, border-color 220ms ease; animation: {{ k.anim }}">
-            <span style="font-size: 14px; font-weight: 700">{{ k.title }}</span><span style="font-size: 11px; color: #4A4770">{{ k.sub }}</span>
-          </button>
-        </sc-for>
+      <div class="field m-in"><span class="m-label">What</span>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3"><button type="button" class="m-option {{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="align-items: flex-start; border-radius: 22px; padding: 14px 18px; min-height: 0"><b>{{ k.title }}</b><span style="font: 500 12px var(--m-font); opacity: .7">{{ k.sub }}</span></button></sc-for>
+        </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 10px">
-        <button type="button" onClick="{{ tMinus }}" aria-label="Lower the target" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: #F3F2FA; color: #1F1D47; font-size: 22px; font-weight: 600">−</button>
-        <span style="flex: 1; text-align: center; font-size: 18px; font-weight: 700">{{ targetLabel }}</span>
-        <button type="button" onClick="{{ tPlus }}" aria-label="Raise the target" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: #F3F2FA; color: #1F1D47; font-size: 22px; font-weight: 600">+</button>
+      <div class="field m-in" style="--i: 1"><span class="m-label">{{ targetName }}</span>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap">
+          <sc-for list="{{ presets }}" as="o" hint-placeholder-count="4"><button type="button" class="m-chip {{ o.cls }}" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for>
+        </div>
+        <sc-if value="{{ custom }}" hint-placeholder-val="{{ false }}">
+          <div class="m-card" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-top: 4px">
+            <button type="button" class="m-icon" onClick="{{ tMinus }}" aria-label="Lower the target" style="background: var(--m-soft); font: 600 20px var(--m-font)">−</button>
+            <span class="m-num s" style="flex: 1; text-align: center">{{ targetLabel }}</span>
+            <button type="button" class="m-icon ink" onClick="{{ tPlus }}" aria-label="Raise the target" style="font: 600 20px var(--m-font)">+</button>
+          </div>
+        </sc-if>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
-        <sc-for list="{{ spans }}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="height: 38px; border: 0; border-radius: 19px; background: {{ o.bg }}; color: {{ o.fg }}; font-size: 12px; font-weight: 600; transition: background-color 200ms ease, color 200ms ease">{{ o.label }}</button></sc-for>
+      <div class="field m-in" style="--i: 2"><span class="m-label">How long</span>
+        <div style="display: flex; gap: 6px"><sc-for list="{{ spans }}" as="o" hint-placeholder-count="3"><button type="button" class="m-chip {{ o.cls }}" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div>
       </div>
-      <span style="font-size: 12px; color: #6B6890">With</span>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <sc-for list="{{ friends }}" as="f" hint-placeholder-count="3"><button type="button" onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 6px; border-radius: 20px; border: 2px solid {{ f.border }}; background: {{ f.bg }}; color: #1F1D47; font-size: 13px; font-weight: 600; transition: background-color 200ms ease, border-color 200ms ease"><span style="width: 28px; height: 28px; border-radius: 14px; background: {{ f.tint }}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700">{{ f.ini }}</span>{{ f.name }}</button></sc-for>
+      <div class="field m-in" style="--i: 3"><span class="m-label">With</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{ friends }}" as="f" hint-placeholder-count="4"><button type="button" class="ch-av {{ f.cls }}" onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" aria-label="{{ f.aria }}"><span class="av avn">{{ f.ini }}</span><span style="max-width: 52px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ f.name }}</span></button></sc-for>
+          <a class="m-icon" href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" aria-label="Add friends" style="width: 38px; height: 38px"><m-ic n="plus" s="16"></m-ic></a>
+        </div>
+        <sc-if value="{{ noFriends }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-size: 12px">Add a friend first, from Social › Friends.</span></sc-if>
       </div>
-      <sc-if value="{{ noFriends }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #6B6890">Add a friend first, from Social › Friends.</span></sc-if>
-      <sc-if value="{{ hasSendError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #C2412F">{{ sendError }}</span></sc-if>
-      <button type="button" onClick="{{ send }}" disabled="{{ sendOff }}" style="height: 50px; border: 0; border-radius: 25px; background: {{ sendBg }}; color: #FFFFFF; font-size: 14px; font-weight: 600; transition: background-color 200ms ease">{{ sendLabel }}</button>
-    </section>
+      <sc-if value="{{ hasSendError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: var(--m-warn)">{{ sendError }}</span></sc-if>
+      <span class="sp"></span>
+      <button type="button" class="m-btn wide m-late" onClick="{{ send }}" disabled="{{ sendOff }}" style="opacity: {{ sendOp }}">{{ sendLabel }}</button>
     </sc-if>
   </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-toast">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -138,7 +154,8 @@ class Component extends DCLogic {
     const UNIT = { km: 'km', min: 'min', runs: 'runs' };
     const NAME = { km: (t) => 'First to ' + t + ' km', min: (t) => t + ' active minutes', runs: (t) => t + ' runs' };
     const base = emb ? 380 : 0;
-    const kind = s.kind || 'km', DEF = { km: 20, min: 300, runs: 3 }, STEP = { km: 5, min: 60, runs: 1 };
+    const kind = s.kind || 'km', DEF = { km: 50, min: 300, runs: 5 }, STEP = { km: 5, min: 60, runs: 1 };
+    const PRESET = { km: [20, 50, 100], min: [150, 300, 600], runs: [3, 5, 10] };
     const target = s.target || DEF[kind], days = s.days || 7;
     const others = board ? board.people.filter((p) => !p.me) : [];
     const picked = s.picked || (this.with ? { [this.with]: true } : {});
@@ -150,13 +167,15 @@ class Component extends DCLogic {
     const invite = !!(c && c.invited);
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-      LK: { back: lk('back', 'Recaps.dc.html') },
+      LK: { back: lk('back', 'Recaps.dc.html'), friends: lk('friends', 'Friends.dc.html') },
+      backIcon: c ? 'back' : 'x',
+      subShort: c ? (c.done ? 'Finished' : left ? left + (left === 1 ? ' day left' : ' days left') : 'Ends today') : '',
       d0: base + 'ms', d1: base + 120 + 'ms', d2: base + 200 + 'ms',
       loading: !!s.loading,
       title: c ? NAME[c.kind](c.target) : 'New challenge', sub: c ? (c.done ? 'Finished' : left ? left + (left === 1 ? ' day left' : ' days left') : 'Ends today') + ' · ' + racing.length + (racing.length === 1 ? ' person' : ' people') : 'Race your friends this week',
       hasChips: list.length > 0,
       chips: [...list.map((x) => ({ label: (x.invited ? 'Invite · ' : x.done ? 'Done · ' : '') + NAME[x.kind](x.target), on: !!c && c.id === x.id, dot: x.invited })),
-        { label: '+ New', on: !c, dot: false }].map((k, i) => ({ ...k, bg: k.on ? '#1F1D47' : '#FFFFFF', fg: k.on ? '#FFFFFF' : '#1F1D47',
+        { label: '+ New', on: !c, dot: false }].map((k, i) => ({ ...k, cls: k.on ? 'on' : '',
           pick: () => { this.cid = i < list.length ? list[i].id : 'new'; this.with = null; this.setState({ confirmLeave: false }); } })),
       hasRace: !!c && !invite, raceBg: '#F2766B', isInvite: invite, inviteFrom: c ? (c.creator || 'A friend').split(' ')[0] : '',
       hasPending: waiting.length > 0, pendingLine: 'Waiting for ' + waiting.map((m) => m.name.split(' ')[0]).join(', ') + ' to accept',
@@ -175,21 +194,26 @@ class Component extends DCLogic {
       raceAria: c ? racing.map((m) => (m.me ? 'you' : m.name) + ' ' + m.value + ' ' + UNIT[c.kind]).join(', ') : '',
       leadDash: c && lead ? Math.round(Math.min(1, lead.value / c.target) * 900) + ' 900' : '0 900',
       leadLine: c && lead ? (lead.value <= 0 ? 'No one has started yet' : (lead.me ? 'You lead' : lead.name.split(' ')[0] + ' leads') + (racing[1] ? ' by ' + Math.round((lead.value - racing[1].value) * 10) / 10 + ' ' + UNIT[c.kind] : '')) : '',
-      racers: c ? racing.slice(0, 4).map((m, i) => ({ name: m.me ? 'You' : m.name.split(' ')[0], ini: ini(m.name), c: m.me ? '#F6C343' : TINTS[(m.id % 4) + 1], at: (Math.min(1, m.value / c.target) * 100).toFixed(1) + '%', d: base + 300 + i * 120 + 'ms',
+      racers: c ? racing.slice(0, 4).map((m, i) => ({ name: m.me ? 'You' : m.name.split(' ')[0], ini: m.me ? ini(((M && M.auth.user()) || {}).name || 'You') : ini(m.name), avCls: m.me ? 'tg' : 'avn', c: m.me ? 'var(--m-goal)' : i === 0 ? 'var(--m-on-dark)' : 'var(--m-on-dark-mute)', at: Math.max(2, Math.min(1, m.value / c.target) * 100).toFixed(1) + '%', d: base + 300 + i * 120 + 'ms',
         value: m.value + ' ' + UNIT[c.kind], left: m.value >= c.target ? 'Reached the goal' : Math.round((c.target - m.value) * 10) / 10 + ' ' + UNIT[c.kind] + ' to go' })) : [],
       leaveLabel: s.confirmLeave ? 'Tap again to leave' : 'Leave challenge',
       leave: () => { if (!s.confirmLeave) { this.setState({ confirmLeave: true }); return; } if (M && c) M.friends.leave(c.id).then(() => { this.cid = null; this.setState({ confirmLeave: false }); this.load(); }); },
       // The composer only shows on "+ New" (or with no challenge yet); a running challenge shows just its race.
       composing: !c, composerTitle: 'What’s the challenge?',
-      kinds: [['km', 'Distance', 'First to X km'], ['min', 'Active', 'Most minutes'], ['runs', 'Runs', 'Number of runs']].map(([k, title, sub]) => ({ title, sub, on: k === kind,
-        bg: k === kind ? '#FDE9E6' : '#FFFFFF', border: k === kind ? '#F2766B' : '#E3E1F3', anim: k === kind ? 'motioChPick 260ms ease-out' : 'none', pick: () => this.setState({ kind: k, target: null }) })),
+      kinds: [['km', 'Race to a distance', 'First to finish wins'], ['min', 'Most active time', 'Walks, runs and rides count'], ['runs', 'Most runs', 'Every run counts once']].map(([k, title, sub]) => ({ title, sub, on: k === kind,
+        cls: k === kind ? 'on' : '', pick: () => this.setState({ kind: k, target: null, custom: false }) })),
+      targetName: { km: 'Distance', min: 'Active minutes', runs: 'Runs' }[kind],
+      presets: [...PRESET[kind].map((v) => ({ label: v + ' ' + UNIT[kind], on: !s.custom && v === target, pick: () => this.setState({ target: v, custom: false }) })),
+        { label: 'Custom', on: !!s.custom || !PRESET[kind].includes(target), pick: () => this.setState({ custom: true }) }].map((o) => ({ ...o, cls: o.on ? 'on' : '' })),
+      custom: !!s.custom || !PRESET[kind].includes(target),
       targetLabel: target + ' ' + UNIT[kind],
       tMinus: () => this.setState({ target: Math.max(STEP[kind], target - STEP[kind]) }), tPlus: () => this.setState({ target: target + STEP[kind] }),
-      spans: [[2, 'Weekend'], [7, 'A week'], [14, 'Two weeks']].map(([d, label]) => ({ label, on: d === days, bg: d === days ? '#1F1D47' : '#F3F2FA', fg: d === days ? '#FFFFFF' : '#1F1D47', pick: () => this.setState({ days: d }) })),
-      friends: others.map((p) => { const on = !!picked[p.id]; return { name: p.name.split(' ')[0], ini: ini(p.name), tint: TINTS[(p.id % 4) + 1], on, bg: on ? '#EEF0FF' : '#FFFFFF', border: on ? '#5B4FE0' : '#E3E1F3', pick: () => this.setState({ picked: { ...picked, [p.id]: !on } }) }; }),
+      spans: [[3, '3 days'], [7, '1 week'], [14, '2 weeks']].map(([d, label]) => ({ label, on: d === days, cls: d === days ? 'on' : '', pick: () => this.setState({ days: d }) })),
+      friends: others.map((p) => { const on = !!picked[p.id]; return { name: p.name.split(' ')[0], ini: ini(p.name), on, cls: on ? 'on' : '', aria: (on ? 'Remove ' : 'Add ') + p.name, pick: () => this.setState({ picked: { ...picked, [p.id]: !on } }) }; }),
       noFriends: !!board && !others.length,
       hasSendError: !!s.sendError, sendError: s.sendError || '',
-      sendOff: !ids.length || !!s.sending, sendBg: ids.length ? '#1F1D47' : '#C9C5EC', sendLabel: s.sending ? 'Sending…' : 'Send challenge',
+      sendOff: !ids.length || !!s.sending, sendOp: ids.length ? 1 : 0.35,
+      sendLabel: s.sending ? 'Sending…' : !ids.length ? 'Pick who to race' : 'Start ' + (kind === 'km' ? 'race' : 'challenge') + ' with ' + ids.length + (ids.length === 1 ? ' friend' : ' friends'),
       send: () => {
         if (!M || !ids.length) return;
         this.setState({ sending: true, sendError: null });
