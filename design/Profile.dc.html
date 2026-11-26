@@ -57,47 +57,47 @@ button,a{font:inherit;cursor:pointer}
     </sc-if>
 
     <section class="m-card" style="margin: 10px 20px 0; padding: 18px; display: flex; flex-direction: column; gap: 14px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
-      <span style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">This week</span><span style="font-size: 12px; color: #6B6890">{{ weekLine }}</span></span>
+      <span style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">This week</span><span style="font-size: 12px; color: var(--m-mute)">{{ weekLine }}</span></span>
       <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px">
-        <sc-for list="{{ wstats }}" as="st" hint-placeholder-count="4"><span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 18px; font-weight: 700">{{ st.v }}</span><span style="font-size: 11px; color: #6B6890">{{ st.k }}</span></span></sc-for>
+        <sc-for list="{{ wstats }}" as="st" hint-placeholder-count="4"><span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 18px; font-weight: 700">{{ st.v }}</span><span style="font-size: 11px; color: var(--m-mute)">{{ st.k }}</span></span></sc-for>
       </div>
       <div role="img" aria-label="{{ weekAria }}" style="display: flex; align-items: flex-end; gap: 8px; height: 84px">
-        <sc-for list="{{ week }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px"><span style="width: 100%; height: {{ b.h }}; border-radius: 7px; background: {{ b.c }}; transform-origin: bottom; animation: motioPfBar 640ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ b.d }} backwards"></span><span style="font-size: 11px; font-weight: {{ b.fw }}; color: #4A4770">{{ b.l }}</span></span></sc-for>
+        <sc-for list="{{ week }}" as="b" hint-placeholder-count="7"><span style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px"><span style="width: 100%; height: {{ b.h }}; border-radius: 7px; background: {{ b.c }}; transform-origin: bottom; animation: motioPfBar 640ms cubic-bezier(0.34, 1.2, 0.64, 1) {{ b.d }} backwards"></span><span style="font-size: 11px; font-weight: {{ b.fw }}; color: var(--m-mute)">{{ b.l }}</span></span></sc-for>
       </div>
       <sc-if value="{{ hasSplit }}" hint-placeholder-val="{{ true }}">
         <div role="img" aria-label="{{ splitAria }}" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 3px">
           <sc-for list="{{ split }}" as="g" hint-placeholder-count="3"><span style="width: {{ g.w }}; background: {{ g.c }}; transform-origin: left; animation: motioPfSeg 800ms cubic-bezier(0.22, 1, 0.36, 1) {{ g.d }} backwards"></span></sc-for>
         </div>
         <div aria-hidden="true" style="display: flex; flex-wrap: wrap; gap: 6px 14px">
-          <sc-for list="{{ split }}" as="g" hint-placeholder-count="3"><span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4A4770"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ g.c }}"></span>{{ g.label }} <b style="color: #1F1D47">{{ g.time }}</b></span></sc-for>
+          <sc-for list="{{ split }}" as="g" hint-placeholder-count="3"><span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--m-mute)"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ g.c }}"></span>{{ g.label }} <b style="color: #1F1D47">{{ g.time }}</b></span></sc-for>
         </div>
       </sc-if>
     </section>
 
     <sc-if value="{{ hasBadges }}" hint-placeholder-val="{{ true }}">
       <section class="m-card" style="margin: 10px 20px 0; padding: 18px; display: flex; flex-direction: column; gap: 12px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d3 }} backwards">
-        <a href="{{ LK.badges.href }}" onClick="{{ LK.badges.go }}" style="display: flex; justify-content: space-between; align-items: baseline; color: inherit; text-decoration: none"><span style="font-size: 15px; font-weight: 700">Badges</span><span style="font-size: 12px; color: #6B6890">See all ›</span></a>
+        <a href="{{ LK.badges.href }}" onClick="{{ LK.badges.go }}" style="display: flex; justify-content: space-between; align-items: baseline; color: inherit; text-decoration: none"><span style="font-size: 15px; font-weight: 700">Badges</span><span style="font-size: 12px; color: var(--m-mute)">See all ›</span></a>
         <div style="display: flex; gap: 10px; overflow: hidden">
-          <sc-for list="{{ badges }}" as="b" hint-placeholder-count="4"><span style="flex-shrink: 0; width: 68px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; animation: motioPfFace 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards"><span style="width: 52px; height: 52px; border-radius: 18px; background: {{ b.c }}; transform: rotate(-6deg); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg></span><span style="font-size: 10.5px; font-weight: 600; line-height: 1.25">{{ b.name }}</span></span></sc-for>
+          <sc-for list="{{ badges }}" as="b" hint-placeholder-count="4"><span style="flex-shrink: 0; width: 68px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; animation: motioPfFace 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ b.d }} backwards"><span style="width: 52px; height: 52px; border-radius: 26px; background: var(--m-ink); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--m-bg-hi)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path></svg></span><span style="font-size: 10.5px; font-weight: 600; line-height: 1.25">{{ b.name }}</span></span></sc-for>
         </div>
       </section>
     </sc-if>
 
     <section class="m-card" style="margin: 10px 20px 0; padding: 18px; display: flex; flex-direction: column; gap: 12px; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d4 }} backwards">
-      <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="display: flex; justify-content: space-between; align-items: baseline; color: inherit; text-decoration: none"><span style="font-size: 15px; font-weight: 700">Friends</span><span style="font-size: 12px; color: #6B6890">{{ friendsLine }}</span></a>
+      <a href="{{ LK.friends.href }}" onClick="{{ LK.friends.go }}" style="display: flex; justify-content: space-between; align-items: baseline; color: inherit; text-decoration: none"><span style="font-size: 15px; font-weight: 700">Friends</span><span style="font-size: 12px; color: var(--m-mute)">{{ friendsLine }}</span></a>
       <div style="display: flex; align-items: center">
-        <sc-for list="{{ faces }}" as="f" hint-placeholder-count="4"><span style="width: 44px; height: 44px; margin-right: -10px; border-radius: 22px; border: 3px solid #FFFFFF; background: {{ f.c }}; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; animation: motioPfFace 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ f.d }} backwards"><sc-if value="{{ f.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ f.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ f.noPhoto }}" hint-placeholder-val="{{ true }}">{{ f.ini }}</sc-if></span></sc-for>
-        <span style="margin-left: 22px; font-size: 13px; color: #4A4770">{{ facesNote }}</span>
+        <sc-for list="{{ faces }}" as="f" hint-placeholder-count="4"><span style="width: 44px; height: 44px; margin-right: -10px; border-radius: 22px; border: 3px solid var(--m-card); background: var(--m-ink); color: var(--m-bg-hi); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; animation: motioPfFace 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ f.d }} backwards"><sc-if value="{{ f.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ f.photo }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{ f.noPhoto }}" hint-placeholder-val="{{ true }}">{{ f.ini }}</sc-if></span></sc-for>
+        <span style="margin-left: 22px; font-size: 13px; color: var(--m-mute)">{{ facesNote }}</span>
       </div>
     </section>
     <section class="m-card" style="margin: 10px 20px 0; padding: 0; overflow: hidden; animation: motioPfIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ d4 }} backwards">
       <span style="display: block; padding: 16px 18px 6px; font-size: 15px; font-weight: 700">Account</span>
-      <span style="display: flex; flex-direction: column; padding: 4px 18px 12px; border-bottom: 1px solid #F0EFF8"><span style="font-size: 12px; color: #6B6890">Email</span><span style="font-size: 14px; font-weight: 600">{{ email }}</span></span>
+      <span style="display: flex; flex-direction: column; padding: 4px 18px 12px; border-bottom: 1px solid var(--m-line)"><span style="font-size: 12px; color: var(--m-mute)">Email</span><span style="font-size: 14px; font-weight: 600">{{ email }}</span></span>
       <sc-for list="{{ account }}" as="a" hint-placeholder-count="3">
-        <button type="button" onClick="{{ a.go }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 18px; border: 0; border-bottom: 1px solid #F0EFF8; background: #FFFFFF; color: {{ a.fg }}; font-size: 14px; font-weight: 600; text-align: left"><span style="flex: 1">{{ a.label }}</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9B5D6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+        <button type="button" onClick="{{ a.go }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 18px; border: 0; border-bottom: 1px solid var(--m-line); background: var(--m-card); color: {{ a.fg }}; font-size: 14px; font-weight: 600; text-align: left"><span style="flex: 1">{{ a.label }}</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--m-faint)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
       </sc-for>
     </section>
-    <span style="display: block; margin: 16px 20px 0; font-size: 11px; color: #6B6890; text-align: center">{{ privacyLine }}</span>
+    <span style="display: block; margin: 16px 20px 0; font-size: 11px; color: var(--m-mute); text-align: center">{{ privacyLine }}</span>
   </div>
 
   <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
@@ -148,7 +148,7 @@ button,a{font:inherit;cursor:pointer}
     </div>
   </sc-if>
 
-  <div aria-hidden="{{ barHidden }}" style="position: absolute; left: 0; right: 0; top: 0; z-index: 5; height: 72px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(246,245,252,0.96); box-shadow: 0 1px 0 #E3E1F3; opacity: {{ barOp }}; transform: translateY({{ barY }}); transition: opacity 220ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none">
+  <div aria-hidden="{{ barHidden }}" style="position: absolute; left: 0; right: 0; top: 0; z-index: 5; height: 72px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: var(--m-bg); box-shadow: 0 1px 0 var(--m-line); opacity: {{ barOp }}; transform: translateY({{ barY }}); transition: opacity 220ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none">
     <span style="flex: 1; margin-left: 56px; font-size: 17px; font-weight: 700">{{ name }}</span>
   </div>
   <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon" style="position: absolute; left: 20px; top: 14px; z-index: 6;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>

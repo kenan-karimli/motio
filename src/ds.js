@@ -18,7 +18,7 @@ const CSS = `
 .m-dark-theme{
   --m-bg:#0C0C0C; --m-bg-hi:#1C1C1C; --m-bg-lo:#050505;
   --m-card:#1A1A1A; --m-soft:#242424; --m-line:#2C2C2C;
-  --m-ink:#F2F2F0; --m-ink-2:#CFCFCB; --m-mute:#8F8F8A; --m-faint:#5E5E5A;
+  --m-ink:#F2F2F0; --m-accent:#F2F2F0; --m-ink-2:#CFCFCB; --m-mute:#8F8F8A; --m-faint:#5E5E5A;
   --m-dark:#F2F2F0; --m-dark-2:#D8D8D4; --m-on-dark:#0F0F0F; --m-on-dark-mute:#5E5E5A;
 }
 /* Page: a soft glow, never flat grey. */
