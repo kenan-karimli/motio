@@ -12,123 +12,106 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a,input{font:inherit}
-button,a{cursor:pointer}
+button,a,input{font:inherit;color:inherit}
+button,a{cursor:pointer;text-decoration:none}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.97)}
+button.m-row,a.m-row{border:0;width:100%;text-align:left}
+.avn{background:var(--m-card);box-shadow:inset 0 0 0 1.5px var(--m-line);color:var(--m-ink);overflow:hidden}
+.avn img{width:100%;height:100%;object-fit:cover}
+.avme{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me .m-sub{color:color-mix(in srgb,var(--m-bg-hi) 70%,transparent)}
+.m-row.me .avme{background:var(--m-ink-2)}
+.bare{flex:1;min-width:0;height:100%;border:0;padding:0;background:transparent;outline:none;font:500 15px var(--m-font);color:var(--m-ink)}
+.bare::placeholder{color:var(--m-faint)}
+.m-toast{position:absolute;left:50%;bottom:28px;z-index:50;padding:12px 18px;border-radius:999px;background:var(--m-ink);color:var(--m-bg-hi);font:600 13px var(--m-font);white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:motioToast 2300ms ease forwards}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioRankIn{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:none}}
-@keyframes motioRankBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes motioCodeIn{from{opacity:0;transform:translateY(14px) rotateX(70deg)}to{opacity:1;transform:none}}
-@keyframes motioFriendsUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes motioCrown{0%{transform:translateY(6px) scale(0.6);opacity:0}60%{transform:translateY(-2px) scale(1.08);opacity:1}100%{transform:none;opacity:1}}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: radial-gradient(110% 50% at 50% 0%, #2A2560 0%, #16142F 65%), #16142F; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 6px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Friends</h1>
-  </div>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Friends</span><button type="button" class="m-icon" onClick="{{ toCode }}" aria-label="Add a friend’s code"><m-ic n="qr"></m-ic></button><button type="button" class="m-icon ink" onClick="{{ invite }}" aria-label="Send my invite code"><m-ic n="share"></m-ic></button></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><span class="m-sub">{{ countLine }}<sc-if value="{{ hasCode }}" hint-placeholder-val="{{ true }}"> · code <b style="color: var(--m-ink); letter-spacing: .5px">{{ code }}</b></sc-if></span><h1 class="m-title">friends.</h1></div></div>
 
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 14px">
-    <section style="display: flex; flex-direction: column; gap: 8px">
-      <label style="position: relative; display: flex; align-items: center">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.4" stroke-linecap="round" style="position: absolute; left: 16px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
-        <input value="{{ query }}" onInput="{{ onQuery }}" type="search" aria-label="Find people on Motio" placeholder="Find people by name" autocomplete="off" spellcheck="false" style="flex: 1; height: 48px; box-sizing: border-box; padding: 0 16px 0 44px; border-radius: 24px; border: 0; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 14px; outline: none">
-      </label>
-      <sc-if value="{{ searching }}" hint-placeholder-val="{{ false }}"><span style="padding: 4px 6px; font-size: 12px; opacity: 0.65">{{ searchNote }}</span></sc-if>
-      <sc-for list="{{ found }}" as="f" hint-placeholder-count="0">
-        <button type="button" onClick="{{ f.open }}" aria-label="{{ f.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 0; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFFFFF; text-align: left; animation: motioRankIn 420ms cubic-bezier(0.22, 1, 0.36, 1) {{ f.d }} backwards">
-          <sc-if value="{{ f.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ f.avatar }}" alt="" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; object-fit: cover"></sc-if>
-          <sc-if value="{{ f.noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 20px; background: {{ f.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ f.ini }}</span></sc-if>
-          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ f.name }}</span><span style="font-size: 11px; opacity: 0.65">{{ f.sub }}</span></span>
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
-        </button>
-      </sc-for>
-    </section>
-    <sc-if value="{{ hasIncoming }}" hint-placeholder-val="{{ false }}">
-      <section style="display: flex; flex-direction: column; gap: 8px">
-        <span style="font-size: 15px; font-weight: 600">Friend requests</span>
+    <label class="input"><m-ic n="search" s="18" style="color: var(--m-faint)"></m-ic><input class="bare" value="{{ query }}" onInput="{{ onQuery }}" type="search" aria-label="Find people on Motio" placeholder="Search by name" autocomplete="off" spellcheck="false"></label>
+    <sc-if value="{{ searching }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="padding: 0 6px; font-size: 12px">{{ searchNote }}</span></sc-if>
+    <sc-if value="{{ hasFound }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <sc-for list="{{ found }}" as="f" hint-placeholder-count="2">
+          <button type="button" class="m-row m-in" onClick="{{ f.open }}" aria-label="{{ f.aria }}" style="--i: {{ f.i }}">
+            <span class="av avn"><sc-if value="{{ f.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ f.avatar }}" alt=""></sc-if><sc-if value="{{ f.noAvatar }}" hint-placeholder-val="{{ true }}">{{ f.ini }}</sc-if></span>
+            <span style="flex: 1; min-width: 0"><b style="font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ f.name }}</b><div class="m-sub" style="font-size: 12px">{{ f.sub }}</div></span>
+            <m-ic n="chev" s="16"></m-ic>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasRequests }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <span class="m-label" style="padding: 4px 6px">{{ requestLabel }}</span>
         <sc-for list="{{ incoming }}" as="q" hint-placeholder-count="1">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #2D2A6E; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ q.d }} backwards">
-            <button type="button" onClick="{{ q.open }}" aria-label="{{ q.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
-              <span style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; background: {{ q.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ q.ini }}</span>
-              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.name }}</span><span style="font-size: 11px; opacity: 0.65">wants to be friends</span></span>
+          <div class="m-row">
+            <button type="button" onClick="{{ q.open }}" aria-label="{{ q.openAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; text-align: left">
+              <span class="av avn"><sc-if value="{{ q.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ q.avatar }}" alt=""></sc-if><sc-if value="{{ q.noAvatar }}" hint-placeholder-val="{{ true }}">{{ q.ini }}</sc-if></span>
+              <span style="flex: 1; min-width: 0"><b style="font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ q.name }}</b><div class="m-sub" style="font-size: 12px">wants to be friends</div></span>
             </button>
-            <button type="button" onClick="{{ q.decline }}" aria-label="{{ q.declineAria }}" style="height: 38px; padding: 0 12px; border: 0; border-radius: 19px; background: rgba(255,255,255,0.1); color: #FFFFFF; font-size: 12px; font-weight: 600">Decline</button>
-            <button type="button" onClick="{{ q.accept }}" aria-label="{{ q.acceptAria }}" style="height: 38px; padding: 0 14px; border: 0; border-radius: 19px; background: #F6C343; color: #16142F; font-size: 12px; font-weight: 700">Accept</button>
+            <button type="button" class="m-icon" onClick="{{ q.decline }}" aria-label="{{ q.declineAria }}" style="width: 36px; height: 36px"><m-ic n="x" s="16"></m-ic></button>
+            <button type="button" class="m-chip on" onClick="{{ q.accept }}" aria-label="{{ q.acceptAria }}" style="height: 36px; font-size: 12px">Accept</button>
           </div>
         </sc-for>
-      </section>
+        <sc-for list="{{ outgoing }}" as="q" hint-placeholder-count="0">
+          <div class="m-row"><span style="flex: 1; min-width: 0; font-size: 13px">Waiting for <b>{{ q.name }}</b> to accept</span><button type="button" class="m-chip" onClick="{{ q.cancel }}" style="height: 32px; font-size: 12px">Cancel</button></div>
+        </sc-for>
+      </div>
     </sc-if>
-    <sc-for list="{{ outgoing }}" as="q" hint-placeholder-count="0">
-      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 18px; background: rgba(255,255,255,0.05); font-size: 13px"><span style="flex: 1; min-width: 0; opacity: 0.8">Waiting for <b>{{ q.name }}</b> to accept</span><button type="button" onClick="{{ q.cancel }}" style="height: 34px; padding: 0 12px; border: 0; border-radius: 17px; background: transparent; color: #FFB3AB; font-size: 12px; font-weight: 600">Cancel</button></div>
-    </sc-for>
 
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-      <a href="{{ LK.board.href }}" onClick="{{ LK.board.go }}" style="min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; background: #F6C343; color: #16142F; text-decoration: none">
-        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg>
-        <span style="min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Leaderboard</span><span style="font-size: 11px; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Everyone, this week</span></span>
-      </a>
-      <a href="{{ LK.sharing.href }}" onClick="{{ LK.sharing.go }}" style="min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #FFFFFF; text-decoration: none">
-        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"></path></svg>
-        <span style="min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Sharing</span><span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Routes, places, live</span></span>
-      </a>
-    </div>
-
-    <div style="display: flex; align-items: baseline; justify-content: space-between">
-      <span style="font-size: 15px; font-weight: 600">Active time this week</span>
-      <span style="font-size: 12px; opacity: 0.6">{{ weekLabel }}</span>
-    </div>
-
-    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
-      <div style="padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.06); font-size: 13px; opacity: 0.7; text-align: center">Loading your board…</div>
-    </sc-if>
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px"><span class="m-skel" style="height: 58px"></span><span class="m-skel" style="height: 58px"></span><span class="m-skel" style="height: 58px"></span></div></sc-if>
     <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
-      <div role="status" style="padding: 16px; border-radius: 20px; background: rgba(242,118,107,0.16); color: #FFD3CE; font-size: 13px; display: flex; align-items: center; gap: 10px"><span style="flex: 1">{{ error }}</span><button type="button" onClick="{{ reload }}" style="height: 34px; padding: 0 14px; border: 0; border-radius: 17px; background: #FFFFFF; color: #1F1D47; font-size: 12px; font-weight: 600">Retry</button></div>
+      <div role="status" class="m-card tx" style="display: flex; align-items: center; gap: 10px; padding: 14px 16px"><span style="flex: 1; font-size: 13px">{{ error }}</span><button type="button" class="m-chip" onClick="{{ reload }}" style="height: 32px; font-size: 12px">Retry</button></div>
     </sc-if>
 
-    <div style="display: flex; flex-direction: column; gap: 8px">
-      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
-        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 20px; background: {{ r.bg }}; border: 2px solid {{ r.border }}; animation: motioRankIn 480ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.delay }} backwards">
-          <button type="button" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}" style="display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; color: inherit; text-align: left">
-            <span style="width: 22px; font-size: 15px; font-weight: 700; color: {{ r.rankColor }}; text-align: center">{{ r.rank }}</span>
-            <span style="position: relative; width: 42px; height: 42px; flex-shrink: 0">
-              <sc-if value="{{ r.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ r.avatar }}" alt="" style="width: 42px; height: 42px; border-radius: 21px; object-fit: cover; display: block"></sc-if>
-              <sc-if value="{{ r.noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 42px; height: 42px; border-radius: 21px; background: {{ r.tint }}; color: #16142F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ r.initials }}</span></sc-if>
-              <sc-if value="{{ r.first }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="22" height="16" viewBox="0 0 22 16" style="position: absolute; left: 10px; top: -12px; animation: motioCrown 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.crownDelay }} backwards"><path d="M2 14 L4 4 L8 9 L11 2 L14 9 L18 4 L20 14 Z" fill="#F6C343" stroke="#16142F" stroke-width="1.5" stroke-linejoin="round"></path></svg></sc-if>
-            </span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</span><span style="font-size: 11px; opacity: 0.65">{{ r.sub }}</span></span>
-            <span style="text-align: right; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums">{{ r.time }}</span><span style="font-size: 11px; color: {{ r.trendColor }}">{{ r.trend }}</span></span>
+    <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+      <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <span style="display: flex; justify-content: space-between; padding: 4px 6px"><span class="m-label">Active time this week</span><span class="m-sub" style="font-size: 11px">{{ weekLabel }}</span></span>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+          <button type="button" class="m-row {{ r.cls }}" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}">
+            <span class="av {{ r.avCls }}"><sc-if value="{{ r.hasAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ r.avatar }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 19px"></sc-if><sc-if value="{{ r.noAvatar }}" hint-placeholder-val="{{ true }}">{{ r.initials }}</sc-if></span>
+            <span style="flex: 1; min-width: 0"><b style="font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</b><div class="m-sub" style="font-size: 12px">{{ r.sub }}</div></span>
+            <span style="text-align: right"><b style="font-size: 13px; display: block">{{ r.time }}</b><sc-if value="{{ r.hasTrend }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-size: 11px">{{ r.trend }}</span></sc-if></span>
           </button>
-          <span aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden"><span style="display: block; width: {{ r.w }}; height: 6px; border-radius: 3px; background: {{ r.barColor }}; transform-origin: left; animation: motioRankBar 900ms cubic-bezier(0.22, 1, 0.36, 1) {{ r.barDelay }} backwards"></span></span>
-        </div>
-      </sc-for>
-    </div>
-    <sc-if value="{{ alone }}" hint-placeholder-val="{{ true }}">
-      <div style="padding: 16px; border-radius: 20px; background: rgba(255,255,255,0.06); font-size: 13px; line-height: 1.5; opacity: 0.85">It’s just you so far. Send your code to a friend, or add theirs below, and your weeks line up side by side.</div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ alone }}" hint-placeholder-val="{{ false }}">
+      <div class="m-card m-in" style="--i: 1; display: flex; align-items: center; gap: 14px; padding: 16px"><m-art name="gift" style="width: 64px; height: 64px; flex-shrink: 0"></m-art><span style="font-size: 13px; line-height: 1.5">It’s just you so far. <b>Send your code to a friend</b>, or add theirs below, and your weeks line up side by side.</span></div>
     </sc-if>
 
-    <section style="margin-top: 6px; padding: 18px; border-radius: 24px; background: #FFFFFF; color: #1F1D47; display: flex; flex-direction: column; gap: 14px; animation: motioFriendsUp 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ dCard }} backwards">
-      <span style="font-size: 13px; color: #6B6890">Your invite code</span>
-      <div aria-label="{{ codeAria }}" role="text" style="display: flex; gap: 6px; perspective: 400px">
-        <sc-for list="{{ codeChars }}" as="c" hint-placeholder-count="6"><span style="flex: 1; height: 54px; border-radius: 14px; background: #F3F2FA; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; letter-spacing: 0; animation: motioCodeIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.delay }} backwards">{{ c.ch }}</span></sc-for>
-      </div>
-      <button type="button" onClick="{{ invite }}" style="height: 48px; border: 0; border-radius: 24px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F6C343" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg>Send my code</button>
-      <div style="height: 1px; background: #EEF0F6"></div>
-      <span style="font-size: 13px; color: #6B6890">Got a friend’s code?</span>
-      <div style="display: flex; gap: 8px">
-        <input value="{{ draft }}" onChange="{{ onDraft }}" aria-label="Friend’s invite code" maxlength="7" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" style="flex: 1; min-width: 0; height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 18px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase">
-        <button type="button" onClick="{{ addFriend }}" disabled="{{ addOff }}" style="height: 48px; padding: 0 20px; border: 0; border-radius: 14px; background: {{ addBg }}; color: #16142F; font-size: 14px; font-weight: 700; transition: background-color 200ms ease">{{ addLabel }}</button>
-      </div>
-      <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: #C2412F">{{ addError }}</span></sc-if>
-      <span style="font-size: 11px; line-height: 1.5; color: #6B6890">Friends see your weekly totals: active time, distance and number of trips. Routes, places and live location only if you share them.</span>
-    </section>
+    <div class="m-card m-in" style="--i: 2; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <a class="m-row" href="{{ LK.board.href }}" onClick="{{ LK.board.go }}" style="background: transparent"><m-ic n="trophy" s="18"></m-ic><span style="flex: 1"><b style="font-size: 14px">Everyone</b><div class="m-sub" style="font-size: 12px">The weekly board for all of Motio</div></span><m-ic n="chev" s="16"></m-ic></a>
+      <a class="m-row" href="{{ LK.sharing.href }}" onClick="{{ LK.sharing.go }}" style="background: transparent"><m-ic n="pin" s="18"></m-ic><span style="flex: 1"><b style="font-size: 14px">Sharing</b><div class="m-sub" style="font-size: 12px">Routes, places and live location</div></span><m-ic n="chev" s="16"></m-ic></a>
+    </div>
+
+    <span class="m-label" style="margin: 6px 4px 0">Your invite code</span>
+    <div class="m-card m-in" style="--i: 3; display: flex; flex-direction: column; gap: 14px; padding: 18px">
+      <span class="m-num" aria-label="{{ codeAria }}" role="text" style="font-size: 36px; letter-spacing: 4px">{{ codeShown }}</span>
+      <button type="button" class="m-btn wide" onClick="{{ invite }}"><m-ic n="share" s="17"></m-ic>Send my code</button>
+      <i style="height: 1px; background: var(--m-line)"></i>
+      <span class="field"><span class="m-label">Got a friend’s code?</span>
+        <span style="display: flex; gap: 8px">
+          <span class="input" style="flex: 1; min-width: 0; background: var(--m-soft)"><input ref="{{ codeRef }}" class="bare" value="{{ draft }}" onChange="{{ onDraft }}" aria-label="Friend’s invite code" maxlength="7" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" style="font-weight: 600; letter-spacing: 3px; text-transform: uppercase"></span>
+          <button type="button" class="m-btn" onClick="{{ addFriend }}" disabled="{{ addOff }}" style="height: 54px; padding: 0 22px; opacity: {{ addOp }}">{{ addLabel }}</button>
+        </span>
+      </span>
+      <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size: 12px; color: var(--m-warn)">{{ addError }}</span></sc-if>
+      <span class="m-sub" style="font-size: 12px">Friends see your weekly totals: active time, distance and trips. Routes, places and live location only if you share them.</span>
+    </div>
   </div>
-  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #FFFFFF; color: #1F1D47; font-size: 13px; font-weight: 600; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
-  </sc-if>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-toast">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -190,11 +173,11 @@ class Component extends DCLogic {
     const openPerson = (id) => () => { window.__motioFriend = id; if (this.props.onNav) this.props.onNav('friend'); };
     const ini = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
     const REL = { friend: 'Friend', requested: 'Request sent', incoming: 'Wants to be friends', none: '' };
-    const found = (s.found || []).map((f, i) => ({ name: f.name, ini: ini(f.name), tint: TINTS[(f.id % 4) + 1], hasAvatar: !!f.avatar, noAvatar: !f.avatar, avatar: f.avatar || '', d: i * 50 + 'ms',
+    const found = (s.found || []).map((f, i) => ({ name: f.name, ini: ini(f.name), tint: TINTS[(f.id % 4) + 1], hasAvatar: !!f.avatar, noAvatar: !f.avatar, avatar: f.avatar || '', i,
       sub: [f.private ? 'Private profile' : 'Public profile', REL[f.relation]].filter(Boolean).join(' · '), aria: 'Open ' + f.name + '’s profile', open: openPerson(f.id) }));
     const query = s.query || '';
     return {
-      query, found, searching: query.trim().length >= 2 && !found.length,
+      query, found, hasFound: found.length > 0, searching: query.trim().length >= 2 && !found.length,
       searchNote: s.searchBusy ? 'Searching…' : s.searchError ? s.searchError : 'No one with that name yet',
       onQuery: (e) => {
         const v = e.target.value;
@@ -211,9 +194,15 @@ class Component extends DCLogic {
       LK: { back: lk('back', 'You.dc.html'), board: lk('leaderboard', 'Leaderboard.dc.html'), sharing: lk('sharing', 'Sharing.dc.html') },
       weekLabel: 'since ' + new Date(ws).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
       loading: !!s.loading, hasError: !!s.error, error: s.error || '', reload: () => this.load(),
-      alone: !!B && people.length < 2,
+      alone: !!B && people.length < 2, hasRows: people.length > 1,
+      countLine: B ? (people.length - 1) + (people.length === 2 ? ' friend' : ' friends') : 'Your people',
+      hasCode: !!code, code,
+      hasRequests: !!B && ((B.incoming || []).length + (B.outgoing || []).length) > 0,
+      requestLabel: B && (B.incoming || []).length > 1 ? 'Requests' : 'Request',
+      codeRef: (el) => { this.codeEl = el; },
+      toCode: () => { if (this.codeEl) { this.codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); this.codeEl.focus({ preventScroll: true }); } },
       hasIncoming: !!B && (B.incoming || []).length > 0,
-      incoming: (B ? B.incoming || [] : []).map((q, i) => ({ name: q.name, ini: q.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), tint: TINTS[(q.id % 4) + 1], d: i * 70 + 'ms',
+      incoming: (B ? B.incoming || [] : []).map((q, i) => ({ name: q.name, ini: q.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(), hasAvatar: !!q.avatar, noAvatar: !q.avatar, avatar: q.avatar || '',
         acceptAria: 'Accept ' + q.name, declineAria: 'Decline ' + q.name, openAria: 'Open ' + q.name + '’s profile', open: openPerson(q.id),
         accept: () => M && M.friends.respond(q.id, true).then(() => { this.showToast(q.name.split(' ')[0] + ' is now your friend'); this.load(); }),
         decline: () => M && M.friends.respond(q.id, false).then(() => this.load()) })),
@@ -223,6 +212,7 @@ class Component extends DCLogic {
         const d = p.lastMin ? Math.round((p.activeMin / p.lastMin - 1) * 100) : null;
         const name = p.me ? 'You' : p.name;
         return {
+          cls: p.me ? 'me' : '', avCls: p.me ? 'avme' : 'avn', hasTrend: !p.hidden && (d != null || !!(p.joined && Date.now() - p.joined < 7 * 86400000)),
           rank: i + 1, rankColor: i === 0 ? '#F6C343' : 'rgba(255,255,255,0.6)', first: i === 0 && p.activeMin > 0, crownDelay: base + 500 + 'ms',
           name, first_name: p.name.split(' ')[0], initials: p.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase(),
           hasAvatar: !!p.avatar, noAvatar: !p.avatar, avatar: p.avatar || '', tint: TINTS[p.id % TINTS.length],
@@ -242,10 +232,10 @@ class Component extends DCLogic {
       }),
       dCard: base + 260 + 'ms',
       codeAria: 'Your invite code: ' + code.split('').join(' '),
-      codeChars: (code || '······').split('').map((ch, i) => ({ ch, delay: base + 420 + i * 60 + 'ms' })),
+      codeShown: code || '······',
       invite: () => { if (M && code) M.friends.invite(code).then((r) => { if (r === 'copied') this.showToast('Invite copied'); }).catch(() => {}); },
       draft, onDraft: (e) => this.setState({ draft: e.target.value, addError: null }),
-      addOff: clean.length !== 6 || !!s.adding, addBg: clean.length === 6 ? '#F6C343' : '#E3E1F3', addLabel: s.adding ? 'Adding…' : 'Add',
+      addOff: clean.length !== 6 || !!s.adding, addOp: clean.length === 6 ? 1 : 0.35, addLabel: s.adding ? 'Adding…' : 'Add',
       hasAddError: !!s.addError, addError: s.addError || '',
       addFriend: () => {
         if (!M || clean.length !== 6) return;

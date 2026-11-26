@@ -12,40 +12,59 @@
 <style>
 body{margin:0}
 html,body{background:#ECECEA}
-button,a{font:inherit;cursor:pointer}
+button,a,input{font:inherit;color:inherit}
+button,a{cursor:pointer;text-decoration:none}
+button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1)}
+button:active,a:active{transform:scale(0.97)}
+button.m-row,a.m-row{border:0;width:100%;text-align:left}
+.avn{background:var(--m-card);box-shadow:inset 0 0 0 1.5px var(--m-line);color:var(--m-ink);overflow:hidden}
+.avn img{width:100%;height:100%;object-fit:cover}
+.avme{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me{background:var(--m-ink);color:var(--m-bg-hi)}
+.m-row.me .m-sub{color:color-mix(in srgb,var(--m-bg-hi) 70%,transparent)}
+.m-row.me .avme{background:var(--m-ink-2)}
+.bare{flex:1;min-width:0;height:100%;border:0;padding:0;background:transparent;outline:none;font:500 15px var(--m-font);color:var(--m-ink)}
+.bare::placeholder{color:var(--m-faint)}
+.m-toast{position:absolute;left:50%;bottom:28px;z-index:50;padding:12px 18px;border-radius:999px;background:var(--m-ink);color:var(--m-bg-hi);font:600 13px var(--m-font);white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:motioToast 2300ms ease forwards}
 @keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes motioSoftIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
-@keyframes motioInRow{from{opacity:0;transform:translateY(14px) scale(0.98)}to{opacity:1;transform:none}}
-@keyframes motioInDot{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
-@keyframes motioInBell{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}}
+@keyframes motioToast{0%{opacity:0;transform:translate(-50%,12px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 6px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1">Notifications</h1>
-  </div>
-
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 40px; display: flex; flex-direction: column; gap: 8px">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Inbox</span><sc-if value="{{ hasNew }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-sub" onClick="{{ markRead }}" style="border: 0; background: transparent; padding: 0 4px; font-weight: 600">Mark all read</button></sc-if><sc-if value="{{ noNew }}" hint-placeholder-val="{{ false }}"><span style="width: 44px"></span></sc-if></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">inbox.</h1></div></div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-top: 60px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
-        <span ref="{{ moRef }}" style="display: block; width: 120px; height: 141px"></span>
-        <span style="font-size: 17px; font-weight: 700">You’re all caught up</span>
-        <span style="max-width: 260px; font-size: 13px; line-height: 1.5; color: #6B6890">Cheers, friend requests, challenges and new versions of Motio show up here.</span>
+      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 20px; text-align: center">
+        <m-art name="bell" style="width: 110px; height: 110px"></m-art>
+        <span class="m-h3">You’re all caught up</span>
+        <span class="m-sub" style="max-width: 260px">Cheers, friend requests, challenges and new versions of Motio show up here.</span>
       </div>
     </sc-if>
     <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
-      <h2 style="margin: 10px 2px 2px; font-size: 15px; font-weight: 700">{{ g.title }}</h2>
-      <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
-        <button type="button" onClick="{{ i.open }}" aria-label="{{ i.aria }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 20px; background: {{ i.bg }}; color: #1F1D47; text-align: left; animation: motioInRow 460ms cubic-bezier(0.22, 1, 0.36, 1) {{ i.d }} backwards">
-          <span aria-hidden="true" style="position: relative; width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: {{ i.c }}; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ i.icon }}"></path></svg></span>
-          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600; line-height: 1.35">{{ i.title }}</span><span style="font-size: 12px; line-height: 1.4; color: #6B6890">{{ i.body }}</span></span>
-          <span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px"><span style="font-size: 11px; color: #8A87A8; white-space: nowrap">{{ i.when }}</span><sc-if value="{{ i.isNew }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 9px; height: 9px; border-radius: 5px; background: #5B4FE0; animation: motioInDot 420ms cubic-bezier(0.34, 1.56, 0.64, 1) {{ i.d }} backwards"></span></sc-if></span>
-        </button>
-      </sc-for>
+      <span class="m-label" style="margin: 4px 4px 0">{{ g.title }}</span>
+      <div class="m-card m-in" style="--i: {{ g.i }}; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+          <div class="m-row">
+            <button type="button" onClick="{{ i.open }}" aria-label="{{ i.aria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; padding: 0; background: transparent; text-align: left">
+              <span class="av {{ i.avCls }}"><m-ic n="{{ i.icon }}" s="17"></m-ic></span>
+              <span style="flex: 1; min-width: 0; font-size: 14px; line-height: 1.35"><b>{{ i.title }}</b><sc-if value="{{ i.hasBody }}" hint-placeholder-val="{{ true }}"><div class="m-sub" style="font-size: 12px">{{ i.body }}</div></sc-if></span>
+            </button>
+            <sc-if value="{{ i.isRequest }}" hint-placeholder-val="{{ false }}">
+              <button type="button" class="m-icon" onClick="{{ i.decline }}" aria-label="{{ i.declineAria }}" style="width: 32px; height: 32px"><m-ic n="x" s="14"></m-ic></button>
+              <button type="button" class="m-chip on" onClick="{{ i.accept }}" aria-label="{{ i.acceptAria }}" style="height: 32px; font-size: 12px">Accept</button>
+            </sc-if>
+            <sc-if value="{{ i.hasDone }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-size: 12px; font-weight: 600">{{ i.done }}</span></sc-if>
+            <sc-if value="{{ i.showWhen }}" hint-placeholder-val="{{ true }}"><span class="m-sub" style="font-size: 11px; white-space: nowrap">{{ i.when }}</span></sc-if>
+            <sc-if value="{{ i.isNew }}" hint-placeholder-val="{{ false }}"><i aria-hidden="true" style="width: 8px; height: 8px; flex-shrink: 0; border-radius: 4px; background: var(--m-accent)"></i></sc-if>
+          </div>
+        </sc-for>
+      </div>
     </sc-for>
   </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-toast">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
@@ -56,6 +75,8 @@ class Component extends DCLogic {
     this.newIds = M ? new Set(M.inbox.items().filter((i) => M.inbox.isNew(i)).map((i) => i.id)) : new Set();
     if (M) { M.inbox.readAll(); M.inbox.refresh(); }
   }
+  showToast(msg) { clearTimeout(this.toastT); this.setState({ toast: null }); setTimeout(() => this.setState({ toast: msg }), 30); this.toastT = setTimeout(() => this.setState({ toast: null }), 2330); }
+  componentWillUnmount() { clearTimeout(this.toastT); }
   renderVals() {
     const emb = !!this.props.embedded;
     const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
@@ -72,15 +93,15 @@ class Component extends DCLogic {
     ];
     const items = M ? M.inbox.items() : sample;
     const isNew = (i) => (M ? this.newIds && this.newIds.has(i.id) : i.at > now - 3600000);
-    const LOOK = {
-      cheer: ['#F2766B', 'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z'],
-      request: ['#F6C343', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M19 8v6M16 11h6'],
-      friend: ['#3DBF5C', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 11l2 2 4-4'],
-      challenge: ['#6E8CF7', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3'],
-      shared: ['#B57BE0', 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14'],
-      comment: ['#6E8CF7', 'M4 5h16v11H9l-5 4z'],
-      update: ['#C9BDFF', 'M12 4v11M7 10l5 5 5-5M5 20h14'],
-      record: ['#F6C343', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3']
+    // Icon per kind; people things get a neutral avatar ring, Motio things a dark one, goals and records the goal colour.
+    const LOOK = { cheer: ['hand', 'avn'], request: ['useradd', 'avn'], friend: ['users', 'avn'], challenge: ['trophy', 'avn'], shared: ['map', 'avn'], comment: ['msg', 'avn'],
+      update: ['download', 'avme'], record: ['star', 'tg'] };
+    const s = this.state || {}, done = s.done || {};
+    const answer = (i, yes) => () => {
+      if (!M || !i.who) return;
+      this.setState({ done: { ...done, [i.id]: yes ? 'Friends now' : 'Declined' } });
+      M.friends.respond(i.who, yes).then(() => { if (yes) this.showToast(String(i.title).split(' ')[0] + ' is now your friend'); })
+        .catch((e) => { this.setState({ done: { ...(this.state.done || {}), [i.id]: null } }); this.showToast((e && e.message) || 'Couldn’t do that. Try again.'); });
     };
     const go = (i) => () => {
       const nav = (t) => this.props.onNav && this.props.onNav(t);
@@ -93,21 +114,25 @@ class Component extends DCLogic {
       else if (i.kind === 'challenge') nav('recaps');
       else if (i.who) nav('friend');
     };
-    const ago = (t) => { const m = Math.round((now - t) / 60000); return m < 1 ? 'now' : m < 60 ? m + ' min' : m < 1440 ? Math.round(m / 60) + ' h' : Math.round(m / 1440) + ' d'; };
+    const ago = (t) => { const m = Math.round((now - t) / 60000); return m < 1 ? 'now' : m < 60 ? m + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : m < 7 * 1440 ? new Date(t).toLocaleDateString('en-GB', { weekday: 'short' }) : new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
     const base = emb ? 380 : 0;
     const row = (i, n) => {
-      const L = LOOK[i.kind] || LOOK.update, nw = isNew(i);
-      return { title: i.title, body: i.body, when: ago(i.at), isNew: nw, bg: nw ? '#FFFFFF' : 'rgba(255,255,255,0.55)', c: L[0], icon: L[1],
-        d: base + Math.min(n, 10) * 45 + 'ms', aria: i.title + '. ' + i.body + (nw ? '. New' : ''), open: go(i) };
+      const L = LOOK[i.kind] || LOOK.update, nw = isNew(i), req = i.kind === 'request' && !!i.who && !done[i.id];
+      return { title: i.title, body: i.body, hasBody: !!i.body, when: ago(i.at), showWhen: !req && !done[i.id], isNew: nw && !req, icon: L[0], avCls: L[1],
+        isRequest: req, hasDone: !!done[i.id], done: done[i.id] || '', accept: answer(i, true), decline: answer(i, false),
+        acceptAria: 'Accept ' + i.title, declineAria: 'Decline ' + i.title,
+        aria: i.title + '. ' + i.body + (nw ? '. New' : ''), open: go(i) };
     };
     const fresh = items.filter(isNew), older = items.filter((i) => !isNew(i));
     const groups = [];
-    if (fresh.length) groups.push({ title: 'New', items: fresh.map(row) });
-    if (older.length) groups.push({ title: fresh.length ? 'Earlier' : 'Recent', items: older.map((i, n) => row(i, n + fresh.length)) });
+    if (fresh.length) groups.push({ title: 'New', i: 0, items: fresh.map(row) });
+    if (older.length) groups.push({ title: fresh.length ? 'Earlier' : 'Recent', i: 1, items: older.map((i, n) => row(i, n + fresh.length)) });
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'Main.dc.html') },
-      empty: !items.length, groups, moRef: window.MotioMascot ? window.MotioMascot.fox('curl', 130) : null
+      empty: !items.length, groups, hasNew: fresh.length > 0, noNew: !fresh.length,
+      markRead: () => { this.newIds = new Set(); if (M) M.inbox.readAll(); this.forceUpdate(); },
+      hasToast: !!s.toast, toast: s.toast || ''
     };
   }
 }
