@@ -68,8 +68,8 @@ button:active,a:active{transform:scale(0.96)}
   </sc-if>
   <sc-if value="{{ notBegin }}" hint-placeholder-val="{{ true }}">
     <div style="position: absolute; left: 22px; right: 22px; bottom: 34px; z-index: 6; display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
-      <button type="button" class="m-btn w" onClick="{{ save }}" disabled="{{ saving }}">Save</button>
-      <button type="button" class="m-btn" onClick="{{ openShare }}">Share</button>
+      <button type="button" class="m-btn" onClick="{{ save }}" disabled="{{ saving }}" style="background: rgba(255,255,255,.16); color: #fff; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px)">Save</button>
+      <button type="button" class="m-btn" onClick="{{ openShare }}" style="background: #fff; color: #111">Share</button>
     </div>
   </sc-if>
 

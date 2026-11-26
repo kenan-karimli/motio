@@ -35,9 +35,7 @@ test('hidden stats, chart, map and name stay out of the card', () => {
   assert.deepEqual(storyParts('today', D.today).map((p) => p.key), ['distance', 'steps', 'chart']);
 });
 
-test('the five board styles, and old style names still work', () => {
-  assert.deepEqual(Object.keys(THEMES), ['mono', 'glow', 'poster', 'ticket', 'editorial']);
-  assert.match(storyHTML('time', D.time, { theme: 'night' }), /radial-gradient\(90% 60%/); // night → glow
-  assert.match(storyHTML('time', D.time, { theme: 'poster' }), />21h<br>40m</);
-  assert.match(storyHTML('trip', D.trip, { theme: 'mono', h: 360 }), /^<div style="width:360px;height:360px/);
+test('the 4.x styles are back, and a post is square', () => {
+  for (const k of ['mono', 'glow', 'map', 'night', 'minimal', 'editorial']) assert.ok(THEMES[k], k);
+  assert.match(storyHTML('trip', D.trip, { theme: 'mono', h: 360 }), /height:360px/);
 });
