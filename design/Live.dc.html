@@ -148,7 +148,7 @@ class Component extends DCLogic {
         const route = w.points && w.points.length > 1 ? [{ id: 'w', mode: w.mode, color: m[1], start: w.start, end: now, points: w.points, live: true }] : [];
         const n = (w.points || []).length;
         if (!this.liveMap && !this.mapT) this.mapT = setTimeout(() => { this.mapT = null; if (!this.liveEl) return; this.liveMap = window.MotioMap.mount(this.liveEl, route); this.liveN = n; this.liveMap.setTime(now, false); }, 300);
-        else if (this.liveN !== n) { this.liveN = n; this.liveMap.update(route); this.liveMap.setTime(now, false); }
+        else if (this.liveN !== n) { this.liveN = n; this.liveMap.update(route); this.liveMap.setTime(now, true); /* follow you, keep your zoom */ }
       }
     }
     const counting = !!s.count;

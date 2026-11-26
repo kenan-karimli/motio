@@ -116,8 +116,8 @@ class Component extends DCLogic {
     const settling = !this.ctrl && performance.now() - this.bornAt < 430;
     if (settling && !this.mountT) this.mountT = setTimeout(() => { this.mountT = null; this.bornAt = 0; this.setState({ ready: true, tick: Date.now() }); }, 440 - (performance.now() - this.bornAt));
     if (this.mapEl && window.MotioMap && !settling) {
-      if (!this.ctrl) { this.ctrl = window.MotioMap.mount(this.mapEl, routes); this.mapKey = key; setTimeout(() => this.ctrl && this.ctrl.invalidate(), 450); }
-      else if (this.mapKey !== key) { this.ctrl.update(routes); this.mapKey = key; }
+      if (!this.ctrl) { this.ctrl = window.MotioMap.mount(this.mapEl, routes); this.mapKey = key; this.mapFrom = from; setTimeout(() => this.ctrl && this.ctrl.invalidate(), 450); }
+      else if (this.mapKey !== key) { this.ctrl.update(routes, this.mapFrom !== from); this.mapKey = key; this.mapFrom = from; } // a new day frames itself; new points keep your zoom
       requestAnimationFrame(() => this.ctrl && this.ctrl.setTime(t, !!s.playing));
     }
 

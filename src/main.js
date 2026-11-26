@@ -162,6 +162,7 @@ const takeLink = (url) => { takeInvite(url); takeShare(url); takeClub(url); };
 CapApp.addListener('appUrlOpen', (e) => takeLink(e.url));
 CapApp.getLaunchUrl().then((r) => r && takeLink(r.url)).catch(() => {});
 CapApp.addListener('backButton', () => {
+  if (document.querySelector('.mqr:not(.off)')) { window.dispatchEvent(new Event('motio:qrclose')); return; } // back closes the big QR first
   if (!(window.__motioBack && window.__motioBack())) CapApp.minimizeApp();
 }).catch(() => {});
 

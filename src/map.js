@@ -57,7 +57,7 @@ window.MotioMap = {
     let lines = [];
     let dead = false;
 
-    function draw(rs) {
+    function draw(rs, fit = true) {
       current = rs;
       layers.clearLayers(); dim.clearLayers(); lines = [];
       const all = [];
@@ -70,6 +70,7 @@ window.MotioMap = {
       const ends = [];
       rs.forEach((r) => { ends.push(r.points[0]); if (!r.live) ends.push(r.points[r.points.length - 1]); });
       ends.filter((p, i) => !ends.slice(0, i).some((q) => Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) < 0.0012)).forEach((p) => stay([p[0], p[1]], dim));
+      if (!fit) return; // new points while you look: keep your zoom and place
       if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.18), { animate: false });
       else map.setView([40.4093, 49.8671], 12);
     }
@@ -80,7 +81,7 @@ window.MotioMap = {
     [300, 700, 1500].forEach((ms) => setTimeout(() => { if (!dead) map.invalidateSize(); }, ms));
 
     return {
-      update(rs) { draw(rs); },
+      update(rs, fit = false) { draw(rs, fit); },
       setTime(t, follow) {
         if (dead) return null;
         const p = interpolate(current, t);

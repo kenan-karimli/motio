@@ -344,6 +344,34 @@ export const friends = {
   }
 };
 // A QR code as an SVG string (ink on transparent), for invite and club links.
+// Big QR, full screen: the page blurs away, the card springs up and the code draws open from the middle.
+const qrEsc = (v) => String(v ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+export function showQr({ title = '', sub = '', link, code = '' }) {
+  if (!document.getElementById('mqr-css')) {
+    const st = document.createElement('style'); st.id = 'mqr-css';
+    st.textContent = `.mqr{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:'Inter Tight',system-ui,sans-serif}
+.mqr-bg{position:absolute;inset:0;background:rgba(12,12,12,.42);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);opacity:0;transition:opacity .4s ease}
+.mqr-card{position:relative;width:min(78vw,320px);padding:26px 26px 22px;border-radius:32px;background:#fff;color:#141414;box-shadow:0 30px 80px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;opacity:0;transform:translateY(40px) scale(.86);transition:transform .6s cubic-bezier(.34,1.35,.64,1),opacity .35s ease}
+.mqr-code{width:100%;aspect-ratio:1;margin-bottom:12px;position:relative;overflow:hidden;border-radius:18px;clip-path:circle(0% at 50% 50%);transition:clip-path .8s cubic-bezier(.22,1,.36,1) .18s}
+.mqr-code::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.85) 50%,transparent 65%);transform:translateX(-120%)}
+.mqr.on .mqr-code::after{animation:mqrShine 1.1s ease .9s}
+@keyframes mqrShine{to{transform:translateX(120%)}}
+.mqr b{font-size:22px;font-weight:600;letter-spacing:-.5px}.mqr span{font-size:14px;color:#6B6B66}
+.mqr-pill{margin-top:12px;padding:10px 18px;border-radius:999px;background:#F2F2F0;font-weight:600;letter-spacing:4px;font-size:16px}
+.mqr-x{position:absolute;top:-62px;right:0;width:46px;height:46px;border-radius:23px;border:0;background:rgba(255,255,255,.9);color:#141414;font-size:24px;line-height:1;cursor:pointer}
+.mqr.on .mqr-bg{opacity:1}.mqr.on .mqr-card{opacity:1;transform:none}.mqr.on .mqr-code{clip-path:circle(75% at 50% 50%)}
+.mqr.off .mqr-bg{opacity:0}.mqr.off .mqr-card{opacity:0;transform:translateY(30px) scale(.92);transition:transform .32s ease-in,opacity .28s ease-in}`;
+    document.head.appendChild(st);
+  }
+  const el = document.createElement('div'); el.className = 'mqr';
+  el.innerHTML = `<div class="mqr-bg"></div><div class="mqr-card" role="dialog" aria-modal="true" aria-label="${qrEsc(title)}"><button type="button" class="mqr-x" aria-label="Close">×</button><div class="mqr-code" role="img" aria-label="QR code">${qrSvg(link)}</div><b>${qrEsc(title)}</b><span>${qrEsc(sub)}</span>${code ? `<div class="mqr-pill">${qrEsc(code)}</div>` : ''}</div>`;
+  document.body.appendChild(el);
+  const close = () => { if (el.classList.contains('off')) return; el.classList.add('off'); el.classList.remove('on'); setTimeout(() => el.remove(), 340); window.removeEventListener('motio:qrclose', close); };
+  el.querySelector('.mqr-bg').onclick = close; el.querySelector('.mqr-x').onclick = close;
+  window.addEventListener('motio:qrclose', close);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
+  return close;
+}
 export function qrSvg(text) { const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(); let d = ''; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`; return `<svg viewBox="0 0 ${n} ${n}" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><path d="${d}" fill="currentColor"/></svg>`; }
 // Strava (through the server): connect with Strava's login page, then new walks, runs and rides upload automatically.
 export const strava = {
@@ -569,7 +597,7 @@ setInterval(() => { if (!document.hidden) pollInbox(); }, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pollInbox(); });
 setTimeout(() => { pollInbox(); inboxNative(); }, 2000);
 export const inbox = {
-  items: () => [...(S.localInbox || []), ...(S.inbox || [])].sort((a, b) => b.at - a.at),
+  items: () => [...(S.localInbox || []), ...(S.inbox || [])].sort((a, b) => b.at - a.at).filter((i, n, all) => i.kind !== 'record' || all.findIndex((j) => j.kind === 'record' && j.title === i.title) === n),
   unread: () => [...(S.localInbox || []), ...(S.inbox || [])].filter((i) => i.at > (S.inboxRead || 0)).length,
   readAll: () => { S.inboxRead = Date.now(); changed(); },
   isNew: (i) => i.at > (S.inboxRead || 0),
@@ -1663,7 +1691,8 @@ function checkRecords() {
     S.recordsSeen = { ...(seen || {}), ...now };
     if (!seen || !beaten.length) { changed(); return; }
     const items = beaten.map((r) => ({ id: 'record-' + r.key + '-' + r.at, kind: 'record', at: Date.now(), title: 'New record: ' + r.title.toLowerCase(), body: fmtRecord(r) + ', your best so far.' }));
-    S.localInbox = [...items, ...(S.localInbox || [])].slice(0, 20);
+    // One line per record: a newer best replaces the older note about the same record.
+    S.localInbox = [...items, ...(S.localInbox || []).filter((i) => !items.some((n) => i.kind === 'record' && i.title === n.title))].slice(0, 20);
     changed();
     window.dispatchEvent(new CustomEvent('motio:records', { detail: beaten })); // full-screen moment (src/moments.js)
     if (native) LocalNotifications.checkPermissions().then((p) => p.display === 'granted' && LocalNotifications.schedule({ notifications: items.slice(0, 2).map((i, n) => ({ id: 2000 + n, title: i.title, body: i.body, extra: { open: 'inbox' } })) })).catch(() => {});
@@ -1717,7 +1746,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { qrSvg, MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, permissions, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { qrSvg, showQr, MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, permissions, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

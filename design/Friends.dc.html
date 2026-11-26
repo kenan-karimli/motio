@@ -99,8 +99,8 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
     <span class="m-label" style="margin: 6px 4px 0">Your invite code</span>
     <div class="m-card m-in" style="--i: 3; display: flex; flex-direction: column; gap: 14px; padding: 18px">
       <div style="display: flex; gap: 16px; align-items: center">
-        <span ref="{{ qrRef }}" role="img" aria-label="QR code for your invite link" style="width: 104px; height: 104px; flex-shrink: 0; padding: 8px; box-sizing: border-box; border-radius: 18px; background: #FFFFFF; color: #141414"></span>
-        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="m-num" aria-label="{{ codeAria }}" role="text" style="font-size: 30px; letter-spacing: 3px">{{ codeShown }}</span><span class="m-sub" style="font-size: 12px">Friends scan this, tap your link or type the code.</span></span>
+        <button type="button" onClick="{{ showQr }}" aria-label="Show my QR code" style="width: 64px; height: 64px; flex-shrink: 0; border: 0; border-radius: 20px; background: var(--m-ink); color: var(--m-bg-hi); display: flex; align-items: center; justify-content: center; cursor: pointer"><m-ic n="qr" s="26"></m-ic></button>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="m-num" aria-label="{{ codeAria }}" role="text" style="font-size: 30px; letter-spacing: 3px">{{ codeShown }}</span><span class="m-sub" style="font-size: 12px">Tap the QR for friends to scan, or share your link.</span></span>
       </div>
       <span style="display: flex; gap: 8px"><button type="button" class="m-btn" onClick="{{ invite }}" style="flex: 1"><m-ic n="share" s="17"></m-ic>Share link</button><button type="button" class="m-btn w" onClick="{{ copyLink }}">Copy</button></span>
       <i style="height: 1px; background: var(--m-line)"></i>
@@ -237,7 +237,7 @@ class Component extends DCLogic {
       codeAria: 'Your invite code: ' + code.split('').join(' '),
       codeShown: code || '······',
       copyLink: () => { if (M && code) navigator.clipboard.writeText(M.friends.inviteLink(code)).then(() => this.showToast('Link copied')).catch(() => {}); },
-      qrRef: (el) => { if (!el || !M || !code) return; const h = M.qrSvg(M.friends.inviteLink(code)); if (el.__q !== h) { el.innerHTML = h; el.__q = h; } },
+      showQr: () => { if (M && code) M.showQr({ title: 'Add me on Motio', sub: 'Scan to add ' + ((M.auth.user() || {}).name || 'me').split(' ')[0], link: M.friends.inviteLink(code), code }); },
       invite: () => { if (M && code) M.friends.invite(code).then((r) => { if (r === 'copied') this.showToast('Invite copied'); }).catch(() => {}); },
       draft, onDraft: (e) => this.setState({ draft: e.target.value, addError: null }),
       addOff: clean.length !== 6 || !!s.adding, addOp: clean.length === 6 ? 1 : 0.35, addLabel: s.adding ? 'Adding…' : 'Add',

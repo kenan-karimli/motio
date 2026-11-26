@@ -74,10 +74,10 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
         <m-ic n="chevron"></m-ic>
       </button>
       <div class="m-card m-in" style="--i: 1; padding: 16px; display: flex; gap: 16px; align-items: center">
-        <span ref="{{ qrRef }}" role="img" aria-label="QR code for the club link" style="width: 112px; height: 112px; flex-shrink: 0; padding: 8px; box-sizing: border-box; border-radius: 18px; background: #FFFFFF; color: #141414"></span>
+        <button type="button" onClick="{{ showQr }}" aria-label="Show the club QR code" style="width: 64px; height: 64px; flex-shrink: 0; border: 0; border-radius: 20px; background: var(--m-ink); color: var(--m-bg-hi); display: flex; align-items: center; justify-content: center; cursor: pointer"><m-ic n="qr" s="26"></m-ic></button>
         <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
           <b style="font-size: 15px">Invite to the club</b>
-          <span class="m-sub" style="font-size: 12px">Scan, tap the link or enter code <b style="color: var(--m-ink)">{{ code }}</b></span>
+          <span class="m-sub" style="font-size: 12px">Show the QR, share the link or give code <b style="color: var(--m-ink)">{{ code }}</b></span>
           <span style="display: flex; gap: 6px; margin-top: 8px"><button type="button" class="m-chip on" onClick="{{ invite }}" style="height: 34px; font-size: 12px">Share link</button><button type="button" class="m-chip" onClick="{{ copyLink }}" style="height: 34px; font-size: 12px; background: var(--m-soft)">Copy</button></span>
         </span>
       </div>
@@ -136,7 +136,7 @@ class Component extends DCLogic {
       invite: () => { if (!C || !M) return; M.friends.inviteClub(C).then((r) => r === 'copied' && this.showToast('Link copied')).catch(() => {}); },
       openChat: () => { if (!C) return; window.__motioChat = 'c:' + C.id; if (this.props.onNav) this.props.onNav('chat'); },
       copyLink: () => { if (!C || !M) return; navigator.clipboard.writeText(M.friends.clubLink(C.code)).then(() => this.showToast('Link copied')).catch(() => {}); },
-      qrRef: (el) => { if (!el || !C || !M) return; const h = M.qrSvg(M.friends.clubLink(C.code)); if (el.__q !== h) { el.innerHTML = h; el.__q = h; } },
+      showQr: () => { if (C && M) M.showQr({ title: C.name, sub: 'Scan to join the club', link: M.friends.clubLink(C.code), code: C.code }); },
       hasError: !!s.error, error: s.error || '',
       hasClubs: clubs.length > 0,
       clubs: clubs.map((c) => ({ name: c.name, sub: c.members + (c.members === 1 ? ' member' : ' members') + ' · code ' + c.code, ini: ini(c.name), open: () => this.openClub(c.id) })),
