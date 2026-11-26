@@ -24,40 +24,54 @@ button,a{font:inherit;cursor:pointer}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F6F5FC; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div style="flex-shrink: 0; padding: 16px 20px 10px; display: flex; align-items: center; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <div style="flex: 1; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 26px; font-weight: 700; line-height: 1.1">Insights</h1><span style="font-size: 12px; color: #6B6890">{{ range }}</span></div>
-  </div>
-
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 32px; display: flex; flex-direction: column; gap: 12px">
-    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div style="padding: 20px; border-radius: 24px; background: #FFFFFF; font-size: 14px; line-height: 1.5; color: #4A4770">Insights appear once you’ve moved for 20 minutes this week. Each one is a pattern Motio spots in your own trips.</div></sc-if>
-    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
-      <section style="position: relative; overflow: hidden; padding: 18px; border-radius: 26px; background: {{ c.bg }}; color: {{ c.fg }}; display: flex; flex-direction: column; gap: 12px; animation: motioInsIn 560ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.d }} backwards">
-        <span style="font-size: 12px; opacity: 0.8">{{ c.kicker }}</span>
-        <span style="font-size: 21px; font-weight: 700; line-height: 1.25">{{ c.text }}</span>
-        <sc-if value="{{ c.isHours }}" hint-placeholder-val="{{ false }}">
-          <div role="img" aria-label="Minutes moving by hour, 6 AM to midnight" style="display: flex; align-items: flex-end; gap: 3px; height: 66px"><sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="18"><span style="flex: 1; height: {{ b.h }}; border-radius: 3px; background: {{ b.c }}; transform-origin: bottom; animation: motioInsBar 600ms cubic-bezier(0.34, 1.3, 0.64, 1) {{ b.d }} backwards"></span></sc-for></div>
-          <span style="display: flex; justify-content: space-between; font-size: 10px; opacity: 0.75"><span>6 AM</span><span>Noon</span><span>6 PM</span><span>Midnight</span></span>
-        </sc-if>
-        <sc-if value="{{ c.isDays }}" hint-placeholder-val="{{ false }}">
-          <div role="img" aria-label="Active time by day" style="display: flex; align-items: center; justify-content: space-between; height: 64px"><sc-for list="{{ c.bubbles }}" as="b" hint-placeholder-count="7"><span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: {{ b.s }}; height: {{ b.s }}; border-radius: 50%; background: {{ b.c }}; animation: motioInsBub 520ms cubic-bezier(0.34, 1.5, 0.64, 1) {{ b.d }} backwards"></span><span style="font-size: 11px; font-weight: {{ b.fw }}">{{ b.l }}</span></span></sc-for></div>
-        </sc-if>
-        <sc-if value="{{ c.isClock }}" hint-placeholder-val="{{ false }}">
-          <div role="img" aria-label="When your days started, last two weeks" style="position: relative; height: 46px; border-radius: 14px; background: rgba(31,29,71,0.06)">
-            <span style="position: absolute; left: {{ c.bandL }}; width: {{ c.bandW }}; top: 8px; bottom: 8px; border-radius: 10px; background: rgba(91,79,224,0.15)"></span>
-            <sc-for list="{{ c.ticks }}" as="t" hint-placeholder-count="6"><span style="position: absolute; left: {{ t.x }}; top: 17px; width: 12px; height: 12px; margin-left: -6px; border-radius: 6px; background: #5B4FE0; animation: motioInsTick 420ms cubic-bezier(0.34, 1.5, 0.64, 1) {{ t.d }} backwards"></span></sc-for>
-            <span style="position: absolute; left: 10px; top: 14px; font-size: 10px; opacity: 0.6">{{ c.lo }}</span><span style="position: absolute; right: 10px; top: 14px; font-size: 10px; opacity: 0.6">{{ c.hi }}</span>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Insights</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 108px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+    <div class="head m-in" style="--i: 0"><div class="t"><span class="m-sub">{{ range }}</span><h1 class="m-title">insights.</h1></div></div>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div class="m-card m-in" style="--i: 1; padding: 20px"><span class="m-sub" style="font-size: 14px; color: var(--m-ink-2)">Insights appear once you’ve moved for <b style="color: var(--m-ink)">20 minutes this week</b>. Each one is a pattern Motio spots in your own trips.</span></div></sc-if>
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="5">
+      <sc-if value="{{ c.isDays }}" hint-placeholder-val="{{ true }}">
+        <div class="m-card dark m-in" style="--i: {{ c.i }}; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+          <span class="m-label">{{ c.kicker }}</span>
+          <div style="display: flex; align-items: flex-end; justify-content: space-between"><span class="m-num">{{ c.big }}</span><span class="m-sub" style="text-align: right">{{ c.dayName }}<br><b style="color: var(--m-on-dark)">{{ c.times }}</b></span></div>
+          <div role="img" aria-label="Moving time on each of the last 7 days" style="display: flex; align-items: flex-end; gap: 6px; height: 40px; margin-top: 4px"><sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="7"><span style="flex: 1; height: {{ b.h }}; border-radius: 4px; background: {{ b.c }}"></span></sc-for></div>
+          <div style="display: flex; gap: 6px"><sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="7"><span class="m-sub" style="flex: 1; text-align: center; font-size: 10px">{{ b.l }}</span></sc-for></div>
+          <span class="m-sub">{{ c.text }}</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ c.isHours }}" hint-placeholder-val="{{ false }}">
+        <div class="m-card m-in" style="--i: {{ c.i }}; display: flex; flex-direction: column; gap: 12px; padding: 18px">
+          <div style="display: flex; justify-content: space-between"><span class="m-h3">{{ c.kicker }}</span><span class="m-sub" style="font-size: 12px">darker = more</span></div>
+          <div role="img" aria-label="Minutes moving by hour, 6 AM to midnight" style="display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px"><sc-for list="{{ c.cells }}" as="b" hint-placeholder-count="18"><i style="height: 28px; border-radius: 6px; background: {{ b.c }}; opacity: {{ b.o }}"></i></sc-for></div>
+          <div class="m-sub" style="display: flex; justify-content: space-between; font: 600 10px var(--m-font); margin-top: -6px"><span>6</span><span>9</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div>
+          <span style="font-size: 14px">{{ c.text }}</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ c.isClock }}" hint-placeholder-val="{{ false }}">
+        <div class="m-card m-in" style="--i: {{ c.i }}; display: flex; flex-direction: column; gap: 6px; padding: 16px">
+          <span class="m-h3" style="margin-bottom: 4px">{{ c.kicker }}</span>
+          <div class="m-row"><m-ic n="clock" s="18"></m-ic><span style="font-size: 14px; flex: 1">{{ c.text }}</span></div>
+          <div role="img" aria-label="When your days started, last two weeks" style="position: relative; height: 36px; border-radius: 18px; background: var(--m-soft); margin-top: 4px">
+            <span style="position: absolute; left: {{ c.bandL }}; width: {{ c.bandW }}; top: 8px; bottom: 8px; border-radius: 10px; background: color-mix(in srgb, var(--m-ink) 10%, transparent)"></span>
+            <sc-for list="{{ c.ticks }}" as="t" hint-placeholder-count="6"><span style="position: absolute; left: {{ t.x }}; top: 13px; width: 10px; height: 10px; margin-left: -5px; border-radius: 5px; background: var(--m-ink)"></span></sc-for>
           </div>
-        </sc-if>
-        <sc-if value="{{ c.isMix }}" hint-placeholder-val="{{ false }}">
-          <span aria-hidden="true" style="display: flex; height: 14px; gap: 3px; transform-origin: left; animation: motioInsFill 800ms cubic-bezier(0.22, 1, 0.36, 1) {{ c.d2 }} backwards"><sc-for list="{{ c.segs }}" as="m" hint-placeholder-count="3"><span style="flex: {{ m.f }}; border-radius: 7px; background: {{ m.c }}"></span></sc-for></span>
-          <span style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; font-weight: 600"><sc-for list="{{ c.segs }}" as="m" hint-placeholder-count="3"><span>{{ m.label }}</span></sc-for></span>
-        </sc-if>
-        <sc-if value="{{ c.isCompare }}" hint-placeholder-val="{{ false }}">
-          <div aria-hidden="true" style="display: flex; gap: 8px; flex-wrap: wrap"><sc-for list="{{ c.tokens }}" as="t" hint-placeholder-count="3"><span style="width: 30px; height: 30px; border-radius: 15px; border: 3px solid {{ t.c }}; box-sizing: border-box; animation: motioInsRoll 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ t.d }} backwards"></span></sc-for></div>
-        </sc-if>
-      </section>
+          <div class="m-sub" style="display: flex; justify-content: space-between; font-size: 11px"><span>{{ c.lo }}</span><span>{{ c.hi }}</span></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ c.isMix }}" hint-placeholder-val="{{ false }}">
+        <div class="m-card m-in" style="--i: {{ c.i }}; display: flex; flex-direction: column; gap: 14px; padding: 18px">
+          <span class="m-h3">{{ c.kicker }}</span>
+          <div style="display: flex; align-items: center; gap: 18px">
+            <span style="position: relative; width: 120px; height: 120px; flex-shrink: 0"><svg width="120" height="120" viewBox="0 0 120 120" style="transform: rotate(-90deg)"><sc-for list="{{ c.segs }}" as="m" hint-placeholder-count="3"><circle cx="60" cy="60" r="48" fill="none" stroke="{{ m.c }}" stroke-width="16" stroke-dasharray="{{ m.dash }}" stroke-dashoffset="{{ m.off }}"></circle></sc-for></svg><span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center"><b style="font-size: 22px">{{ c.total }}</b><span class="m-sub" style="font-size: 11px">moving</span></span></span>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 7px; font-size: 13px"><sc-for list="{{ c.segs }}" as="m" hint-placeholder-count="3"><div style="display: flex; gap: 8px; align-items: center"><span class="m-dot" style="background: {{ m.c }}"></span><span style="flex: 1">{{ m.label }}</span><b>{{ m.pct }}</b></div></sc-for></div>
+          </div>
+          <span style="font-size: 14px">{{ c.text }}</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ c.isCompare }}" hint-placeholder-val="{{ false }}">
+        <span class="m-label m-in" style="--i: {{ c.i }}; margin: 8px 4px 0">{{ c.kicker }}</span>
+        <div class="m-card tw m-in" style="--i: {{ c.i }}; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span class="m-num s">{{ c.big }}</span><span style="font-size: 14px">{{ c.text }}</span></div>
+      </sc-if>
     </sc-for>
   </div>
 </div>
@@ -80,28 +94,41 @@ class Component extends DCLogic {
       { kind: 'mix', kicker: 'How you moved', text: 'Walk took 41% of your moving time this week.', modes: [{ pct: 41, color: '#3DBF5C', label: 'Walk' }, { pct: 33, color: '#6E8CF7', label: 'Bike' }, { pct: 26, color: '#F2766B', label: 'Run' }] },
       { kind: 'compare', kicker: 'Put another way', text: '74 km this week: that’s 1.8 marathons.', km: 74 }
     ];
-    const F = M ? M.findings() : sample;
-    const base = emb ? 380 : 0;
-    const STY = [['#5B4FE0', '#FFFFFF'], ['#FFFFFF', '#1F1D47'], ['#F6C343', '#1F1D47'], ['#FFFFFF', '#1F1D47'], ['#1F1D47', '#FFFFFF']];
+    const F0 = M ? M.findings() : sample;
+    // The big day leads (it gets the page's one dark card); the rest keep their order.
+    const F = F0.filter((f) => f.kind === 'days').concat(F0.filter((f) => f.kind !== 'days'));
+    const KEY = { walk: 'var(--m-walk)', run: 'var(--m-run)', bike: 'var(--m-bike)', drive: 'var(--m-drive)', transit: 'var(--m-transit)' };
+    const NAME = { walk: 'Walking', run: 'Running', bike: 'Cycling', drive: 'Driving', transit: 'Bus & metro' };
     const hm = (m) => Math.floor(m / 60) + ':' + String(Math.round(m % 60)).padStart(2, '0');
-    const from = new Date(Date.now() - 6 * 86400000);
+    const dur = (m) => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + 'm'; };
+    const DAY = 86400000, from = (M ? M.dayStart() : new Date().setHours(0, 0, 0, 0)) - 6 * DAY;
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'Recaps.dc.html') },
-      range: 'Last 7 days · since ' + from.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+      range: 'Last 7 days · since ' + new Date(from).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
       empty: !F.length,
       cards: F.map((f, i) => {
-        const [bg, fg] = STY[i % STY.length], d0 = base + i * 90;
-        const c = { kicker: f.kicker, text: f.text, bg, fg, d: d0 + 'ms', d2: d0 + 300 + 'ms', isHours: f.kind === 'hours', isDays: f.kind === 'days', isClock: f.kind === 'clock', isMix: f.kind === 'mix', isCompare: f.kind === 'compare' };
-        if (f.kind === 'hours') { const mx = Math.max(1, ...f.hourly); c.bars = f.hourly.map((m, k) => ({ h: Math.round(m / mx * 60) + 4 + 'px', c: m === mx ? '#F6C343' : fg === '#FFFFFF' ? 'rgba(255,255,255,0.55)' : '#C9C5EC', d: d0 + 200 + k * 25 + 'ms' })); }
-        if (f.kind === 'days') { const mx = Math.max(1, ...f.mins); c.bubbles = f.mins.map((m, k) => ({ s: Math.round(12 + m / mx * 42) + 'px', c: k === f.top ? '#F2766B' : '#C9C5EC', fw: k === f.top ? 700 : 500, l: f.labels[k], d: d0 + 200 + k * 60 + 'ms' })); }
+        const c = { kicker: f.kicker, text: f.text, i: i + 1, isHours: f.kind === 'hours', isDays: f.kind === 'days', isClock: f.kind === 'clock', isMix: f.kind === 'mix', isCompare: f.kind === 'compare' };
+        if (f.kind === 'days') {
+          const mx = Math.max(1, ...f.mins), avg = f.mins.reduce((a, m) => a + m, 0) / 7;
+          c.big = dur(f.mins[f.top]);
+          c.dayName = new Date(from + f.top * DAY).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+          c.times = avg > 0 ? (f.mins[f.top] / avg).toFixed(1) + '× your usual' : '';
+          c.bars = f.mins.map((m, k) => ({ h: Math.round(4 + m / mx * 36) + 'px', c: k === f.top ? 'var(--m-goal)' : 'rgba(128,128,128,.45)', l: f.labels[k] }));
+        }
+        if (f.kind === 'hours') { const mx = Math.max(1, ...f.hourly); c.cells = f.hourly.map((m) => ({ c: m === mx && m > 0 ? 'var(--m-goal)' : 'var(--m-ink)', o: m === mx && m > 0 ? 1 : (0.06 + 0.9 * m / mx).toFixed(2) })); }
         if (f.kind === 'clock') {
           const lo = Math.min(...f.starts) - 20, hi = Math.max(...f.starts) + 20, span = Math.max(1, hi - lo), pos = (m) => ((m - lo) / span * 100).toFixed(1) + '%';
-          c.ticks = f.starts.map((m, k) => ({ x: pos(m), d: d0 + 250 + k * 70 + 'ms' })); c.lo = hm(lo); c.hi = hm(hi);
+          c.ticks = f.starts.map((m) => ({ x: pos(m) })); c.lo = hm(lo); c.hi = hm(hi);
           c.bandL = pos(f.mean - f.sd); c.bandW = Math.max(2, 2 * f.sd / span * 100).toFixed(1) + '%';
         }
-        if (f.kind === 'mix') c.segs = f.modes.map((m) => ({ f: Math.max(2, m.pct), c: m.color, label: m.label + ' ' + m.pct + '%' }));
-        if (f.kind === 'compare') { const n = f.km >= 42.2 ? Math.min(8, Math.round(f.km / 42.195)) : Math.min(8, Math.round(f.km / 0.4 / 10)); c.tokens = Array.from({ length: Math.max(1, n) }, (_, k) => ({ c: ['#F6C343', '#3DBF5C', '#6E8CF7', '#F2766B'][k % 4], d: d0 + 200 + k * 80 + 'ms' })); }
+        if (f.kind === 'mix') {
+          const C = 2 * Math.PI * 48; let acc = 0;
+          c.segs = f.modes.filter((m) => m.pct > 0).map((m) => { const len = C * m.pct / 100, seg = { c: KEY[m.key] || m.color, label: NAME[m.key] || m.label, pct: m.pct + '%', dash: Math.max(0, len - 2).toFixed(1) + ' ' + C.toFixed(1), off: (-acc).toFixed(1) }; acc += len; return seg; });
+          const tm = M ? M.summarize(from, Date.now()).min : 560; c.total = tm >= 60 ? Math.round(tm / 60) + 'h' : Math.round(tm) + 'm';
+        }
+        // "74 km this week: that’s 1.8 marathons." → the number big, the comparison under it.
+        if (f.kind === 'compare') { const k = f.text.indexOf(': '); c.big = k > 0 ? f.text.slice(0, k) : Math.round(f.km) + ' km'; c.text = k > 0 ? f.text.slice(k + 2).replace(/^./, (x) => x.toUpperCase()) : f.text; }
         return c;
       })
     };
