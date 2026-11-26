@@ -150,7 +150,15 @@ const takeShare = (url) => {
     if (window.__motioGo) window.__motioGo('friend');
   }).catch(() => {});
 };
-const takeLink = (url) => { takeInvite(url); takeShare(url); };
+// Club links (https://…/c/CODE or motio://club/CODE): keep the code and open Clubs, which joins it.
+const takeClub = (url) => {
+  const m = /(?:\/c\/|club\/)([A-Za-z0-9]{6})/.exec(url || '');
+  if (!m) return;
+  window.__motioClub = m[1].toUpperCase();
+  if (window.__motioGo) window.__motioGo('clubs');
+  window.dispatchEvent(new Event('motio:club'));
+};
+const takeLink = (url) => { takeInvite(url); takeShare(url); takeClub(url); };
 CapApp.addListener('appUrlOpen', (e) => takeLink(e.url));
 CapApp.getLaunchUrl().then((r) => r && takeLink(r.url)).catch(() => {});
 CapApp.addListener('backButton', () => {

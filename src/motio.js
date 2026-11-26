@@ -9,6 +9,7 @@ import { drawWidget, KINDS as WIDGET_KINDS } from './widgets.js';
 import { features, classifyTrip, vector } from './classify.js';
 import { toCanvas, getFontEmbedCSS } from 'html-to-image';
 import { renderStory } from './stories.js';
+import qrcode from 'qrcode-generator';
 
 const Sensors = registerPlugin('MotioSensors');
 const Health = registerPlugin('MotioHealth');
@@ -332,8 +333,18 @@ export const friends = {
     if (native) { await Share.share({ title: 'Motio invite', text, dialogTitle: 'Invite a friend' }); return 'shared'; }
     if (navigator.share) { await navigator.share({ text }); return 'shared'; }
     await navigator.clipboard.writeText(text); return 'copied';
+  },
+  inviteLink: (code) => `${API}/i/${code}`,
+  clubLink: (code) => `${API}/c/${code}`,
+  async inviteClub(club) {
+    const text = `Join my Motio club “${club.name}”: ${API}/c/${club.code} (or enter the code ${club.code} in Social › Clubs)`;
+    if (native) { await Share.share({ title: 'Motio club', text, dialogTitle: 'Invite to ' + club.name }); return 'shared'; }
+    if (navigator.share) { await navigator.share({ text }); return 'shared'; }
+    await navigator.clipboard.writeText(text); return 'copied';
   }
 };
+// A QR code as an SVG string (ink on transparent), for invite and club links.
+export function qrSvg(text) { const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(); let d = ''; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`; return `<svg viewBox="0 0 ${n} ${n}" width="100%" height="100%" shape-rendering="crispEdges" aria-hidden="true"><path d="${d}" fill="currentColor"/></svg>`; }
 // Strava (through the server): connect with Strava's login page, then new walks, runs and rides upload automatically.
 export const strava = {
   status: () => api('GET', '/v1/strava'),
@@ -574,8 +585,11 @@ export const chats = {
   list: () => api('GET', '/v1/chats').then(chatsChanged),
   cached: () => chatList,
   unread: () => (chatList ? chatList.unread : 0),
-  open: (id, after) => api('GET', '/v1/chat?id=' + id + (after ? '&after=' + after : '')),
-  send: (id, text, tripId) => api('POST', '/v1/chat/send', { id, text, tripId }),
+  // Club chats ride the same screen: their id is 'c:' + club id and they come back in a friend chat's shape.
+  open: (id, after) => (String(id).startsWith('c:')
+    ? api('GET', '/v1/club/chat?id=' + String(id).slice(2) + (after ? '&after=' + after : '')).then((r) => ({ friend: { id, name: r.club.name, club: true }, messages: r.messages, club: true }))
+    : api('GET', '/v1/chat?id=' + id + (after ? '&after=' + after : ''))),
+  send: (id, text, tripId) => (String(id).startsWith('c:') ? api('POST', '/v1/club/chat/send', { id: Number(String(id).slice(2)), text }) : api('POST', '/v1/chat/send', { id, text, tripId })),
   read: (ids) => chatMut(api('POST', '/v1/chats/read', { ids })),
   pin: (ids, on) => chatMut(api('POST', '/v1/chats/pin', { ids, on })),
   mute: (ids, hours) => chatMut(api('POST', '/v1/chats/mute', { ids, hours })),
@@ -1703,7 +1717,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, permissions, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { qrSvg, MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, permissions, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

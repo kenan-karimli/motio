@@ -66,6 +66,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="motio-api.onrender.com" android:pathPrefix="/i/" />
                 <data android:scheme="https" android:host="motio-api.onrender.com" android:pathPrefix="/s/" />
+                <data android:scheme="https" android:host="motio-api.onrender.com" android:pathPrefix="/c/" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -73,6 +74,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="motio" android:host="add" />
                 <data android:scheme="motio" android:host="s" />
+                <data android:scheme="motio" android:host="club" />
             </intent-filter>
         </activity>
         <activity-alias

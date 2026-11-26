@@ -68,11 +68,19 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
     <sc-if value="{{ inClub }}" hint-placeholder-val="{{ false }}">
       <div class="head"><div class="t"><span class="m-sub">{{ clubSub }}</span><h1 class="m-title" style="font-size: 34px; line-height: 1.05">{{ clubTitle }}</h1></div></div>
       <div class="m-card dark m-in" style="padding: 20px; display: flex; flex-direction: column; gap: 8px"><span class="m-label">Together this week</span><span class="m-num">{{ totalKm }}</span><span class="m-sub">{{ totalA }}<b style="color: var(--m-goal)">{{ totalB }}</b>{{ totalC }}</span></div>
-      <button type="button" class="m-card m-in" onClick="{{ invite }}" style="--i: 1; border: 0; text-align: left; display: flex; align-items: center; gap: 14px; padding: 16px">
-        <span style="width: 52px; height: 52px; border-radius: 16px; background: var(--m-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><m-ic n="qr" s="20"></m-ic></span>
-        <span style="flex: 1; min-width: 0"><b style="font-size: 15px">Invite with code {{ code }}</b><div class="m-sub" style="font-size: 12px">Anyone with the code can join</div></span>
-        <span class="m-chip on" style="height: 34px; font-size: 12px">Share</span>
+      <button type="button" class="m-card m-in" onClick="{{ openChat }}" style="--i: 1; border: 0; text-align: left; display: flex; align-items: center; gap: 14px; padding: 16px; color: var(--m-ink)">
+        <span style="width: 48px; height: 48px; border-radius: 24px; background: var(--m-ink); color: var(--m-bg-hi); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><m-ic n="msg" s="20"></m-ic></span>
+        <span style="flex: 1; min-width: 0"><b style="font-size: 15px">Club chat</b><div class="m-sub" style="font-size: 12px">Talk with everyone in {{ title }}</div></span>
+        <m-ic n="chevron"></m-ic>
       </button>
+      <div class="m-card m-in" style="--i: 1; padding: 16px; display: flex; gap: 16px; align-items: center">
+        <span ref="{{ qrRef }}" role="img" aria-label="QR code for the club link" style="width: 112px; height: 112px; flex-shrink: 0; padding: 8px; box-sizing: border-box; border-radius: 18px; background: #FFFFFF; color: #141414"></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+          <b style="font-size: 15px">Invite to the club</b>
+          <span class="m-sub" style="font-size: 12px">Scan, tap the link or enter code <b style="color: var(--m-ink)">{{ code }}</b></span>
+          <span style="display: flex; gap: 6px; margin-top: 8px"><button type="button" class="m-chip on" onClick="{{ invite }}" style="height: 34px; font-size: 12px">Share link</button><button type="button" class="m-chip" onClick="{{ copyLink }}" style="height: 34px; font-size: 12px; background: var(--m-soft)">Copy</button></span>
+        </span>
+      </div>
       <div class="m-card m-in" style="--i: 2; display: flex; flex-direction: column; gap: 6px; padding: 16px">
         <div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span class="m-h3">This week</span><span class="m-sub" style="font-size: 12px">active time</span></div>
         <sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
@@ -94,8 +102,10 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  componentDidMount() { this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
-  componentWillUnmount() { window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
+  componentDidMount() { this.load(); this.takeClub(); this.onClub = () => this.takeClub(); window.addEventListener('motio:club', this.onClub); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
+  // A club link (motio://club/CODE) joins that club and opens it.
+  takeClub() { const M = window.Motio, code = window.__motioClub; if (!M || !code) return; window.__motioClub = null; M.friends.joinClub(code).then((c) => { this.showToast('Joined ' + c.name); this.openClub(c.id); }).catch((e) => this.showToast((e && e.message) || 'Couldn’t join that club.')); }
+  componentWillUnmount() { window.removeEventListener('motio:club', this.onClub); window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
   load() {
     const M = window.Motio, s = this.state || {};
     if (!M) return;
@@ -123,7 +133,10 @@ class Component extends DCLogic {
       scrollRef: (el) => { if (!el) return; if (this.shownOpen !== (s.open || null)) { this.shownOpen = s.open || null; el.scrollTop = 0; } const pg = el.closest('.m-page'); if (pg) pg.classList.toggle('m-scrolled', el.scrollTop > 8); },
       title: C ? C.name : s.open ? '' : 'Clubs', inClub: !!C, listView: !s.open, opening: !!s.open && !C, code: C ? C.code : '',
       clubTitle: C ? C.name.toLowerCase().replace(/[.!?]*$/, '.') : '', clubSub: C ? (C.members || C.people.length) + ((C.members || C.people.length) === 1 ? ' member' : ' members') + ' · code ' + C.code : '',
-      invite: () => { if (!C) return; const text = 'Join my Motio club “' + C.name + '” with the code ' + C.code; (navigator.share ? navigator.share({ text }) : navigator.clipboard.writeText(text).then(() => this.showToast('Invite copied'))).catch(() => {}); },
+      invite: () => { if (!C || !M) return; M.friends.inviteClub(C).then((r) => r === 'copied' && this.showToast('Link copied')).catch(() => {}); },
+      openChat: () => { if (!C) return; window.__motioChat = 'c:' + C.id; if (this.props.onNav) this.props.onNav('chat'); },
+      copyLink: () => { if (!C || !M) return; navigator.clipboard.writeText(M.friends.clubLink(C.code)).then(() => this.showToast('Link copied')).catch(() => {}); },
+      qrRef: (el) => { if (!el || !C || !M) return; const h = M.qrSvg(M.friends.clubLink(C.code)); if (el.__q !== h) { el.innerHTML = h; el.__q = h; } },
       hasError: !!s.error, error: s.error || '',
       hasClubs: clubs.length > 0,
       clubs: clubs.map((c) => ({ name: c.name, sub: c.members + (c.members === 1 ? ' member' : ' members') + ' · code ' + c.code, ini: ini(c.name), open: () => this.openClub(c.id) })),

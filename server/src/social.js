@@ -70,6 +70,14 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
       joined_at BIGINT NOT NULL,
       PRIMARY KEY (club_id, user_id)
     );
+    CREATE TABLE IF NOT EXISTS club_messages (
+      id SERIAL PRIMARY KEY,
+      club_id INTEGER NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text TEXT NOT NULL,
+      at BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS club_messages_club ON club_messages(club_id, id);
     CREATE TABLE IF NOT EXISTS live_fix (
       user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       lat DOUBLE PRECISION NOT NULL, lng DOUBLE PRECISION NOT NULL, at BIGINT NOT NULL, mode TEXT
@@ -121,6 +129,9 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
     joinClub: db.prepare('INSERT INTO club_members (club_id, user_id, joined_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING'),
     leaveClub: db.prepare('DELETE FROM club_members WHERE club_id = ? AND user_id = ?'),
     isMember: db.prepare('SELECT 1 AS ok FROM club_members WHERE club_id = ? AND user_id = ?'),
+    clubById: db.prepare('SELECT id, name, code FROM clubs WHERE id = ?'),
+    clubThread: db.prepare('SELECT m.id, m.user_id, m.text, m.at, u.name, u.avatar FROM club_messages m JOIN users u ON u.id = m.user_id WHERE m.club_id = ? AND m.id > ? ORDER BY m.id DESC LIMIT 200'),
+    clubSay: db.prepare('INSERT INTO club_messages (club_id, user_id, text, at) VALUES (?, ?, ?, ?) RETURNING id'),
     myClubs: db.prepare('SELECT c.id, c.name, c.code, (SELECT COUNT(*)::int FROM club_members m2 WHERE m2.club_id = c.id) AS members FROM clubs c JOIN club_members m ON m.club_id = c.id WHERE m.user_id = ? ORDER BY m.joined_at'),
     clubPeople: db.prepare('SELECT u.id, u.name, u.avatar FROM club_members m JOIN users u ON u.id = m.user_id WHERE m.club_id = ?'),
     clubWeek: db.prepare(`SELECT t.user_id, SUM(t."end" - t.start)::float8 AS ms, SUM(t.distance_m)::float8 AS m FROM trips t JOIN club_members m ON m.user_id = t.user_id AND m.club_id = ? WHERE t.deleted = 0 AND t.mode IN ${ACTIVE} AND t.start >= ? AND t.start < ? GROUP BY t.user_id`),
@@ -218,6 +229,35 @@ export async function socialRoutes({ db, now, authUser, HttpError, bad, latest =
 
   return {
     // Clubs: a name and a join code; members see a weekly board and the trips members posted.
+    // Club invite link: a small page that opens Motio on the club (or says how to get the app).
+    'GET /c': async ({ url }) => {
+      const code = url.pathname.slice(3).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+      const c = code.length === 6 ? await q.clubByCode.get(code) : null;
+      const name = c ? String(c.name).replace(/[&<>"]/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[x]) : 'a club';
+      return { type: 'text/html', raw: `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join ${name} on Motio</title>
+<style>body{margin:0;font-family:'Inter Tight',system-ui,sans-serif;background:#ECECEA;color:#141414;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}main{padding:32px 24px;max-width:360px}h1{font-size:30px;letter-spacing:-1px;margin:0 0 8px}p{color:#6B6B66}.code{font-size:28px;font-weight:600;letter-spacing:4px;margin:20px 0}a{display:block;margin:12px 0;padding:16px;border-radius:999px;background:#141414;color:#fff;text-decoration:none;font-weight:600}a.w{background:#fff;color:#141414}</style>
+<main><h1>Join ${name}.</h1><p>Move together and see the club's week on Motio.</p><div class="code">${code}</div>
+<a href="intent://club/${code}#Intent;scheme=motio;package=com.motio.app;end">Open in Motio</a>
+<a class="w" href="https://github.com/kenan-karimli/motio/releases/latest/download/motio.apk">Get Motio for Android</a><p>Or enter the code in Social › Clubs.</p></main></html>` };
+    },
+    // Club chat: members only. Same shape as a friend chat so the Chat screen shows both.
+    'GET /v1/club/chat': async ({ req, url }) => {
+      const { user } = await authUser(req);
+      const id = Number(url.searchParams.get('id')), c = Number.isInteger(id) && (await q.clubById.get(id));
+      if (!c || !(await q.isMember.get(id, user.id))) throw new HttpError(404, 'not_found', 'You’re not in this club.');
+      const rows = (await q.clubThread.all(id, Number(url.searchParams.get('after')) || 0)).reverse();
+      return { club: { id: c.id, name: c.name }, messages: rows.map((m) => ({ id: m.id, mine: m.user_id === user.id, text: m.text, at: Number(m.at), from: { id: m.user_id, name: m.name } })) };
+    },
+    'POST /v1/club/chat/send': async ({ req, body }) => {
+      const { user } = await authUser(req);
+      const id = Number(body.id);
+      if (!Number.isInteger(id) || !(await q.isMember.get(id, user.id))) throw new HttpError(404, 'not_found', 'You’re not in this club.');
+      const text = String(body.text || '').trim();
+      if (!text) throw bad('empty', 'Write something first.');
+      if (text.length > 2000) throw bad('too_long', 'Messages can be up to 2000 characters.');
+      const t = now(), r = await q.clubSay.get(id, user.id, text, t);
+      return { message: { id: r.id, mine: true, text, at: t, from: { id: user.id, name: user.name } } };
+    },
     'GET /v1/clubs': async ({ req }) => { const { user } = await authUser(req); return { clubs: await q.myClubs.all(user.id) }; },
     'POST /v1/clubs': async ({ req, body }) => {
       const { user } = await authUser(req);

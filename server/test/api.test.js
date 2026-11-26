@@ -612,4 +612,12 @@ test('clubs: create with a code, join, weekly board and posts for members only',
   assert.equal(d.posts[0].caption, 'Club run');
   assert.equal((await call('GET', `/v1/club?id=${club.id}`, null, c)).status, 404);
   assert.equal((await call('GET', '/v1/clubs', null, b)).body.clubs[0].members, 2);
+  // Club chat: members talk, outsiders can't read or write.
+  await call('POST', '/v1/club/chat/send', { id: club.id, text: 'Run at 7?' }, b);
+  const ch = (await call('GET', `/v1/club/chat?id=${club.id}`, null, a)).body;
+  assert.equal(ch.club.name, 'Boulevard Runners');
+  assert.deepEqual(ch.messages.map((m) => [m.text, m.mine, m.from.name]), [['Run at 7?', false, 'Dan Club']]);
+  assert.equal((await call('GET', `/v1/club/chat?id=${club.id}`, null, c)).status, 404);
+  assert.equal((await call('POST', '/v1/club/chat/send', { id: club.id, text: 'hi' }, c)).status, 404);
+  assert.equal((await call('GET', '/c/' + club.code, null)).status, 200);
 });

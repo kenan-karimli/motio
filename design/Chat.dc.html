@@ -39,7 +39,7 @@ button,a{font:inherit;cursor:pointer}
       <sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}"><span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: var(--m-card); box-shadow: inset 0 0 0 1.5px var(--m-line); display: flex; align-items: center; justify-content: center; font: 600 14px var(--m-font)">{{ ini }}</span></sc-if>
       <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ name }}</b><sc-if value="{{ status }}" hint-placeholder-val="{{ true }}"><span class="m-sub" style="font-size: 12px; display: flex; align-items: center; gap: 5px"><sc-if value="{{ statusDot }}" hint-placeholder-val="{{ true }}"><i style="width: 7px; height: 7px; border-radius: 4px; background: {{ statusDot }}"></i></sc-if>{{ status }}</span></sc-if></span>
     </button>
-    <button type="button" class="m-icon" onClick="{{ openMenu }}" aria-label="Chat options" aria-haspopup="menu"><m-ic n="more"></m-ic></button>
+    <sc-if value="{{ notClub }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-icon" onClick="{{ openMenu }}" aria-label="Chat options" aria-haspopup="menu"><m-ic n="more"></m-ic></button></sc-if>
   </div>
   <sc-if value="{{ filterBar }}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; left: 20px; right: 20px; top: 112px; z-index: 8; display: flex; gap: 8px; align-items: center; animation: chatDim .25s ease">
@@ -71,7 +71,7 @@ button,a{font:inherit;cursor:pointer}
   </div>
 
   <form class="chat-bar {{ barCls }}" onSubmit="{{ send }}">
-    <button type="button" class="m-icon" style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0" onClick="{{ openTrips }}" aria-label="Share a trip"><m-ic n="route" s="18"></m-ic></button>
+    <sc-if value="{{ notClub }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-icon" style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0" onClick="{{ openTrips }}" aria-label="Share a trip"><m-ic n="route" s="18"></m-ic></button></sc-if>
     <input class="chat-in" value="{{ draft }}" onInput="{{ onDraft }}" placeholder="Message" aria-label="{{ draftAria }}" maxlength="1000" autocomplete="off" enterkeyhint="send">
     <button type="submit" class="m-icon ink" style="width: 54px; height: 54px; border-radius: 27px; flex-shrink: 0; opacity: {{ sendOp }}" disabled="{{ sendOff }}" aria-label="Send"><m-ic n="send" s="18"></m-ic></button>
   </form>
@@ -204,9 +204,10 @@ class Component extends DCLogic {
         items.push({ side, trip: { ...r, color: 'var(--m-' + (m.trip.mode in MODE ? m.trip.mode : 'walk') + ')', title, sub }, tripAria: (m.mine ? 'You shared ' : first + ' shared ') + title + ', ' + sub, cursor: mineTrip ? 'pointer' : 'default',
           openTrip: () => { if (mineTrip && M.findTrip && M.findTrip(m.trip.id)) { window.__motioTrip = m.trip.id; nav('trip'); } } });
       }
-      if (m.text) items.push({ side, text: m.text, aria: (m.mine ? 'You' : first) + ', ' + hm(m.at) + ': ' + m.text });
+      if (c.club && !m.mine && m.from && (!items.length || items[items.length - 1].fromId !== m.from.id)) items.push({ meta: m.from.name.split(' ')[0], metaAlign: 'flex-start', metaFont: "600 11px 'Inter Tight'", metaColor: 'var(--m-mute)', fromId: m.from.id });
+      if (m.text) items.push({ side, text: m.text, fromId: m.from && m.from.id, aria: (m.mine ? 'You' : (m.from ? m.from.name : first)) + ', ' + hm(m.at) + ': ' + m.text });
       if (filter) items.push({ meta: hm(m.at), metaAlign: m.mine ? 'flex-end' : 'flex-start', metaFont: "500 11px 'Inter Tight'", metaColor: 'var(--m-mute)' });
-      else if (lastMine && m.id === lastMine.id) {
+      else if (lastMine && m.id === lastMine.id && !c.club) {
         const st = stOf(m);
         items.push({ meta: st === 'seen' ? 'Seen ' + (c.theirReadAt ? hm(c.theirReadAt) : '') : st === 'delivered' ? 'Delivered' : 'Sent', tick: TICK[st === 'sent' ? 'sent' : 'delivered'],
           metaAlign: 'flex-end', metaFont: "600 11px 'Inter Tight'", metaColor: st === 'seen' ? 'var(--m-ink)' : 'var(--m-faint)' });
@@ -240,7 +241,8 @@ class Component extends DCLogic {
       name: f.name || ' ', first, ini: String(f.name || '?').charAt(0).toUpperCase(), hasAvatar: !!f.avatar, noAvatar: !f.avatar, avatar: f.avatar || '',
       status: mode ? mode[1] : muted ? 'Muted' : '', statusDot: mode ? 'var(--m-' + c.moving + ')' : '',
       profileAria: 'View ' + (f.name || '') + '’s profile',
-      viewProfile: () => { closeAll(); if (f.id) { window.__motioFriend = f.id; nav('friend'); } },
+      isClub: !!(c && c.club), notClub: !(c && c.club),
+      viewProfile: () => { closeAll(); if (c && c.club) return; if (f.id) { window.__motioFriend = f.id; nav('friend'); } },
       openMenu: () => this.setState({ menu: true }), menu: !!s.menu, closeAll,
       startSearch: () => { this.setState({ menu: false, filter: 'search', query: '' }); setTimeout(() => this.searchEl && this.searchEl.focus(), 60); },
       showTrips: () => { this.setState({ menu: false, filter: 'trips' }); this.toBottom(true); },

@@ -2,16 +2,20 @@
 	"appId": "com.motio.app",
 	"appName": "Motio",
 	"webDir": "www",
-	"backgroundColor": "#4B3FD8",
+	"backgroundColor": "#ECECEA",
 	"android": {
 		"allowMixedContent": false,
 		"useLegacyBridge": true,
 		"webContentsDebuggingEnabled": false
 	},
 	"plugins": {
+		"LocalNotifications": {
+			"smallIcon": "ic_launcher_monochrome",
+			"iconColor": "#141414"
+		},
 		"SplashScreen": {
 			"launchAutoHide": false,
-			"backgroundColor": "#4B3FD8",
+			"backgroundColor": "#ECECEA",
 			"launchFadeOutDuration": 220,
 			"showSpinner": false
 		},
