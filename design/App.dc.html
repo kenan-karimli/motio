@@ -379,11 +379,11 @@ class Component extends DCLogic {
       if (!el.closest('[data-page="tab"]')) return;
       const y = el.scrollTop, nav = this.navEl;
       if (!nav) return;
-      // Only a real move counts: 36 px down hides it, 16 px up (or near the top) brings it back.
+      // Only a real move counts: 60 px down hides it, 16 px up (or near the top) brings it back.
       if (el.__y == null) el.__y = y;
       const d = y - el.__y;
       if (y <= 24 || d < -16) { nav.classList.remove('m-hide'); el.__y = y; }
-      else if (d > 36) { nav.classList.add('m-hide'); el.__y = y; }
+      else if (d > 60) { nav.classList.add('m-hide'); el.__y = y; }
       else if ((d > 0 && nav.classList.contains('m-hide')) || (d < 0 && !nav.classList.contains('m-hide'))) el.__y = y;
     };
     document.addEventListener('scroll', this.onTabScroll, true);

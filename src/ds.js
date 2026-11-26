@@ -75,8 +75,8 @@ const CSS = `
 .m-scrolled .m-tabhead{background:color-mix(in srgb,var(--m-bg) 74%,transparent);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);box-shadow:0 1px 0 color-mix(in srgb,var(--m-ink) 8%,transparent)}
 .m-scrolled .m-tabhead .m-title{opacity:1;transform:none}
 /* Navigation: a floating frosted pill. Scrolling down tucks it away; it springs back on the way up. */
-m-nav.m-tabbar{transition:transform .55s cubic-bezier(.34,1.3,.64,1),opacity .3s ease!important}
-m-nav.m-tabbar.m-hide{transform:translateY(110px) scale(.96)!important;opacity:0!important;pointer-events:none;transition:transform .42s cubic-bezier(.22,1,.36,1),opacity .25s ease!important}
+m-nav.m-tabbar{transition:transform .65s cubic-bezier(.34,1.25,.64,1),opacity .4s ease!important}
+m-nav.m-tabbar.m-hide{transform:translateY(120px) scale(.97)!important;opacity:0!important;pointer-events:none;transition:transform .75s cubic-bezier(.32,.72,0,1),opacity .55s ease .2s!important}
 
 .m-tabbar{position:absolute;left:14px;right:14px;bottom:18px;height:64px;padding:6px;display:flex;border-radius:32px;background:color-mix(in srgb,var(--m-card) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:26px;background:transparent;color:var(--m-mute);font:600 10.5px var(--m-font);cursor:pointer;transition:background-color .25s var(--m-ease),color .25s}
