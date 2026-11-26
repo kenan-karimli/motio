@@ -75,7 +75,9 @@ button:active,a:active{transform:scale(0.96)}
   </a>
 
   <div class="m-card" style="display: flex; flex-direction: column; gap: 12px">
-    <div style="display: flex; align-items: baseline; justify-content: space-between"><span class="m-h3">{{ monthTitle }}</span><span class="m-sub" style="font-size: 12px">tap a day</span></div>
+    <div style="display: flex; align-items: baseline; justify-content: space-between"><span class="m-h3">{{ monthTitle }}</span><sc-if value="{{ monthHas }}" hint-placeholder-val="{{ true }}"><span class="m-sub" style="font-size: 12px">tap a day</span></sc-if></div>
+    <sc-if value="{{ monthEmpty }}" hint-placeholder-val="{{ false }}"><span class="m-sub">Nothing in the last 30 days yet. Your <b style="color: var(--m-ink)">days fill in here</b> as you move.</span></sc-if>
+    <sc-if value="{{ monthHas }}" hint-placeholder-val="{{ true }}">
     <div style="display: flex; align-items: flex-end; height: 64px">
       <sc-for list="{{ days }}" as="d" hint-placeholder-count="31"><button aria-label="{{ d.label }}" onClick="{{ d.pick }}" style="flex: 1; min-width: 0; height: 100%; border: 0; padding: 0 1.5px; background: transparent; display: flex; align-items: flex-end"><span style="display: block; width: 100%; height: {{ d.h }}; border-radius: 3px; background: {{ d.bg }}; transition: background-color 200ms ease"></span></button></sc-for>
     </div>
@@ -84,6 +86,7 @@ button:active,a:active{transform:scale(0.96)}
       <span class="m-row" style="flex: 1; flex-direction: column; align-items: flex-start; gap: 0; min-height: 0"><span class="m-num s" style="font-size: 17px">{{ mDist }} {{ mUnit }}</span><span class="m-sub" style="font-size: 11px">travelled</span></span>
       <span class="m-row" style="flex: 1; flex-direction: column; align-items: flex-start; gap: 0; min-height: 0"><span class="m-num s" style="font-size: 17px">{{ mSteps }}</span><span class="m-sub" style="font-size: 11px">steps</span></span>
     </button>
+    </sc-if>
   </div>
 
   <section style="display: flex; flex-direction: column; gap: 10px">
@@ -390,7 +393,7 @@ class Component extends DCLogic {
     return {
       days, records, day, monthModes, monthTitle: 'Last 30 days',
       vals: {
-        monthTitle: 'Last 30 days',
+        monthTitle: 'Last 30 days', monthHas: mon.min > 0, monthEmpty: !(mon.min > 0),
         mHours: Math.round(mon.min / 60) + 'h', mDist: M.fmtNum(dist), mUnit: unit, mSteps: big(mon.steps),
         busyPre: busiest ? 'Busiest day: ' : 'No moves in the last 30 days. ',
         busyDay: busiest ? short(busiest.from) : '',
@@ -657,7 +660,7 @@ class Component extends DCLogic {
       initials: name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''),
       days, records, day, rec: rec2, monthModes,
       foxRef: null, persA: 'The Urban', persB: 'Wanderer', persStatB: '1 in 8', persStatT: 'users',
-      monthTitle: 'Your October', mHours: '93h', mDist: '1,780', mUnit: 'km', mSteps: '296k',
+      monthTitle: 'Your October', monthHas: true, monthEmpty: false, mHours: '93h', mDist: '1,780', mUnit: 'km', mSteps: '296k',
       noRecords: false, busyPre: 'Busiest day: ', busyDay: 'Fri, 16 Oct', busyPost: ', 4h 50m on the move',
       ...(live ? live.vals : {}),
       sheetOpen: !!sh.kind,
