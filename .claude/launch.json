@@ -1,6 +1,32 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "motio-web", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8765", "--directory", "www"], "port": 8765 }
+    {
+      "name": "motio-web",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        "www"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "motio-api",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "MOTIO_DEV=1",
+        "DATABASE_URL=",
+        "SMTP_HOST=",
+        "BREVO_API_KEY=",
+        "DB_PATH=/tmp/claude-1000/-home-kanan-Projects-motio/6aa0ea48-a932-4819-b630-d807fcfa631e/scratchpad/pg",
+        "node",
+        "--no-warnings",
+        "server/src/server.js"
+      ],
+      "port": 8787
+    }
   ]
 }

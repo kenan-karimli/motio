@@ -35,17 +35,17 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 .fd-seg{display:flex;padding:3px;border-radius:20px;background:var(--m-card)}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
-  <div class="m-topbar">
+<div class="{{ pageCls }}" style="animation: {{ rootAnim }}; {{ pageStyle }}">
+  <sc-if value="{{ notInline }}" hint-placeholder-val="{{ true }}"><div class="m-topbar">
     <a class="m-icon" href="{{ LK.back.href }}" onClick="{{ backGo }}" aria-label="Back"><m-ic n="back"></m-ic></a>
     <span class="m-tt">{{ topTitle }}</span>
     <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}"><span class="fd-seg" role="tablist"><button type="button" role="tab" aria-selected="true" class="m-chip on" style="height: 32px; font-size: 12px">Friends</button><a role="tab" aria-selected="false" class="m-chip" href="{{ LK.clubs.href }}" onClick="{{ LK.clubs.go }}" style="height: 32px; font-size: 12px; background: transparent">Clubs</a></span></sc-if>
     <sc-if value="{{ postView }}" hint-placeholder-val="{{ false }}"><span style="width: 44px"></span></sc-if>
-  </div>
+  </div></sc-if>
 
   <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}">
-  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
-    <div class="head"><div class="t"><h1 class="m-title">feed.</h1></div></div>
+  <div class="{{ listCls }}" ref="{{ scrollRef }}" style="{{ listStyle }}">
+    <sc-if value="{{ notInline }}" hint-placeholder-val="{{ true }}"><div class="head"><div class="t"><h1 class="m-title">feed.</h1></div></div></sc-if>
     <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><span class="m-skel" style="height: 300px; border-radius: 28px"></span><span class="m-skel" style="height: 160px; border-radius: 28px"></span></sc-if>
     <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-card tx" style="font-size: 13px">{{ error }}</div></sc-if>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
@@ -80,7 +80,7 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
   </sc-if>
 
   <sc-if value="{{ postView }}" hint-placeholder-val="{{ false }}">
-  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 110px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 110px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">{{ cur.when }}</span><h1 class="m-title" style="font-size: 32px">{{ cur.title }}</h1></div></div>
     <sc-if value="{{ cur.hasCaption }}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 15px">{{ cur.caption }}</p></sc-if>
     <sc-if value="{{ cur.hasRoute }}" hint-placeholder-val="{{ true }}">
@@ -112,9 +112,9 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-toast" style="bottom: 96px">{{ toast }}</div></sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"inline":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  componentDidMount() { this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
+  componentDidMount() { if (window.__motioPost != null && !this.props.inline) { this.setState({ post: window.__motioPost }); window.__motioPost = null; } this.load(); this.onRefresh = () => this.load(); window.addEventListener('motio:refresh', this.onRefresh); }
   componentWillUnmount() { window.removeEventListener('motio:refresh', this.onRefresh); clearTimeout(this.toastT); }
   load() {
     const M = window.Motio;
@@ -169,7 +169,7 @@ class Component extends DCLogic {
         mode: N[1], tint: TINT[t.mode] || 'tw',
         ini: ini(p.user.name), hasAvatar: !!p.user.avatar, noAvatar: !p.user.avatar, avatar: p.user.avatar || '', whoAria: 'Open ' + p.user.name + '’s profile',
         openWho: () => { if (p.mine) { this.props.onNav && this.props.onNav('profile'); return; } window.__motioFriend = p.user.id; this.props.onNav && this.props.onNav('friend'); },
-        open: () => set({ post: p.id }), openAria: 'Open ' + first + '’s ' + N[0] + ' and its comments',
+        open: () => { if (this.props.inline) { window.__motioPost = p.id; if (this.props.onNav) this.props.onNav('feed'); } else set({ post: p.id }); }, openAria: 'Open ' + first + '’s ' + N[0] + ' and its comments',
         mine: !!p.mine, delLabel: s.confirmDel === p.id ? 'Delete?' : 'Delete',
         del: () => { if (s.confirmDel !== p.id) { set({ confirmDel: p.id }); return; } M.friends.deletePost(p.id).then(() => { this.showToast('Post deleted'); this.load(); }); },
         hasCaption: !!p.caption, caption: p.caption,
@@ -199,7 +199,11 @@ class Component extends DCLogic {
     const curP = s.post != null ? posts.find((p) => p.id === s.post) : null;
     const back = lk('back', 'Recaps.dc.html');
     return {
-      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+      notInline: !this.props.inline, pageCls: this.props.inline ? '' : 'm-page',
+      pageStyle: this.props.inline ? 'position: relative; display: flex; flex-direction: column' : 'width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0',
+      listCls: this.props.inline ? '' : 'motio-scroll',
+      listStyle: this.props.inline ? 'display: flex; flex-direction: column; gap: 10px' : 'flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px',
+      rootAnim: this.props.inline ? 'none' : emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back, clubs: lk('clubs', 'Clubs.dc.html') },
       // Back from a post returns to the list; from the list, leaves the feed.
       backGo: (e) => { if (curP) { if (e && e.preventDefault) e.preventDefault(); set({ post: null }); return; } back.go(e); },

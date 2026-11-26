@@ -27,7 +27,7 @@ button,a{font:inherit;cursor:pointer}
 </helmet>
 <div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Explorer</span><span style="width: 44px"></span></div>
-  <div class="motio-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 108px 20px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 70px 20px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
     <div class="head m-in" style="--i: 0"><div class="t"><span class="m-sub">How much of your city you’ve seen</span><h1 class="m-title">explorer.</h1></div></div>
     <div class="m-card dark m-in" style="--i: 1; padding: 20px; display: flex; align-items: flex-end; justify-content: space-between">
       <div><div class="m-label">Of the city</div><div class="m-num" style="font-size: 58px; margin-top: 8px"><span class="motio-count" style="--to: {{ pctWhole }}; --delay: {{ countDelay }}"></span>.<span class="motio-count" style="--to: {{ pctTenth }}; --delay: {{ countDelay }}"></span>%</div></div>

@@ -32,9 +32,9 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Everyone</span><span class="m-sub" style="white-space: nowrap">Resets Monday</span></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">{{ weekLabel }}</span><h1 class="m-title">everyone.</h1></div></div>
     <div role="tablist" aria-label="Rank by" style="display: flex; gap: 6px">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button type="button" role="tab" class="m-chip {{ t.cls }}" aria-selected="{{ t.sel }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for>

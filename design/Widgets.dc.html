@@ -29,9 +29,9 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Widgets</span><span style="width: 44px"></span></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 28px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><h1 class="m-title">widgets.</h1><span class="m-sub" style="font-size: 15px">Hold one to add it to your home screen.</span></div></div>
 
     <div class="m-in" role="img" aria-label="{{ V.aria }}" style="border-radius: 28px; padding: 16px; background: {{ wall }}; display: flex; flex-direction: column; gap: 12px">

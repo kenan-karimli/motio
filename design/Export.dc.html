@@ -33,9 +33,9 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Export</span><span style="width: 44px"></span></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 28px; display: flex; flex-direction: column; gap: 10px">
     <div class="m-in" style="display: flex; justify-content: center"><m-art name="box" size="200"></m-art></div>
     <div class="head m-in" style="--i: 1"><div class="t"><h1 class="m-title">export.</h1><span class="m-sub" style="font-size: 15px">{{ intro }}</span></div></div>
     <div class="field m-in" style="--i: 2"><span class="m-label">Format</span><div style="display: flex; gap: 6px"><sc-for list="{{ formats }}" as="f" hint-placeholder-count="3"><button type="button" class="m-chip {{ f.cls }}" aria-pressed="{{ f.on }}" aria-label="{{ f.label }}: {{ f.hint }}" onClick="{{ f.pick }}">{{ f.label }}</button></sc-for></div></div>

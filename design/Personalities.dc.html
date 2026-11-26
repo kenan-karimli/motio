@@ -23,9 +23,9 @@ button,a{font:inherit;cursor:pointer}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Types</span><span style="width: 44px"></span></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">Your type can change every month</span><h1 class="m-title">{{ title }}</h1></div></div>
     <div class="grid2">
       <sc-for list="{{ types }}" as="t" hint-placeholder-count="6">

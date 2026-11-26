@@ -44,11 +44,11 @@ button:active,a:active{transform:scale(0.96)}
     <div ref="{{ sceneRef }}" style="position: absolute; inset: 0"></div>
   </div>
 
-  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: absolute; top: 48px; left: 16px; right: 16px; display: flex; gap: 4px">
+  <div role="progressbar" aria-label="{{ storyLabel }}" aria-valuemin="1" aria-valuemax="{{ storyCount }}" aria-valuenow="{{ storyNum }}" style="position: absolute; top: 10px; left: 16px; right: 16px; display: flex; gap: 4px">
     <sc-for list="{{ bars }}" as="b" hint-placeholder-count="5"><span style="flex: 1; height: 3px; border-radius: 2px; background: var(--m-line); overflow: hidden"><span style="display: block; height: 100%; width: {{ b.w }}; border-radius: 2px; background: var(--m-ink); animation: {{ b.anim }}; animation-play-state: {{ b.play }}"></span></span></sc-for>
   </div>
 
-  <div style="position: absolute; top: 62px; left: 16px; right: 16px; z-index: 6; display: flex; justify-content: space-between; align-items: center">
+  <div style="position: absolute; top: 24px; left: 16px; right: 16px; z-index: 6; display: flex; justify-content: space-between; align-items: center">
     <span class="m-sub">{{ R.bar }}</span>
     <a class="m-icon" href="{{ LK.k0.href }}" onClick="{{ LK.k0.go }}" aria-label="Close recap" style="background: transparent"><m-ic n="x"></m-ic></a>
   </div>

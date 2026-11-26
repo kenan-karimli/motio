@@ -32,9 +32,9 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Friends</span><button type="button" class="m-icon" onClick="{{ toCode }}" aria-label="Add a friend’s code"><m-ic n="qr"></m-ic></button><button type="button" class="m-icon ink" onClick="{{ invite }}" aria-label="Send my invite code"><m-ic n="share"></m-ic></button></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">{{ countLine }}<sc-if value="{{ hasCode }}" hint-placeholder-val="{{ true }}"> · code <b style="color: var(--m-ink); letter-spacing: .5px">{{ code }}</b></sc-if></span><h1 class="m-title">friends.</h1></div></div>
 
     <label class="input"><m-ic n="search" s="18" style="color: var(--m-faint)"></m-ic><input class="bare" value="{{ query }}" onInput="{{ onQuery }}" type="search" aria-label="Find people on Motio" placeholder="Search by name" autocomplete="off" spellcheck="false"></label>

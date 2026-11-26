@@ -40,7 +40,7 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
   <div class="motio-mapwrap" style="position: absolute; inset: 0; z-index: 0; background: var(--m-soft)">
     <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
   </div>
-  <div style="position: absolute; top: 52px; left: 16px; right: 16px; z-index: 500; display: flex; gap: 8px">
+  <div style="position: absolute; top: 12px; left: 16px; right: 16px; z-index: 500; display: flex; gap: 8px">
     <a class="m-icon fm-float" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a>
     <sc-if value="{{ liveNow }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-chip fm-float" onClick="{{ flyLive }}" style="height: 44px; padding: 0 16px"><i style="width: 8px; height: 8px; border-radius: 4px; background: var(--m-walk); animation: motioShPulse 1.6s ease-out infinite"></i>{{ liveChip }}</button></sc-if>
   </div>

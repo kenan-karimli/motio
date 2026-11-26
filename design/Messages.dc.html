@@ -28,14 +28,14 @@ button,a{font:inherit;cursor:pointer}
 .msg-search input::placeholder{color:var(--m-faint)}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <sc-if value="{{ notSelecting }}" hint-placeholder-val="{{ true }}">
     <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Messages</span><button type="button" class="m-icon ink" onClick="{{ openNew }}" aria-label="New message"><m-ic n="edit" s="17"></m-ic></button></div>
   </sc-if>
   <sc-if value="{{ selecting }}" hint-placeholder-val="{{ false }}">
     <div class="m-topbar"><button type="button" class="m-icon" onClick="{{ endSelect }}" aria-label="Stop selecting"><m-ic n="x"></m-ic></button><span class="m-h3" style="flex: 1; text-align: center" aria-live="polite">{{ selLabel }}</span><button type="button" class="m-chip" style="height: 36px; font-size: 13px" onClick="{{ selectAll }}">{{ allLabel }}</button></div>
   </sc-if>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 120px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 120px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><h1 class="m-title">messages.</h1></div></div>
     <label class="msg-search" style="opacity: {{ dimTools }}"><m-ic n="search" s="18"></m-ic><input type="search" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search" aria-label="Search chats" autocomplete="off" spellcheck="false"></label>
     <div style="display: flex; gap: 6px; opacity: {{ dimTools }}">

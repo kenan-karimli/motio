@@ -35,7 +35,7 @@ button,a{font:inherit;cursor:pointer}
   <div class="motio-mapwrap" style="position: absolute; left: 0; right: 0; top: 0; height: 330px; z-index: 0">
     <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
   </div>
-  <div style="position: absolute; top: 52px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
+  <div style="position: absolute; top: 12px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
     <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon tp-glass"><m-ic n="back"></m-ic></a>
     <div aria-hidden="true" class="m-chip tp-glass" style="height: 36px; cursor: default; opacity: {{ rpOp }}; transform: translateY({{ rpY }}); transition: opacity 260ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none; position: relative; overflow: hidden">
       <span ref="{{ rpRef }}" style="font-variant-numeric: tabular-nums">00:00</span>

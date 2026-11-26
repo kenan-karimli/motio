@@ -25,7 +25,7 @@ button,a{font:inherit;cursor:pointer}
 </helmet>
 <div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">On this day</span><span style="width: 44px"></span></div>
-  <div class="motio-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 108px 20px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 70px 20px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
     <div class="head m-in" style="--i: 0"><div class="t"><span class="m-sub">{{ dateLine }}</span><h1 class="m-title">on this day.</h1></div></div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div class="m-card m-in" style="--i: 1; padding: 20px"><span class="m-sub" style="font-size: 14px; color: var(--m-ink-2)">No memories for today yet. <b style="color: var(--m-ink)">A week from your first trip</b>, they start to show up here.</span></div></sc-if>
     <sc-if value="{{ hasCard }}" hint-placeholder-val="{{ true }}">

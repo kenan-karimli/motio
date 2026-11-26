@@ -396,8 +396,9 @@ class Component extends DCLogic {
       const el = e.target;
       if (!el.classList || !el.classList.contains('motio-scroll')) return;
       const page = el.closest('.m-page'); if (page) page.classList.toggle('m-scrolled', el.scrollTop > 8);
-      if (!el.closest('[data-page="tab"]')) return;
-      const y = el.scrollTop, nav = this.navEl;
+      // Tabs tuck the tab bar away; pushed pages tuck their back bar away the same way.
+      const nav = el.closest('[data-page="tab"]') ? this.navEl : page && page.querySelector('.m-topbar');
+      const y = el.scrollTop;
       if (!nav) return;
       // Only a real move counts: 60 px down hides it, 16 px up (or near the top) brings it back.
       if (el.__y == null) el.__y = y;

@@ -31,7 +31,7 @@ button,a{font:inherit;cursor:pointer}
 .chat-menu .m-row:active{background:var(--m-soft)}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar" style="justify-content: flex-start; gap: 10px">
     <a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a>
     <button type="button" onClick="{{ viewProfile }}" aria-label="{{ profileAria }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; padding: 0; background: transparent; color: var(--m-ink); text-align: left">
@@ -48,7 +48,7 @@ button,a{font:inherit;cursor:pointer}
       <button type="button" class="m-icon" onClick="{{ endFilter }}" aria-label="Show all messages"><m-ic n="x"></m-ic></button>
     </div>
   </sc-if>
-  <div class="motio-scroll" ref="{{ scrollRef }}" onScroll="{{ onScroll }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: {{ padTop }} 20px 110px; display: flex; flex-direction: column; gap: 8px">
+  <div class="motio-scroll" ref="{{ scrollRef }}" onScroll="{{ onScroll }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: {{ padTop }} 20px 110px; display: flex; flex-direction: column; gap: 8px">
     <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div class="m-skel" style="align-self: flex-start; width: 60%; height: 46px; border-radius: 22px"></div><div class="m-skel" style="align-self: flex-end; width: 50%; height: 46px; border-radius: 22px"></div></sc-if>
     <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}"><div class="m-card" style="display: flex; align-items: center; gap: 12px"><m-ic n="wifioff"></m-ic><span class="m-sub" style="flex: 1">{{ error }}</span><button type="button" class="m-chip on" onClick="{{ retry }}">Retry</button></div></sc-if>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">

@@ -32,7 +32,7 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar">
     <button type="button" class="m-icon" onClick="{{ back }}" aria-label="Back"><m-ic n="back"></m-ic></button>
     <span class="m-tt">{{ title }}</span>
@@ -40,7 +40,7 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
     <sc-if value="{{ inClub }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-icon" onClick="{{ invite }}" aria-label="Invite to this club"><m-ic n="share"></m-ic></button></sc-if>
     <sc-if value="{{ opening }}" hint-placeholder-val="{{ false }}"><span style="width: 44px"></span></sc-if>
   </div>
-  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" ref="{{ scrollRef }}" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-card tx" style="font-size: 13px">{{ error }}</div></sc-if>
 
     <sc-if value="{{ listView }}" hint-placeholder-val="{{ true }}">

@@ -57,7 +57,7 @@ button,a{font:inherit;cursor:pointer}
 
   <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; left: 0; right: 0; top: 0; height: 360px; z-index: 0"><div ref="{{ liveMapRef }}" style="position: absolute; inset: 0"></div></div>
-    <div style="position: absolute; top: 52px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
+    <div style="position: absolute; top: 12px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
       <span class="m-chip {{ tint }}" style="height: 36px; cursor: default"><span class="m-dot" style="background: {{ dotColor }}; animation: {{ dotAnim }}"></span>{{ stateLabel }}</span>
       <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Hide the workout screen" class="m-icon lv-glass"><m-ic n="down"></m-ic></a>
     </div>

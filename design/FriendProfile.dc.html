@@ -36,9 +36,9 @@ button.m-row,a.m-row{border:0;width:100%;text-align:left}
 @keyframes motioMenu{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">{{ name }}</span><sc-if value="{{ isFriend }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-icon" onClick="{{ openMenu }}" aria-label="More" aria-expanded="{{ menuOpen }}"><m-ic n="more"></m-ic></button></sc-if><sc-if value="{{ notFriend }}" hint-placeholder-val="{{ false }}"><span style="width: 44px"></span></sc-if></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 14px"><span class="m-skel" style="width: 72px; height: 72px; border-radius: 36px"></span><span class="m-skel" style="flex: 1; height: 44px"></span></div><span class="m-skel" style="height: 52px; border-radius: 26px"></span><span class="m-skel" style="height: 150px; border-radius: 28px"></span></sc-if>
     <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div role="status" class="m-card tx" style="font-size: 13px">{{ error }}</div></sc-if>
 

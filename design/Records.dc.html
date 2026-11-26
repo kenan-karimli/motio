@@ -18,9 +18,9 @@ button,a{font:inherit;cursor:pointer}
 .motio-scroll::-webkit-scrollbar{display:none}
 </style>
 </helmet>
-<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 10px 20px 0">
   <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Records</span><a class="m-icon" href="{{ LK.routes.href }}" onClick="{{ LK.routes.go }}" aria-label="Your routes"><m-ic n="route"></m-ic></a></div>
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -10px -20px 0; padding: 70px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">{{ sub }}</span><h1 class="m-title">records.</h1></div></div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
       <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; text-align: center"><tuli-fox pose="stretch" size="130"></tuli-fox><span class="m-sub" style="max-width: 270px">Your first walk, run or ride sets your first records. <b style="color: var(--m-ink)">Every time you beat one</b>, Motio tells you.</span></div>
