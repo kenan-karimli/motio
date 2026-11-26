@@ -103,6 +103,7 @@ button:active,a:active{transform:scale(0.96)}
       </div>
     </sc-if>
 
+    <sc-if value="{{ v.hasList }}" hint-placeholder-val="{{ true }}">
     <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 18px">
       <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px"><span class="m-h3">{{ v.listTitle }}</span><span class="m-sub" style="font-size: 12px">{{ v.listHint }}</span></div>
       <sc-for list="{{ v.list }}" as="t" hint-placeholder-count="4">
@@ -113,6 +114,7 @@ button:active,a:active{transform:scale(0.96)}
         </div>
       </sc-for>
     </div>
+    </sc-if>
   </div>
 </div>
 </x-dc>
@@ -272,7 +274,7 @@ class Component extends DCLogic {
       this.navFrom = t != null && !isNaN(+t) && +t >= 0 && +t <= 3 ? +t : 1;
     }
     const L = LISTS[key];
-    v.listTitle = L.title; v.listHint = L.hint;
+    v.listTitle = L.title; v.listHint = L.hint; v.hasList = L.rows.length > 0 && !allZero; // an empty period already says so above; a list of 0m rows adds nothing
     v.list = L.rows.map(([badge, title, mode, dur, km, sub, id], i) => ({ badge, title, dur, km, sub, color: MC[mode] || '#C9C5EC', delay: i * 40 + 'ms',
       open: () => { if (!id || !this.props.onNav) return; window.__motioTrip = id; this.props.onNav('trip'); }, cursor: id ? 'pointer' : 'default' }));
     return {
