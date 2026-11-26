@@ -15,86 +15,73 @@ html,body{background:#ECECEA}
 button,a{font:inherit;cursor:pointer}
 @keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes motioSoftIn{from{opacity:0}to{opacity:1}}
-@keyframes motioPulseDot{0%{box-shadow:0 0 0 0 rgba(61,191,92,0.6)}100%{box-shadow:0 0 0 12px rgba(61,191,92,0)}}
-@keyframes motioTrace{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
-@keyframes motioPickIn{from{opacity:0;transform:translateY(28px) scale(0.96)}to{opacity:1;transform:none}}
-@keyframes motioBreath{0%{transform:scale(1);opacity:0.55}100%{transform:scale(1.55);opacity:0}}
 @keyframes motioCountPop{0%{opacity:0;transform:scale(1.8)}25%{opacity:1;transform:scale(1)}80%{opacity:1;transform:scale(0.92)}100%{opacity:0;transform:scale(0.6)}}
-@keyframes motioRecIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @keyframes motioBlink{0%,100%{opacity:1}50%{opacity:0.35}}
-@keyframes motioCtlIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:none}}
-@keyframes motioWipeIn{from{transform:scale(0.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes lvHold{from{stroke-dashoffset:176}to{stroke-dashoffset:0}}
+.leaflet-control-attribution{font-size:8px!important;background:transparent!important;color:#999!important}
+.leaflet-control-attribution a{color:#999!important}
+.lv-glass{background:color-mix(in srgb,var(--m-card) 62%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 16px rgba(0,0,0,.08)}
+.lv-ctl{border:0;padding:0;position:relative;touch-action:none}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: radial-gradient(120% 60% at 50% 0%, {{ glow }} 0%, rgba(22,20,47,0) 62%), #16142F; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column; padding: 16px 20px 28px">
-  <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Close workout screen" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></a>
-    <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
-      <span style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 18px; background: rgba(255,255,255,0.1); font-size: 13px; font-weight: 600"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{ dotColor }}; animation: {{ dotAnim }}"></span>{{ stateLabel }}</span>
-    </sc-if>
-  </div>
-
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
   <sc-if value="{{ picking }}" hint-placeholder-val="{{ true }}">
-    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding-top: 20px">
-      <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.15; animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 300ms backwards">What are you<br>doing today?</h1>
-      <span style="font-size: 13px; opacity: 0.7; animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 360ms backwards">Motio records it as exactly that, until you finish.</span>
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px">
-        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3">
-          <button type="button" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 24px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: {{ k.fg }}; text-align: left; transform: scale({{ k.scale }}); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), background-color 300ms ease, border-color 300ms ease, color 300ms ease; animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) {{ k.delay }} backwards">
-            <span style="width: 52px; height: 52px; flex-shrink: 0; border-radius: 16px; background: {{ k.iconBg }}; display: flex; align-items: center; justify-content: center; transition: background-color 300ms ease"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16142F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ k.glyph }}"></path></svg></span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 18px; font-weight: 700">{{ k.label }}</span><span style="font-size: 12px; opacity: 0.75">{{ k.sub }}</span></span>
-          </button>
-        </sc-for>
+    <div class="scr nt" style="padding-bottom: 28px">
+      <div class="top"><a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Close" class="m-icon"><m-ic n="x"></m-ic></a><span class="m-sub">{{ today }}</span><span style="width: 44px"></span></div>
+      <div class="m-in" style="--i: 0; margin-top: 6px"><h1 class="m-title">start a workout.</h1></div>
+      <div class="m-in" style="--i: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px">
+        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3"><button type="button" class="m-option {{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="min-height: 56px">{{ k.label }}</button></sc-for>
       </div>
-      <div style="flex: 1"></div>
-      <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="status" style="text-align: center; font-size: 12px; color: #F6C343">{{ error }}</span></sc-if>
-      <div style="position: relative; align-self: center; flex-shrink: 0; width: 112px; height: 112px; animation: motioPickIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 560ms backwards">
-        <span aria-hidden="true" style="position: absolute; inset: 0; border-radius: 56px; background: {{ pickColor }}; animation: motioBreath 1.8s ease-out infinite"></span>
-        <button type="button" onClick="{{ begin }}" aria-label="{{ startAria }}" style="position: absolute; inset: 0; border: 0; border-radius: 56px; background: {{ pickColor }}; color: #16142F; font-size: 20px; font-weight: 700; transition: background-color 300ms ease">Start</button>
+      <div class="m-in" style="--i: 2; flex: 1; min-height: 120px; position: relative; border-radius: 28px; overflow: hidden; background: var(--m-card)">
+        <div ref="{{ pickMapRef }}" style="position: absolute; inset: 0"></div>
+        <sc-if value="{{ hasLast }}" hint-placeholder-val="{{ true }}"><span class="m-chip lv-glass" style="position: absolute; left: 12px; top: 12px; z-index: 500; height: 32px; font-size: 12px; cursor: default">{{ lastChip }}</span></sc-if>
       </div>
+      <div class="m-card m-in" style="--i: 3; display: flex; flex-direction: column; gap: 10px; padding: 16px">
+        <span class="m-label">Goal</span>
+        <div style="display: flex; gap: 6px"><sc-for list="{{ goals }}" as="g" hint-placeholder-count="3"><button type="button" class="m-chip {{ g.cls }}" onClick="{{ g.pick }}" aria-pressed="{{ g.on }}" style="{{ g.style }}">{{ g.label }}</button></sc-for></div>
+        <sc-if value="{{ hasLast }}" hint-placeholder-val="{{ true }}"><div style="display: flex; justify-content: space-between; padding-top: 4px"><span class="m-sub">{{ lastWhen }}</span><b style="font-size: 13px">{{ lastStats }}</b></div></sc-if>
+      </div>
+      <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><span role="status" class="m-sub" style="text-align: center; color: var(--m-warn)">{{ error }}</span></sc-if>
+      <div class="m-pop" style="--i: 4; display: flex; justify-content: center; margin: 8px 0 4px"><button type="button" class="m-btn" onClick="{{ begin }}" aria-label="{{ startAria }}" style="width: 92px; height: 92px; border-radius: 46px; padding: 0; font-size: 17px">Start</button></div>
     </div>
   </sc-if>
 
   <sc-if value="{{ counting }}" hint-placeholder-val="{{ false }}">
-    <div aria-live="assertive" style="position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; background: {{ pickColor }}; color: #16142F; animation: motioWipeIn 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; border-radius: 0">
-      <sc-if value="{{ c3 }}" hint-placeholder-val="{{ true }}"><span style="font-size: 180px; font-weight: 700; letter-spacing: -6px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">3</span></sc-if>
-      <sc-if value="{{ c2 }}" hint-placeholder-val="{{ false }}"><span style="font-size: 180px; font-weight: 700; letter-spacing: -6px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">2</span></sc-if>
-      <sc-if value="{{ c1 }}" hint-placeholder-val="{{ false }}"><span style="font-size: 180px; font-weight: 700; letter-spacing: -6px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">1</span></sc-if>
+    <div aria-live="assertive" style="position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+      <span class="m-label">{{ modeName }} starts in</span>
+      <sc-if value="{{ c3 }}" hint-placeholder-val="{{ true }}"><span class="m-num" style="font-size: 180px; letter-spacing: -8px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">3</span></sc-if>
+      <sc-if value="{{ c2 }}" hint-placeholder-val="{{ false }}"><span class="m-num" style="font-size: 180px; letter-spacing: -8px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">2</span></sc-if>
+      <sc-if value="{{ c1 }}" hint-placeholder-val="{{ false }}"><span class="m-num" style="font-size: 180px; letter-spacing: -8px; animation: motioCountPop 900ms cubic-bezier(0.22, 1, 0.36, 1) both">1</span></sc-if>
     </div>
   </sc-if>
 
   <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
-    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding-top: 18px; opacity: {{ recOp }}; transition: opacity 400ms ease">
-      <div style="display: flex; flex-direction: column; align-items: center; animation: motioRecIn 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
-        <span style="padding: 6px 14px; border-radius: 14px; background: {{ color }}; color: #16142F; font-size: 13px; font-weight: 700">{{ modeName }}</span>
-        <span style="margin-top: 8px; font-size: 96px; font-weight: 700; line-height: 1; letter-spacing: -4px; font-variant-numeric: tabular-nums">{{ dist }}</span>
-        <span style="font-size: 15px; opacity: 0.7">{{ distUnit }}</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; flex-shrink: 0; animation: motioRecIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 90ms backwards">
-        <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3">
-          <div style="padding: 12px 8px; border-radius: 18px; background: rgba(255,255,255,0.08); text-align: center"><div style="font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums">{{ st.v }}</div><div style="font-size: 11px; opacity: 0.65">{{ st.k }}</div></div>
-        </sc-for>
-      </div>
-      <div style="flex: 1; min-height: 120px; padding: 14px; border-radius: 24px; background: rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 8px; animation: motioRecIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 180ms backwards">
-        <span style="font-size: 12px; font-weight: 600; opacity: 0.7">{{ routeTitle }}</span>
-        <svg aria-hidden="true" viewBox="0 0 320 300" preserveAspectRatio="xMidYMid meet" style="flex: 1; min-height: 0; width: 100%">
-          <path d="{{ routePath }}" fill="none" stroke="{{ color }}" stroke-opacity="0.25" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="{{ routePath }}" fill="none" stroke="{{ color }}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="--len: {{ routeLen }}; stroke-dasharray: {{ routeLen }}; animation: motioTrace 1400ms cubic-bezier(0.22, 1, 0.36, 1) 300ms backwards"></path>
-          <sc-if value="{{ hasRoute }}" hint-placeholder-val="{{ true }}">
-            <circle cx="{{ startX }}" cy="{{ startY }}" r="5" fill="#3DBF5C" stroke="#16142F" stroke-width="2"></circle>
-            <circle cx="{{ endX }}" cy="{{ endY }}" r="7" fill="#FFFFFF" stroke="{{ color }}" stroke-width="3"></circle>
-          </sc-if>
-        </svg>
-      </div>
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 360px; z-index: 0"><div ref="{{ liveMapRef }}" style="position: absolute; inset: 0"></div></div>
+    <div style="position: absolute; top: 52px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
+      <span class="m-chip {{ tint }}" style="height: 36px; cursor: default"><span class="m-dot" style="background: {{ dotColor }}; animation: {{ dotAnim }}"></span>{{ stateLabel }}</span>
+      <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Hide the workout screen" class="m-icon lv-glass"><m-ic n="down"></m-ic></a>
     </div>
-    <div style="flex-shrink: 0; height: 96px; display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 14px">
-      <sc-if value="{{ running }}" hint-placeholder-val="{{ true }}">
-        <button type="button" onClick="{{ pause }}" aria-label="Pause workout" style="width: 88px; height: 88px; border: 0; border-radius: 44px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; animation: motioCtlIn 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="#16142F"><rect x="6" y="5" width="4" height="14" rx="1.5"></rect><rect x="14" y="5" width="4" height="14" rx="1.5"></rect></svg></button>
-      </sc-if>
-      <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
-        <button type="button" onClick="{{ resume }}" aria-label="Resume workout" style="width: 88px; height: 88px; border: 0; border-radius: 44px; background: {{ color }}; display: flex; align-items: center; justify-content: center; animation: motioCtlIn 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="#16142F"><path d="M8 5v14l11-7z"></path></svg></button>
-        <button type="button" onClick="{{ finish }}" aria-label="Finish and save workout" style="width: 88px; height: 88px; border: 0; border-radius: 44px; background: #F2766B; color: #16142F; font-size: 15px; font-weight: 700; animation: motioCtlIn 380ms cubic-bezier(0.22, 1, 0.36, 1) 70ms backwards">Finish</button>
-      </sc-if>
+    <div class="m-page" style="position: absolute; left: 0; right: 0; top: 330px; bottom: 0; z-index: 2; border-radius: 32px 32px 0 0; padding: 20px 20px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+      <div class="m-card dark m-in" style="padding: 22px; display: flex; flex-direction: column; gap: 6px; align-items: center; opacity: {{ recOp }}; transition: opacity .4s">
+        <span class="m-label">Time</span>
+        <span class="m-num" style="font-size: 64px; letter-spacing: -3px">{{ clock }}</span>
+        <span class="m-sub">{{ goalLine }}<b style="color: var(--m-goal)">{{ goalPct }}</b></span>
+        <sc-if value="{{ hasGoal }}" hint-placeholder-val="{{ true }}"><div class="m-progress" style="width: 100%; margin-top: 10px; background: rgba(128,128,128,.25)"><i style="width: {{ goalW }}; background: var(--m-goal)"></i></div></sc-if>
+      </div>
+      <div class="grid3 m-in" style="--i: 1">
+        <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3"><div class="m-card" style="padding: 14px"><div class="m-label">{{ st.k }}</div><div class="m-num s" style="margin-top: 6px">{{ st.v }}</div></div></sc-for>
+      </div>
+      <span class="sp"></span>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 22px">
+        <button type="button" class="m-icon lv-ctl" onPointerDown="{{ holdStart }}" onPointerUp="{{ holdEnd }}" onPointerLeave="{{ holdEnd }}" aria-label="Hold to finish and save" style="width: 62px; height: 62px; border-radius: 31px">
+          <m-ic n="stop" s="20"></m-ic>
+          <sc-if value="{{ holding }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="62" height="62" viewBox="0 0 62 62" style="position: absolute; inset: 0; transform: rotate(-90deg)"><circle cx="31" cy="31" r="28" fill="none" stroke="var(--m-warn)" stroke-width="3" stroke-linecap="round" stroke-dasharray="176" style="animation: lvHold 800ms linear forwards"></circle></svg></sc-if>
+        </button>
+        <sc-if value="{{ running }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-icon ink lv-ctl" onClick="{{ pause }}" aria-label="Pause workout" style="width: 84px; height: 84px; border-radius: 42px"><m-ic n="pause" s="28"></m-ic></button></sc-if>
+        <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-icon ink lv-ctl" onClick="{{ resume }}" aria-label="Resume workout" style="width: 84px; height: 84px; border-radius: 42px"><m-ic n="play" s="28"></m-ic></button></sc-if>
+        <span style="width: 62px"></span>
+      </div>
+      <span class="m-sub" style="text-align: center; color: {{ hintColor }}">{{ hint }}</span>
     </div>
   </sc-if>
 </div>
@@ -105,7 +92,7 @@ class Component extends DCLogic {
   componentDidMount() {
     this.tick = setInterval(() => this.forceUpdate(), 1000);
   }
-  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.countT); }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.countT); clearTimeout(this.holdT); clearTimeout(this.mapT); if (this.pickMap) this.pickMap.destroy(); if (this.liveMap) this.liveMap.destroy(); }
   countdown(mode) {
     const M = window.Motio;
     const step = (n) => {
@@ -124,12 +111,9 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const M = window.Motio;
-    const MODES = { walk: ['Walk', '#3DBF5C', 'Easy pace, steps counted'], run: ['Run', '#F2766B', 'Pace per km, time and steps'], bike: ['Ride', '#6E8CF7', 'Speed and distance'] };
-    const GLYPH = {
-      walk: 'M13 3.5a1.5 1.5 0 1 0 0.01 0M10 21l2-6 3 3v3M12 15l-1-5 4 2 2 3M11 10l-3 2v3',
-      run: 'M15 3.5a1.5 1.5 0 1 0 0.01 0M6 21l4-5 3 2 1-5 3 3h3M13 13l-2-4-4 2',
-      bike: 'M2 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M15 17a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M5.5 17l4-8h6l3 8M9.5 9l3 8h2M14 6h3'
-    };
+    // [label, colour, tint, noun for "Last run"]
+    const MODES = { walk: ['Walk', '#2FB457', 'tw', 'walk'], run: ['Run', '#E5604F', 'tr', 'run'], bike: ['Ride', '#4F7BF0', 'tb', 'ride'] };
+    const STATE = { walk: 'Walking', run: 'Running', bike: 'Riding' };
     const w = M ? M.workout() : null;
     const pick = s.pick || (M && M.settings().lastWorkout) || 'run';
     const mode = w ? (MODES[w.mode] ? w.mode : 'walk') : pick;
@@ -137,59 +121,77 @@ class Component extends DCLogic {
     const mi = M && M.settings().unit === 'mi';
     const unitM = mi ? 1609.34 : 1000;
     const clock = (ms) => { const t = Math.max(0, Math.round(ms / 1000)), h = Math.floor(t / 3600), mm = Math.floor(t / 60) % 60, ss = t % 60; return h ? h + ':' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0') : mm + ':' + String(ss).padStart(2, '0'); };
+    const paceOf = (sec) => Math.floor(sec / 60) + ':' + String(Math.round(sec % 60) % 60).padStart(2, '0');
     const km = w ? w.distanceM / unitM : 0;
     const paceS = w && km >= 0.05 && w.activeMs / 1000 / km < 3600 ? w.activeMs / 1000 / km : 0;
-    const pace = paceS ? Math.floor(paceS / 60) + ':' + String(Math.round(paceS % 60) % 60).padStart(2, '0') : '–:––';
     const avg = w && w.activeMs > 60000 && km >= 0.05 ? Math.min(80, km / (w.activeMs / 3600000)) : 0;
     const stats = !w ? [] : mode === 'bike'
-      ? [{ v: clock(w.activeMs), k: 'time' }, { v: avg.toFixed(1), k: mi ? 'avg mph' : 'avg km/h' }, { v: (w.maxSpeed * (mi ? 2.23694 : 3.6)).toFixed(0), k: mi ? 'top mph' : 'top km/h' }]
-      : [{ v: clock(w.activeMs), k: 'time' }, { v: pace, k: mi ? 'pace /mi' : 'pace /km' }, { v: (w.steps || 0).toLocaleString('en-US'), k: 'steps' }];
-    // Route shape scaled into the panel.
-    let routePath = '', routeLen = 1, endX = 160, endY = 150, startX = 160, startY = 150;
-    const pts = w && w.points ? w.points : [];
-    if (pts.length > 1) {
-      const k = Math.cos((pts[0][0] * Math.PI) / 180);
-      const xs = pts.map((p) => p[1] * k), ys = pts.map((p) => -p[0]);
-      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-      const sc = Math.min(290 / Math.max(1e-9, maxX - minX), 270 / Math.max(1e-9, maxY - minY));
-      const ox = (320 - (maxX - minX) * sc) / 2, oy = (300 - (maxY - minY) * sc) / 2;
-      const P = xs.map((x, i) => [(x - minX) * sc + ox, (ys[i] - minY) * sc + oy]);
-      routePath = 'M' + P.map((p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
-      routeLen = Math.round(P.reduce((a, p, i) => a + (i ? Math.hypot(p[0] - P[i - 1][0], p[1] - P[i - 1][1]) : 0), 0)) + 1;
-      [endX, endY] = P[P.length - 1].map((v) => v.toFixed(1));
-      [startX, startY] = P[0].map((v) => v.toFixed(1));
+      ? [{ v: km.toFixed(2) + (mi ? ' mi' : ' km'), k: 'Distance' }, { v: avg.toFixed(1), k: mi ? 'Avg mph' : 'Avg km/h' }, { v: (w.maxSpeed * (mi ? 2.23694 : 3.6)).toFixed(0), k: mi ? 'Top mph' : 'Top km/h' }]
+      : [{ v: km.toFixed(2) + (mi ? ' mi' : ' km'), k: 'Distance' }, { v: paceS ? paceOf(paceS) : '–:––', k: 'Pace' }, { v: (w.steps || 0).toLocaleString('en-US'), k: 'Steps' }];
+    // Goal: free, a distance or a time. Saved, so it survives leaving the screen mid-workout.
+    const goal = (M && M.settings().workoutGoal) || 'free';
+    const GOALS = { free: 'Free ' + MODES[pick][3], '5km': mi ? '3 mi' : '5 km', '30min': '30 min' };
+    const prog = !w || goal === 'free' ? 0 : goal === '30min' ? w.activeMs / 1800000 : w.distanceM / ((mi ? 3 : 5) * unitM);
+    // Your last workout of this kind: drawn on the map and shown under the goal.
+    const now = Date.now(), DAY = 86400000;
+    if (!w && this.lastKey !== pick) { this.lastKey = pick; this.last = M ? M.route(now - 90 * DAY, now).filter((r) => r.mode === pick && !r.live).pop() || null : null; }
+    const last = this.last;
+    const near = (p) => { if (!M || !p) return null; const k = Math.cos((p[0] * Math.PI) / 180); return M.places().find((x) => Math.hypot((x.lat - p[0]) * 111320, (x.lng - p[1]) * 111320 * k) < 300) || null; };
+    const lastPlace = last ? near(last.points[Math.floor(last.points.length / 2)]) || near(last.points[0]) : null;
+    const lastKm = last ? last.distanceM / unitM : 0;
+    // Maps start after the slide-in so the slide stays smooth.
+    if (window.MotioMap && !this.mapT) {
+      if (!w && this.pickEl && (!this.pickMap || this.pickFor !== pick)) {
+        this.mapT = setTimeout(() => { this.mapT = null; if (!this.pickEl) return; if (this.pickMap) this.pickMap.destroy(); this.pickFor = pick; this.pickMap = window.MotioMap.mount(this.pickEl, this.last ? [this.last] : []); }, this.pickMap ? 0 : 440);
+      }
+      if (w && this.liveEl) {
+        const route = w.points && w.points.length > 1 ? [{ id: 'w', mode: w.mode, color: m[1], start: w.start, end: now, points: w.points, live: true }] : [];
+        const n = (w.points || []).length;
+        if (!this.liveMap) this.mapT = setTimeout(() => { this.mapT = null; if (!this.liveEl) return; this.liveMap = window.MotioMap.mount(this.liveEl, route); this.liveN = n; this.liveMap.setTime(now, false); }, 300);
+        else if (this.liveN !== n) { this.liveN = n; this.liveMap.update(route); this.liveMap.setTime(now, false); }
+      }
     }
     const counting = !!s.count;
     return {
       rootAnim: emb ? 'motioStoryIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms ease',
       LK: { back: lk('back', 'Main.dc.html') },
-      glow: w ? (w.paused ? '#3A3550' : m[1] + '55') : m[1] + '40',
+      today: new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+      // Stable ref callbacks: a new function each render would detach and reattach the map every second.
+      pickMapRef: this.pickRefFn || (this.pickRefFn = (el) => { this.pickEl = el; if (!el && this.pickMap) { this.pickMap.destroy(); this.pickMap = null; } }),
+      liveMapRef: this.liveRefFn || (this.liveRefFn = (el) => { this.liveEl = el; if (!el && this.liveMap) { this.liveMap.destroy(); this.liveMap = null; } }),
       picking: !w && !counting, counting, recording: !!w, running: !!w && !w.paused, paused: !!w && w.paused,
-      c3: s.count === 3, c2: s.count === 2, c1: s.count === 1,
-      kinds: Object.keys(MODES).map((key, i) => {
-        const on = key === pick;
-        return { label: MODES[key][0], sub: MODES[key][2], glyph: GLYPH[key], on, delay: 420 + i * 70 + 'ms', scale: on ? 1 : 0.97,
-          bg: on ? MODES[key][1] : 'rgba(255,255,255,0.06)', fg: on ? '#16142F' : '#FFFFFF', border: on ? MODES[key][1] : 'rgba(255,255,255,0.1)',
-          iconBg: on ? 'rgba(255,255,255,0.35)' : MODES[key][1],
-          pick: () => { this.setState({ pick: key, error: null }); if (M) M.setSetting('lastWorkout', key); } };
-      }),
-      pickColor: m[1], startAria: 'Start ' + m[0].toLowerCase(),
+      c3: s.count === 3, c2: s.count === 2, c1: s.count === 1, modeName: MODES[pick][0],
+      kinds: Object.keys(MODES).map((key) => ({ label: MODES[key][0], on: key === pick, cls: key === pick ? 'on' : '',
+        pick: () => { this.setState({ pick: key, error: null }); if (M) M.setSetting('lastWorkout', key); } })),
+      goals: Object.keys(GOALS).map((k) => ({ label: GOALS[k], on: goal === k, cls: goal === k ? 'on' : '', style: goal === k ? '' : 'background: var(--m-soft)',
+        pick: () => { if (M) M.setSetting('workoutGoal', k); this.forceUpdate(); } })),
+      hasLast: !!last || !M, lastChip: last ? 'Last ' + MODES[pick][3] + (lastPlace ? ' · ' + lastPlace.name : '') : 'Last run · Boulevard',
+      lastWhen: last ? 'Last ' + MODES[pick][3] + ' · ' + new Date(last.start).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : 'Last run · Sun 22 Nov',
+      lastStats: last ? lastKm.toFixed(1) + (mi ? ' mi' : ' km') + (pick === 'bike' ? ' · ' + Math.round(lastKm / Math.max(1e-6, (last.end - last.start) / 3600000)) + (mi ? ' mph' : ' km/h') : lastKm >= 0.1 ? ' · ' + paceOf((last.end - last.start) / 1000 / lastKm) + (mi ? ' /mi' : ' /km') : '') : '6.2 km · 5:48 /km',
+      startAria: 'Start ' + MODES[pick][0].toLowerCase(),
       begin: () => this.countdown(pick),
       hasError: !!s.error, error: s.error || '',
-      stateLabel: w && w.paused ? 'Paused' : 'Recording',
-      dotColor: w && w.paused ? '#F6C343' : '#F2766B', dotAnim: w && w.paused ? 'motioBlink 1.2s ease-in-out infinite' : 'motioPulseDot 1.4s ease-out infinite',
-      recOp: w && w.paused ? 0.55 : 1,
-      color: m[1], modeName: m[0], dist: km.toFixed(2), distUnit: mi ? 'miles' : 'kilometres', stats,
-      routeTitle: pts.length > 1 ? 'Your route' : 'Waiting for GPS…', hasRoute: pts.length > 1,
-      routePath, routeLen, endX, endY, startX, startY,
+      tint: m[2], stateLabel: w && w.paused ? 'Paused' : STATE[mode],
+      dotColor: w && w.paused ? 'var(--m-mute)' : m[1], dotAnim: w && w.paused ? 'motioBlink 1.2s ease-in-out infinite' : 'none',
+      recOp: w && w.paused ? 0.6 : 1,
+      clock: w ? clock(w.activeMs) : '0:00',
+      hasGoal: !!w && goal !== 'free', goalW: Math.min(100, prog * 100).toFixed(1) + '%',
+      goalLine: !w ? '' : goal === 'free' ? (w.paused ? 'Paused' : STATE[mode]) : 'of ' + GOALS[goal] + ' goal · ', goalPct: !w || goal === 'free' ? '' : Math.min(100, Math.floor(prog * 100)) + '%',
+      stats,
       pause: () => M && M.pauseWorkout(true),
       resume: () => M && M.pauseWorkout(false),
-      finish: () => {
+      holding: !!s.holding,
+      hint: s.error && w ? s.error : s.nudge ? 'Keep holding stop to finish' : w && w.paused ? 'Paused · hold stop to finish and save' : 'Hold stop to finish',
+      hintColor: s.error && w ? 'var(--m-warn)' : '',
+      // Finishing needs a deliberate hold, so a pocket tap never ends a workout.
+      holdStart: () => { clearTimeout(this.holdT); this.setState({ holding: true, nudge: false }); this.holdT = setTimeout(() => {
+        this.setState({ holding: false });
         if (!M) return;
         const id = M.finishWorkout();
         if (id) { window.__motioTrip = id; if (this.props.onNav) this.props.onNav('summary'); }
         else this.setState({ error: 'Not saved: you need at least a minute and 100 m.' });
-      }
+      }, 800); },
+      holdEnd: () => { if (!s.holding) return; clearTimeout(this.holdT); this.setState({ holding: false, nudge: true }); }
     };
   }
 }

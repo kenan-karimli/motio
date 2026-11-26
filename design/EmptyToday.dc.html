@@ -16,83 +16,51 @@ a{color:inherit}
 button{font:inherit;cursor:pointer}
 button,a{transition:transform 140ms cubic-bezier(0.22,1,0.36,1),background-color 200ms ease}
 button:active,a:active{transform:scale(0.96)}
-@keyframes motioRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes motioDash{to{stroke-dashoffset:-28}}
-@keyframes motioIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes motioLive{0%{box-shadow:0 0 0 0 rgba(61,191,92,0.6)}100%{box-shadow:0 0 0 14px rgba(61,191,92,0)}}
-@keyframes motioGrowSeg{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #4B3FD8; color: #FFFFFF; font-family: 'Poppins', system-ui, sans-serif; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 14px">
-
-  <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" aria-label="Close preview" style="position: absolute; right: 20px; top: 18px; z-index: 5; width: 44px; height: 44px; border-radius: 22px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
-  <div style="position: relative; display: flex; flex-direction: column; height: 48px; justify-content: center">
-    <span style="font-size: 13px; color: rgba(255,255,255,0.85)">Sunday, 1 Nov · 7:12 AM</span>
-    <span style="font-size: 20px; font-weight: 500">Good morning, <b style="font-weight: 700">Sam</b></span>
-  </div>
-
-  <div style="position: relative; display: flex; flex-direction: column; animation: motioRise 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards">
-    <span style="font-size: 15px; color: rgba(255,255,255,0.88)">On the move today</span>
-    <span style="font-size: 62px; font-weight: 700; line-height: 1.05; letter-spacing: -2px">{{ minutes }}</span>
-    <span style="font-size: 14px; color: rgba(255,255,255,0.88)">{{ sub }}</span>
-  </div>
-
-  <div style="position: relative; width: 350px; height: 290px; border-radius: 28px; background: #FFFFFF; color: #1F1D47; flex-shrink: 0; animation: motioRise 480ms cubic-bezier(0.22, 1, 0.36, 1) 100ms backwards">
-    <svg aria-hidden="true" width="350" height="290" viewBox="0 0 350 290" style="position: absolute; inset: 0">
-      <path d="M52 50 H298 A47.5 47.5 0 0 1 298 145 H52 A47.5 47.5 0 0 0 52 240 H298" fill="none" stroke="#ECEAF8" stroke-width="22" stroke-linecap="round"></path>
-      <path d="M52 50 H298 A47.5 47.5 0 0 1 298 145 H52 A47.5 47.5 0 0 0 52 240 H298" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 8" style="animation: motioDash 1.6s linear infinite"></path>
-      <line x1="58" y1="50" x2="118" y2="50" stroke="#3DBF5C" stroke-width="22" stroke-linecap="round" stroke-dasharray="60 60" style="opacity: {{ segOp }}; animation: {{ segAnim }}"></line>
-      <g transform="translate(12 30)"><rect x="3" y="13" width="24" height="18" rx="3" fill="#F6C343"></rect><path d="M0 15 L15 2 L30 15 Z" fill="#F2766B" stroke="#F2766B" stroke-width="3" stroke-linejoin="round"></path><rect x="11" y="20" width="8" height="11" rx="2" fill="#4B3FD8"></rect></g>
-    </svg>
-    <div style="position: absolute; left: 40px; right: 40px; top: 96px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
-      <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" style="animation: none"><ellipse cx="32" cy="58" rx="20" ry="4" fill="#ECEAF8"></ellipse><path d="M10 50 L14 26 Q18 18 26 22 L36 32 Q50 32 58 40 Q62 46 58 50 Z" fill="#F2766B"></path><path d="M8 50 H60 Q62 56 56 56 H12 Q6 56 8 50 Z" fill="#1F1D47"></path><path d="M22 38 Q34 40 46 34" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></path></svg>
-      <span style="font-size: 16px; font-weight: 700">{{ cardTitle }}</span>
-      <span style="font-size: 12px; line-height: 1.45; color: #4A4770">{{ cardBody }}</span>
+<div class="m-page" style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="scr nt">
+    <div class="head m-in" style="--i: 0">
+      <div class="t"><span class="m-sub">{{ greetLine }}</span><h1 class="m-title">today.</h1></div>
+      <sc-if value="{{ emb }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-icon" onClick="{{ back }}" aria-label="Close preview"><m-ic n="x"></m-ic></button></sc-if>
+      <button type="button" class="m-icon ink" onClick="{{ start }}" aria-label="Start a workout"><m-ic n="play" s="15"></m-ic></button>
+    </div>
+    <div class="m-in" style="--i: 1; height: 70px; position: relative; margin-bottom: -22px; z-index: 1; display: flex; justify-content: flex-end; align-items: flex-end; padding-right: 22px"><tuli-fox pose="rest" size="150" say="Five more minutes…" say-r=""></tuli-fox></div>
+    <div class="m-card m-in" style="--i: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 28px 24px">
+      <p class="m-say" style="margin: 0; font-size: 22px">No moves yet. Your day starts with <b>the first step</b>.</p>
+      <span class="m-sub" style="text-align: center">Motio is listening. Trips appear here as you go.</span>
+      <button type="button" class="m-btn m-late" onClick="{{ startWalk }}">Start a walk</button>
+    </div>
+    <div class="m-card m-in" style="--i: 3; display: flex; align-items: center; gap: 14px; padding: 14px 16px">
+      <svg aria-hidden="true" width="44" height="44" viewBox="0 0 56 56" style="transform: rotate(-90deg)"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--m-soft)" stroke-width="7"></circle><circle cx="28" cy="28" r="22" fill="none" stroke="var(--m-goal)" stroke-width="7" stroke-linecap="round" stroke-dasharray="{{ ringDash }}"></circle></svg>
+      <span style="flex: 1"><b style="font-size: 15px">{{ goalLine }}</b><div class="m-sub" style="font-size: 12px">{{ streakLine }}</div></span>
     </div>
   </div>
-
-  <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; color: #1F1D47; animation: motioRise 480ms cubic-bezier(0.22, 1, 0.36, 1) 180ms backwards">
-    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 22px; background: rgba(255,255,255,0.85)"><span style="font-size: 18px; font-weight: 700">{{ km }}</span><span style="font-size: 11px; color: #4A4770">travelled</span></div>
-    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 22px; background: rgba(255,255,255,0.85)"><span style="font-size: 18px; font-weight: 700">{{ steps }}</span><span style="font-size: 11px; color: #4A4770">steps</span></div>
-    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 22px; background: rgba(255,255,255,0.85)"><span style="font-size: 18px; font-weight: 700">—</span><span style="font-size: 11px; color: #4A4770">top speed</span></div>
-  </div>
-
-  <button onClick="{{ start }}" style="position: relative; margin-top: auto; min-height: 58px; border-radius: 29px; border: 0; background: {{ btnBg }}; color: #1F1D47; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none">
-    <span style="width: 12px; height: 12px; border-radius: 6px; background: {{ dot }}; animation: {{ dotAnim }}"></span>{{ btnLabel }}
-  </button>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  componentWillUnmount() {
-    clearInterval(this.tick);
-  }
+  // What Today looks like before the first move of the day, with your real goal and streak.
   renderVals() {
-    const s = this.state || {};
-    const live = !!s.live;
-    const sec = s.sec || 0;
+    const M = window.Motio;
+    const go = (t) => this.props.onNav && this.props.onNav(t);
+    const g = M ? M.goals() : { goal: 60, todayMin: 0, active: 12 };
+    const user = M && M.auth && M.auth.user ? M.auth.user() : null;
+    const first = ((user && user.name) || 'Alex').split(' ')[0];
+    const now = new Date(), h = now.getHours();
+    const greet = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Hello' : 'Good evening';
+    const C = 2 * Math.PI * 22, pct = Math.min(1, (g.todayMin || 0) / Math.max(1, g.goal));
+    // The streak counts yesterday until you move today.
+    const streak = g.active || 0;
     return {
       emb: !!this.props.embedded,
-      back: () => this.props.onNav && this.props.onNav('back'),
-      minutes: live ? Math.floor(sec / 60) + 'm ' + String(sec % 60).padStart(2, '0') + 's' : '0m',
-      sub: live ? 'Walking · tracking live' : 'Your day hasn’t started moving yet.',
-      cardTitle: live ? 'Off you go!' : 'No moves yet today',
-      cardBody: live ? 'Your first stretch is drawing itself on the road. Keep your phone with you.' : 'Your road fills in as you move. Leave your phone in your pocket and head out; Motio does the rest.',
-      segOp: live ? 1 : 0,
-      segAnim: live ? 'motioGrowSeg 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards' : 'none',
-      km: live ? (sec * 0.0013).toFixed(2) + ' km' : '0 km',
-      steps: live ? String(Math.round(sec * 1.7)) : '0',
-      btnLabel: live ? 'Tracking your walk' : 'Start a walk now',
-      btnBg: live ? '#FFFFFF' : '#F6C343',
-      dot: live ? '#3DBF5C' : '#1F1D47',
-      dotAnim: live ? 'motioLive 1.2s ease-out infinite' : 'none',
-      // Prototype: start a fake live walk so the empty state visibly comes alive.
-      start: () => {
-        if (live) return;
-        this.setState({ live: true, sec: 0 });
-        clearInterval(this.tick);
-        this.tick = setInterval(() => this.setState({ sec: ((this.state && this.state.sec) || 0) + 1 }), 1000);
-      }
+      back: () => go('back'),
+      greetLine: greet + ', ' + first + ' · ' + now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+      goalLine: Math.round(g.todayMin || 0) + ' of ' + g.goal + ' min',
+      streakLine: streak > 1 ? 'Streak: ' + streak + ' days. Keep it going.' : streak === 1 ? 'You moved yesterday. Make it two.' : 'Move a little today to start a streak.',
+      ringDash: (C * pct).toFixed(1) + ' ' + C.toFixed(1),
+      start: () => go('live'),
+      startWalk: () => { if (M) M.setSetting('lastWorkout', 'walk'); go('live'); }
     };
   }
 }

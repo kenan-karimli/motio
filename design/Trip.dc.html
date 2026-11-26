@@ -21,138 +21,133 @@ button,a{font:inherit;cursor:pointer}
 @keyframes motioReplayIn{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:none}}
 @keyframes motioDlgIn{from{opacity:0;transform:scale(0.94)}to{opacity:1;transform:none}}
 .motio-scroll::-webkit-scrollbar{display:none}
-.motio-mapwrap .leaflet-bottom{bottom:24px}
-.motio-tiles{filter:saturate(0.7) brightness(1.03)}
+.motio-mapwrap .leaflet-bottom{bottom:34px}
+.leaflet-control-attribution{font-size:8px!important;background:transparent!important;color:#999!important}
+.leaflet-control-attribution a{color:#999!important}
+.tp-glass{background:color-mix(in srgb,var(--m-card) 62%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 16px rgba(0,0,0,.08)}
+.tp-field{box-sizing:border-box;width:100%;height:48px;padding:0 16px;border:0;border-radius:var(--m-r-row);background:var(--m-soft);color:var(--m-ink);font:500 14px var(--m-font);outline:none}
+.tp-field:focus{box-shadow:inset 0 0 0 2px var(--m-ink)}
+.tp-row{width:100%;border:0;color:var(--m-ink);text-align:left;font:inherit}
+@keyframes tpDim{from{opacity:0}to{opacity:1}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFFFFF; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
-  <div class="motio-mapwrap" style="position: relative; z-index: 0; flex-shrink: 0; height: 320px; background: #E4E8F0">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="motio-mapwrap" style="position: absolute; left: 0; right: 0; top: 0; height: 330px; z-index: 0">
     <div ref="{{ mapRef }}" style="position: absolute; inset: 0"></div>
-    <sc-if value="{{ noMap }}" hint-placeholder-val="{{ true }}">
-      <svg aria-hidden="true" width="390" height="320" viewBox="0 0 390 320" style="position: absolute; inset: 0"><rect width="390" height="320" fill="#E4E8F0"></rect><g stroke="#FFFFFF" stroke-width="9" fill="none"><path d="M-10 250 C 120 230, 180 120, 400 90"></path><path d="M150 -10 L 210 330"></path></g>
-        <path d="M60 250 C 110 230, 150 200, 190 160 S 280 100, 330 90" fill="none" stroke="url(#spd)" stroke-width="7" stroke-linecap="round"></path>
-        <defs><linearGradient id="spd" x1="0" x2="1"><stop offset="0" stop-color="#6E8CF7"></stop><stop offset="0.55" stop-color="#F6C343"></stop><stop offset="1" stop-color="#F2766B"></stop></linearGradient></defs>
-        <circle cx="60" cy="250" r="7" fill="#3DBF5C" stroke="#FFFFFF" stroke-width="3"></circle><circle cx="330" cy="90" r="7" fill="#1F1D47" stroke="#FFFFFF" stroke-width="3"></circle></svg>
-    </sc-if>
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon" style="position: absolute; left: 20px; top: 16px; z-index: 500;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <button type="button" onClick="{{ share }}" aria-label="Share this trip" style="position: absolute; right: 20px; top: 16px; z-index: 500; width: 44px; height: 44px; border: 0; border-radius: 22px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(31,29,71,0.18); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
-    <sc-if value="{{ canReplay }}" hint-placeholder-val="{{ true }}">
-      <button type="button" onClick="{{ replay }}" aria-label="Replay this trip" style="position: absolute; right: 20px; bottom: 34px; z-index: 500; height: 36px; padding: 0 14px 0 10px; border: 0; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(31,29,71,0.25); animation: motioReplayIn 420ms cubic-bezier(0.22, 1, 0.36, 1) 700ms backwards"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="#F6C343"><path d="M7 4v16l13-8z"></path></svg>Replay</button>
-    </sc-if>
-    <div aria-hidden="true" style="position: absolute; left: 50%; top: 18px; z-index: 500; margin-left: -48px; width: 96px; height: 40px; border-radius: 20px; background: #1F1D47; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: {{ rpOp }}; transform: translateY({{ rpY }}); transition: opacity 260ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none">
-      <span ref="{{ rpRef }}" style="font-size: 15px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums">00:00</span>
-      <span style="position: absolute; left: 12px; right: 12px; bottom: 6px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2)"><span ref="{{ rpBarRef }}" style="display: block; height: 3px; border-radius: 2px; background: #F6C343; transform-origin: left; transform: scaleX(0)"></span></span>
+  </div>
+  <div style="position: absolute; top: 52px; left: 16px; right: 16px; z-index: 5; display: flex; justify-content: space-between; align-items: center">
+    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon tp-glass"><m-ic n="back"></m-ic></a>
+    <div aria-hidden="true" class="m-chip tp-glass" style="height: 36px; cursor: default; opacity: {{ rpOp }}; transform: translateY({{ rpY }}); transition: opacity 260ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none; position: relative; overflow: hidden">
+      <span ref="{{ rpRef }}" style="font-variant-numeric: tabular-nums">00:00</span>
+      <span style="position: absolute; left: 14px; right: 14px; bottom: 5px; height: 2px; border-radius: 1px; background: var(--m-line)"><span ref="{{ rpBarRef }}" style="display: block; height: 2px; border-radius: 1px; background: var(--m-ink); transform-origin: left; transform: scaleX(0)"></span></span>
     </div>
-    <div aria-hidden="true" style="position: absolute; left: 20px; bottom: 36px; z-index: 500; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 14px; background: rgba(255,255,255,0.94); box-shadow: 0 4px 12px rgba(31,29,71,0.14); font-size: 10.5px; font-weight: 600; color: #4A4770"><span>Slower</span><span style="width: 64px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #6E8CF7, #F6C343, #F2766B)"></span><span>Faster</span></div>
+    <span style="display: flex; gap: 8px">
+      <sc-if value="{{ canReplay }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-icon tp-glass" onClick="{{ replay }}" aria-label="Replay this trip"><m-ic n="play" s="16"></m-ic></button></sc-if>
+      <button type="button" class="m-icon tp-glass" onClick="{{ share }}" aria-label="Share this trip"><m-ic n="share"></m-ic></button>
+    </span>
   </div>
 
-  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin-top: -24px; position: relative; z-index: 2; border-radius: 28px 28px 0 0; background: #FFFFFF; padding: 20px 20px 40px; display: flex; flex-direction: column; gap: 16px">
-    <div style="display: flex; align-items: center; gap: 10px">
-      <span style="padding: 6px 12px; border-radius: 14px; background: {{ color }}; color: #1F1D47; font-size: 12px; font-weight: 700">{{ modeName }}</span>
-      <span style="font-size: 13px; color: #6B6890">{{ when }}</span>
+  <div class="motio-scroll" ref="{{ scrollRef }}" style="position: absolute; left: 0; right: 0; top: 300px; bottom: 0; z-index: 2; overflow-y: auto; border-radius: 32px 32px 0 0; background: var(--m-bg); padding: 22px 20px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+    <div class="m-in" style="--i: 0; display: flex; align-items: center; gap: 8px"><span class="m-chip {{ tint }}" style="height: 30px; font-size: 12px; cursor: default"><m-ic n="{{ icon }}" s="14"></m-ic>{{ modeName }}</span><span class="m-sub">{{ when }}</span></div>
+    <h2 class="m-h2 m-in" style="--i: 1; font-size: 26px">{{ title }}</h2>
+    <div class="grid3 m-in" style="--i: 2">
+      <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3"><div class="m-card" style="padding: 14px"><div class="m-label">{{ st.k }}</div><div class="m-num s" style="margin-top: 6px">{{ st.v }}</div></div></sc-for>
     </div>
-    <div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 52px; font-weight: 700; line-height: 1; letter-spacing: -1.5px">{{ distNum }}</span><span style="font-size: 18px; font-weight: 600">{{ unit }}</span></div>
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
-      <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
-        <div style="padding: 12px 14px; border-radius: 18px; background: #F6F5FC; animation: motioFadeUp 360ms ease-out {{ st.delay }} backwards"><div style="font-size: 20px; font-weight: 700">{{ st.v }}</div><div style="font-size: 11px; color: #6B6890">{{ st.k }}</div></div>
+    <div class="m-card m-in" style="--i: 3; padding: 8px; display: flex; flex-direction: column; gap: 4px">
+      <sc-if value="{{ bus.show }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="m-row tp-row" onClick="{{ openSheet }}" style="background: transparent"><m-ic n="bus"></m-ic><span style="flex: 1"><b style="font-size: 14px">{{ bus.title }}</b><div class="m-sub" style="font-size: 12px">{{ bus.sub }}</div></span><span class="m-sub">Change</span></button>
+      </sc-if>
+      <sc-for list="{{ facts }}" as="f" hint-placeholder-count="2">
+        <div class="m-row" style="background: transparent"><m-ic n="{{ f.icon }}"></m-ic><span style="flex: 1"><b style="font-size: 14px">{{ f.v }}</b><div class="m-sub" style="font-size: 12px">{{ f.k }}</div></span></div>
       </sc-for>
     </div>
+    <div class="grid2 m-in" style="--i: 4"><button type="button" class="m-btn w" onClick="{{ openSheet }}">Change mode</button><button type="button" class="m-btn w" onClick="{{ toEdit }}"><m-ic n="edit" s="17"></m-ic>Edit</button></div>
 
     <sc-if value="{{ hasSplits }}" hint-placeholder-val="{{ true }}">
-      <section style="display: flex; flex-direction: column; gap: 8px">
-        <h2 style="margin: 0; font-size: 15px; font-weight: 600">Splits</h2>
+      <div class="m-card" style="display: flex; flex-direction: column; gap: 8px; padding: 16px">
+        <div style="display: flex; justify-content: space-between"><span class="m-label">Splits</span><span class="m-sub" style="font-size: 12px">{{ splitUnit }}</span></div>
         <sc-for list="{{ splits }}" as="sp" hint-placeholder-count="4">
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px">
-            <span style="width: 34px; color: #6B6890">{{ sp.n }}</span>
-            <span style="flex: 1; height: 10px; border-radius: 5px; background: #F3F2FA"><span style="display: block; width: {{ sp.w }}; height: 10px; border-radius: 5px; background: {{ sp.color }}; transform-origin: left; animation: motioBarX 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ sp.delay }} backwards"></span></span>
-            <span style="width: 64px; text-align: right; font-weight: 600">{{ sp.t }}</span>
-          </div>
-        </sc-for>
-      </section>
-    </sc-if>
-
-    <section style="display: flex; flex-direction: column; gap: 8px">
-      <h2 style="margin: 0; font-size: 15px; font-weight: 600">Not right? Tap how you really moved</h2>
-      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
-        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="5">
-          <button type="button" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 40px; padding: 0; font-size: 12px; border-radius: 19px; border: 2px solid {{ k.border }}; background: {{ k.bg }}; color: #1F1D47; font-weight: 600"><span style="width: 8px; height: 8px; flex-shrink: 0; border-radius: 5px; background: {{ k.color }}"></span>{{ k.label }}</button>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><b style="width: 18px">{{ sp.n }}</b><span style="flex: 1; height: 8px; border-radius: 4px; background: var(--m-soft)"><i style="display: block; width: {{ sp.w }}; height: 100%; border-radius: 4px; background: {{ sp.color }}; transform-origin: left; animation: motioBarX 600ms cubic-bezier(0.22, 1, 0.36, 1) {{ sp.delay }} backwards"></i></span><b style="width: 64px; text-align: right">{{ sp.t }}</b></div>
         </sc-for>
       </div>
-    </section>
-    <sc-if value="{{ bus.show }}" hint-placeholder-val="{{ false }}">
-      <section style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 20px; background: #F6F5FC">
-        <span aria-hidden="true" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #B57BE0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{ bus.badge }}</span>
-        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ bus.title }}</span><span style="font-size: 12px; color: #6B6890">{{ bus.sub }}</span></span>
-        <input value="{{ bus.value }}" onInput="{{ bus.onInput }}" aria-label="Bus number" inputmode="text" maxlength="8" placeholder="No." style="width: 70px; height: 40px; box-sizing: border-box; padding: 0 10px; border-radius: 12px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 15px; font-weight: 600; text-align: center">
-      </section>
     </sc-if>
+
     <sc-if value="{{ rt.show }}" hint-placeholder-val="{{ true }}">
-      <section style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: {{ rt.bg }}">
+      <div class="m-card {{ rt.tint }}" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
         <sc-if value="{{ rt.onRoute }}" hint-placeholder-val="{{ false }}">
-          <span style="display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 14px; background: #F6C343; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19a2 2 0 1 0 0-.01M18 5a2 2 0 1 0 0-.01M6 17V9a4 4 0 0 1 8 0v6a4 4 0 0 0 4 4"></path></svg></span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{ rt.title }}</span><span style="font-size: 12px; color: #4A4770">{{ rt.sub }}</span></span></span>
+          <span style="display: flex; align-items: center; gap: 12px"><m-ic n="route"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 15px">{{ rt.title }}</b><div class="m-sub" style="font-size: 12px; color: var(--m-ink-2)">{{ rt.sub }}</div></span></span>
         </sc-if>
         <sc-if value="{{ rt.canSave }}" hint-placeholder-val="{{ true }}">
-          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Save this route</span><span style="font-size: 12px; color: #6B6890">Next time you go this way, Motio times you against your best.</span></span>
-          <div style="display: flex; gap: 8px"><input value="{{ rt.name }}" onInput="{{ rt.onName }}" aria-label="Route name" maxlength="40" placeholder="Home to office" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px"><button type="button" onClick="{{ rt.save }}" style="height: 44px; padding: 0 16px; border: 0; border-radius: 14px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">Save</button></div>
+          <span><b style="font-size: 15px">Save this route</b><div class="m-sub" style="font-size: 12px">Next time you go this way, Motio times you against your best.</div></span>
+          <div style="display: flex; gap: 8px"><input class="tp-field" value="{{ rt.name }}" onInput="{{ rt.onName }}" aria-label="Route name" maxlength="40" placeholder="Home to office" style="flex: 1; min-width: 0"><button type="button" class="m-btn" onClick="{{ rt.save }}" style="height: 48px; padding: 0 20px">Save</button></div>
         </sc-if>
-      </section>
+      </div>
     </sc-if>
-    <section style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: #F6F5FC">
-      <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Post to your feed</span><span style="font-size: 12px; color: #6B6890">Your friends see the route and numbers, and can cheer and comment. Private zones stay hidden.</span></span>
+
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
+      <span><b style="font-size: 15px">Post to your feed</b><div class="m-sub" style="font-size: 12px">Friends see the route and numbers, and can cheer and comment. Private zones stay hidden.</div></span>
       <sc-if value="{{ fp.canPost }}" hint-placeholder-val="{{ true }}">
-        <input value="{{ fp.caption }}" onInput="{{ fp.onCaption }}" aria-label="Caption" maxlength="280" placeholder="Say something about it (optional)" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 2px solid #E3E1F3; background: #FFFFFF; color: #1F1D47; font-size: 14px">
-        <button type="button" onClick="{{ fp.post }}" disabled="{{ fp.busy }}" style="height: 46px; border: 0; border-radius: 23px; background: #1F1D47; color: #FFFFFF; font-size: 14px; font-weight: 600">{{ fp.label }}</button>
+        <input class="tp-field" value="{{ fp.caption }}" onInput="{{ fp.onCaption }}" aria-label="Caption" maxlength="280" placeholder="Say something about it (optional)">
+        <button type="button" class="m-btn wide" onClick="{{ fp.post }}" disabled="{{ fp.busy }}">{{ fp.label }}</button>
       </sc-if>
-      <sc-if value="{{ fp.posted }}" hint-placeholder-val="{{ false }}"><a href="{{ LK.feed.href }}" onClick="{{ LK.feed.go }}" style="height: 46px; border-radius: 23px; background: #DDF5E3; color: #1E7A36; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Posted. See it in the feed</a></sc-if>
-    </section>
-    <section style="display: flex; flex-direction: column; gap: 10px">
-      <h2 style="margin: 0; font-size: 15px; font-weight: 600">Note and photo</h2>
+      <sc-if value="{{ fp.posted }}" hint-placeholder-val="{{ false }}"><a href="{{ LK.feed.href }}" onClick="{{ LK.feed.go }}" class="m-btn w wide" style="background: var(--m-soft); text-decoration: none"><m-ic n="check" s="16"></m-ic>Posted. See it in the feed</a></sc-if>
+    </div>
+
+    <div class="m-card" ref="{{ editRef }}" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
+      <span class="m-label">Note and photo</span>
       <sc-if value="{{ ed.hasPhoto }}" hint-placeholder-val="{{ false }}">
-        <div style="position: relative; border-radius: 20px; overflow: hidden; animation: motioFadeUp 360ms ease-out backwards">
+        <div style="position: relative; border-radius: 18px; overflow: hidden">
           <img src="{{ ed.photo }}" alt="Your photo from this trip" style="display: block; width: 100%; max-height: 300px; object-fit: cover">
-          <button type="button" onClick="{{ ed.removePhoto }}" aria-label="Remove photo" style="position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border: 0; border-radius: 17px; background: rgba(31,29,71,0.7); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          <button type="button" class="m-icon" onClick="{{ ed.removePhoto }}" aria-label="Remove photo" style="position: absolute; right: 10px; top: 10px; width: 36px; height: 36px"><m-ic n="x" s="16"></m-ic></button>
         </div>
       </sc-if>
-      <textarea value="{{ ed.note }}" onChange="{{ ed.saveNote }}" aria-label="Note for this trip" maxlength="500" rows="2" placeholder="What happened on this trip?" style="box-sizing: border-box; width: 100%; min-height: 64px; padding: 12px 14px; border-radius: 16px; border: 2px solid #EEF0F6; background: #F6F5FC; color: #1F1D47; font: inherit; font-size: 14px; line-height: 1.45; resize: none"></textarea>
-      <label style="align-self: flex-start; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 20px; background: #F3F2FA; color: #1F1D47; font-size: 13px; font-weight: 600; cursor: pointer">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path></svg>{{ ed.photoLabel }}
-        <input type="file" accept="image/*" onChange="{{ ed.pickPhoto }}" style="position: absolute; width: 1px; height: 1px; opacity: 0">
-      </label>
-      <span style="font-size: 11px; color: #8A87A8">The photo stays on this phone. The note is backed up with your trip.</span>
-    </section>
+      <textarea class="tp-field" value="{{ ed.note }}" onChange="{{ ed.saveNote }}" aria-label="Note for this trip" maxlength="500" rows="2" placeholder="What happened on this trip?" style="height: auto; min-height: 64px; padding: 12px 16px; line-height: 1.45; resize: none"></textarea>
+      <label class="m-chip" style="align-self: flex-start; background: var(--m-soft); position: relative"><m-ic n="camera" s="16"></m-ic>{{ ed.photoLabel }}<input type="file" accept="image/*" onChange="{{ ed.pickPhoto }}" style="position: absolute; width: 1px; height: 1px; opacity: 0"></label>
+      <span class="m-sub" style="font-size: 11px">The photo stays on this phone. The note is backed up with your trip.</span>
+    </div>
+
     <sc-if value="{{ ed.canFix }}" hint-placeholder-val="{{ true }}">
-      <section style="display: flex; flex-direction: column; gap: 8px">
-        <h2 style="margin: 0; font-size: 15px; font-weight: 600">Fix this trip</h2>
+      <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <span class="m-label" style="margin: 4px 4px 2px">Fix this trip</span>
         <sc-if value="{{ ed.canJoin }}" hint-placeholder-val="{{ true }}">
-          <button type="button" onClick="{{ ed.join }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left">
-            <span aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 12px; background: #DDF5E3; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h6M14 12h6M10 8l4 4-4 4"></path></svg></span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Join with the next trip</span><span style="font-size: 12px; color: #6B6890">{{ ed.joinSub }}</span></span>
-          </button>
+          <button type="button" class="m-row tp-row" onClick="{{ ed.join }}"><m-ic n="link"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Join with the next trip</b><div class="m-sub" style="font-size: 12px">{{ ed.joinSub }}</div></span><m-ic n="chev" s="16"></m-ic></button>
         </sc-if>
         <sc-if value="{{ ed.canSplit }}" hint-placeholder-val="{{ true }}">
-          <button type="button" onClick="{{ ed.split }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 18px; background: #F6F5FC; color: #1F1D47; text-align: left">
-            <span aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 12px; background: #FDE9E6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 9l-3 3 3 3M19 9l3 3-3 3"></path></svg></span>
-            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ ed.splitTitle }}</span><span style="font-size: 12px; color: #6B6890">Makes two trips from this one</span></span>
-          </button>
+          <button type="button" class="m-row tp-row" onClick="{{ ed.split }}"><m-ic n="sliders"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ ed.splitTitle }}</b><div class="m-sub" style="font-size: 12px">Makes two trips from this one</div></span><m-ic n="chev" s="16"></m-ic></button>
         </sc-if>
-      </section>
+      </div>
     </sc-if>
-    <button type="button" onClick="{{ askDelete }}" style="min-height: 48px; border-radius: 24px; border: 2px solid #F5C6C0; background: transparent; color: #C2412F; font-size: 14px; font-weight: 600">Delete this trip</button>
+    <button type="button" onClick="{{ askDelete }}" style="align-self: center; margin-top: 6px; padding: 10px 16px; border: 0; background: transparent; font: 600 14px var(--m-font); color: var(--m-warn)">Delete trip</button>
   </div>
 
-  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
-      <button aria-label="Cancel" onClick="{{ cancelDelete }}" style="position: absolute; inset: 0; border: 0; background: rgba(20,14,70,0.5)"></button>
-      <div role="alertdialog" aria-label="Delete this trip?" style="position: relative; width: 100%; padding: 22px 20px; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioDlgIn 220ms ease-out">
-        <span style="font-size: 18px; font-weight: 700">Delete this trip?</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">It disappears from your day, recaps and stats on all your devices.</span>
-        <div style="display: flex; gap: 10px"><button onClick="{{ cancelDelete }}" style="flex: 1; min-height: 48px; border: 0; border-radius: 24px; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Keep it</button><button onClick="{{ confirmDelete }}" style="flex: 1; min-height: 48px; border: 0; border-radius: 24px; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600">Delete</button></div>
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position: absolute; inset: 0; z-index: 20; background: rgba(15,15,15,.32); animation: tpDim 320ms cubic-bezier(.22,1,.36,1)"></div>
+    <div class="m-sheet" role="dialog" aria-label="How did you move?" style="z-index: 21; padding: 12px 20px 30px; display: flex; flex-direction: column; gap: 16px">
+      <i style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--m-line)"></i>
+      <div><h2 class="m-h2">How did you move?</h2><div class="m-sub" style="margin-top: 4px">{{ title }} · {{ startTime }}</div></div>
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px">
+        <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="5">
+          <button type="button" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; padding: 0; background: transparent; color: var(--m-ink)"><span class="m-face {{ k.cls }}"><m-ic n="{{ k.icon }}" s="22"></m-ic></span><span style="font: 600 11px var(--m-font)">{{ k.label }}</span></button>
+        </sc-for>
       </div>
+      <sc-if value="{{ sheetBus }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 8px"><span class="m-label">Which line?</span><input class="tp-field" value="{{ bus.value }}" onInput="{{ bus.onInput }}" aria-label="Bus or metro line" maxlength="8" placeholder="Line number, like 88"><span class="m-sub" style="font-size: 12px">{{ bus.sub }}</span></div>
+      </sc-if>
+      <span class="m-sub" style="font-size: 12px">Motio learns from it and fixes similar trips too.</span>
+      <button type="button" class="m-btn wide" onClick="{{ saveSheet }}">Save</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cancelDelete }}" style="position: absolute; inset: 0; z-index: 30; background: rgba(15,15,15,.32); animation: tpDim 320ms cubic-bezier(.22,1,.36,1)"></div>
+    <div class="m-sheet" role="alertdialog" aria-label="Delete this trip?" style="z-index: 31; display: flex; flex-direction: column; gap: 12px">
+      <h2 class="m-h2">Delete this trip?</h2>
+      <span class="m-sub" style="font-size: 14px">It disappears from your day, recaps and stats on <b style="color: var(--m-ink)">all your devices</b>.</span>
+      <div class="grid2" style="margin-top: 6px"><button type="button" class="m-btn w" onClick="{{ cancelDelete }}" style="background: var(--m-soft)">Keep it</button><button type="button" class="m-btn" onClick="{{ confirmDelete }}" style="background: var(--m-warn); color: #FFFFFF">Delete</button></div>
     </div>
   </sc-if>
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 28px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 13px; font-weight: 500; white-space: nowrap; animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -176,9 +171,10 @@ class Component extends DCLogic {
     const M = window.Motio;
     // The trip to show is handed over by the page that opened this one.
     if (this.tripId === undefined) { this.tripId = window.__motioTrip || null; window.__motioTrip = null; }
-    const MODES = { walk: ['Walk', 'Walking', '#3DBF5C'], run: ['Run', 'Running', '#F2766B'], bike: ['Bike', 'Cycling', '#6E8CF7'], drive: ['Drive', 'Driving', '#F6C343'], transit: ['Bus', 'Bus & train', '#B57BE0'] };
+    // [short label, name, colour, tint class, icon]
+    const MODES = { walk: ['Walk', 'Walk', '#2FB457', 'tw', 'walk'], run: ['Run', 'Run', '#E5604F', 'tr', 'run'], bike: ['Ride', 'Ride', '#4F7BF0', 'tb', 'bike'], transit: ['Bus/metro', 'Bus & metro', '#8E6BE0', 'tt', 'bus'], drive: ['Drive', 'Drive', '#E7A82A', 'td', 'car'] };
     const now = Date.now();
-    const t = (M && this.tripId && M.findTrip(this.tripId)) || { id: 'sample', mode: 'bike', start: now - 3 * 3600000, end: now - 3 * 3600000 + 38 * 60000, distanceM: 11600, steps: 0, maxSpeed: 8.6, points: [] };
+    const t = (M && this.tripId && M.findTrip(this.tripId)) || { id: 'sample', mode: 'transit', line: '88', lineBy: 'map', start: now - 3 * 3600000, end: now - 3 * 3600000 + 41 * 60000, distanceM: 11200, steps: 0, maxSpeed: 12.4, points: [] };
     const mi = M && M.settings().unit === 'mi', unitM = mi ? 1609.34 : 1000;
     const mins = (Math.min(t.end, now) - t.start) / 60000;
     const fmtMin = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' + String(Math.round(m % 60)).padStart(2, '0') + 'm' : Math.max(1, Math.round(m)) + ' min');
@@ -187,11 +183,17 @@ class Component extends DCLogic {
     const onFoot = t.mode === 'walk' || t.mode === 'run';
     const avg = t.distanceM / Math.max(1, mins * 60);
     // The map starts after the slide-in so the slide stays smooth.
-    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT && t.points && t.points.length > 1) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountTrip(this.mapEl, t.points); }, 440);
+    if (M && window.MotioMap && this.mapEl && !this.ctrl && !this.mapT && t.points && t.points.length > 1) this.mapT = setTimeout(() => { this.ctrl = window.MotioMap.mountTrip(this.mapEl, t.points, MODES[t.mode][2]); }, 440);
     const sp = M && t.points && t.points.length > 1 ? M.splits(t) : [372, 355, 341, 362, 330];
     const fastest = Math.min(...sp), slowest = Math.max(...sp);
     const d = new Date(t.start);
     const S0 = (x) => x && x.id !== 'sample' && !x.live;
+    const hm0 = (x) => { const q = new Date(x); return q.getHours() + ':' + String(q.getMinutes()).padStart(2, '0'); };
+    // The trip is named by the places it went between ("Home → Port Baku Mall"), when Motio knows them.
+    const near = (p) => { if (!M || !p) return null; const k = Math.cos((p[0] * Math.PI) / 180); return M.places().find((x) => Math.hypot((x.lat - p[0]) * 111320, (x.lng - p[1]) * 111320 * k) < 150) || null; };
+    const pts = t.points || [], a0 = near(pts[0]), b0 = near(pts[pts.length - 1]);
+    const title = !M ? '28 May → Sahil' : a0 && b0 && a0 !== b0 ? a0.name + ' → ' + b0.name : b0 ? MODES[t.mode][1] + ' to ' + b0.name : a0 ? MODES[t.mode][1] + ' from ' + a0.name : MODES[t.mode][1];
+    const pick = s.pick || t.mode;
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       canReplay: !M || !!(t && t.points && t.points.length > 2), rpOp: s.replaying ? 1 : 0, rpY: s.replaying ? '0px' : '-12px',
@@ -207,22 +209,36 @@ class Component extends DCLogic {
         });
       },
       LK: { feed: lk('feed', 'Feed.dc.html'), back: lk('back', 'Main.dc.html') },
+      scrollRef: (el) => { this.scrollEl = el; }, editRef: (el) => { this.editEl = el; },
+      toEdit: () => { if (this.scrollEl && this.editEl) this.scrollEl.scrollTo({ top: this.editEl.offsetTop - 20, behavior: 'smooth' }); },
+      title, startTime: hm0(t.start), tint: MODES[t.mode][3], icon: MODES[t.mode][4],
+      sheetOpen: !!s.sheet, sheetBus: pick === 'transit',
+      openSheet: () => this.setState({ sheet: true, pick: t.mode, busDraft: null }), closeSheet: () => this.setState({ sheet: false }),
+      saveSheet: () => {
+        this.setState({ sheet: false });
+        if (!M || !S0(t)) return;
+        const line = s.busDraft;
+        if (pick !== t.mode) { const n = M.retypeTrip(t.id, pick) || 0; this.showToast('Changed to ' + MODES[pick][1].toLowerCase() + (n ? '. Also fixed ' + n + (n === 1 ? ' similar trip' : ' similar trips') : '. Motio learns from it')); }
+        if (pick === 'transit' && line != null && line.trim() !== (t.line || '')) { M.setTripLine(t.id, line); if (line.trim()) this.showToast('Saved: line ' + line.trim()); }
+      },
       mapRef: (el) => { const first = el && !this.mapEl; this.mapEl = el; if (first && M) requestAnimationFrame(() => this.setState({ mapReady: true })); },
-      noMap: !M || !(t.points && t.points.length > 1),
-      color: MODES[t.mode][2], modeName: MODES[t.mode][1],
-      when: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toTimeString().slice(0, 5) + '–' + new Date(t.end).toTimeString().slice(0, 5),
-      distNum: (t.distanceM / unitM).toFixed(t.distanceM / unitM < 10 ? 2 : 1), unit: mi ? 'mi' : 'km',
+      modeName: t.mode === 'transit' && t.line ? 'Bus ' + t.line : MODES[t.mode][1],
+      when: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + hm0(t.start) + '–' + hm0(t.end),
       stats: [
         ['Time', fmtMin(mins)],
-        [onFoot ? 'Average pace' : 'Average speed', onFoot ? pace((mins * 60) / Math.max(0.01, t.distanceM / unitM)) + (mi ? ' /mi' : ' /km') : spd(avg)],
-        ['Top speed', spd(t.maxSpeed || 0)],
-        [onFoot ? 'Steps' : 'Stops', onFoot ? (t.steps || 0).toLocaleString('en-US') : String(t.stops ?? (t.f ? Math.round(t.f[3] * 3 * t.distanceM / 1000) : 0))]
-      ].map(([k, v], i) => ({ k, v, delay: (emb ? 420 : 0) + i * 60 + 'ms' })),
-      hasSplits: sp.length > 0,
-      splits: sp.map((sec, i) => ({ n: (mi ? 'mi ' : 'km ') + (i + 1), t: onFoot ? pace(sec) : spd(unitM / sec), w: Math.round(30 + 70 * (slowest === fastest ? 1 : (slowest - sec) / (slowest - fastest))) + '%',
-        color: sec === fastest ? '#F2766B' : MODES[t.mode][2], delay: (emb ? 450 : 0) + i * 70 + 'ms' })).slice(0, 30),
-      kinds: Object.keys(MODES).map((k) => ({ label: MODES[k][0], color: MODES[k][2], on: t.mode === k, bg: t.mode === k ? '#F3F2FA' : '#FFFFFF', border: t.mode === k ? '#1F1D47' : '#E3E1F3',
-        pick: () => { if (M && t.mode !== k) { const n = M.retypeTrip(t.id, k) || 0; this.showToast('Changed to ' + MODES[k][1] + (n ? '. Also fixed ' + n + (n === 1 ? ' similar trip' : ' similar trips') : '. Motio learns from it')); } } })),
+        ['Distance', M ? M.fmtDist(t.distanceM) : (t.distanceM / unitM).toFixed(1) + ' km'],
+        [onFoot ? 'Pace' : 'Avg', onFoot ? pace((mins * 60) / Math.max(0.01, t.distanceM / unitM)) : spd(avg)]
+      ].map(([k, v]) => ({ k, v })),
+      facts: [
+        { icon: 'zap', v: spd(t.maxSpeed || 0), k: 'Top speed' },
+        onFoot ? { icon: 'steps', v: (t.steps || 0).toLocaleString('en-US') + ' steps', k: 'Counted on this trip' }
+          : { icon: 'pin', v: String(t.stops ?? (t.f ? Math.round(t.f[3] * 3 * t.distanceM / 1000) : 0)) + ' stops', k: 'Times you stood still' }
+      ],
+      hasSplits: sp.length > 0, splitUnit: onFoot ? (mi ? 'min / mi' : 'min / km') : (mi ? 'mph per mile' : 'km/h per km'),
+      splits: sp.map((sec, i) => ({ n: String(i + 1), t: onFoot ? pace(sec) : spd(unitM / sec), w: Math.round(30 + 70 * (slowest === fastest ? 1 : (slowest - sec) / (slowest - fastest))) + '%',
+        color: sec === fastest ? MODES[t.mode][2] : 'var(--m-ink)', delay: (emb ? 450 : 0) + i * 70 + 'ms' })).slice(0, 30),
+      kinds: Object.keys(MODES).map((k) => ({ label: MODES[k][0], icon: MODES[k][4], on: pick === k, cls: pick === k ? 'on' : MODES[k][3],
+        pick: () => this.setState({ pick: k }) })),
       share: () => {
         if (!M) { this.showToast('Trip shared'); return; }
         const routes = M.route(t.start - 1, t.end + 1).filter((r) => r.id === t.id);
@@ -248,15 +264,15 @@ class Component extends DCLogic {
         };
       })(),
       bus: {
-        show: t.mode === 'transit', badge: t.line || '?', value: s.busDraft ?? (t.line || ''),
-        title: t.line ? 'Bus ' + t.line : 'Which bus was it?',
+        show: t.mode === 'transit', value: s.busDraft ?? (t.line || ''),
+        title: t.line ? 'Line ' + t.line : 'Which line was it?',
         sub: t.lineBy === 'map' ? 'Found from the Baku bus map' : t.lineBy === 'learned' ? 'You took this route before' : t.lineBy === 'you' ? 'Motio will spot this route next time' : 'Type the number and Motio remembers the route',
-        onInput: (e) => { const v = e.target.value; this.setState({ busDraft: v }); clearTimeout(this.busT); this.busT = setTimeout(() => { if (M && S0(t)) { M.setTripLine(t.id, v); if (v.trim()) this.showToast('Saved: bus ' + v.trim()); } }, 900); }
+        onInput: (e) => this.setState({ busDraft: e.target.value })
       },
       rt: (() => {
         const real = !!(M && S0(t)), r = real ? M.routeOf(t) : null, fmt = (v) => Math.floor(v / 60000) + ':' + String(Math.round((v % 60000) / 1000)).padStart(2, '0');
         const isBest = r && r.best.tripId === t.id;
-        return { show: !M || (real && t.points && t.points.length > 3), onRoute: !!r, canSave: !M || (real && !r), bg: isBest ? '#FFF4D6' : '#F6F5FC',
+        return { show: !M || (real && t.points && t.points.length > 3), onRoute: !!r, canSave: !M || (real && !r), tint: isBest ? 'tg' : '',
           title: r ? (isBest ? 'Your best on ' + r.name : 'On ' + r.name) : '', sub: r ? (isBest ? fmt(r.best.ms) + ', fastest of ' + r.attempts : 'This trip ' + fmt(t.end - t.start) + ' · best ' + fmt(r.best.ms) + ' · ' + r.attempts + ' runs') : '',
           name: s.routeName || '', onName: (e) => this.setState({ routeName: e.target.value }),
           save: () => { if (!real) return; const n = (s.routeName || '').trim() || 'My route'; M.saveRoute(t.id, n); this.setState({ routeName: '' }); this.showToast('Saved “' + n + '”. Motio will time you on it'); } };
