@@ -130,7 +130,7 @@ class Component extends DCLogic {
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
       emb, LK: { back: lk('back', 'Settings.dc.html') },
-      intro: (() => { const st = M ? M.status() : { trips: 1840 }; return 'All ' + (st.trips || 0) + (st.trips === 1 ? ' trip' : ' trips') + ', every route and place, in a file that’s yours.'; })(),
+      intro: (() => { const n = M ? M.summarize(0, Date.now()).trips.length : 1840; return 'All ' + n + (n === 1 ? ' trip' : ' trips') + ', every route and place, in a file that’s yours.'; })(),
       formats: [['gpx', 'GPX', 'Routes for maps'], ['csv', 'CSV', 'Spreadsheets'], ['json', 'JSON', 'For developers']].map(([k, label, hint]) => ({
         label, hint, on: fmt === k, cls: fmt === k ? 'on' : '',
         bg: fmt === k ? '#1F1D47' : '#F6F5FC', fg: fmt === k ? '#FFFFFF' : '#1F1D47', ring: fmt === k ? '#F6C343' : 'transparent',

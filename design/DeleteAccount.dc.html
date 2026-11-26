@@ -54,7 +54,7 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const M = window.Motio;
-    const st = M ? M.status() : { trips: 612 };
+    const st = { trips: M ? M.summarize(0, Date.now()).trips.length : 612 };
     const badges = M ? M.achievements().filter((a) => a.got).length : 9;
     const nRec = M ? M.records().list.length : 6;
     const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);

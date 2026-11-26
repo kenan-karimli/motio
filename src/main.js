@@ -1,8 +1,11 @@
-import './motio.js';
+import { ready } from './motio.js';
+import { startMoments } from './moments.js';
 import './map.js';
 import './recap-scene.js';
 import './kit.js';
 import './mascot.js';
+
+startMoments(window.Motio, ready);
 
 // Everywhere in the app, cards and rows below the fold glide in as you scroll to them (the first screenful
 // already has its own entrance). Opacity and transform only, so it stays smooth on phones.

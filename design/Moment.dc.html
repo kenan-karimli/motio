@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Moment</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#ECECEA}
+button{font:inherit;cursor:pointer}
+@keyframes motioStoryIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes motioRingClose{from{stroke-dashoffset:691}to{stroke-dashoffset:0}}
+</style>
+</helmet>
+<div class="m-page low" role="dialog" aria-label="{{ aria }}" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="m-moment">
+    <sc-if value="{{ K.goal }}" hint-placeholder-val="{{ true }}">
+      <div class="m-pop" style="position: relative; width: 250px; height: 250px; display: flex; align-items: flex-end; justify-content: center"><svg width="250" height="250" viewBox="0 0 250 250" style="position: absolute; inset: 0; transform: rotate(-90deg)"><circle cx="125" cy="125" r="110" fill="none" stroke="var(--m-line)" stroke-width="12"></circle><circle cx="125" cy="125" r="110" fill="none" stroke="var(--m-goal)" stroke-width="12" stroke-linecap="round" stroke-dasharray="691" stroke-dashoffset="0" style="animation: motioRingClose 1100ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></circle></svg><span style="position: relative; bottom: 52px"><tuli-fox pose="cheer" size="120"></tuli-fox></span></div>
+    </sc-if>
+    <sc-if value="{{ K.streak }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop" style="position: relative; display: flex; flex-direction: column; align-items: center"><span style="font: 600 150px/1 var(--m-font); letter-spacing: -8px; color: var(--m-goal); -webkit-text-stroke: 2.5px var(--m-ink)">{{ big }}</span><span style="margin-top: -36px"><tuli-fox pose="front" size="110"></tuli-fox></span></div>
+      <div class="m-in" aria-hidden="true" style="display: flex; gap: 6px"><sc-for list="{{ week }}" as="d" hint-placeholder-count="7"><i style="width: 22px; height: 8px; border-radius: 4px; background: {{ d.bg }}"></i></sc-for></div>
+    </sc-if>
+    <sc-if value="{{ K.record }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop" style="display: flex; flex-direction: column; align-items: center"><tuli-fox pose="proud" size="120"></tuli-fox><span style="min-width: 150px; padding: 0 18px; box-sizing: border-box; height: 64px; border-radius: 14px 14px 4px 4px; background: var(--m-ink); color: var(--m-bg-hi); display: flex; align-items: center; justify-content: center; font: 600 26px var(--m-font); letter-spacing: -1px; margin-top: -4px; white-space: nowrap">{{ big }}</span></div>
+    </sc-if>
+    <sc-if value="{{ K.badge }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop" style="position: relative; width: 250px; height: 220px; display: flex; align-items: flex-end; justify-content: center"><span style="width: 150px; height: 150px; border-radius: 75px; background: var(--m-ink); color: var(--m-bg-hi); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 10px var(--m-card), 0 0 0 12px var(--m-line); margin-bottom: 40px"><m-ic n="{{ icon }}" s="62"></m-ic></span><span style="position: absolute; right: 0; bottom: 0"><tuli-fox pose="lookup" size="84"></tuli-fox></span></div>
+    </sc-if>
+    <sc-if value="{{ K.back }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop"><tuli-fox pose="rest awake" size="230" say="Oh! You’re back." pin=""></tuli-fox></div>
+    </sc-if>
+    <sc-if value="{{ K.first }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop" style="position: relative; width: 330px; height: 200px; display: flex; align-items: flex-end; justify-content: center"><svg width="330" height="70" viewBox="0 0 330 70" style="position: absolute; left: 0; bottom: 0"><path d="M10 56C70 64 120 26 180 36S290 62 320 26" fill="none" stroke="{{ routeColor }}" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="1 9"></path><circle cx="10" cy="56" r="7" fill="var(--m-card)" stroke="var(--m-ink)" stroke-width="3"></circle><circle cx="320" cy="26" r="7" fill="var(--m-ink)"></circle></svg><span style="position: relative; bottom: 22px"><tuli-fox pose="run" size="200"></tuli-fox></span></div>
+    </sc-if>
+    <p class="m-say m-in" style="--i: 2; margin: 0"><sc-if value="{{ hasLine1 }}" hint-placeholder-val="{{ true }}">{{ line1 }}<br></sc-if>{{ pre }}<b>{{ bold }}</b>{{ post }}<sc-if value="{{ hasTail }}" hint-placeholder-val="{{ false }}"><br>{{ tail }}</sc-if></p>
+    <button type="button" class="m-btn m-late" onClick="{{ act }}">{{ btn }}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // What to celebrate comes from src/moments.js (window.__motioMoment); the canvas shows the goal moment.
+  renderVals() {
+    const m = this.m || (this.m = window.__motioMoment || { kind: 'goal', goal: '60 minutes' });
+    const k = m.kind;
+    const nav = (to) => { if (this.props.onNav) this.props.onNav(to); };
+    // The button closes the moment; some also open what it's about, once the moment has slid away.
+    const close = (then) => () => { if (this.done) return; this.done = true; nav('back'); if (then) setTimeout(() => nav(then), 420); window.dispatchEvent(new Event('motio:moment-done')); };
+    const T = {
+      goal: { line1: 'Goal done.', pre: 'You moved ', bold: m.goal, post: ' today.', btn: 'Nice', act: close() },
+      streak: { line1: '', pre: '', bold: m.days + ' days', post: ' in a row.', tail: m.longest ? 'Your longest yet.' : 'Keep it going.', btn: 'Keep going', act: close() },
+      record: { line1: 'New record.', pre: m.title + ', ', bold: m.value, post: '.', btn: m.trip ? 'See it' : 'See your records', act: close(m.trip ? 'trip' : 'records') },
+      badge: { line1: 'Badge earned.', pre: '', bold: m.title, post: ': ' + m.desc + '.', btn: 'See your badges', act: close('achievements') },
+      back: { line1: '', pre: 'It’s been ', bold: m.days + ' days', post: '.', tail: 'Your streak starts again today.', btn: 'Let’s move', act: close() },
+      first: { line1: 'Your first trip.', pre: '', bold: m.route, post: ', ' + m.how + '.', btn: m.trip ? 'See it' : 'Nice', act: close(m.trip ? 'trip' : null) }
+    }[k] || { line1: '', pre: '', bold: '', post: '', btn: 'Nice', act: close() };
+    // Trip opens the trip it finds here (it reads window.__motioTrip once, when it opens).
+    if (m.trip && !this.tripSet) { this.tripSet = true; const id = m.trip; const prev = T.act; T.act = () => { window.__motioTrip = id; prev(); }; this.act = T.act; }
+    return {
+      rootAnim: this.props.embedded ? 'motioStoryIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+      K: { goal: k === 'goal', streak: k === 'streak', record: k === 'record', badge: k === 'badge', back: k === 'back', first: k === 'first' },
+      aria: ({ goal: 'Goal done', streak: 'New streak', record: 'New record', badge: 'Badge earned', back: 'Welcome back', first: 'Your first trip' })[k] || 'Moment',
+      big: k === 'streak' ? String(m.days) : m.value || '',
+      week: Array.from({ length: 7 }, (_, i) => ({ bg: i < 6 ? 'var(--m-ink)' : 'var(--m-goal)' })),
+      icon: m.icon || 'badge', routeColor: m.color || 'var(--m-walk)',
+      hasTail: !!T.tail, tail: T.tail || '',
+      hasLine1: !!T.line1, line1: T.line1, pre: T.pre, bold: T.bold, post: T.post,
+      btn: T.btn, act: this.act || T.act
+    };
+  }
+}
+</script>
+</body>
+</html>

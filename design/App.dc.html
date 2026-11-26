@@ -311,6 +311,26 @@ body[data-sheet] .motio-upd{display:none}
       <dc-import name="MapView" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
     </div>
   </sc-if>
+  <sc-if value="{{ O.deleteaccount.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.deleteaccount.kind }}" style="position: absolute; inset: 0; z-index: {{ O.deleteaccount.z }}; animation: {{ O.deleteaccount.anim }}; box-shadow: {{ O.deleteaccount.shadow }}">
+      <dc-import name="DeleteAccount" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.setup.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.setup.kind }}" style="position: absolute; inset: 0; z-index: {{ O.setup.z }}; animation: {{ O.setup.anim }}; box-shadow: {{ O.setup.shadow }}">
+      <dc-import name="Setup" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.tracking.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.tracking.kind }}" style="position: absolute; inset: 0; z-index: {{ O.tracking.z }}; animation: {{ O.tracking.anim }}; box-shadow: {{ O.tracking.shadow }}">
+      <dc-import name="Tracking" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ O.moment.show }}" hint-placeholder-val="{{ false }}">
+    <div data-page="overlay" data-kind="{{ O.moment.kind }}" style="position: absolute; inset: 0; z-index: {{ O.moment.z }}; animation: {{ O.moment.anim }}; box-shadow: {{ O.moment.shadow }}">
+      <dc-import name="Moment" embedded="{{ true }}" on-nav="{{ go }}" hint-size="390px,844px"></dc-import>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
@@ -432,7 +452,7 @@ class Component extends DCLogic {
     const top = stack[stack.length - 1] || null;
     const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
     const tabIndex = { today: 0, moves: 1, you: 2, social: 3, recaps: 3 };
-    const stories = ['recap', 'month', 'live', 'summary'];
+    const stories = ['recap', 'month', 'live', 'summary', 'moment'];
 
     // One shell for the whole app: tabs swap almost instantly (Instagram-style),
     // detail screens push from the right, recaps rise from the bottom, log-out fades.
@@ -473,7 +493,7 @@ class Component extends DCLogic {
     if (window.Motio && window.Motio.auth.isSignedIn()) this.sessionShown = false;
     if (!this.goStable) this.goStable = (t) => this.goFn(t);
     const O = {};
-    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'chat', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records', 'feed', 'challenges', 'routes', 'clubs'].forEach((k) => {
+    ['personality', 'settings', 'connected', 'privacy', 'export', 'help', 'recap', 'month', 'welcome', 'login', 'register', 'widgets', 'messages', 'chat', 'offline', 'locationoff', 'servererror', 'notfound', 'session', 'empty', 'types', 'map', 'achievements', 'places', 'timeline', 'trip', 'explorer', 'live', 'goals', 'health', 'friends', 'friend', 'challenge', 'summary', 'insights', 'onthisday', 'profile', 'update', 'whatsnew', 'leaderboard', 'sharing', 'friendmap', 'inbox', 'records', 'feed', 'challenges', 'routes', 'clubs', 'deleteaccount', 'setup', 'tracking', 'moment'].forEach((k) => {
       const idx = stack.indexOf(k);
       const isTop = k === top;
       const leaving = isTop && closing;

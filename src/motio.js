@@ -116,7 +116,14 @@ function widgetData() {
   return {
     time: fmtMin(t.min), goal: fmtMin(goal), pct: t.min / goal, steps: fmtNum(t.steps), stepPct: t.steps / stepGoal, stepGoalK: Math.round(stepGoal / 1000),
     dist: fmtDist(t.m), day0: dayStart(), trips: t.trips.map((x) => ({ start: x.start, end: Math.min(x.end, now), color: MODES[x.mode].color })),
-    modes: t.modes.map((x) => ({ label: x.label, color: x.color })), streak,
+    modes: t.modes.map((x) => ({ label: x.label, color: x.color, pct: x.pct, time: fmtMin(x.ms / MIN) })), streak,
+    // 5.0 widgets: goal left, best streak, week time against last week, today's rail, light or dark.
+    goalMin: goal, min: Math.round(t.min), nTrips: t.trips.length, bestStreak: Math.max(streak, (records().list.find((r) => r.key === 'streak') || {}).n || 0),
+    weekTime: fmtMin(wk.min), weekDelta: Math.round(wk.min - prev.min), dateLine: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }),
+    rail: (() => { const tl = timeline(), name = (i, d) => { const x = tl[i + d]; return x && x.kind === 'stay' && x.name !== 'A stop' ? x.name : null; };
+      const rows = tl.map((x, i) => x.kind !== 'trip' ? null : { at: x.start, color: MODES[x.mode].color, title: name(i, -1) && name(i, 1) ? name(i, -1) + ' → ' + name(i, 1) : name(i, 1) ? MODES[x.mode].name + ' to ' + name(i, 1) : MODES[x.mode].name, sub: fmtMin((Math.min(x.end, now) - x.start) / MIN) + ' · ' + fmtDist(x.distanceM || 0) }).filter(Boolean);
+      const last = tl[tl.length - 1]; return { rows: rows.slice(-4), now: last && last.kind === 'stay' && last.name !== 'A stop' ? 'At ' + last.name : last && last.kind === 'trip' ? 'On the move' : '' }; })(),
+    theme: (() => { try { return localStorage.getItem('motio.widgetTheme') === 'light' ? 'light' : localStorage.getItem('motio.theme') || 'system'; } catch { return 'system'; } })(),
     persona: p.enough ? p.name : 'Still warming up', personaLine: p.enough && top ? top.pct + '% ' + top.name.toLowerCase() : 'Move 3h to get your type',
     weekDist: fmtDist(wk.m), weekVs: vs == null ? 'First week on Motio' : (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% vs last week', weekUp: vs == null || vs >= 0,
     peak: wk.peak == null ? '' : fmtHour(wk.peak), bars: days(w0, 7).map((d) => Math.round(d.min)), labels: days(w0, 7).map((d) => new Date(d.from).toLocaleDateString('en-GB', { weekday: 'narrow' })),
@@ -178,9 +185,9 @@ async function sendWidgets() {
     if (D.signedOut || (ps === pngSig && !force)) return;
     if (!force && Date.now() - pngAt < MIN) { widgetT = setTimeout(sendWidgets, pngAt + MIN - Date.now()); return; }
     pngAt = Date.now();
-    try { await document.fonts.load('700 40px Poppins'); } catch { /* system font is fine */ }
-    for (const kind of WIDGET_KINDS) {
-      try { await Sensors.updateWidget({ kind, png: drawWidget(kind, D).toDataURL('image/png').split(',')[1] }); }
+    try { await document.fonts.load('600 40px "Inter Tight"'); } catch { /* system font is fine */ }
+    for (const kind of WIDGET_KINDS) for (const dark of [false, true]) {
+      try { await Sensors.updateWidget({ kind: kind + (dark ? '_dark' : ''), png: drawWidget(kind, D, dark).toDataURL('image/png').split(',')[1] }); }
       catch (e) { ok = false; console.warn('widget ' + kind, e); }
     }
     if (ok) pngSig = ps;
@@ -258,6 +265,26 @@ export const phoneSetup = {
   status: () => (native ? Sensors.setupStatus() : Promise.resolve({ battery: true, xiaomi: false })),
   open: (what) => (native ? Sensors.openSetup({ what }) : Promise.resolve())
 };
+// 5.0 setup pages and the tracking health check: what's allowed now, and one ask per permission.
+export const permissions = {
+  async status() {
+    const fix = S.lastFix ? { at: S.lastFix[2], acc: S.lastFix[3] } : null;
+    if (!native) return { location: 'granted', background: true, activity: 'granted', notifications: 'granted', battery: true, xiaomi: false, fix };
+    const [loc, act, noti, setup] = await Promise.all([Geolocation.checkPermissions().catch(() => ({})), Sensors.checkPermissions().catch(() => ({})), LocalNotifications.checkPermissions().catch(() => ({})), Sensors.setupStatus().catch(() => ({}))]);
+    return { location: loc.location, activity: act.activity, notifications: noti.display, ...setup, fix };
+  },
+  // Foreground first (Android asks for "all the time" only after that), then start tracking if it's on.
+  async location() {
+    if (!native) return;
+    let p = await Geolocation.checkPermissions().catch(() => null);
+    if (!p || p.location !== 'granted') p = await Geolocation.requestPermissions({ permissions: ['location'] }).catch(() => null);
+    if (!p || p.location !== 'granted') return openLocationSettings();
+    await Sensors.requestBackgroundLocation().catch(() => {});
+    if (S.settings.autoTrack !== false) startTracking();
+  },
+  activity: () => (native ? Sensors.requestStepPermission().catch(() => {}) : Promise.resolve()),
+  notifications: () => (native ? LocalNotifications.requestPermissions().catch(() => {}) : Promise.resolve())
+};
 // Friends: add each other by invite code and compare weekly totals (the server shares nothing else).
 // A change to friends, challenges or sharing shows on every open screen at once, not after the next tab switch.
 const mut = (p) => p.then((r) => { setTimeout(() => window.dispatchEvent(new Event('motio:refresh')), 0); return r; });
@@ -318,7 +345,7 @@ export const strava = {
 // Privacy policy and terms live on the server, so they can change without an app update.
 export const openPage = (path) => (native ? Browser.open({ url: API + path }) : Promise.resolve(window.open(API + path, '_blank')));
 export const widgetStatus = () => (native ? Sensors.widgetStatus() : Promise.resolve({}));
-export const widgetPreview = (kind) => drawWidget(kind, widgetData()).toDataURL('image/png');
+export const widgetPreview = (kind, dark) => drawWidget(kind, widgetData(), dark).toDataURL('image/png');
 export const pinWidget = async (kind) => { if (!native) return { ok: false }; pushWidget(true); return Sensors.pinWidget({ kind }); };
 export const sendFeedback = (kind, message) => api('POST', '/v1/feedback', { kind, message });
 const cache = new Map();
@@ -1624,6 +1651,7 @@ function checkRecords() {
     const items = beaten.map((r) => ({ id: 'record-' + r.key + '-' + r.at, kind: 'record', at: Date.now(), title: 'New record: ' + r.title.toLowerCase(), body: fmtRecord(r) + ', your best so far.' }));
     S.localInbox = [...items, ...(S.localInbox || [])].slice(0, 20);
     changed();
+    window.dispatchEvent(new CustomEvent('motio:records', { detail: beaten })); // full-screen moment (src/moments.js)
     if (native) LocalNotifications.checkPermissions().then((p) => p.display === 'granted' && LocalNotifications.schedule({ notifications: items.slice(0, 2).map((i, n) => ({ id: 2000 + n, title: i.title, body: i.body, extra: { open: 'inbox' } })) })).catch(() => {});
   }, 3000);
 }
@@ -1675,7 +1703,7 @@ if (S.token) setTimeout(() => pushLockCard(true), 4500);
 if (S.token) ready.then(() => setTimeout(prune, 5000));
 if (S.token) setTimeout(sync, 2500);
 
-const Motio = { MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
+const Motio = { MODES, chats, shareText, routes, saveRoute, deleteRoute, routeOf, setTripLine, shareLink, sharedCard, co2, inbox, fmtRecord, setTripNote, setTripPhoto, nextTrip, joinWithNext, longestStop, splitAtStop, PARTNERS, requestBackgroundLocation, apps, phoneSetup, permissions, findings, memories, workoutSummary, friends, body, goals, addWeekGoal, removeWeekGoal, explorer, liveTrip, workout, startWorkout, pauseWorkout, finishWorkout, timeline, findTrip, splits, insights, achievements, markBadgesSeen, places, renamePlace, addZoneAt, importGpx, sendWebhook, storyImage: renderStory, openPage, cardImage, health, strava, captureScreen, shareImage, sendFeedback, pinWidget, widgetStatus, widgetPreview, shareCard, saveFile, scheduleAlert, deleteTrip, prune, addZoneHere, removeZone, auth, updateProfile, setSetting, settings, sync, saveTrip, retypeTrip, deleteHistory, exportData, startTracking, stopTracking, tracking, openLocationSettings, setDemo, isDemo, summarize, today, range, days, records, personality, route, status, subscribe, fmtMin, fmtDist, fmtSpeed, fmtNum, fmtHour, dayStart, weekStart, monthStart, DAY, HOUR, MIN };
 // Test hook: feed simulated GPS fixes and activity results (used from the dev tools, not by screens).
 Motio._feed = { location: onLocation, activity: onActivity, steps: onSteps, live: () => live };
 window.Motio = Motio;

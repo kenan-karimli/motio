@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -15,39 +14,49 @@ import java.util.Date;
 import java.util.Locale;
 import org.json.JSONObject;
 
-// Draws the widgets natively at the size they have on the home screen, in the same palette and layout as the
-// images src/widgets.js used to draw for them (sizes there are on a 400 × 400 card, hence the m * x/400 below).
+// Draws the widgets natively at the size they have on the home screen (Motio 5.0 board 11): white cards with ink
+// text in the light theme, near-black cards at night. Colour only for meaning: the goal is yellow.
 final class WidgetDraw {
-    static final int INK = 0xFF1F1D47, GREY = 0xFF6B6890, BRAND = 0xFF4B3FD8, YELLOW = 0xFFF6C343, GREEN = 0xFF3DBF5C,
-        CORAL = 0xFFF2766B, LILAC = 0xFFB57BE0, WHITE = 0xFFFFFFFF;
+    static final int GOAL = 0xFFF6C343, WHITE = 0xFFFFFFFF;
     static final long STALE = 60 * 60000;
+    // Card, ink, grey, track (bars and rings): light, then dark.
+    static int BG = WHITE, INK = 0xFF0F0F0F, MUTE = 0xFF6E6E6A, LINE = 0xFFECECEA;
+
+    static void theme(Context c, JSONObject d) {
+        String t = d.optString("theme", "system");
+        boolean night = (c.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        boolean dark = "dark".equals(t) || ("system".equals(t) && night);
+        BG = dark ? 0xFF1A1A1A : WHITE; INK = dark ? 0xFFF2F2F0 : 0xFF0F0F0F; MUTE = dark ? 0xFF8F8F8A : 0xFF6E6E6A; LINE = dark ? 0xFF2C2C2C : 0xFFECECEA;
+        isDark = dark;
+    }
+    static boolean isDark = false;
 
     static Bitmap draw(Context c, String kind, int wDp, int hDp) {
         JSONObject d = MotioWidget.data(c);
         if (d == null) return null; // "Open Motio once"
-        if (wDp <= 0 || hDp <= 0) { boolean wide = !kind.equals("ring") && !kind.equals("steps") && !kind.equals("streak"); wDp = wide ? 320 : 160; hDp = kind.equals("compact") ? 60 : 160; }
+        theme(c, d);
+        if (wDp <= 0 || hDp <= 0) { boolean wide = !kind.equals("ring") && !kind.equals("steps") && !kind.equals("streak") && !kind.equals("persona"); wDp = wide ? 320 : 160; hDp = kind.equals("compact") ? 60 : 160; }
         float dp = Math.min(c.getResources().getDisplayMetrics().density, 720f / Math.max(wDp, hDp)); // keeps bitmaps small
         int W = Math.max(1, Math.round(wDp * dp)), H = Math.max(1, Math.round(hDp * dp));
         long now = System.currentTimeMillis();
         boolean today = d.optLong("day0") == MotioWidget.dayStart(now, 0);
-        if (d.optBoolean("signedOut")) return message(W, H, dp, BRAND, WHITE, "Sign in to Motio", "to see your day here");
+        if (d.optBoolean("signedOut")) return message(W, H, dp, "Sign in to Motio", "to see your day here");
         JSONObject zero = d.optJSONObject("zero");
         String time = today || zero == null ? d.optString("time") : zero.optString("time"), dist = today || zero == null ? d.optString("dist") : zero.optString("dist");
         long at = d.optLong("at");
         switch (kind) {
-            case "ring": return ring(c, W, H, dp, time, d.optString("goal"), today ? d.optDouble("pct", 0) : 0, at);
+            case "ring": return today(c, W, H, dp, time, today ? d.optInt("min") : 0, d.optInt("goalMin", 180), at);
             case "steps": return steps(c, W, H, dp, MotioWidget.steps(c), d.optInt("stepGoal", 10000), Math.max(at, MotioWidget.prefs(c).getLong("sAt", 0)));
             case "streak": {
                 int streak = today ? d.optInt("streak") : d.optLong("day0") == MotioWidget.dayStart(now, -1) && d.optBoolean("moved") ? d.optInt("streak") : 0;
-                return streak(W, H, dp, streak);
+                return streak(W, H, dp, streak, Math.max(streak, d.optInt("bestStreak")));
             }
-            case "compact": return compact(c, W, H, dp, String.format(Locale.US, "%,d steps", MotioWidget.steps(c)), dist, time, at);
+            case "compact": return compact(c, W, H, dp, String.format(Locale.US, "%,d steps", MotioWidget.steps(c)), dist, time, today ? d.optInt("min") : 0, d.optInt("goalMin", 180), at);
             case "road": case "week":
-                if (!today) return message(W, H, dp, WHITE, INK, "New day", "Open Motio to fill it in");
-                return image(c, kind, at, GREY);
-            case "persona": return image(c, kind, at, 0xB3FFFFFF);
-            case "challenge": return image(c, kind, at, 0xB31F1D47);
-            default: return image(c, kind, at, GREY);
+                if (!today) return message(W, H, dp, "New day", "Open Motio to fill it in");
+                // Tall enough for the Today rail (4 × 3 cells and up): the large layout.
+                return image(c, kind.equals("road") && hDp > wDp * 0.8f ? "road_large" : kind, at);
+            default: return image(c, kind, at);
         }
     }
 
@@ -70,10 +79,10 @@ final class WidgetDraw {
         return p;
     }
 
-    static Canvas card(Bitmap b, float dp, int bg) {
+    static Canvas card(Bitmap b, float dp) {
         Canvas g = new Canvas(b);
-        float r = Math.min(Math.min(b.getWidth(), b.getHeight()) * 0.14f, 24 * dp);
-        g.drawRoundRect(new RectF(0, 0, b.getWidth(), b.getHeight()), r, r, fill(bg));
+        float r = Math.min(Math.min(b.getWidth(), b.getHeight()) * 0.16f, 26 * dp);
+        g.drawRoundRect(new RectF(0, 0, b.getWidth(), b.getHeight()), r, r, fill(BG));
         return g;
     }
 
@@ -85,103 +94,114 @@ final class WidgetDraw {
         return "updated " + (at < MotioWidget.dayStart(now, 0) ? new SimpleDateFormat("EEE", Locale.getDefault()).format(new Date(at)) + " " : "") + t;
     }
 
-    static Bitmap ring(Context c, int W, int H, float dp, String time, String goal, double pct, long at) {
-        Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-        Canvas g = card(b, dp, BRAND);
-        float m = Math.min(W, H), cx = W / 2f, cy = H / 2f, R = m * 0.36f;
-        Paint s = new Paint(Paint.ANTI_ALIAS_FLAG);
-        s.setStyle(Paint.Style.STROKE); s.setStrokeWidth(m * 0.075f); s.setStrokeCap(Paint.Cap.ROUND);
-        s.setColor(0x2EFFFFFF); g.drawCircle(cx, cy, R, s);
-        if (pct > 0) { s.setColor(YELLOW); g.drawArc(new RectF(cx - R, cy - R, cx + R, cy + R), -90, (float) (360 * Math.min(1, pct)), false, s); }
-        Paint t = fit(text(WHITE, 700, m * 0.165f), time, R * 1.5f);
-        t.setTextAlign(Paint.Align.CENTER); g.drawText(time, cx, cy + m * 0.03f, t);
-        Paint sub = text(0xCCFFFFFF, 500, m * 0.065f); sub.setTextAlign(Paint.Align.CENTER);
-        g.drawText("of " + goal, cx, cy + m * 0.13f, sub);
+    static String mins(int m) { return m >= 60 ? (m / 60) + "h " + String.format(Locale.US, "%02d", m % 60) + "m" : m + " min"; }
+
+    // The small grey label at the top left, "motio." (or the stale stamp) at the top right.
+    static void header(Context c, Canvas g, int W, float m, String label, long at) {
+        float pad = m * 0.094f, y = pad + m * 0.06f;
+        Paint l = text(MUTE, 600, m * 0.06f); l.setLetterSpacing(0.04f);
+        g.drawText(label, pad, y, l);
         String st = stamp(c, at);
-        if (st != null) { Paint p = fit(text(0xB3FFFFFF, 500, m * 0.048f), st, R * 1.3f); p.setTextAlign(Paint.Align.CENTER); g.drawText(st, cx, cy + m * 0.21f, p); }
+        Paint r = st != null ? text(MUTE, 500, m * 0.05f) : text(INK, 600, m * 0.06f);
+        r.setTextAlign(Paint.Align.RIGHT);
+        g.drawText(st != null ? st : "motio.", W - pad, y, fit(r, st != null ? st : "motio.", W * 0.5f));
+    }
+
+    static void bar(Canvas g, float x, float y, float w, float h, double pct, int color) {
+        g.drawRoundRect(new RectF(x, y, x + w, y + h), h / 2, h / 2, fill(LINE));
+        if (pct > 0) g.drawRoundRect(new RectF(x, y, x + Math.max(h, (float) (w * Math.min(1, pct))), y + h), h / 2, h / 2, fill(color));
+    }
+
+    // Small · today: time moved, minutes to the goal, the goal bar.
+    static Bitmap today(Context c, int W, int H, float dp, String time, int min, int goal, long at) {
+        Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+        Canvas g = card(b, dp);
+        float m = Math.min(W, H), pad = m * 0.094f;
+        header(c, g, W, m, "TODAY", at);
+        int left = goal - min;
+        g.drawText(time, pad, H * 0.6f, fit(text(INK, 600, m * 0.2f), time, W - 2 * pad));
+        String sub = left > 0 ? mins(left) + " to goal" : "Goal done";
+        g.drawText(sub, pad, H * 0.6f + m * 0.1f, fit(text(MUTE, 500, m * 0.07f), sub, W - 2 * pad));
+        bar(g, pad, H - pad - m * 0.035f, W - 2 * pad, m * 0.035f, goal > 0 ? (double) min / goal : 0, GOAL);
         return b;
     }
 
+    // Small · steps: a ring in ink around today's count.
     static Bitmap steps(Context c, int W, int H, float dp, long steps, int goal, long at) {
         Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-        Canvas g = card(b, dp, GREEN);
-        float m = Math.min(W, H), u = m / 400, pad = m * 0.1f;
-        Paint ink = fill(INK);
-        footprint(g, 64 * u, 70 * u, 12 * u, 18 * u, -11, ink);
-        footprint(g, 94 * u, 98 * u, 12 * u, 18 * u, 11, ink);
-        String n = String.format(Locale.US, "%,d", steps);
-        g.drawText(n, pad, H - m * 0.38f, fit(text(INK, 700, m * 0.21f), n, W - 2 * pad));
+        Canvas g = card(b, dp);
+        float m = Math.min(W, H), cx = W / 2f, cy = H / 2f, R = m * 0.3f;
+        Paint s = new Paint(Paint.ANTI_ALIAS_FLAG);
+        s.setStyle(Paint.Style.STROKE); s.setStrokeWidth(m * 0.068f); s.setStrokeCap(Paint.Cap.ROUND);
+        s.setColor(LINE); g.drawCircle(cx, cy, R, s);
         double pct = goal > 0 ? (double) steps / goal : 0;
-        String line = "steps · " + Math.round(pct * 100) + "% of " + Math.round(goal / 1000f) + "k";
-        g.drawText(line, pad, H - m * 0.27f, fit(text(INK, 500, m * 0.065f), line, W - 2 * pad));
-        float y = H - m * 0.175f, bh = m * 0.045f, bw = W - 2 * pad;
-        g.drawRoundRect(new RectF(pad, y, pad + bw, y + bh), bh / 2, bh / 2, fill(0x2E1F1D47));
-        g.drawRoundRect(new RectF(pad, y, pad + Math.max(bh, (float) (bw * Math.min(1, pct))), y + bh), bh / 2, bh / 2, ink);
+        if (pct > 0) { s.setColor(pct >= 1 ? GOAL : INK); g.drawArc(new RectF(cx - R, cy - R, cx + R, cy + R), -90, (float) (360 * Math.min(1, pct)), false, s); }
+        String n = String.format(Locale.US, "%,d", steps);
+        Paint t = fit(text(INK, 600, m * 0.13f), n, R * 1.5f); t.setTextAlign(Paint.Align.CENTER);
+        g.drawText(n, cx, cy + m * 0.03f, t);
+        Paint sub = text(MUTE, 500, m * 0.06f); sub.setTextAlign(Paint.Align.CENTER);
+        g.drawText("steps", cx, cy + m * 0.11f, sub);
         String st = stamp(c, at);
-        if (st != null) { Paint p = text(0xB31F1D47, 500, m * 0.05f); p.setTextAlign(Paint.Align.RIGHT); g.drawText(st, W - pad, pad + m * 0.03f, p); }
+        if (st != null) { Paint p = fit(text(MUTE, 500, m * 0.045f), st, W * 0.8f); p.setTextAlign(Paint.Align.CENTER); g.drawText(st, cx, H - m * 0.04f, p); }
         return b;
     }
 
-    static void footprint(Canvas g, float x, float y, float rx, float ry, float deg, Paint p) {
-        g.save(); g.rotate(deg, x, y); g.drawOval(new RectF(x - rx, y - ry, x + rx, y + ry), p); g.restore();
-    }
-
-    static Bitmap streak(int W, int H, float dp, int streak) {
+    // Small · streak: days in a row moving, and the best so far.
+    static Bitmap streak(int W, int H, float dp, int streak, int best) {
         Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-        Canvas g = card(b, dp, CORAL);
-        float m = Math.min(W, H), u = m / 400, pad = m * 0.1f;
-        Path f = new Path();
-        f.moveTo(70 * u, 112 * u);
-        f.cubicTo(40 * u, 80 * u, 64 * u, 50 * u, 78 * u, 34 * u);
-        f.cubicTo(84 * u, 60 * u, 108 * u, 62 * u, 104 * u, 92 * u);
-        f.cubicTo(102 * u, 108 * u, 88 * u, 118 * u, 70 * u, 112 * u);
-        g.drawPath(f, fill(INK));
-        String n = String.valueOf(streak);
-        g.drawText(n, pad, H - m * 0.325f, fit(text(INK, 700, m * 0.33f), n, W - 2 * pad));
-        g.drawText(streak == 1 ? "day moving" : "days moving", pad, H - m * 0.21f, text(INK, 600, m * 0.07f));
-        g.drawText("in a row", pad, H - m * 0.125f, text(0xBF1F1D47, 500, m * 0.06f));
+        Canvas g = card(b, dp);
+        float m = Math.min(W, H), pad = m * 0.094f;
+        Paint l = text(MUTE, 600, m * 0.06f); l.setLetterSpacing(0.04f);
+        g.drawText("STREAK", pad, pad + m * 0.06f, l);
+        String n = streak + (streak == 1 ? " day" : " days");
+        g.drawText(n, pad, H * 0.6f, fit(text(INK, 600, m * 0.2f), n, W - 2 * pad));
+        g.drawText("Best: " + best, pad, H - pad, text(MUTE, 500, m * 0.07f));
         return b;
     }
 
-    // One row: steps, distance and time, for a 4 × 1 (or narrower) spot.
-    static Bitmap compact(Context c, int W, int H, float dp, String steps, String dist, String time, long at) {
+    // Slim · one row: time moved and the goal bar, then distance and steps, for a 4 × 1 (or narrower) spot.
+    static Bitmap compact(Context c, int W, int H, float dp, String steps, String dist, String time, int min, int goal, long at) {
         Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-        Canvas g = card(b, dp, INK);
-        String[] vals = { steps, dist, time };
-        int[] cols = { GREEN, LILAC, YELLOW };
-        int n = W >= H * 3.6f ? 3 : 2;
-        float padX = H * 0.28f, cell = (W - 2 * padX) / n, base = H * 0.5f + H * 0.1f;
-        for (int i = 0; i < n; i++) {
-            float x = padX + i * cell;
-            g.drawCircle(x + H * 0.07f, H * 0.5f, H * 0.07f, fill(cols[i]));
-            g.drawText(vals[i], x + H * 0.22f, base, fit(text(WHITE, 600, H * 0.3f), vals[i], cell - H * 0.3f));
-        }
+        Canvas g = card(b, dp);
+        float padX = H * 0.32f, base = H * 0.5f + H * 0.11f;
+        Paint t = fit(text(INK, 600, H * 0.34f), time, W * 0.34f);
+        g.drawText(time, padX, base, t);
+        float x = padX + t.measureText(time) + H * 0.25f;
+        String rest = W >= H * 3.6f ? dist + " · " + steps : dist;
+        Paint r = fit(text(MUTE, 500, H * 0.24f), rest, W - x - padX); r.setTextAlign(Paint.Align.RIGHT);
+        g.drawText(rest, W - padX, base, r);
+        bar(g, padX, H - H * 0.16f, W - 2 * padX, H * 0.06f, goal > 0 ? (double) min / goal : 0, GOAL);
         String st = stamp(c, at);
-        if (st != null) { Paint p = text(0x99FFFFFF, 500, H * 0.14f); p.setTextAlign(Paint.Align.RIGHT); g.drawText(st, W - padX, H * 0.9f, p); }
+        if (st != null) { Paint p = text(MUTE, 500, H * 0.14f); p.setTextAlign(Paint.Align.RIGHT); g.drawText(st, W - padX, H * 0.24f, p); }
         return b;
     }
 
     // A plain card with a title and a line: signed out, or a new day the app hasn't drawn yet.
-    static Bitmap message(int W, int H, float dp, int bg, int fg, String title, String line) {
+    static Bitmap message(int W, int H, float dp, String title, String line) {
         Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-        Canvas g = card(b, dp, bg);
-        float t = Math.min(H * 0.28f, W * 0.1f), pad = Math.min(W, H) * 0.1f, top = (H - t * 1.85f) / 2;
-        g.drawText(title, pad, top + t * 0.9f, fit(text(fg, 700, t), title, W - 2 * pad));
-        g.drawText(line, pad, top + t * 1.75f, fit(text((fg & 0x00FFFFFF) | 0xBF000000, 500, t * 0.55f), line, W - 2 * pad));
+        Canvas g = card(b, dp);
+        float t = Math.min(H * 0.24f, W * 0.09f), pad = Math.min(W, H) * 0.1f, top = (H - t * 1.85f) / 2;
+        g.drawText(title, pad, top + t * 0.9f, fit(text(INK, 600, t), title, W - 2 * pad));
+        g.drawText(line, pad, top + t * 1.75f, fit(text(MUTE, 500, t * 0.55f), line, W - 2 * pad));
         return b;
     }
 
-    // An image the app drew, with the stamp in its top right corner when it may be old.
-    static Bitmap image(Context c, String kind, long at, int stampColor) {
-        File f = MotioWidget.file(c, kind);
+    // An image the app drew (the dark one at night), with the stamp in its top right corner when it may be old.
+    static Bitmap image(Context c, String kind, long at) {
+        File f = MotioWidget.file(c, kind + (isDark ? "_dark" : ""));
+        if (!f.exists()) f = MotioWidget.file(c, kind);
+        if (!f.exists() && kind.equals("road_large")) return image(c, "road", at);
         if (!f.exists()) return null;
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inMutable = true;
         Bitmap b = BitmapFactory.decodeFile(f.getAbsolutePath(), o);
         String st = b == null ? null : stamp(c, at);
         if (st != null) {
-            Paint p = text(stampColor, 500, 20); p.setTextAlign(Paint.Align.RIGHT); // the app's images are 400 px per 2 cells
-            new Canvas(b).drawText(st, b.getWidth() - 40, 40, p);
+            // Over "motio." in the header (the app's images are 2.4 px per board px, header at 42 px).
+            Paint p = text(MUTE, 500, 24); p.setTextAlign(Paint.Align.RIGHT);
+            Canvas g = new Canvas(b);
+            Paint bg = fill(BG); g.drawRect(b.getWidth() - 200, 30, b.getWidth() - 36, 80, bg);
+            g.drawText(st, b.getWidth() - 42, 66, p);
         }
         return b;
     }
