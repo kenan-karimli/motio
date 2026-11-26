@@ -282,7 +282,7 @@ class Component extends DCLogic {
       // Scrolling the trips slides the white panel up over the header, 1:1 with the finger, and back down at the top.
       mvScroll: (e) => { const el = e.currentTarget, lift = el.closest('.motio-mv-lift'); if (lift) lift.style.transform = 'translateY(' + -Math.min(170, Math.max(0, el.scrollTop)) + 'px)'; },
       navFrom: this.navFrom,
-      v, foxRef: window.MotioMascot ? window.MotioMascot.fox('curious', 120) : null, tDay: tab('day'), tWeek: tab('week'), tMonth: tab('month'),
+      v, foxRef: window.MotioMascot ? window.MotioMascot.fox('walk', 150) : null, tDay: tab('day'), tWeek: tab('week'), tMonth: tab('month'),
       allZero, someData: !allZero, emptyTitle: { day: 'No moves yet today', week: 'No moves yet this week', month: 'No moves yet this month' }[key],
       walk: row('walk'), drive: row('drive'), cycle: row('cycle'), transit: row('transit'), run: row('run')
     };

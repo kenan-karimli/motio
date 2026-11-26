@@ -115,7 +115,7 @@ button:active,a:active{transform:scale(0.96)}
   </div>
 
   <div class="m-card motio-ti" style="--d: 40ms; display: flex; align-items: center; gap: 12px; padding: 12px 16px 12px 8px">
-    <tuli-fox pose="idle" size="58" say="{{ tipSay }}"></tuli-fox>
+    <tuli-fox pose="hello" size="58" say="{{ tipSay }}"></tuli-fox>
     <div style="flex: 1; min-width: 0"><div class="m-h3">{{ tipTitle }}</div><div class="m-sub" style="font-size: 12px">{{ tipBody }}</div></div>
   </div>
 
@@ -562,7 +562,7 @@ class Component extends DCLogic {
       heroV0: heroN % 3 === 0, heroV1: heroN % 3 === 1, heroV2: heroN % 3 === 2,
       // Before the first move the fox waits where the goal ring goes; during a confirmed trip a Trail draws itself.
       ...(() => { const M = window.Motio, MM = window.MotioMascot, moving = !!(M && M.today().trips.some((t) => t.live)), on = !!MM && totalMs === 0;
-        return { showMo: on, showRing: !on, moRef: on ? (moving ? MM.trail('rise', 110) : MM.fox('idle', 110)) : null }; })(),
+        return { showMo: on, showRing: !on, moRef: on ? (moving ? MM.trail('rise', 110) : MM.fox('stand', 120)) : null }; })(),
       heroTime: fmtMin(totalMs / 60000), heroPeakLead: peakH == null ? 'No moves yet today' : 'Peak at ', heroPeak: peakH == null ? '' : (peakH % 12 || 12) + (peakH < 12 ? ' AM' : ' PM'),
       heroDist: dist(totalM), heroTopLead: topModeByDist && totalM > 0 ? 'Mostly ' : 'Nothing travelled yet', heroTop: topModeByDist && totalM > 0 ? 'by ' + { walk: 'foot', run: 'running', bike: 'bike', drive: 'car', transit: 'transit' }[topModeByDist] : '',
       heroSteps: stepsAll.toLocaleString('en-US'), heroGoalPct: Math.min(100, Math.round(stepsAll / stepGoal * 100)) + '%',
@@ -594,7 +594,7 @@ class Component extends DCLogic {
     }));
     const interactive = {
       ...(() => { const h = (Date.now() - base) / H, p = posAt(Date.now()); return { hasNow: TR.length > 0 }; })(),
-      ...hero, rail, nowLine, tipFox: window.MotioMascot ? window.MotioMascot.fox('idle', 64) : null, tipTitle: leftMin > 0 ? fmtMin(leftMin) + ' to your goal' : 'Goal done today', tipBody: leftMin > 0 ? 'A short walk gets you closer.' : 'Tuli is proud of you.', tipSay: leftMin > 0 ? 'One short walk and <b>we’re closer</b>.' : '<b>Goal done.</b> Nice work today.', nowFox: window.MotioMascot ? window.MotioMascot.fox('curious', 52) : null, chips, modeList, trip, ...(() => {
+      ...hero, rail, nowLine, tipFox: window.MotioMascot ? window.MotioMascot.fox('coffee', 64) : null, tipTitle: leftMin > 0 ? fmtMin(leftMin) + ' to your goal' : 'Goal done today', tipBody: leftMin > 0 ? 'A short walk gets you closer.' : 'Tuli is proud of you.', tipSay: leftMin > 0 ? 'One short walk and <b>we’re closer</b>.' : '<b>Goal done.</b> Nice work today.', nowFox: window.MotioMascot ? window.MotioMascot.fox('lookup', 52) : null, chips, modeList, trip, ...(() => {
         const w = M && M.workout(), sec = w ? Math.round(w.activeMs / 1000) : 0;
         const kind = ({ run: 'Run', bike: 'Ride' }[w && w.mode] || 'Walk');
         // The running clock ticks in CSS from the elapsed time, so this page doesn't re-render every second.

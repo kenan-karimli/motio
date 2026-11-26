@@ -85,7 +85,7 @@ class Component extends DCLogic {
       if (e && e.preventDefault) e.preventDefault();
       if (this.props.onNav) this.props.onNav(target);
     } });
-    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('idle', 170) : null, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, LK: { login: lk('login', 'Login.dc.html'), signup: lk('register', 'Register.dc.html') } };
+    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('hello', 170) : null, rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim, emb, LK: { login: lk('login', 'Login.dc.html'), signup: lk('register', 'Register.dc.html') } };
   }
 }
 </script>

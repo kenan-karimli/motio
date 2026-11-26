@@ -1,11 +1,13 @@
 // Tuli ("tulki" is fox in Azerbaijani): Motio's fox, a sitting ink silhouette with a white chest and tail tip.
-// tuli('idle', 120) returns an animated inline SVG. Poses: idle, curious, cheer, sleep.
+// tuli('idle', 120) returns an animated inline SVG. Poses: idle, curious, cheer, sleep (kit.js adds many more).
+// Everything but the shadow sits in .hop, so a tap can hop the fox without resetting the pose's own motion.
 // Colours come from the design system (currentColor = ink, --m-bg-hi = white parts).
 const CSS = `
 .tl{display:inline-block;line-height:0;color:var(--m-ink,#0F0F0F)}
 .tl svg{overflow:visible}
 .tl *{transform-box:view-box}
 .tl .whole{transform-origin:64px 110px}
+.tl .hop{transform-box:fill-box;transform-origin:50% 100%}
 .tl .sh{transform-origin:64px 111px}
 .tl .body{transform-origin:64px 110px;animation:tlBreathe 3.8s ease-in-out infinite}
 .tl .tail{transform-origin:83px 102px;animation:tlTail 3.2s ease-in-out infinite}
@@ -48,9 +50,9 @@ const CSS = `
 @media (prefers-reduced-motion: reduce){.tl *{animation:none!important}}
 `;
 const W = 'var(--m-bg-hi,#fff)', G = 'var(--m-goal,#F6C343)';
-const FOX = `
+export const FOX = `
  <ellipse class="sh" cx="66" cy="111" rx="40" ry="3" fill="currentColor" opacity=".12"/>
- <g class="whole">
+ <g class="hop"><g class="whole">
   <g class="tail"><path d="M82 104C104 106 117 92 110 70C106 84 96 92 82 94Z" fill="currentColor"/>
    <g class="tip"><path d="M110 70C115 79 114 88 108 95C105 86 105 78 110 70Z" fill="${W}" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g></g>
   <g class="body"><path d="M44 109C40 86 44 66 58 58C66 54 76 58 80 68C86 82 86 98 82 109Z" fill="currentColor"/>
@@ -65,7 +67,7 @@ const FOX = `
    <circle cx="99" cy="50" r="2.2" fill="currentColor"/></g>
  </g>
  <g class="zz" fill="currentColor" font-family="Inter Tight,sans-serif" font-weight="700"><text x="90" y="30" font-size="13">z</text><text x="100" y="18" font-size="10">z</text></g>
- <g class="conf"><circle cx="36" cy="30" r="2.6" fill="${G}"/><circle cx="96" cy="16" r="2.6" fill="currentColor"/><path d="M48 10l4 4M52 10l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="112" cy="40" r="2.6" fill="${G}"/></g>`;
+ <g class="conf"><circle cx="36" cy="30" r="2.6" fill="${G}"/><circle cx="96" cy="16" r="2.6" fill="currentColor"/><path d="M48 10l4 4M52 10l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="112" cy="40" r="2.6" fill="${G}"/></g></g>`;
 export function tuli(pose = 'idle', size = 120) {
   return `<span class="tl ${pose}" role="img" aria-label="Tuli, Motio's fox"><svg width="${size}" height="${Math.round(size * 110 / 96)}" viewBox="28 6 96 110">${FOX}</svg></span>`;
 }
