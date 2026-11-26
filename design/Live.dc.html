@@ -141,13 +141,13 @@ class Component extends DCLogic {
     const lastKm = last ? last.distanceM / unitM : 0;
     // Maps start after the slide-in so the slide stays smooth.
     if (window.MotioMap && !this.mapT) {
-      if (!w && this.pickEl && (!this.pickMap || this.pickFor !== pick)) {
+      if (!w && this.pickEl && !this.mapT && (!this.pickMap || this.pickFor !== pick)) {
         this.mapT = setTimeout(() => { this.mapT = null; if (!this.pickEl) return; if (this.pickMap) this.pickMap.destroy(); this.pickFor = pick; this.pickMap = window.MotioMap.mount(this.pickEl, this.last ? [this.last] : []); }, this.pickMap ? 0 : 440);
       }
       if (w && this.liveEl) {
         const route = w.points && w.points.length > 1 ? [{ id: 'w', mode: w.mode, color: m[1], start: w.start, end: now, points: w.points, live: true }] : [];
         const n = (w.points || []).length;
-        if (!this.liveMap) this.mapT = setTimeout(() => { this.mapT = null; if (!this.liveEl) return; this.liveMap = window.MotioMap.mount(this.liveEl, route); this.liveN = n; this.liveMap.setTime(now, false); }, 300);
+        if (!this.liveMap && !this.mapT) this.mapT = setTimeout(() => { this.mapT = null; if (!this.liveEl) return; this.liveMap = window.MotioMap.mount(this.liveEl, route); this.liveN = n; this.liveMap.setTime(now, false); }, 300);
         else if (this.liveN !== n) { this.liveN = n; this.liveMap.update(route); this.liveMap.setTime(now, false); }
       }
     }

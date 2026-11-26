@@ -317,6 +317,7 @@ function componentFor(name) {
       window.addEventListener('motio:refresh', this.onRefresh);
       if (this.logic.componentDidMount) this.logic.componentDidMount();
     }
+    componentDidUpdate() { if (this.logic.componentDidUpdate) this.logic.componentDidUpdate(); }
     componentWillUnmount() {
       window.removeEventListener('motio:refresh', this.onRefresh);
       window.removeEventListener('motio:tab', this.onTab);

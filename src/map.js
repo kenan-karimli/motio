@@ -97,7 +97,7 @@ window.MotioMap = {
         if (hit) map.fitBounds(hit.line.getBounds().pad(0.25), { animate: true });
       },
       invalidate() { if (!dead) map.invalidateSize(); },
-      destroy() { dead = true; ro.disconnect(); map.remove(); }
+      destroy() { dead = true; ro.disconnect(); try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } }
     };
   },
   // Places: a stay ring per place (home filled ink), framed to fit; fly() eases to one.
@@ -115,7 +115,7 @@ window.MotioMap = {
     [300, 700].forEach((ms) => setTimeout(() => { if (!dead) map.invalidateSize(); }, ms));
     return {
       fly(lat, lng) { if (!dead) map.flyTo([lat, lng], 16, { duration: 0.8 }); },
-      destroy() { dead = true; map.remove(); }
+      destroy() { dead = true; try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } }
     };
   },
   // The recap's backdrop: a dark, still map of the period's routes. Slides steer it: show everything, fly to one
@@ -154,7 +154,7 @@ window.MotioMap = {
           setTimeout(() => { p.style.strokeDasharray = ''; }, ms + i * 90 + 50);
         });
       },
-      destroy() { dead = true; map.remove(); }
+      destroy() { dead = true; try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } }
     };
   },
   // A friend's shared map: their routes, their usual places and where they are right now (whatever they share).
@@ -190,7 +190,7 @@ window.MotioMap = {
       },
       reframe() { framed = false; },
       fly(lat, lng) { if (!dead) map.flyTo([lat, lng], 16, { duration: 0.8 }); },
-      destroy() { dead = true; map.remove(); }
+      destroy() { dead = true; try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } }
     };
   },
   // One trip in its mode colour, from a stay ring (start) to an ink dot (finish).
@@ -232,7 +232,7 @@ window.MotioMap = {
         };
         raf = requestAnimationFrame(step);
       },
-      destroy() { dead = true; cancelAnimationFrame(raf); map.remove(); }
+      destroy() { dead = true; cancelAnimationFrame(raf); try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } }
     };
   },
   // Explorer: every ~150 m square you've passed through is filled in ink on the grey map.
@@ -263,6 +263,6 @@ window.MotioMap = {
     map.on('move', () => { if (!raf && !map._animatingZoom) raf = requestAnimationFrame(() => { raf = 0; if (!dead && !map._animatingZoom) cv._update(); }); });
     if (cells.length) map.fitBounds(L.latLngBounds(cells.map((c) => [c[0], c[1]])), { padding: [20, 20], maxZoom: 15 });
     [0, 300, 700].forEach((ms) => setTimeout(() => { if (!dead) { map.invalidateSize(); cv._update(); } }, ms));
-    return { fly(lat, lng, z = 15) { if (!dead) map.flyTo([lat, lng], z, { duration: 0.9 }); }, destroy() { dead = true; map.remove(); } };
+    return { fly(lat, lng, z = 15) { if (!dead) map.flyTo([lat, lng], z, { duration: 0.9 }); }, destroy() { dead = true; try { map.remove(); } catch (e) { /* leaflet throws if the container was reused; a throw here would leave the page stuck open */ } } };
   }
 };

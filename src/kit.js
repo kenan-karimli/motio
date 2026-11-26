@@ -192,7 +192,7 @@ class MNav extends HTMLElement {
     if (c !== this._pv) { const from = this._pv == null ? this._i : this._pv; this._pv = c; if (c !== from) this.dispatchEvent(new CustomEvent('m-tab', { detail: this._T[c][0], bubbles: true, composed: true })); } }
   setProgress(f){ const a = Math.max(0, Math.min(3, Math.floor(f))), b = Math.min(3, a + 1), t = Math.max(0, Math.min(1, f - a)); const ta = this._tabs[a], tb = this._tabs[b]; const x = ta.offsetLeft + (tb.offsetLeft - ta.offsetLeft) * t; const st = Math.sin(t * Math.PI) * .22;
     this._lq.style.transition = 'none'; this._lq.style.transform = 'translateX(' + x + 'px) scale(' + (1 + st) + ',' + (1 - st * .4) + ')'; const c = Math.round(f); this._tabs.forEach((tt, i) => tt.classList.toggle('on', i === c)); }
-  go(n, anim, silent){ this._pv = null; const t = this._tabs[n]; if (!t || !t.offsetWidth) return; this._lq.style.width = t.offsetWidth + 'px';
+  go(n, anim, silent, tries = 0){ this._pv = null; const t = this._tabs[n]; if (!t) return; if (!t.offsetWidth) { if (tries < 60) requestAnimationFrame(() => this.go(n, anim, silent, tries + 1)); return; } /* hidden behind a page: try again once it shows */ this._lq.style.width = t.offsetWidth + 'px';
     this._lq.style.transition = anim ? 'transform .62s cubic-bezier(.3,1.6,.5,1)' : 'none'; this._lq.style.transform = 'translateX(' + t.offsetLeft + 'px) scale(1)';
     this._tabs.forEach((tt, i) => tt.classList.toggle('on', i === n));
     if (anim && n !== this._i && !silent) { this._i = n; this.dispatchEvent(new CustomEvent('m-tab', { detail: this._T[n][0], bubbles: true, composed: true })); } this._i = n; }
