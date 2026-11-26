@@ -34,94 +34,54 @@ button:active,a:active{transform:scale(0.95)}
 @keyframes motioSoftDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(28px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #3DBF5C; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Privacy</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">privacy.</h1></div></div>
 
-  <div style="position: relative; height: 150px; flex-shrink: 0; padding: 16px 20px 0; box-sizing: border-box">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 14px 0 0; font-size: 30px; font-weight: 700; line-height: 1.1">Privacy &amp; location</h1>
-  </div>
-
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; background: transparent; padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 20px">
-
-    <section style="display: flex; flex-direction: column; gap: 10px">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Location access</h2>
-      <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; border-radius: 22px; background: #EEF0F6">
-        <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 18px; background: #1F1D47; transform: translateX(calc({{ locIndex }} * 100%)); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
-        <sc-for list="{{ locOptions }}" as="o" hint-placeholder-count="3">
-          <button aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="position: relative; height: 38px; border: 0; background: transparent; color: {{ o.fg }}; font-size: 13px; font-weight: 600; transition: color 260ms ease">{{ o.label }}</button>
-        </sc-for>
-      </div>
-      <span style="font-size: 12px; line-height: 1.5; color: #4A4770">{{ locHint }}</span>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Place names</h2>
-      <span style="font-size: 12px; line-height: 1.5; color: #4A4770">To call your places by name (a street, a shop), Motio asks OpenStreetMap through its own server about a square of about 100 m around the spot, never your exact position or your account. Each answer is kept, so a spot is asked once.</span>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Private zones</h2>
-      <span style="font-size: 12px; line-height: 1.5; color: #4A4770">The start and end of trips near these places are hidden on maps and shared recaps.</span>
+    <div class="m-card m-in" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: center"><span class="m-h3">Private zones</span><button type="button" class="m-icon" onClick="{{ addZone }}" aria-label="Add a zone where you are now" style="width: 34px; height: 34px; background: var(--m-soft)"><m-ic n="plus" s="16"></m-ic></button></div>
+      <span class="m-sub" style="font-size: 12px">The start and end of trips near these places are hidden on maps and shared recaps.</span>
       <sc-for list="{{ zones }}" as="z" hint-placeholder-count="2">
-        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: #F6F5FC; animation: motioRowIn 360ms ease-out">
-          <span style="width: 36px; height: 36px; border-radius: 18px; flex-shrink: 0; background: {{ z.color }}; box-shadow: none; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span>
-          <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ z.name }}</span><span style="font-size: 12px; color: #6B6890">{{ z.radius }} radius</span></span>
-          <button onClick="{{ z.remove }}" aria-label="{{ z.removeLabel }}" style="width: 36px; height: 36px; border-radius: 18px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6890" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-        </div>
+        <div class="m-row"><m-ic n="{{ z.icon }}" s="17"></m-ic><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ z.name }}</b><div class="m-sub" style="font-size: 12px">{{ z.radius }} around</div></span><button type="button" class="m-icon" onClick="{{ z.remove }}" aria-label="{{ z.removeLabel }}" style="width: 32px; height: 32px; background: var(--m-card)"><m-ic n="x" s="14"></m-ic></button></div>
       </sc-for>
-      <button onClick="{{ addZone }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; border-radius: 23px; border: 2px dashed #C9C5EC; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B3FD8" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add a zone where you are now</button>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #EEF0F6">
-      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6890">Keep my history for</h2>
-      <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; border-radius: 22px; background: #EEF0F6">
-        <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 18px; background: #1F1D47; transform: translateX(calc({{ keepIndex }} * 100%)); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
-        <sc-for list="{{ keepOptions }}" as="o" hint-placeholder-count="3">
-          <button aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="position: relative; height: 38px; border: 0; background: transparent; color: {{ o.fg }}; font-size: 13px; font-weight: 600; transition: color 260ms ease">{{ o.label }}</button>
-        </sc-for>
-      </div>
-    </section>
-
-    <button onClick="{{ askDelete }}" style="min-height: 52px; flex-shrink: 0; border-radius: 26px; border: 0; background: #FDECEA; color: #C2412F; font-size: 14px; font-weight: 600">Delete all movement history</button>
-    <button onClick="{{ askAccount }}" style="min-height: 48px; flex-shrink: 0; border-radius: 24px; border: 2px solid #F5C6C0; background: transparent; color: #C2412F; font-size: 14px; font-weight: 600">Delete my account</button>
-    <div style="display: flex; justify-content: center; gap: 18px; flex-shrink: 0; padding-bottom: 8px">
-      <button onClick="{{ openPolicy }}" style="min-height: 40px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Privacy policy</button>
-      <button onClick="{{ openTerms }}" style="min-height: 40px; border: 0; background: transparent; color: #4B3FD8; font-size: 13px; font-weight: 600">Terms of use</button>
+      <sc-if value="{{ noZones }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-row" onClick="{{ addZone }}" style="border: 0; color: inherit; text-align: left; justify-content: center; font: 600 14px var(--m-font)"><m-ic n="plus" s="16"></m-ic>Add a zone where you are</button></sc-if>
     </div>
+
+    <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 10px; padding: 14px">
+      <span style="font-size: 14px; font-weight: 600; padding: 0 4px">Location access</span>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px"><sc-for list="{{ locOptions }}" as="o" hint-placeholder-count="3"><button type="button" role="radio" class="m-option {{ o.cls }}" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="min-height: 44px; font-size: 13px; background: {{ o.bg }}">{{ o.label }}</button></sc-for></div>
+      <span class="m-sub" style="font-size: 12px; padding: 0 4px">{{ locHint }}</span>
+    </div>
+
+    <div class="m-card m-in" style="--i: 2; display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <div class="m-row" style="background: transparent"><span style="flex: 1"><b style="font-size: 14px">Place names</b><div class="m-sub" style="font-size: 12px">“Nizami Street”, not just a dot. Motio asks OpenStreetMap about a 100 m square, never your exact spot or account.</div></span></div>
+      <button type="button" class="m-row" onClick="{{ keepNext }}" style="background: transparent; border: 0; color: inherit; text-align: left"><span style="flex: 1"><b style="font-size: 14px">Keep my history for</b><div class="m-sub" style="font-size: 12px">Older trips are removed from this phone and your account</div></span><span class="m-chip" style="height: 32px; font-size: 12px; background: var(--m-soft)">{{ keepLabel }}</span></button>
+    </div>
+
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <button type="button" class="m-row" onClick="{{ openPolicy }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="shield" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Privacy policy</span><m-ic n="chev" s="16"></m-ic></button>
+      <button type="button" class="m-row" onClick="{{ openTerms }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="file" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Terms of use</span><m-ic n="chev" s="16"></m-ic></button>
+      <button type="button" class="m-row" onClick="{{ askDelete }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="trash" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Delete all movement history</span><m-ic n="chev" s="16"></m-ic></button>
+    </div>
+    <a href="{{ LK.del.href }}" onClick="{{ LK.del.go }}" style="align-self: center; margin-top: 8px; text-decoration: none; font: 600 14px var(--m-font); color: var(--m-warn)">Delete account</a>
   </div>
 
-  <sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
-      <button aria-label="Cancel" onClick="{{ cancelAccount }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.5)"></button>
-      <div role="alertdialog" aria-label="Delete your account?" style="position: relative; width: 100%; box-sizing: border-box; padding: 22px 20px; border-radius: 28px; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; animation: motioRise 260ms ease-out">
-        <span style="font-size: 18px; font-weight: 700">Delete your account?</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">Your account, trips, recaps and connected apps are removed from Motio’s server for good. Type your password to confirm.</span>
-        <input type="password" autocomplete="current-password" value="{{ accPw }}" onChange="{{ onAccPw }}" placeholder="Password" style="height: 50px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; border: 0; background: var(--m-card); color: #1F1D47; font-size: 15px">
-        <sc-if value="{{ hasAccErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; color: #C2412F">{{ accErr }}</span></sc-if>
-        <div style="display: flex; gap: 10px">
-          <button onClick="{{ cancelAccount }}" style="flex: 1; min-height: 50px; border-radius: 25px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Keep it</button>
-          <button onClick="{{ confirmAccount }}" style="flex: 1; min-height: 50px; border-radius: 25px; border: 0; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600">{{ accLabel }}</button>
-        </div>
-      </div>
-    </div>
-  </sc-if>
   <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 24px">
-      <button aria-label="Cancel" onClick="{{ cancelDelete }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20,14,70,0.55); cursor: default; animation: motioFade 220ms ease-out"></button>
-      <div role="alertdialog" aria-label="Delete all movement history?" style="position: relative; width: 100%; box-sizing: border-box; border-radius: 28px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 12px; animation: motioPopIn 300ms cubic-bezier(0.22, 1, 0.36, 1)">
-        <span style="width: 52px; height: 52px; border-radius: 26px; background: #FDECEA; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C2412F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></span>
-        <span style="font-size: 20px; font-weight: 700">Delete all history?</span>
-        <span style="font-size: 13px; line-height: 1.5; color: #4A4770">This removes every trip, step count and recap from this phone and your account. It can’t be undone.</span>
-        <div style="display: flex; gap: 10px; margin-top: 6px">
-          <button onClick="{{ cancelDelete }}" style="flex: 1; height: 48px; border-radius: 24px; border: 0; background: #EEF0F6; color: #1F1D47; font-size: 14px; font-weight: 600">Keep it</button>
-          <button onClick="{{ confirmDelete }}" style="flex: 1; height: 48px; border-radius: 24px; border: 0; background: #C2412F; color: #FFFFFF; font-size: 14px; font-weight: 600">Delete</button>
-        </div>
+    <div style="position: absolute; inset: 0; z-index: 40; display: flex; align-items: flex-end">
+      <button type="button" aria-label="Cancel" onClick="{{ cancelDelete }}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(15,15,15,0.4); animation: motioFade 220ms ease-out"></button>
+      <div role="alertdialog" aria-label="Delete all movement history?" class="m-sheet" style="display: flex; flex-direction: column; gap: 10px; text-align: center; align-items: center">
+        <m-art name="trash" size="120"></m-art>
+        <span class="m-h2">Delete all history?</span>
+        <span class="m-sub">This removes every trip, step count and recap from this phone and your account. It can’t be undone.</span>
+        <button type="button" class="m-btn wide" onClick="{{ confirmDelete }}" style="margin-top: 8px; background: var(--m-warn); color: #FFFFFF">Delete history</button>
+        <button type="button" class="m-btn w wide" onClick="{{ cancelDelete }}" style="background: var(--m-soft)">Keep it</button>
       </div>
     </div>
   </sc-if>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 40px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -184,7 +144,7 @@ class Component extends DCLogic {
       loc: (i) => { M.setSetting('locMode', i); M.setSetting('autoTrack', i !== 2); },
       keep: (i) => { M.setSetting('keep', i); }
     };
-    const seg = (labels, cur, key) => labels.map((label, i) => ({ label, on: i === cur, fg: i === cur ? '#FFFFFF' : '#1F1D47', pick: () => (M ? pickers[key](i) : this.setState({ [key]: i })) }));
+    const seg = (labels, cur, key) => labels.map((label, i) => ({ label, on: i === cur, cls: i === cur ? 'on' : '', bg: i === cur ? '' : 'var(--m-soft)', pick: () => (M ? pickers[key](i) : this.setState({ [key]: i })) }));
     const hints = [
       'Motio can track in the background at any time, even when you’re still.',
       'Motio only turns on GPS when your phone senses you’re moving. Best for battery and privacy.',
@@ -192,10 +152,12 @@ class Component extends DCLogic {
     ];
     return {
       rootAnim: this.state && this.state.leaving ? 'motioSoftOut 200ms ease-in forwards' : this.entryAnim,
-      emb, LK: { back: lk('back', 'Settings.dc.html') },
+      emb, LK: { back: lk('back', 'Settings.dc.html'), del: lk('deleteaccount', 'DeleteAccount.dc.html') },
       locIndex: loc, locOptions: seg(['Always', 'While moving', 'Never'], loc, 'loc'), locHint: hints[loc],
-      keepIndex: keep, keepOptions: seg(['3 months', '1 year', 'Forever'], keep, 'keep'),
-      zones: zones.map((z) => ({ ...z, removeLabel: 'Remove ' + z.name, remove: () => {
+      keepLabel: ['3 months', '1 year', 'Forever'][keep] || '1 year',
+      keepNext: () => (M ? pickers.keep((keep + 1) % 3) : this.setState({ keep: (keep + 1) % 3 })),
+      noZones: !zones.length,
+      zones: zones.map((z) => ({ ...z, icon: /home/i.test(z.name) ? 'home' : 'pin', removeLabel: 'Remove ' + z.name, remove: () => {
         if (M) M.removeZone(z.id); else this.setState({ zones: zones.filter((x) => x.id !== z.id) });
         this.showToast(z.name + ' zone removed');
       } })),
@@ -209,19 +171,6 @@ class Component extends DCLogic {
         }
         const colors = ['#3DBF5C', '#6E8CF7', '#F6C343', '#B57BE0'];
         this.setState({ zones: [...zones, { id: Date.now(), name: 'New zone ' + n, radius: '200 m', color: colors[n % 4] }] });
-      },
-      accountOpen: !!s.account, accPw: s.accPw || '', hasAccErr: !!s.accErr, accErr: s.accErr || '', accLabel: s.accBusy ? 'Deleting…' : 'Delete account',
-      askAccount: () => this.setState({ account: true, accPw: '', accErr: null }),
-      cancelAccount: () => this.setState({ account: false }),
-      onAccPw: (e) => this.setState({ accPw: e.target.value }),
-      confirmAccount: () => {
-        if (!M) { this.setState({ account: false }); this.showToast('Account deleted'); return; }
-        if (!s.accPw) { this.setState({ accErr: 'Type your password first.' }); return; }
-        if (s.accBusy) return;
-        this.setState({ accBusy: true, accErr: null });
-        M.auth.deleteAccount(s.accPw)
-          .then(() => { this.setState({ accBusy: false, account: false }); if (this.props.onNav) this.props.onNav('welcome'); })
-          .catch((e) => this.setState({ accBusy: false, accErr: e.code === 'wrong_password' ? 'That password isn’t right.' : e.code === 'offline' ? 'You’re offline. Try again when connected.' : 'Couldn’t delete right now. Try again.' }));
       },
       openPolicy: () => (M ? M.openPage('/privacy') : this.showToast('Opens the privacy policy')),
       openTerms: () => (M ? M.openPage('/terms') : this.showToast('Opens the terms')),

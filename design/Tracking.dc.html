@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Tracking health</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#ECECEA}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+.motio-scroll::-webkit-scrollbar{display:none}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+</style>
+</helmet>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="scr nt">
+    <div class="top"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-h3">Tracking health</span><button type="button" class="m-icon" onClick="{{ recheck }}" aria-label="Check again"><m-ic n="refresh"></m-ic></button></div>
+    <div class="m-card dark m-in" style="display: flex; align-items: center; gap: 12px; padding: 20px">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px"><span class="m-label">Tracking</span><span class="m-num" style="font-size: 38px">{{ okOf }}</span><span class="m-sub">{{ fixLead }}<b style="color: var(--m-on-dark)">{{ fixAgo }}</b>{{ fixTail }}</span></div>
+      <span aria-hidden="true" style="position: relative; width: 84px; height: 84px; flex-shrink: 0"><svg width="84" height="84" viewBox="0 0 84 84" style="transform: rotate(-90deg)"><circle cx="42" cy="42" r="34" fill="none" stroke="rgba(128,128,128,.25)" stroke-width="8"></circle><circle cx="42" cy="42" r="34" fill="none" stroke="var(--m-on-dark)" stroke-width="8" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="{{ ringOff }}" style="transition: stroke-dashoffset 600ms cubic-bezier(0.22, 1, 0.36, 1)"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: {{ ringIconColor }}"><m-ic n="{{ ringIcon }}" s="22"></m-ic></span></span>
+    </div>
+    <div class="m-card m-in" style="--i: 1; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+        <div class="m-row {{ r.cls }}"><span style="color: {{ r.color }}"><m-ic n="{{ r.icon }}"></m-ic></span><span style="flex: 1; min-width: 0"><span style="font-size: 14px; font-weight: {{ r.weight }}">{{ r.label }}</span><sc-if value="{{ r.bad }}" hint-placeholder-val="{{ false }}"><div class="m-sub" style="font-size: 12px; color: var(--m-ink-2)">{{ r.why }}</div></sc-if></span><sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-size: 12px">{{ r.note }}</span></sc-if><sc-if value="{{ r.bad }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-chip on" onClick="{{ r.fix }}" aria-label="Fix: {{ r.label }}" style="height: 32px; font-size: 12px">Fix</button></sc-if></div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ hasAcc }}" hint-placeholder-val="{{ true }}"><div class="m-card m-in" style="--i: 2; display: flex; justify-content: space-between; padding: 16px 18px"><span class="m-sub">GPS accuracy</span><b style="font-size: 14px">{{ acc }}</b></div></sc-if>
+    <span class="sp"></span>
+    <sc-if value="{{ hasFix }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn wide m-late" onClick="{{ fixFirst }}">{{ fixLabel }}</button></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.check();
+    // Back from the phone's settings: check again.
+    this.onVis = () => { if (!document.hidden) this.check(); };
+    document.addEventListener('visibilitychange', this.onVis);
+  }
+  componentWillUnmount() { document.removeEventListener('visibilitychange', this.onVis); }
+  check() {
+    const M = window.Motio;
+    if (!M) return;
+    M.permissions.status().then((st) => this.setState({ st })).catch(() => this.setState({ st: {} }));
+    M.health.status().then((hc) => this.setState({ hc })).catch(() => this.setState({ hc: { available: false } }));
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const st = s.st || (M ? {} : { location: 'granted', background: true, activity: 'granted', notifications: 'granted', battery: true, xiaomi: true, autostart: false, fix: { at: Date.now() - 120000, acc: 6 } });
+    const hc = s.hc || (M ? {} : { available: true, connected: true });
+    const hm = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    let opened = false;
+    try { opened = window.localStorage.getItem('motio.autostartOpened') === '1'; } catch (e) { /* storage blocked */ }
+    const hcOn = !!(hc.connected && (!M || M.settings().healthSync));
+    const syncedAt = M ? M.health.syncedAt() : Date.now() - 600000;
+    const fix = (what) => () => {
+      if (!M) return;
+      const run = { location: () => M.permissions.location(), activity: () => M.permissions.activity(), battery: () => M.phoneSetup.open('battery'), notifications: () => M.permissions.notifications(), health: () => M.health.connect(),
+        autostart: () => { try { window.localStorage.setItem('motio.autostartOpened', '1'); } catch (e) { /* storage blocked */ } return M.phoneSetup.open('autostart'); } }[what];
+      Promise.resolve(run()).catch(() => {}).then(() => this.check());
+    };
+    // Every check, in the setup order. Autostart only on Xiaomi phones; Health Connect only where it exists.
+    const all = [
+      ['location', 'Location all the time', st.location === 'granted' && st.background !== false, st.location === 'granted' ? 'Trips stop when your phone sleeps' : 'Motio can’t record trips'],
+      ['activity', 'Physical activity', st.activity === 'granted', 'Walks and bus rides get mixed up'],
+      ['battery', 'Battery unrestricted', !!st.battery, 'Android may put Motio to sleep'],
+      st.xiaomi && ['autostart', 'Autostart is ' + (st.autostart === true || (st.autostart == null && opened) ? 'on' : 'off'), st.autostart === true || (st.autostart == null && opened), 'Trips stop after a restart'],
+      ['notifications', 'Notifications', st.notifications === 'granted', 'No goal moments or evening recap'],
+      hc.available !== false && ['health', 'Health Connect', hcOn, 'Steps from your watch are missing', hcOn && syncedAt ? 'synced ' + hm(syncedAt) : '']
+    ].filter(Boolean);
+    const loading = M && (!s.st || !s.hc);
+    const bad = loading ? [] : all.filter((r) => !r[2]);
+    // Problems first, each with its own fix; then what's fine.
+    const rows = [...bad, ...all.filter((r) => loading || r[2])].map(([k, label, ok, why, note]) => {
+      const isBad = !loading && !ok;
+      return { label, why, bad: isBad, cls: isBad ? 'tx' : '', icon: loading ? 'clock' : isBad ? 'alert' : 'check', color: loading ? 'var(--m-mute)' : isBad ? 'var(--m-warn)' : 'var(--m-ok)', weight: isBad ? 600 : 500, note: note || '', hasNote: !!note && !isBad, fix: fix(k) };
+    });
+    const okN = all.length - bad.length;
+    const f = st.fix, mins = f ? Math.round((Date.now() - f.at) / 60000) : null;
+    const tr = M ? M.tracking() : { on: true };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+      LK: { back: lk('back', 'Settings.dc.html') },
+      recheck: () => this.check(),
+      okOf: loading ? '…' : okN + ' of ' + all.length,
+      fixLead: f ? 'Last location ' : tr.on ? 'Tracking is on, ' : 'Tracking is ',
+      fixAgo: f ? (mins < 1 ? 'just now' : mins < 60 ? mins + ' min ago' : hm(f.at)) : tr.on ? 'waiting for a fix' : 'off',
+      fixTail: '',
+      ringOff: Math.round(213.6 * (1 - (all.length ? okN / all.length : 1))),
+      ringIcon: bad.length ? 'alert' : 'check', ringIconColor: bad.length ? 'var(--m-goal)' : 'var(--m-on-dark)',
+      rows,
+      hasAcc: !!(f && f.acc), acc: f && f.acc ? '±' + f.acc + ' m · ' + (f.acc <= 12 ? 'good' : f.acc <= 35 ? 'fair' : 'rough') : '',
+      hasFix: bad.length > 0, fixLabel: bad.length ? 'Fix ' + bad[0][1].replace(/ is off$/, '') : '',
+      fixFirst: () => bad.length && fix(bad[0][0])()
+    };
+  }
+}
+</script>
+</body>
+</html>

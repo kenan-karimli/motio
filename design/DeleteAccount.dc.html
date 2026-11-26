@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Delete account</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#ECECEA}
+a{color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
+.motio-scroll::-webkit-scrollbar{display:none}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+</style>
+</helmet>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Delete account</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <div class="m-in" style="display: flex; justify-content: center"><m-art name="trash" size="190"></m-art></div>
+    <div class="head m-in" style="--i: 1"><div class="t"><h1 class="m-title">delete account.</h1><span class="m-sub" style="font-size: 15px">This removes everything for good. It can’t be undone.</span></div></div>
+    <div class="m-card m-in" style="--i: 2; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+      <sc-for list="{{ lose }}" as="l" hint-placeholder-count="3"><div class="m-row"><m-ic n="{{ l.icon }}" s="17"></m-ic><span style="flex: 1; font-size: 14px">{{ l.text }}</span></div></sc-for>
+    </div>
+    <a class="lnk" href="{{ LK.export.href }}" onClick="{{ LK.export.go }}" style="align-self: flex-start; margin-left: 4px">Export your data first</a>
+    <label class="field" style="margin-top: 6px"><span class="m-label">Type DELETE to confirm</span><input class="input {{ typedCls }}" value="{{ typed }}" onInput="{{ onType }}" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Type DELETE to confirm" style="border: 0; outline: 0; width: 100%"></label>
+    <sc-if value="{{ needPw }}" hint-placeholder-val="{{ true }}">
+      <label class="field"><span class="m-label">Your password</span><input class="input" type="password" autocomplete="current-password" value="{{ pw }}" onInput="{{ onPw }}" aria-label="Your password" style="border: 0; outline: 0; width: 100%"></label>
+      <button type="button" class="lnk" onClick="{{ withGoogle }}" style="align-self: flex-start; margin-left: 4px; border: 0; background: transparent; padding: 0">Signed up with Google? Confirm with Google</button>
+    </sc-if>
+    <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; color: var(--m-warn); padding: 0 4px">{{ err }}</span></sc-if>
+    <span class="sp" style="min-height: 12px"></span>
+    <button type="button" class="m-btn wide" onClick="{{ confirm }}" aria-disabled="{{ notLive }}" style="background: var(--m-warn); color: #FFFFFF; opacity: {{ btnOp }}; transition: opacity 200ms ease">{{ btnLabel }}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    const M = window.Motio;
+    if (M && M.friends) M.friends.board().then((b) => this.setState({ nFriends: (b.friends || []).length })).catch(() => {});
+  }
+  renderVals() {
+    const emb = !!this.props.embedded;
+    const lk = (target, file) => ({ href: emb ? '#' : file, go: (e) => {
+      if (!emb) return;
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.props.onNav) this.props.onNav(target);
+    } });
+    const s = this.state || {};
+    const M = window.Motio;
+    const st = { trips: M ? M.summarize(0, Date.now()).trips.length : 612 };
+    const badges = M ? M.achievements().filter((a) => a.got).length : 9;
+    const nRec = M ? M.records().list.length : 6;
+    const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+    const typed = s.typed || '';
+    const live = typed.trim().toUpperCase() === 'DELETE' && (!!s.pw || !M);
+    const fail = (e) => this.setState({ busy: false, err: e && e.code === 'cancelled' ? null : e && e.code === 'wrong_password' ? 'That password isn’t right.' : e && e.code === 'offline' ? 'You’re offline. Try again when connected.' : 'Couldn’t delete right now. Try again.' });
+    const done = () => { this.setState({ busy: false }); if (this.props.onNav) this.props.onNav('welcome'); };
+    return {
+      rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+      LK: { back: lk('back', 'Settings.dc.html'), export: lk('export', 'Export.dc.html') },
+      lose: [
+        { icon: 'route', text: plural(st.trips || 0, 'trip', 'trips') + ' and your places' },
+        { icon: 'users', text: (s.nFriends != null ? plural(s.nFriends, 'friend', 'friends') + ', ' : '') + 'your clubs and posts' },
+        { icon: 'badge', text: plural(badges, 'badge', 'badges') + ' and ' + plural(nRec, 'record', 'records') }
+      ],
+      typed, typedCls: typed ? 'focus' : '',
+      onType: (e) => this.setState({ typed: e.target.value, err: null }),
+      needPw: true, pw: s.pw || '',
+      onPw: (e) => this.setState({ pw: e.target.value, err: null }),
+      hasErr: !!s.err, err: s.err || '',
+      notLive: !live, btnOp: live ? 1 : 0.4,
+      btnLabel: s.busy ? 'Deleting…' : 'Delete my account',
+      confirm: () => {
+        if (!live || s.busy) return;
+        if (!M) return done();
+        this.setState({ busy: true, err: null });
+        M.auth.deleteAccount(s.pw).then(done).catch(fail);
+      },
+      withGoogle: () => {
+        if (typed.trim().toUpperCase() !== 'DELETE') { this.setState({ err: 'Type DELETE first.' }); return; }
+        if (!M || s.busy) return;
+        this.setState({ busy: true, err: null });
+        M.auth.deleteAccount(null, true).then(done).catch(fail);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

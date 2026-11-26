@@ -54,16 +54,7 @@ button:active,a:active{transform:scale(0.96)}
     <span class="m-label" style="margin: 4px 4px 0">Tracking</span>
     <div class="m-card" style="display: flex; flex-direction: column; gap: 6px; padding: 12px">
       <sc-for list="{{ trackSwitches }}" as="t" hint-placeholder-count="3"><div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ t.label }}</b><div class="m-sub" style="font-size: 12px">{{ t.hint }}</div></span><button type="button" role="switch" class="m-toggle {{ t.cls }}" aria-checked="{{ t.on }}" aria-label="{{ t.label }}" onClick="{{ t.toggle }}"></button></div></sc-for>
-      <sc-if value="{{ setup.show }}" hint-placeholder-val="{{ true }}">
-        <div class="m-card tg" style="margin-top: 4px; display: flex; flex-direction: column; gap: 10px; padding: 14px">
-          <span><b style="font-size: 14px">{{ setup.title }}</b><div class="m-sub" style="font-size: 12px">{{ setup.body }}</div></span>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap">
-            <sc-if value="{{ setup.needBackground }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn" onClick="{{ setup.background }}" style="height: 38px; font-size: 13px">Allow all the time</button></sc-if>
-            <sc-if value="{{ setup.needBattery }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn w" onClick="{{ setup.battery }}" style="height: 38px; font-size: 13px">Battery</button></sc-if>
-            <sc-if value="{{ setup.xiaomi }}" hint-placeholder-val="{{ true }}"><button type="button" class="m-btn w" onClick="{{ setup.autostart }}" style="height: 38px; font-size: 13px">Autostart</button></sc-if>
-          </div>
-        </div>
-      </sc-if>
+      <a class="m-row" href="{{ LK.tracking.href }}" onClick="{{ LK.tracking.go }}" style="background: transparent; text-decoration: none; color: inherit"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">Tracking health check</b><div class="m-sub" style="font-size: 12px; color: {{ setup.hintColor }}">{{ setup.hint }}</div></span><m-ic n="chev" s="16"></m-ic></a>
     </div>
 
     <span class="m-label" style="margin: 4px 4px 0">Sharing and recaps</span>
@@ -103,6 +94,7 @@ button:active,a:active{transform:scale(0.96)}
       <button type="button" class="m-row" onClick="{{ aboutTap }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="info" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Version</span><span class="m-sub">{{ versionLabel }}</span></button>
       <button type="button" class="m-row" onClick="{{ askLogout }}" style="background: transparent; border: 0; color: inherit; text-align: left"><m-ic n="logout" s="18"></m-ic><span style="flex: 1; font-size: 14px; font-weight: 600">Log out</span></button>
     </div>
+    <a href="{{ LK.del.href }}" onClick="{{ LK.del.go }}" style="align-self: center; margin-top: 10px; text-decoration: none; font: 600 14px var(--m-font); color: var(--m-warn)">Delete account</a>
     <span class="m-sub" style="text-align: center; font-size: 12px; margin-top: 6px">Made in Baku</span>
   </div>
 
@@ -218,7 +210,7 @@ class Component extends DCLogic {
       ...(() => { const get = (k, d) => { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, put2 = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* blocked */ } this.forceUpdate(); };
         const sp = get('motio.recapSpeed', 'normal'), ORDER = ['relaxed', 'normal', 'fast'], NAMES = { relaxed: 'Relaxed', normal: 'Normal', fast: 'Fast' }, mp = get('motio.recapMap', 'on');
         return { rcSpeed: { label: NAMES[sp] || 'Normal', next: () => put2('motio.recapSpeed', ORDER[(ORDER.indexOf(sp) + 1) % 3]) }, rcMap: { label: mp === 'off' ? 'Off' : 'On', toggle: () => put2('motio.recapMap', mp === 'off' ? 'on' : 'off') } }; })(),
-      emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html') },
+      emb, standalone: !emb, LK: { k0: lk('back', this.backFile), apps: lk('connected', 'ConnectedApps.dc.html'), privacy: lk('privacy', 'Privacy.dc.html'), export: lk('export', 'Export.dc.html'), help: lk('help', 'Help.dc.html'), widgets: lk('widgets', 'Widgets.dc.html'), msgs: lk('messages', 'Messages.dc.html'), out: lk('welcome', 'Welcome.dc.html'), tracking: lk('tracking', 'Tracking.dc.html'), del: lk('deleteaccount', 'DeleteAccount.dc.html') },
       styles: [['mix', 'Mix', 'A new style each story'], ...Object.keys(TH).map((k) => [k, TH[k].name, TH[k].hint])]
         .map(([k, label, hint]) => ({
           label, hint, on: style === k, ring: style === k ? 'var(--m-ink)' : 'transparent', isMix: k === 'mix',
@@ -238,7 +230,7 @@ class Component extends DCLogic {
         // Autostart: trust the phone's answer; if it can't tell, stop asking once the screen was opened.
         const needBg = !!st && st.background === false;
         const need = !!st && !st.battery, xi = !!st && st.xiaomi && (st.autostart === false || (st.autostart == null && !opened));
-        return { show: need || xi || needBg, needBattery: need, needBackground: needBg, background: () => M && M.requestBackgroundLocation(), xiaomi: xi, bg: need ? '#FDF1CF' : '#F3F2FA',
+        return { show: need || xi || needBg, hint: need || xi || needBg ? 'Something needs fixing' : 'Everything is on', hintColor: need || xi || needBg ? 'var(--m-warn)' : 'var(--m-mute)', needBattery: need, needBackground: needBg, background: () => M && M.requestBackgroundLocation(), xiaomi: xi, bg: need ? '#FDF1CF' : '#F3F2FA',
           title: need || needBg ? 'Keep tracking reliable' : 'Xiaomi phones: one more step',
           body: needBg && !need && !xi ? 'Set location to “Allow all the time” so Motio keeps tracking after your phone restarts, without opening the app.' : xi && need ? 'Xiaomi phones stop apps in the background. Allow Motio to run in the background and turn on Autostart, or trips get missed and mixed up.' : xi ? 'Turn on Autostart for Motio so tracking restarts after your phone does.' : 'Your phone may pause Motio in the background. Allow it, or trips get missed.',
           battery: () => M && M.phoneSetup.open('battery'), autostart: () => { try { window.localStorage.setItem('motio.autostartOpened', '1'); } catch (e) { /* storage blocked */ } if (M) M.phoneSetup.open('autostart'); } };

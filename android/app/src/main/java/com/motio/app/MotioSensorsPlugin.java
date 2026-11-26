@@ -89,7 +89,7 @@ public class MotioSensorsPlugin extends Plugin implements SensorEventListener {
         try (java.io.FileOutputStream out = new java.io.FileOutputStream(MotioWidget.file(getContext(), kind))) {
             out.write(android.util.Base64.decode(png, android.util.Base64.DEFAULT));
         } catch (java.io.IOException e) { call.reject("write failed"); return; }
-        MotioWidget.refresh(getContext(), kind);
+        MotioWidget.refresh(getContext(), kind.replaceAll("_(dark|large)", ""));
         call.resolve();
     }
 

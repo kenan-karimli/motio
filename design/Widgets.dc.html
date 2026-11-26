@@ -29,175 +29,37 @@ button:active,a:active{transform:scale(0.96)}
 @keyframes motioToast{0%{opacity:0;transform:translate(-50%,16px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
 </style>
 </helmet>
-<div style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #B57BE0; color: #1F1D47; font-family: 'Poppins', system-ui, sans-serif; display: flex; flex-direction: column">
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 54px 20px 0">
+  <div class="m-topbar"><a class="m-icon" href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back"><m-ic n="back"></m-ic></a><span class="m-tt">Widgets</span><span style="width: 44px"></span></div>
+  <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <div class="head"><div class="t"><h1 class="m-title">widgets.</h1><span class="m-sub" style="font-size: 15px">Hold one to add it to your home screen.</span></div></div>
 
-  <div style="position: relative; flex-shrink: 0; padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 12px">
-    <a href="{{ LK.back.href }}" onClick="{{ LK.back.go }}" aria-label="Back" class="m-icon"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1D47" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a>
-    <h1 style="position: relative; margin: 0; font-size: 30px; font-weight: 700">Widgets</h1>
-    <div style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; border-radius: 22px; background: rgba(255,255,255,0.45)">
-      <span aria-hidden="true" style="position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 2); border-radius: 18px; background: #1F1D47; transform: translateX(calc({{ tabIndex }} * 100%)); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1)"></span>
-      <button aria-pressed="{{ isHome }}" onClick="{{ showHome }}" style="position: relative; height: 38px; border: 0; background: transparent; color: {{ homeFg }}; font-size: 13px; font-weight: 600">Home screen</button>
-      <button aria-pressed="{{ isLock }}" onClick="{{ showLock }}" style="position: relative; height: 38px; border: 0; background: transparent; color: {{ lockFg }}; font-size: 13px; font-weight: 600">Lock screen</button>
+    <div class="m-in" role="img" aria-label="{{ V.aria }}" style="border-radius: 28px; padding: 16px; background: {{ wall }}; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px">
+        <div style="aspect-ratio: 1; border-radius: 24px; background: {{ P.bg }}; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: {{ P.ink }}"><span style="display: flex; justify-content: space-between"><span style="font: 600 10px var(--m-font); color: {{ P.mute }}; letter-spacing: .4px">TODAY</span><span style="font: 600 10px var(--m-font)">motio.</span></span><div><div style="font: 600 28px/1 var(--m-font); letter-spacing: -1px">{{ V.time }}</div><div style="font: 500 11px var(--m-font); color: {{ P.mute }}; margin-top: 4px">{{ V.left }}</div></div><div style="height: 5px; border-radius: 3px; background: {{ P.line }}"><i style="display: block; width: {{ V.goalW }}; height: 100%; border-radius: 3px; background: #F6C343"></i></div></div>
+        <div style="aspect-ratio: 1; border-radius: 24px; background: {{ P.bg }}; position: relative; display: flex; align-items: center; justify-content: center; color: {{ P.ink }}"><svg width="112" height="112" viewBox="0 0 104 104" style="transform: rotate(-90deg)"><circle cx="52" cy="52" r="44" fill="none" stroke="{{ P.line }}" stroke-width="10"></circle><circle cx="52" cy="52" r="44" fill="none" stroke="{{ P.ink }}" stroke-width="10" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="{{ V.stepOff }}" stroke-opacity="{{ V.stepOp }}"></circle></svg><span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font: 600 20px/1 var(--m-font)">{{ V.steps }}<span style="font: 500 10px var(--m-font); color: {{ P.mute }}; margin-top: 4px">steps</span></span></div>
+      </div>
+      <div style="border-radius: 24px; background: {{ P.bg }}; padding: 14px 16px; display: flex; align-items: center; gap: 14px; color: {{ P.ink }}"><div style="flex: 1; min-width: 0"><span style="font: 600 10px var(--m-font); color: {{ P.mute }}; letter-spacing: .4px">YOUR DAY</span><div style="font: 600 22px var(--m-font); letter-spacing: -.6px; margin-top: 4px">{{ V.time }}</div><div style="display: flex; gap: 4px; margin-top: 8px"><sc-for list="{{ V.modes }}" as="m" hint-placeholder-count="2"><i style="width: {{ m.w }}; height: 6px; border-radius: 3px; background: {{ m.color }}"></i></sc-for></div></div><span style="font: 500 11px/1.4 var(--m-font); color: {{ P.mute }}; text-align: right">{{ V.dist }}<br>{{ V.trips }}</span></div>
     </div>
-  </div>
 
-  <div class="motio-scroll" style="position: relative; flex: 1; min-height: 0; overflow-y: auto; border-radius: 32px 32px 0 0; background: #F6F5FC; padding: 20px 20px 28px">
+    <div class="m-card m-in" style="--i: 1; display: flex; align-items: center; gap: 12px; padding: 14px 16px"><span style="flex: 1"><b style="font-size: 14px">Match app theme</b><div class="m-sub" style="font-size: 12px">Widgets turn dark with Motio, or stay light</div></span><button type="button" role="switch" class="m-toggle {{ match.cls }}" aria-checked="{{ match.on }}" aria-label="Match app theme" onClick="{{ match.toggle }}"></button></div>
 
-    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 10px">
+    <span class="m-label" style="margin: 4px 4px 0">On your home screen</span>
+    <div class="m-card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+      <sc-for list="{{ list }}" as="w" hint-placeholder-count="9">
+        <div class="m-row" style="background: transparent"><span style="flex: 1; min-width: 0"><b style="font-size: 14px">{{ w.name }}</b><div class="m-sub" style="font-size: 12px">{{ w.hint }}</div></span><button type="button" class="m-chip {{ w.cls }}" onClick="{{ w.toggle }}" aria-label="{{ w.aria }}" style="height: 32px; font-size: 12px; flex-shrink: 0; background: {{ w.bg }}">{{ w.label }}</button></div>
+      </sc-for>
+    </div>
 
-        <div style="display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out backwards">
-          <div role="img" aria-label="Today ring widget: 3 hours 12 minutes of a 3 hour 30 minute goal" style="position: relative; height: 160px; border-radius: 26px; background: #4B3FD8; color: #FFFFFF; box-shadow: 0 10px 20px rgba(40,20,120,0.25); display: flex; align-items: center; justify-content: center">
-            <svg aria-hidden="true" width="116" height="116" viewBox="0 0 116 116"><circle cx="58" cy="58" r="46" fill="none" stroke="#6A5FE8" stroke-width="12"></circle><circle cx="58" cy="58" r="46" fill="none" stroke="#F6C343" stroke-width="12" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="26" transform="rotate(-90 58 58)" style="animation: motioRing 1.2s cubic-bezier(0.22, 1, 0.36, 1) backwards"></circle></svg>
-            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center"><span style="font-size: 20px; font-weight: 700; line-height: 1">{{ V.time }}</span><span style="font-size: 10px; opacity: 0.85">of {{ V.goal }}</span></div>
-          </div>
-          <span style="font-size: 13px; font-weight: 600">Today ring</span>
-          <button onClick="{{ W.ring.toggle }}" style="height: 36px; border-radius: 18px; border: 0; background: {{ W.ring.bg }}; color: {{ W.ring.fg }}; font-size: 12px; font-weight: 700">{{ W.ring.label }}</button>
-        </div>
+    <span class="m-label" style="margin: 4px 4px 0">Lock screen</span>
+    <div class="m-card" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px"><span style="flex: 1"><b style="font-size: 14px">Today card</b><div class="m-sub" style="font-size: 12px">Time, distance, steps and goal on your lock screen, updated as you move</div></span><button type="button" role="switch" class="m-toggle {{ lock.cls }}" aria-checked="{{ lock.on }}" aria-label="Today card on the lock screen" onClick="{{ lock.toggle }}"></button></div>
 
-        <div style="display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 60ms backwards">
-          <div role="img" aria-label="Steps widget: 9,842 steps today" style="height: 160px; box-sizing: border-box; padding: 16px; border-radius: 26px; background: #3DBF5C; box-shadow: 0 10px 20px rgba(20,90,40,0.22); display: flex; flex-direction: column; justify-content: space-between">
-            <svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="#1F1D47"><ellipse cx="8" cy="8" rx="3.5" ry="5"></ellipse><ellipse cx="16" cy="15" rx="3.5" ry="5"></ellipse></svg>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 28px; font-weight: 700; line-height: 1">{{ V.steps }}</span><span style="font-size: 11px; font-weight: 600">{{ V.stepsLine }}</span></div>
-            <span style="display: block; height: 8px; border-radius: 4px; background: rgba(31,29,71,0.2); overflow: hidden"><span style="display: block; width: 98%; height: 8px; border-radius: 4px; background: #1F1D47; transform-origin: left; animation: motioFillX 1s cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span>
-          </div>
-          <span style="font-size: 13px; font-weight: 600">Steps</span>
-          <button onClick="{{ W.steps.toggle }}" style="height: 36px; border-radius: 18px; border: 0; background: {{ W.steps.bg }}; color: {{ W.steps.fg }}; font-size: 12px; font-weight: 700">{{ W.steps.label }}</button>
-        </div>
-
-        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 120ms backwards">
-          <div role="img" aria-label="Day road widget: today's trips drawn on a road, 60.2 kilometres" style="position: relative; height: 160px; box-sizing: border-box; border-radius: 26px; background: #FFFFFF; box-shadow: 0 10px 20px rgba(40,20,120,0.12); overflow: hidden">
-            <svg aria-hidden="true" width="330" height="160" viewBox="0 0 330 160" style="position: absolute; inset: 0">
-              <path d="M30 50 H230 A30 30 0 0 1 230 110 H30" fill="none" stroke="#ECEAF8" stroke-width="14" stroke-linecap="round"></path>
-              <g stroke-width="14" stroke-linecap="round" stroke-dasharray="60 60" style="animation: motioDraw 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards">
-                <path d="M70 50 H86" stroke="#3DBF5C"></path><path d="M86 50 H106" stroke="#6E8CF7"></path>
-                <path d="M206 110 H192" stroke="#3DBF5C"></path><path d="M188 110 H174" stroke="#B57BE0"></path>
-                <path d="M60 110 H40" stroke="#F6C343"></path>
-              </g>
-            </svg>
-            <div style="position: absolute; right: 16px; top: 16px; display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 22px; font-weight: 700; line-height: 1">{{ V.dist }}</span><span style="font-size: 11px; color: #6B6890">{{ V.time }} today</span></div>
-            <div style="position: absolute; left: 16px; bottom: 12px; display: flex; gap: 10px; font-size: 10px; font-weight: 600"><span style="display: flex; align-items: center; gap: 4px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #3DBF5C"></span>Walk</span><span style="display: flex; align-items: center; gap: 4px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #F6C343"></span>Drive</span><span style="display: flex; align-items: center; gap: 4px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #6E8CF7"></span>Bike</span><span style="display: flex; align-items: center; gap: 4px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #B57BE0"></span>Transit</span></div>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Day road · medium</span><button onClick="{{ W.road.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.road.bg }}; color: {{ W.road.fg }}; font-size: 12px; font-weight: 700">{{ W.road.label }}</button></div>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 180ms backwards">
-          <div role="img" aria-label="Streak widget: 12 days in a row moving" style="height: 160px; box-sizing: border-box; padding: 16px; border-radius: 26px; background: #F2766B; box-shadow: 0 10px 20px rgba(140,40,30,0.22); display: flex; flex-direction: column; justify-content: space-between">
-            <svg aria-hidden="true" width="36" height="40" viewBox="0 0 36 40" style="transform-origin: 18px 36px; animation: none"><path d="M18 2 C 22 12, 34 16, 32 28 a14 12 0 0 1 -28 0 C 4 20, 12 18, 12 10 C 16 14, 18 10, 18 2 Z" fill="#F6C343"></path><path d="M18 18 C 20 24, 26 26, 24 32 a6 6 0 0 1 -12 0 C 12 28, 16 26, 18 18 Z" fill="#FFFFFF"></path></svg>
-            <div style="display: flex; flex-direction: column"><span style="font-size: 40px; font-weight: 700; line-height: 1">{{ V.streak }}</span><span style="font-size: 11px; font-weight: 600">{{ V.streakLine }}</span></div>
-          </div>
-          <span style="font-size: 13px; font-weight: 600">Streak</span>
-          <button onClick="{{ W.streak.toggle }}" style="height: 36px; border-radius: 18px; border: 0; background: {{ W.streak.bg }}; color: {{ W.streak.fg }}; font-size: 12px; font-weight: 700">{{ W.streak.label }}</button>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 240ms backwards">
-          <div role="img" aria-label="Personality widget: The Urban Wanderer" style="position: relative; height: 160px; border-radius: 26px; background: #1F1D47; color: #FFFFFF; box-shadow: 0 10px 20px rgba(20,14,70,0.3); overflow: hidden">
-            <svg aria-hidden="true" width="160" height="160" viewBox="0 0 160 160" style="position: absolute; right: -30px; top: -6px">
-              <circle cx="96" cy="72" r="52" fill="#F2766B"></circle>
-              <g transform="translate(14 -6) scale(0.42)">
-                <path d="M188 214 L172 256 L160 294" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-                <rect x="146" y="132" width="34" height="66" rx="14" fill="#F6C343"></rect>
-                <path d="M204 214 L226 250 L242 290" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M170 136 Q196 118 222 136 L226 214 Q198 226 174 214 Z" fill="#5B4FE0"></path>
-                <circle cx="199" cy="94" r="23" fill="#8B4A2B"></circle>
-                <circle cx="186" cy="76" r="14" fill="#2A1B3D"></circle><circle cx="203" cy="70" r="15" fill="#2A1B3D"></circle><circle cx="217" cy="80" r="11" fill="#2A1B3D"></circle>
-              </g>
-            </svg>
-            <div style="position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column"><span style="font-size: 10px; font-weight: 600; color: #F6C343">THIS MONTH</span><span style="font-size: 15px; font-weight: 700; line-height: 1.15">{{ V.persA }}<br>{{ V.persB }}</span></div>
-          </div>
-          <span style="font-size: 13px; font-weight: 600">Personality</span>
-          <button onClick="{{ W.persona.toggle }}" style="height: 36px; border-radius: 18px; border: 0; background: {{ W.persona.bg }}; color: {{ W.persona.fg }}; font-size: 12px; font-weight: 700">{{ W.persona.label }}</button>
-        </div>
-
-        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 300ms backwards">
-          <div role="img" aria-label="This week widget: 412 kilometres, busiest on Thursday, peak hour 8 AM" style="height: 330px; box-sizing: border-box; padding: 20px; border-radius: 30px; background: #FFFFFF; box-shadow: 0 10px 20px rgba(40,20,120,0.12); display: flex; flex-direction: column; gap: 14px">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start">
-              <div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 600; color: #6B6890">This week</span><span style="font-size: 36px; font-weight: 700; line-height: 1.05">{{ V.week }}</span><span style="font-size: 12px; color: #1E7A36; font-weight: 600">{{ V.weekVs }}</span></div>
-              <span style="padding: 6px 10px; border-radius: 12px; background: #FFF4D6; font-size: 11px; font-weight: 700">{{ V.peak }}</span>
-            </div>
-            <div style="flex: 1; display: flex; align-items: flex-end; gap: 10px">
-              <sc-for list="{{ weekBars }}" as="d" hint-placeholder-count="7">
-                <div style="flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px">
-                  <span style="display: block; width: 100%; height: {{ d.h }}; border-radius: 10px; background: {{ d.color }}; transform-origin: bottom; animation: motioGrowY 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: {{ d.delay }}"></span>
-                  <span style="font-size: 11px; font-weight: 600; color: #6B6890">{{ d.label }}</span>
-                </div>
-              </sc-for>
-            </div>
-            <span style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #F3F2FA; font-size: 12px; font-weight: 600"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F2766B"></span>{{ V.weekNote }}</span>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">This week · large</span><button onClick="{{ W.week.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.week.bg }}; color: {{ W.week.fg }}; font-size: 12px; font-weight: 700">{{ W.week.label }}</button></div>
-        </div>
-
-        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 360ms backwards">
-          <div role="img" aria-label="Today bar widget: steps, distance and time in one row" style="height: 64px; box-sizing: border-box; padding: 0 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; box-shadow: 0 10px 20px rgba(20,14,70,0.25); display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; white-space: nowrap">
-            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #3DBF5C"></span>{{ V.steps }} steps</span>
-            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #B57BE0"></span>{{ V.dist }}</span>
-            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F6C343"></span>{{ V.time }}</span>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Today bar · slim</span><button onClick="{{ W.compact.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.compact.bg }}; color: {{ W.compact.fg }}; font-size: 12px; font-weight: 700">{{ W.compact.label }}</button></div>
-        </div>
-
-        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 420ms backwards">
-          <div role="img" aria-label="Friends widget: you and your top friends' active time this week" style="height: 160px; box-sizing: border-box; padding: 16px 18px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 10px 20px rgba(40,20,120,0.12); display: flex; flex-direction: column; justify-content: space-between">
-            <span style="font-size: 12px; font-weight: 600; color: #6B6890">This week with friends</span>
-            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #5B4FE0; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><span style="width: 70px; font-size: 13px; font-weight: 500">Friend</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 100%; height: 8px; border-radius: 4px; background: #5B4FE0; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">5h 40m</span></div>
-            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #F2766B; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><span style="width: 70px; font-size: 13px; font-weight: 700">You</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 78%; height: 8px; border-radius: 4px; background: #F2766B; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">4h 26m</span></div>
-            <div style="display: flex; align-items: center; gap: 10px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #C9C5EC; color: #1F1D47; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><span style="width: 70px; font-size: 13px; font-weight: 500">Friend</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0F6"><span style="display: block; width: 52%; height: 8px; border-radius: 4px; background: #C9C5EC; transform-origin: left; animation: motioFillX 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span><span style="width: 52px; text-align: right; font-size: 12px; font-weight: 600">2h 58m</span></div>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Friends · medium</span><button onClick="{{ W.friends.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.friends.bg }}; color: {{ W.friends.fg }}; font-size: 12px; font-weight: 700">{{ W.friends.label }}</button></div>
-        </div>
-
-        <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px; animation: motioRise 420ms ease-out 480ms backwards">
-          <div role="img" aria-label="Challenge widget: your progress in a running challenge" style="height: 160px; box-sizing: border-box; padding: 16px 18px; border-radius: 26px; background: #F6C343; box-shadow: 0 10px 20px rgba(140,100,10,0.2); display: flex; flex-direction: column; justify-content: space-between">
-            <span style="font-size: 11px; font-weight: 600; opacity: 0.7">CHALLENGE · 2 DAYS LEFT</span>
-            <span style="font-size: 28px; font-weight: 700; line-height: 1">11.6 km of 20 km</span>
-            <span style="display: block; height: 10px; border-radius: 5px; background: rgba(31,29,71,0.15)"><span style="display: block; width: 58%; height: 10px; border-radius: 5px; background: #1F1D47; transform-origin: left; animation: motioFillX 1s cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards"></span></span>
-            <span style="font-size: 12px; font-weight: 600">You’re in the lead</span>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600">Challenge · medium</span><button onClick="{{ W.challenge.toggle }}" style="height: 36px; padding: 0 18px; border-radius: 18px; border: 0; background: {{ W.challenge.bg }}; color: {{ W.challenge.fg }}; font-size: 12px; font-weight: 700">{{ W.challenge.label }}</button></div>
-        </div>
-      </div>
-    </sc-if>
-
-    <sc-if value="{{ isLock }}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; flex-direction: column; gap: 18px; animation: motioRise 380ms ease-out">
-        <div style="position: relative; border-radius: 30px; background: #2D2A6E; color: #FFFFFF; padding: 20px 18px 24px; display: flex; flex-direction: column; align-items: center; gap: 6px; overflow: hidden">
-          <svg aria-hidden="true" width="350" height="300" viewBox="0 0 350 300" style="position: absolute; left: 0; top: 0"><circle cx="300" cy="60" r="90" fill="#3A3685"></circle><path d="M-10 250 C 80 200, 160 280, 360 210" fill="none" stroke="#3A3685" stroke-width="30" stroke-linecap="round"></path></svg>
-          <sc-if value="{{ L.inline.on }}" hint-placeholder-val="{{ true }}"><span style="position: relative; font-size: 13px; font-weight: 600; animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)">{{ V.dayLine }}</span></sc-if>
-          <span style="position: relative; font-size: 72px; font-weight: 600; line-height: 1; letter-spacing: -2px">9:41</span>
-          <div style="position: relative; display: flex; gap: 10px; margin-top: 10px; min-height: 72px; align-items: center">
-            <sc-if value="{{ L.ring.on }}" hint-placeholder-val="{{ true }}">
-              <div role="img" aria-label="Circular widget: 91 percent of your movement goal" style="position: relative; width: 72px; height: 72px; border-radius: 36px; background: rgba(255,255,255,0.14); animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)">
-                <svg aria-hidden="true" width="72" height="72" viewBox="0 0 72 72"><circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="6"></circle><circle cx="36" cy="36" r="28" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="16" transform="rotate(-90 36 36)" style="animation: motioRingSm 1s cubic-bezier(0.22, 1, 0.36, 1) backwards"></circle></svg>
-                <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{ V.goalPct }}</span>
-              </div>
-            </sc-if>
-            <sc-if value="{{ L.steps.on }}" hint-placeholder-val="{{ true }}">
-              <div role="img" aria-label="Circular widget: 9.8 thousand steps" style="width: 72px; height: 72px; border-radius: 36px; background: rgba(255,255,255,0.14); display: flex; flex-direction: column; align-items: center; justify-content: center; animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="#FFFFFF"><ellipse cx="8" cy="8" rx="3.5" ry="5"></ellipse><ellipse cx="16" cy="15" rx="3.5" ry="5"></ellipse></svg><span style="font-size: 14px; font-weight: 700">{{ V.stepsShort }}</span></div>
-            </sc-if>
-            <sc-if value="{{ L.rect.on }}" hint-placeholder-val="{{ true }}">
-              <div role="img" aria-label="Rectangular widget: 60.2 kilometres, mostly walking" style="width: 158px; height: 72px; box-sizing: border-box; padding: 10px 12px; border-radius: 20px; background: rgba(255,255,255,0.14); display: flex; flex-direction: column; justify-content: center; gap: 4px; animation: motioPop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)">
-                <span style="font-size: 15px; font-weight: 700">{{ V.dist }} today</span>
-                <span style="display: flex; height: 6px; gap: 2px"><span style="width: 35%; border-radius: 3px; background: #FFFFFF"></span><span style="width: 28%; border-radius: 3px; background: rgba(255,255,255,0.7)"></span><span style="width: 20%; border-radius: 3px; background: rgba(255,255,255,0.5)"></span><span style="width: 17%; border-radius: 3px; background: rgba(255,255,255,0.3)"></span></span>
-                <span style="font-size: 11px; opacity: 0.85">{{ V.mostly }}</span>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px">
-          <sc-for list="{{ lockList }}" as="w" hint-placeholder-count="4">
-            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: #FFFFFF">
-              <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{ w.name }}</span><span style="font-size: 12px; color: #6B6890">{{ w.hint }}</span></span>
-              <button onClick="{{ w.toggle }}" style="min-width: 88px; height: 36px; border-radius: 18px; border: 0; background: {{ w.bg }}; color: {{ w.fg }}; font-size: 12px; font-weight: 700">{{ w.label }}</button>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-    </sc-if>
+    <span class="sp" style="min-height: 12px"></span>
+    <button type="button" class="m-btn wide m-late" onClick="{{ addOne }}">Add a widget</button>
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div role="status" style="position: absolute; left: 50%; bottom: 36px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 22px; background: #1F1D47; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 10px 24px rgba(20,14,70,0.3); animation: motioToast 2300ms ease forwards"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DBF5C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>{{ toast }}</div>
+    <div role="status" style="position: absolute; left: 50%; bottom: 36px; z-index: 50; padding: 12px 18px; border-radius: 18px; background: var(--m-ink); color: var(--m-bg-hi); font: 600 13px var(--m-font); white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); animation: motioToast 2300ms ease forwards">{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
@@ -227,68 +89,49 @@ class Component extends DCLogic {
       if (this.props.onNav) this.props.onNav(target);
     } });
     const s = this.state || {};
-    const tab = s.tab || 'home';
-    const added = s.added || (window.Motio ? {} : { ring: true, rect: true, inline: true });
     const M = window.Motio;
-    const placed = s.placed || {};
-    const toggle = (id, name, where) => () => {
-      if (M && where === 'home screen' && (placed[id.replace('h_', '')] || 0) > 0) { this.showToast(name + ' is on your home screen. Long-press it there to remove it'); return; }
-      if (M && where === 'home screen') {
-        // One real Motio widget; the launcher asks where to put it.
-        M.pinWidget(id.replace('h_', '')).then((r) => this.showToast(r && r.ok ? 'Pick a spot for ' + name + ' on your home screen' : 'Long-press your home screen › Widgets › Motio · ' + name)).catch(() => this.showToast('Long-press your home screen › Widgets › Motio'));
-        return;
-      }
-      if (M) {
-        // Android has no lock screen widgets for apps, so these become one live "Today" card on the lock screen.
-        const on = !M.settings().lockCard;
-        M.setSetting('lockCard', on);
-        this.showToast(on ? 'Today card is on your lock screen. It updates as you move' : 'Lock screen card turned off');
-        return;
-      }
-      const on = !added[id];
-      this.setState({ added: { ...added, [id]: on } });
-      this.showToast(on ? name + ' added to your ' + where : name + ' removed');
+    const placed = s.placed || (M ? {} : { ring: 1 });
+    const get = (k, d) => { try { return window.localStorage.getItem(k) || d; } catch (e) { return d; } };
+    const match = get('motio.widgetTheme', 'match') !== 'light';
+    // The preview follows what the widgets will look like now: dark when Motio is dark and they match it.
+    const dark = match && document.querySelector('.m-dark-theme') != null;
+    const P = dark ? { bg: '#1A1A1A', ink: '#F2F2F0', mute: '#8F8F8A', line: '#2C2C2C' } : { bg: '#FFFFFF', ink: '#0F0F0F', mute: '#6E6E6A', line: '#ECECEA' };
+    const pin = (kind, name) => () => {
+      if (!M) { this.setState({ placed: { ...placed, [kind]: 1 } }); this.showToast(name + ' added to your home screen'); return; }
+      if ((placed[kind] || 0) > 0) { this.showToast(name + ' is on your home screen. Long-press it there to remove it'); return; }
+      // One real Motio widget; the launcher asks where to put it.
+      M.pinWidget(kind).then((r) => this.showToast(r && r.ok ? 'Pick a spot for ' + name + ' on your home screen' : 'Long-press your home screen › Widgets › Motio · ' + name)).catch(() => this.showToast('Long-press your home screen › Widgets › Motio'));
     };
-    const btn = (id, name, where) => {
-      const on = M ? (where === 'home screen' ? (placed[id.replace('h_', '')] || 0) > 0 : !!M.settings().lockCard) : !!added[id];
-      return { on, label: on ? 'Added ✓' : '+ Add', bg: on ? '#DDF5E3' : '#1F1D47', fg: on ? '#1E7A36' : '#FFFFFF', toggle: toggle(id, name, where) };
-    };
-    let week = [['M', 52], ['T', 61], ['W', 48], ['T', 96], ['F', 58], ['S', 60], ['S', 37]];
-    let V = { time: '3h 12m', goal: '3h 30m', dist: '60.2 km', week: '412 km', dayLine: 'Sun 1 Nov · 3h 12m moved', goalPct: '91%', stepsShort: '9.8k', mostly: 'Mostly walking', steps: '9,842', stepsLine: 'steps · 98% of 10k', streak: 12, streakLine: 'days moving in a row', persA: 'Urban', persB: 'Wanderer', weekVs: '▲ 18% vs last week', peak: 'Peak 8 AM', weekNote: 'Your week, wrapped is ready · tap to play' };
+    const KINDS = [['ring', 'Today', 'Small · time moved and your goal'], ['steps', 'Steps', 'Small · a ring around today’s steps'], ['streak', 'Streak', 'Small · days in a row and your best'],
+      ['road', 'Your day', 'Medium · time, km and modes; large shows the Today rail'], ['week', 'This week', 'Medium · a bar a day against last week'], ['compact', 'Today bar', 'Slim · one row'],
+      ['persona', 'Personality', 'Small · your type this month'], ['friends', 'Friends', 'Medium · your week against friends'], ['challenge', 'Challenge', 'Medium · your running challenge']];
+    let V = { time: '1h 20m', left: '16 min to goal', goalW: '44%', steps: '6,107', stepOff: 155, dist: '16.2 km', trips: '3 trips', modes: [{ w: '44px', color: '#2FB457' }, { w: '38px', color: '#4F7BF0' }] };
     if (M) {
-      const t = M.today(), w0 = M.weekStart();
-      week = M.days(w0, 7).map((d) => [new Date(d.from).toLocaleDateString('en-GB', { weekday: 'narrow' }), d.m / 1000]);
-      const wk = M.summarize(w0, w0 + 7 * M.DAY), prev = M.summarize(w0 - 7 * M.DAY, w0 - 7 * M.DAY + (Date.now() - w0));
-      const vs = prev.m ? Math.round((wk.m / prev.m - 1) * 100) : null;
-      let streak = 0;
-      for (let d = M.dayStart() - (t.min >= 1 ? 0 : M.DAY); streak < 400 && M.summarize(d, d + M.DAY).min >= 1; d -= M.DAY) streak++;
-      const p = M.personality(), words = p.enough ? p.name.replace(/^The /, '').split(' ') : ['Still', 'warming up'];
-      const stepGoal = M.settings().stepGoal || 10000;
-      V = { time: M.fmtMin(t.min), goal: M.fmtMin(M.settings().goalMin || 180), dist: M.fmtDist(t.m), week: M.fmtDist(wk.m),
-        dayLine: new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + M.fmtMin(t.min) + ' moved',
-        goalPct: Math.min(999, Math.round(t.min / (M.settings().goalMin || 180) * 100)) + '%', stepsShort: t.steps >= 1000 ? (t.steps / 1000).toFixed(1) + 'k' : String(t.steps), mostly: t.modes[0] ? 'Mostly ' + t.modes[0].name.toLowerCase() : 'No moves yet',
-        steps: M.fmtNum(t.steps), stepsLine: 'steps · ' + Math.round(t.steps / stepGoal * 100) + '% of ' + Math.round(stepGoal / 1000) + 'k',
-        streak, streakLine: streak === 1 ? 'day moving in a row' : 'days moving in a row',
-        persA: words.slice(0, Math.ceil(words.length / 2)).join(' '), persB: words.slice(Math.ceil(words.length / 2)).join(' '),
-        weekVs: vs == null ? 'First week on Motio' : (vs >= 0 ? '▲ ' : '▼ ') + Math.abs(vs) + '% vs last week',
-        peak: wk.peak == null ? '' : 'Peak ' + M.fmtHour(wk.peak), weekNote: wk.ms ? 'Your week so far · tap to open Motio' : 'Fills in as you move this week' };
+      const t = M.today(), goal = M.settings().goalMin || 180, stepGoal = M.settings().stepGoal || 10000, left = Math.round(goal - t.min);
+      V = { time: M.fmtMin(t.min), left: left > 0 ? (left >= 60 ? M.fmtMin(left) : left + ' min') + ' to goal' : 'Goal done', goalW: Math.min(100, Math.round(t.min / goal * 100)) + '%',
+        steps: M.fmtNum(t.steps), stepOff: Math.round(276.5 * (1 - Math.min(1, t.steps / stepGoal))), dist: M.fmtDist(t.m), trips: t.trips.length + (t.trips.length === 1 ? ' trip' : ' trips'),
+        modes: t.modes.slice(0, 4).map((m) => ({ w: Math.max(6, Math.round(m.pct * 1.6)) + 'px', color: m.color })) };
     }
+    V.stepOp = V.stepOff >= 276 ? 0 : 1;
+    V.aria = 'Widget preview: ' + V.time + ' moved today, ' + V.steps + ' steps, ' + V.dist;
+    const lockOn = M ? !!M.settings().lockCard : !!s.lock;
     return {
       rootAnim: emb ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'motioSoftIn 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       LK: { back: lk('back', 'Settings.dc.html') },
-      isHome: tab === 'home', isLock: tab === 'lock', tabIndex: tab === 'home' ? 0 : 1,
-      homeFg: tab === 'home' ? '#FFFFFF' : '#1F1D47', lockFg: tab === 'lock' ? '#FFFFFF' : '#1F1D47',
-      showHome: () => this.setState({ tab: 'home' }), showLock: () => this.setState({ tab: 'lock' }),
-      W: {
-        ring: btn('h_ring', 'Today ring', 'home screen'), steps: btn('h_steps', 'Steps', 'home screen'), road: btn('h_road', 'Day road', 'home screen'),
-        streak: btn('h_streak', 'Streak', 'home screen'), persona: btn('h_persona', 'Personality', 'home screen'), week: btn('h_week', 'This week', 'home screen'),
-        compact: btn('h_compact', 'Today bar', 'home screen'), friends: btn('h_friends', 'Friends', 'home screen'), challenge: btn('h_challenge', 'Challenge', 'home screen')
-      },
-      V,
-      weekBars: week.map(([label, km], i, a) => { const mx = Math.max(0.001, ...a.map((x) => x[1])); return { label, h: Math.max(4, Math.round(km / mx * 100)) + '%', color: km === mx && km > 0 ? '#F2766B' : '#5B4FE0', delay: i * 60 + 'ms' }; }),
-      L: M ? { ring: { on: !!M.settings().lockCard }, steps: { on: !!M.settings().lockCard }, rect: { on: !!M.settings().lockCard }, inline: { on: !!M.settings().lockCard } } : { ring: { on: !!added.ring }, steps: { on: !!added.steps }, rect: { on: !!added.rect }, inline: { on: !!added.inline } },
-      lockList: (M ? [['card', 'Today card', 'Time, distance, steps and goal on your lock screen, updated as you move']] : [['inline', 'Date line', 'Minutes moved next to the date'], ['ring', 'Goal ring', 'Circle that fills as you move'], ['steps', 'Steps', 'Small circle with today’s steps'], ['rect', 'Distance', 'Kilometres and your mix of movement']]
-        ).map(([id, name, hint]) => ({ name, hint, ...btn(id, name, 'lock screen') })),
+      wall: dark ? 'linear-gradient(160deg, #2B2D31, #0B0B0C)' : 'linear-gradient(160deg, #C9CCD1, #9EA3AA)', P, V,
+      match: { on: match, cls: match ? 'on' : '', toggle: () => {
+        try { window.localStorage.setItem('motio.widgetTheme', match ? 'light' : 'match'); } catch (e) { /* storage blocked */ }
+        if (M) M.setSetting('widgetTheme', match ? 'light' : 'match'); // nudges the widgets to redraw
+        this.forceUpdate();
+      } },
+      list: KINDS.map(([k, name, hint]) => { const on = (placed[k] || 0) > 0; return { name, hint, cls: on ? '' : 'on', bg: on ? 'var(--m-soft)' : '', label: on ? 'Added' : 'Add', aria: (on ? name + ' is on your home screen' : 'Add ' + name), toggle: pin(k, name) }; }),
+      lock: { on: lockOn, cls: lockOn ? 'on' : '', toggle: () => {
+        // Android has no lock screen widgets for apps, so this is one live "Today" card on the lock screen.
+        if (!M) { this.setState({ lock: !lockOn }); return; }
+        M.setSetting('lockCard', !lockOn);
+        this.showToast(!lockOn ? 'Today card is on your lock screen. It updates as you move' : 'Lock screen card turned off');
+      } },
+      addOne: () => { const k = KINDS.find(([x]) => !(placed[x] > 0)) || KINDS[0]; pin(k[0], k[1])(); },
       hasToast: !!s.toast, toast: s.toast || ''
     };
   }

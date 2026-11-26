@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motio · Setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{background:#ECECEA}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+@keyframes motioPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+</style>
+</helmet>
+<div class="m-page" style="animation: {{ rootAnim }}; width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden">
+  <div class="scr nt" style="gap: 0">
+    <div class="top">
+      <button type="button" class="m-icon" onClick="{{ prev }}" aria-label="Back"><m-ic n="back"></m-ic></button>
+      <span role="progressbar" aria-label="{{ stepAria }}" aria-valuemin="1" aria-valuemax="{{ total }}" aria-valuenow="{{ stepNo }}" style="display: flex; gap: 5px"><sc-for list="{{ dots }}" as="d" hint-placeholder-count="6"><i style="width: {{ d.w }}; height: 6px; border-radius: 3px; background: {{ d.bg }}; transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), background-color 320ms ease"></i></sc-for></span>
+      <button type="button" class="m-sub" onClick="{{ skip }}" style="width: 44px; text-align: right; border: 0; background: transparent; padding: 0; font: 500 13px var(--m-font)">Skip</button>
+    </div>
+
+    <sc-if value="{{ S.location }}" hint-placeholder-val="{{ true }}">
+      <div class="m-in" style="height: 230px; margin-top: 18px; display: flex; align-items: center; justify-content: center"><m-art name="location" size="290"></m-art></div>
+      <p class="m-say m-in" style="--i: 1; margin: 20px 0 0; font-size: 22px">Motio needs your location <b>all the time</b> to record trips while your phone sleeps.</p>
+      <div class="m-card m-in" style="--i: 2; margin-top: 22px; padding: 8px; display: flex; flex-direction: column; gap: 4px"><span class="m-label" style="padding: 8px 10px 4px">In the next window, choose</span>
+        <div class="m-row" style="background: var(--m-ink); color: var(--m-bg-hi)"><span style="width: 18px; height: 18px; border-radius: 9px; box-shadow: inset 0 0 0 5px var(--m-bg-hi)"></span><b style="font-size: 14px">Allow all the time</b></div>
+        <div class="m-row" style="background: transparent; color: var(--m-mute)"><span style="width: 18px; height: 18px; border-radius: 9px; box-shadow: inset 0 0 0 2px var(--m-line)"></span><span style="font-size: 14px">Allow only while using the app</span></div></div>
+    </sc-if>
+
+    <sc-if value="{{ S.activity }}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; height: 250px; margin-top: 18px; display: flex; align-items: flex-end; justify-content: center">
+        <span class="m-chip tw m-pop" style="--i: 1; position: absolute; left: 24px; top: 30px; height: 40px; gap: 8px"><span class="m-dot" style="background: var(--m-walk)"></span>Walking</span>
+        <span class="m-chip tb m-pop" style="--i: 2; position: absolute; right: 6px; top: 150px; height: 40px; gap: 8px"><span class="m-dot" style="background: var(--m-bike)"></span>Cycling</span>
+        <span class="m-chip tt m-pop" style="--i: 3; position: absolute; left: 10px; top: 176px; height: 40px; gap: 8px"><span class="m-dot" style="background: var(--m-transit)"></span>Bus 88</span>
+        <span class="m-chip tr m-pop" style="--i: 4; position: absolute; right: 46px; top: 10px; height: 40px; gap: 8px"><span class="m-dot" style="background: var(--m-run)"></span>Running</span>
+        <span style="position: relative; bottom: 30px"><m-art name="activity" size="200"></m-art></span></div>
+      <p class="m-say m-in" style="--i: 1; margin: 20px 0 0; font-size: 22px">Physical activity lets Motio tell <b>a walk from a bus ride</b>, without you lifting a finger.</p>
+      <span class="m-sub m-in" style="--i: 2; text-align: center; margin-top: 14px">Motion data never leaves your phone.</span>
+    </sc-if>
+
+    <sc-if value="{{ S.battery }}" hint-placeholder-val="{{ false }}">
+      <div class="m-in" style="height: 250px; margin-top: 18px; display: flex; align-items: center; justify-content: center"><m-art name="battery" size="290"></m-art></div>
+      <p class="m-say m-in" style="--i: 1; margin: 20px 0 0; font-size: 22px">Android may put Motio <b>to sleep</b> and miss your trips. Let it stay awake.</p>
+      <div class="m-card m-in" style="--i: 2; margin-top: 22px; display: flex; align-items: center; gap: 14px; padding: 16px 18px"><m-ic n="battery" s="22"></m-ic><span style="flex: 1"><b style="font-size: 14px">About 2% battery a day</b><div class="m-sub" style="font-size: 12px">GPS sleeps when you stay still</div></span></div>
+    </sc-if>
+
+    <sc-if value="{{ S.autostart }}" hint-placeholder-val="{{ false }}">
+      <div class="m-pop" style="display: flex; justify-content: center; margin-top: 30px"><span style="width: 96px; height: 96px; border-radius: 32px; background: var(--m-card); display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 34px rgba(0,0,0,.06)"><m-ic n="refresh" s="38"></m-ic></span></div>
+      <p class="m-say m-in" style="--i: 1; margin: 20px 0 0; font-size: 22px">On Xiaomi phones, turn on <b>Autostart</b> so Motio wakes up after a restart.</p>
+      <div class="m-card m-in" style="--i: 2; margin-top: 22px; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <div class="m-row"><span class="av" style="width: 28px; height: 28px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 12px">1</span><span style="flex: 1; font-size: 14px">Tap <b>Open Autostart</b> below</span></div>
+        <div class="m-row"><span class="av" style="width: 28px; height: 28px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 12px">2</span><span style="flex: 1; font-size: 14px">Find <b>Motio</b> in the list</span></div>
+        <div class="m-row"><span class="av" style="width: 28px; height: 28px; background: var(--m-ink); color: var(--m-bg-hi); font-size: 12px">3</span><span style="flex: 1; font-size: 14px">Switch it on</span><span class="m-toggle on" aria-hidden="true"></span></div></div>
+    </sc-if>
+
+    <sc-if value="{{ S.notifications }}" hint-placeholder-val="{{ false }}">
+      <div aria-hidden="true" style="position: relative; height: 250px; margin-top: 18px">
+        <div class="m-card m-in" style="position: absolute; left: 10px; right: 10px; top: 20px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; box-shadow: 0 12px 30px rgba(0,0,0,.07)"><span class="av" style="width: 34px; height: 34px; background: var(--m-ink); color: var(--m-bg-hi)"><m-ic n="target" s="16"></m-ic></span><span style="flex: 1"><b style="font-size: 13px">Goal done</b><div class="m-sub" style="font-size: 12px">{{ sample.goal }}</div></span><span class="m-sub" style="font-size: 11px">now</span></div>
+        <div class="m-card m-in" style="--i: 1; position: absolute; left: 26px; right: 26px; top: 96px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; opacity: .8"><span class="av" style="width: 34px; height: 34px; background: var(--m-ink); color: var(--m-bg-hi)"><m-ic n="cal" s="16"></m-ic></span><span style="flex: 1"><b style="font-size: 13px">Your day is ready</b><div class="m-sub" style="font-size: 12px">{{ sample.day }}</div></span><span class="m-sub" style="font-size: 11px">21:00</span></div>
+        <div class="m-card m-in" style="--i: 2; position: absolute; left: 42px; right: 42px; top: 172px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; opacity: .55"><span class="av" style="width: 34px; height: 34px; background: var(--m-ink); color: var(--m-bg-hi)"><m-ic n="users" s="16"></m-ic></span><span style="flex: 1"><b style="font-size: 13px">A friend cheered your walk</b></span></div></div>
+      <p class="m-say m-in" style="--i: 3; margin: 20px 0 0; font-size: 22px">A few quiet messages: <b>goal moments</b> and your evening recap. Never more than two a day.</p>
+    </sc-if>
+
+    <sc-if value="{{ S.health }}" hint-placeholder-val="{{ false }}">
+      <div class="m-in" style="height: 220px; margin-top: 18px; display: flex; align-items: center; justify-content: center"><m-art name="heart" size="280"></m-art></div>
+      <p class="m-say m-in" style="--i: 1; margin: 10px 0 0; font-size: 22px">Connect <b>Health Connect</b> to count every step, even from your watch.</p>
+      <div class="m-card m-in" style="--i: 2; margin-top: 22px; display: flex; flex-direction: column; gap: 6px; padding: 12px">
+        <div class="m-row"><m-ic n="steps"></m-ic><span style="flex: 1"><b style="font-size: 14px">Read steps</b><div class="m-sub" style="font-size: 12px">Fills in your daily count</div></span><span class="m-toggle on" aria-hidden="true"></span></div>
+        <div class="m-row"><m-ic n="activity"></m-ic><span style="flex: 1"><b style="font-size: 14px">Write workouts</b><div class="m-sub" style="font-size: 12px">Your runs and rides, shared back</div></span><span class="m-toggle on" aria-hidden="true"></span></div></div>
+      <sc-if value="{{ hcMissing }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="text-align: center; margin-top: 12px">Health Connect isn’t on this phone. You can add it later in Settings.</span></sc-if>
+    </sc-if>
+
+    <span class="sp"></span>
+    <button type="button" class="m-btn wide m-late" onClick="{{ act }}" aria-busy="{{ busy }}">{{ actLabel }}</button>
+    <sc-if value="{{ S.autostart }}" hint-placeholder-val="{{ false }}"><button type="button" class="m-sub" onClick="{{ done }}" style="align-self: center; margin-top: 12px; border: 0; background: transparent; font: 500 13px var(--m-font)">I’ve done it</button></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"onNav":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Steps already allowed are left out; Autostart only on phones that need it (Xiaomi, Redmi, POCO).
+  componentDidMount() {
+    const M = window.Motio;
+    this.check = () => {
+      if (!M) return;
+      M.permissions.status().then((st) => this.setState({ st })).catch(() => this.setState({ st: {} }));
+      M.health.status().then((hc) => this.setState({ hc })).catch(() => this.setState({ hc: { available: false } }));
+    };
+    this.check();
+    // Back from the phone's own settings screen: see what changed.
+    this.onVis = () => { if (!document.hidden) this.check(); };
+    document.addEventListener('visibilitychange', this.onVis);
+  }
+  componentWillUnmount() { document.removeEventListener('visibilitychange', this.onVis); }
+  renderVals() {
+    const s = this.state || {};
+    const M = window.Motio;
+    const st = s.st || (M ? null : { xiaomi: true });
+    const hc = s.hc || {};
+    // Which steps this phone needs, fixed when the page opens so finishing one doesn't make the dots jump.
+    if (!this.steps && (st || !M)) {
+      const need = (k) => !M || !st || ({ location: st.location !== 'granted' || st.background === false, activity: st.activity !== 'granted', battery: !st.battery,
+        autostart: st.xiaomi && st.autostart !== true, notifications: st.notifications !== 'granted', health: !(hc.connected && M.settings().healthSync) })[k];
+      this.steps = ['location', 'activity', 'battery', 'autostart', 'notifications', 'health'].filter((k) => k !== 'autostart' || (st && st.xiaomi)).filter(need);
+      if (!this.steps.length) this.steps = ['location'];
+    }
+    const steps = this.steps || ['location'];
+    const i = Math.min(s.i || 0, steps.length - 1), key = steps[i];
+    const finish = () => { const to = window.__motioSetupNext || 'back'; window.__motioSetupNext = null; if (this.props.onNav) this.props.onNav(to); };
+    const next = () => (i + 1 < steps.length ? this.setState({ i: i + 1, busy: false }) : finish());
+    const ask = {
+      location: () => M.permissions.location(),
+      activity: () => M.permissions.activity(),
+      battery: () => M.phoneSetup.open('battery'),
+      autostart: () => { try { window.localStorage.setItem('motio.autostartOpened', '1'); } catch (e) { /* storage blocked */ } return M.phoneSetup.open('autostart'); },
+      notifications: () => M.permissions.notifications(),
+      health: () => (hc.available ? M.health.connect() : null)
+    };
+    const t = M ? M.today() : null;
+    return {
+      rootAnim: this.props.embedded ? 'motioPageIn 420ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+      S: { location: key === 'location', activity: key === 'activity', battery: key === 'battery', autostart: key === 'autostart', notifications: key === 'notifications', health: key === 'health' },
+      dots: steps.map((k, j) => ({ w: j === i ? '18px' : '6px', bg: j <= i ? 'var(--m-ink)' : 'var(--m-line)' })),
+      total: steps.length, stepNo: i + 1, stepAria: 'Step ' + (i + 1) + ' of ' + steps.length,
+      hcMissing: !!M && s.hc && !hc.available,
+      sample: { goal: 'Your goal is done. Tuli is proud.', day: t && t.trips.length ? M.fmtNum(t.steps) + ' steps · ' + t.trips.length + (t.trips.length === 1 ? ' trip' : ' trips') : '6.1k steps · 4 trips' },
+      busy: !!s.busy,
+      actLabel: ({ location: 'Allow location', activity: 'Allow activity', battery: 'Open battery settings', autostart: 'Open Autostart', notifications: 'Allow notifications', health: M && s.hc && !hc.available ? 'Continue' : 'Connect' })[key],
+      // Ask, then move on once the phone's own window or screen is done (Autostart waits for "I've done it").
+      act: () => {
+        if (s.busy) return;
+        if (!M) { next(); return; }
+        this.setState({ busy: true });
+        Promise.resolve(ask[key]()).catch(() => {}).then(() => { this.check(); if (key === 'autostart' || key === 'battery') { this.setState({ busy: false }); if (key === 'battery') setTimeout(next, 400); } else next(); });
+      },
+      done: next,
+      skip: next,
+      prev: () => (i > 0 ? this.setState({ i: i - 1, busy: false }) : this.props.onNav && this.props.onNav('back'))
+    };
+  }
+}
+</script>
+</body>
+</html>
