@@ -178,12 +178,15 @@ button:active,a:active{transform:scale(0.96)}
 
   <div class="m-card motio-ti" style="--d: 250ms; position: relative; display: flex; flex-direction: column; gap: 10px">
     <span class="m-label">How you moved</span>
+    <sc-if value="{{ noModes }}" hint-placeholder-val="{{ false }}"><span class="m-sub">Nothing yet today. Your <b style="color: var(--m-ink)">walks, rides and trips</b> show up here as you move.</span></sc-if>
+    <sc-if value="{{ hasModes }}" hint-placeholder-val="{{ true }}">
     <div style="display: flex; height: 12px; gap: 3px">
       <sc-for list="{{ modeList }}" as="m" hint-placeholder-count="5"><button type="button" tabindex="-1" aria-hidden="true" onClick="{{ m.pick }}" style="flex: none; width: {{ m.w }}; height: 12px; padding: 0; border: 0; border-radius: 6px; background: {{ m.color }}; opacity: {{ m.op }}; transform: scaleY({{ m.sy }}); transition: opacity 260ms ease, transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1)"></button></sc-for>
     </div>
     <div style="display: flex; flex-wrap: wrap; gap: 6px">
       <sc-for list="{{ modeList }}" as="m" hint-placeholder-count="5"><button type="button" class="m-chip {{ m.cls }}" aria-pressed="{{ m.on }}" onClick="{{ m.pick }}" style="height: 32px; padding: 0 12px; font-size: 12px; background: {{ m.chipBg }}">{{ m.label }}</button></sc-for>
     </div>
+    </sc-if>
     <sc-if value="{{ hasMode }}" hint-placeholder-val="{{ false }}"><span class="m-sub" style="font-weight: 600; color: var(--m-ink); animation: motioRise 260ms ease-out">{{ modeReadout }}</span></sc-if>
   </div>
 
@@ -594,7 +597,7 @@ class Component extends DCLogic {
     }));
     const interactive = {
       ...(() => { const h = (Date.now() - base) / H, p = posAt(Date.now()); return { hasNow: TR.length > 0 }; })(),
-      ...hero, rail, nowLine, tipFox: window.MotioMascot ? window.MotioMascot.fox('idle', 64) : null, tipTitle: leftMin > 0 ? fmtMin(leftMin) + ' to your goal' : 'Goal done today', tipBody: leftMin > 0 ? 'A short walk gets you closer.' : 'Tuli is proud of you.', tipSay: leftMin > 0 ? 'One short walk and <b>we’re closer</b>.' : '<b>Goal done.</b> Nice work today.', nowFox: window.MotioMascot ? window.MotioMascot.fox('curious', 52) : null, chips, modeList, trip, ...(() => {
+      ...hero, rail, nowLine, hasModes: modeList.length > 0, noModes: !modeList.length, tipFox: window.MotioMascot ? window.MotioMascot.fox('idle', 64) : null, tipTitle: leftMin > 0 ? fmtMin(leftMin) + ' to your goal' : 'Goal done today', tipBody: leftMin > 0 ? 'A short walk gets you closer.' : 'Tuli is proud of you.', tipSay: leftMin > 0 ? 'One short walk and <b>we’re closer</b>.' : '<b>Goal done.</b> Nice work today.', nowFox: window.MotioMascot ? window.MotioMascot.fox('curious', 52) : null, chips, modeList, trip, ...(() => {
         const w = M && M.workout(), sec = w ? Math.round(w.activeMs / 1000) : 0;
         const kind = ({ run: 'Run', bike: 'Ride' }[w && w.mode] || 'Walk');
         // The running clock ticks in CSS from the elapsed time, so this page doesn't re-render every second.
