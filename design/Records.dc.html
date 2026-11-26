@@ -23,7 +23,7 @@ button,a{font:inherit;cursor:pointer}
   <div class="motio-scroll" style="flex: 1; min-height: 0; overflow-y: auto; margin: -54px -20px 0; padding: 108px 20px 40px; display: flex; flex-direction: column; gap: 10px">
     <div class="head"><div class="t"><span class="m-sub">{{ sub }}</span><h1 class="m-title">records.</h1></div></div>
     <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
-      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; text-align: center"><tuli-fox pose="curious" size="96"></tuli-fox><span class="m-sub" style="max-width: 270px">Your first walk, run or ride sets your first records. <b style="color: var(--m-ink)">Every time you beat one</b>, Motio tells you.</span></div>
+      <div class="m-card m-in" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; text-align: center"><tuli-fox pose="stretch" size="130"></tuli-fox><span class="m-sub" style="max-width: 270px">Your first walk, run or ride sets your first records. <b style="color: var(--m-ink)">Every time you beat one</b>, Motio tells you.</span></div>
     </sc-if>
     <sc-if value="{{ hasHero }}" hint-placeholder-val="{{ true }}">
       <button type="button" class="m-card dark m-in" onClick="{{ hero.open }}" aria-label="{{ hero.aria }}" style="border: 0; padding: 20px; text-align: left; display: flex; flex-direction: column; gap: 8px; cursor: {{ hero.cursor }}">

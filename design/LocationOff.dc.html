@@ -42,7 +42,7 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const on = !!s.on;
-    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('curious', 150) : null,
+    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('lookup', 150) : null,
       LK: { home: lk('home', 'Main.dc.html') },
       on, notOn: !on,
       pinColor: on ? '#3DBF5C' : '#F2766B', slashOp: on ? 0 : 1,

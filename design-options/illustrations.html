@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motio 5.0 · Illustrations and Tuli</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;font-family:'Inter Tight',sans-serif}
+.theme{padding:36px 32px 48px;background:var(--m-bg);color:var(--m-ink)}
+h1{font:600 34px/1 'Inter Tight';letter-spacing:-1.2px;margin:0 0 6px}
+h2{font:600 20px/1.2 'Inter Tight';letter-spacing:-.4px;margin:36px 0 14px}
+p.sub{margin:0;color:var(--m-mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.cell{background:var(--m-card);border-radius:22px;padding:20px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;min-height:190px;justify-content:flex-end;overflow:visible}
+.cell code{font:600 12px/1 'Inter Tight';color:var(--m-mute)}
+.bar{display:flex;gap:10px;align-items:center;margin-top:14px}
+button{font:600 14px 'Inter Tight';border:0;border-radius:999px;padding:10px 18px;background:var(--m-ink);color:var(--m-card);cursor:pointer}
+.peekbox{position:relative;overflow:hidden;width:200px;height:110px;display:flex;align-items:center}
+</style>
+<script type="module" src="../src/ds.js"></script>
+<script type="module" src="../src/kit.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import '../src/kit.js';
+const POSES = [['idle','Sitting, the default'],['curious',''],['cheer',''],['sleep',''],['stand',''],['run',''],['rest',''],['front',''],['droop',''],['proud',''],['lookup',''],['wave','Tail wave'],['trot',''],['listen',''],
+  ['walk','New'],['cycle','New'],['bus','New'],['curl','New, sleeping curled'],['stretch','New'],['hello','New, paw wave'],['map','New, reading a map'],['trophy','New'],['coffee','New'],['stargaze','New'],['party','New, confetti'],['think','New'],['peek','New, peeks in from the left edge']];
+const SIZE = { cycle: 170, bus: 170, curl: 150, stretch: 150, walk: 150, stand: 150, run: 150, rest: 150, peek: 110, think: 120, stargaze: 110, party: 120, coffee: 115 };
+const ARTS = ['location','activity','battery','bell','heart','mail','key','lock','cloud','plug','sign','pinoff','gift','update','box','ticket','trash','chat',
+  'walk','shoe','bike','busstop','carkeys','metro','track','map','compass','mountains','boulevard','flames','maiden','coffee','sunrise','night','sleep','calendar','flame','trophy','medal','podium','stopwatch','pulse','bottle','sync','phone','mailbox','friends','highfive','bubbles','confetti','camera','share','shield','charge','rain','road'];
+const SCENES = ['wanderer','commuter','wheeler','runner','explorer','tripper','streak','summit','boulevard','city','champion','rainy'];
+const sec = (dark) => `<section class="theme m-page ${dark ? 'm-dark-theme' : ''}">
+  <h1>${dark ? 'Dark.' : 'Illustrations.'}</h1><p class="sub">Tap any picture to replay its entrance. Tap Tuli for the hop and speech card.</p>
+  <h2>Tuli · ${POSES.length} poses</h2><div class="grid">${POSES.map(([p, n]) => `<div class="cell">${p === 'peek' ? `<div class="peekbox"><tuli-fox pose="peek" size="${SIZE.peek}" say="Psst."></tuli-fox></div>` : `<tuli-fox pose="${p}" size="${SIZE[p] || 100}" say="Salam!"></tuli-fox>`}<code>${p}${n ? ' · ' + n : ''}</code></div>`).join('')}</div>
+  <h2>Scenes · m-scene</h2><div class="grid wide">${SCENES.map((s) => `<div class="cell"><m-scene name="${s}" size="240"></m-scene><code>${s}</code></div>`).join('')}</div>
+  <h2>Objects and places · m-art (${ARTS.length})</h2><div class="grid">${ARTS.map((a) => `<div class="cell"><m-art name="${a}" size="180"></m-art><code>${a}</code></div>`).join('')}</div>
+  <div class="bar"><button onclick="document.querySelectorAll('m-art,m-scene').forEach(e=>e.r())">Replay all</button></div>
+</section>`;
+document.getElementById('root').innerHTML = sec(false) + sec(true);
+document.querySelectorAll('m-scene').forEach((e) => e.addEventListener('click', () => e.r()));
+</script>
+</body>
+</html>

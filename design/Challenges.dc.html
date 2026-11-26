@@ -133,7 +133,7 @@ class Component extends DCLogic {
           toggle: () => { if (!M || c.done) return; M.friends.joinMonthly(c.key, !c.joined).then(() => { this.showToast(c.joined ? 'Left ' + c.title : 'Joined ' + c.title); this.load(); }).catch((e) => this.showToast((e && e.message) || 'Try again.')); }
         };
       }),
-      noBadges: !!D && !earned.length, moRef: window.MotioMascot ? window.MotioMascot.fox('idle', 100) : null,
+      noBadges: !!D && !earned.length, moRef: window.MotioMascot ? window.MotioMascot.fox('trophy', 100) : null,
       badges: shelf.map((b, i) => {
         const L = LOOK[b.id] || LOOK.active30, C = b.got ? L : LOCKED;
         return { gid: 'bdg' + i, cid: 'bdc' + i, shape: L.shape, glyph: L.glyph, glyphC: b.got ? '#FFFFFF' : '#8C7CF0', c1: C.c1, c2: C.c2, ribbon: C.ribbon,

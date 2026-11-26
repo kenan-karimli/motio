@@ -43,7 +43,7 @@ class Component extends DCLogic {
     } });
     const s = this.state || {};
     const tries = s.tries || 0;
-    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('sleep', 150) : null,
+    return { foxRef: window.MotioMascot ? window.MotioMascot.fox('curl', 160) : null,
       LK: { home: lk('home', 'Main.dc.html') },
       busy: !!s.busy, back: !!s.online, notBack: !s.online, stillOff: !!s.stillOff && !s.busy,
       retryLabel: s.busy ? 'Checking connection…' : 'Try again',
